@@ -1,0 +1,31 @@
+.cmpPagination {
+    padding: 15px 0 10px;
+    font-family: Calibri, Helvetica, sans-serif;
+}
+
+.cmpPagination a {
+    text-decoration: none;
+}
+
+.cmpPagination .text {
+    font-size: 17px;
+    color: #00a99d;
+}
+
+.cmpPagination .page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    min-width: 43px;
+    height: 27px;
+    font-size: 16px;
+    color: #000;
+    cursor: pointer;
+}
+
+.cmpPagination .page.active {
+    border: 1px solid #7fd4ce;
+    background: #cceeeb;
+    cursor: default;
+}

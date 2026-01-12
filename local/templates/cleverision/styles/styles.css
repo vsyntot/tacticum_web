@@ -1,0 +1,449 @@
+.glSeparator {
+    width: 100%;
+    height: 1px;
+    background: #e6e6e6;
+}
+
+.pageTitle {
+    font-family: Georgia, serif;
+    font-size: 36px;
+    line-height: 38px;
+    color: #000;
+}
+
+.hlp-mb-45px {
+    margin-bottom: 45px;
+}
+
+.pgContacts {
+    font-family: Calibri, Helvetica, sans-serif;
+}
+
+.pgContacts table,
+.pgContacts tbody,
+.pgContacts tr,
+.pgContacts td {
+    display: block;
+}
+
+.pgContacts img,
+.pgContacts .ya {
+    margin-bottom: 33px;
+    max-width: 100%;
+    border: 1px solid #ccc;
+}
+
+.pgContacts .text {
+    margin-bottom: 35px;
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+.pgContacts .conTable {
+    border-collapse: separate;
+    border-spacing: 0 15px;
+    font-size: 18px;
+    color: #000;
+}
+
+.pgContacts .conTable .tableSep {
+    height: 35px;
+}
+
+.pgContacts .label {
+    padding-right: 8px;
+    font-size: 20px;
+    color: #00a99d;
+    text-align: left;
+    vertical-align: baseline;
+}
+
+.pgContacts .phone {
+    font-size: 24px;
+}
+
+.pgContacts .phoneMess {
+    font-size: 14px;
+}
+
+.pgContacts td {
+    vertical-align: baseline;
+}
+
+.glModal {
+    font-family: Calibri, Helvetica, sans-serif;
+}
+
+.glModal .modal-header .title {
+    margin-bottom: 15px;
+    font-size: 25px;
+    line-height: 26px;
+    color: #00a99d;
+}
+
+.glModal .modal-header .desc {
+    font-size: 18px;
+    line-height: 21px;
+    color: #000;
+}
+
+.glModal .modal-header .serviceCounter {
+    margin-top: 20px;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    color: #808080;
+}
+
+.glModal .modal-header .close {
+    font-size: 40px;
+    color: #a6b3bb;
+}
+
+.glModal .modal-content {
+    border-radius: 0;
+}
+
+.glModal .modal-header {
+    border: none;
+}
+
+.glModal .modal-body {
+    border: none;
+    background: #f1f2f2;
+}
+
+.glModal .modal-body .label {
+    margin-bottom: 3px;
+    font-size: 18px;
+    color: #00a99d;
+}
+
+.glModal .modal-body textarea {
+    margin-bottom: 15px;
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid #a6b3bb;
+    padding: 20px;
+    font-size: 18px;
+    line-height: 28px;
+    color: #000;
+    outline: none;
+    resize: none;
+}
+
+.glModal .modal-body input[type='text'] {
+    margin-bottom: 15px;
+    width: 100%;
+    height: 41px;
+    border: 1px solid #a6b3bb;
+    padding: 0 12px;
+    font-size: 18px;
+    line-height: 40px;
+    color: #000;
+    outline: none;
+}
+
+.glModal .modal-footer {
+    border: none;
+}
+
+.glModal .modal-footer .desc {
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 16px;
+    color: #6b7d87;
+}
+
+.glModal .modal-footer input[type="submit"] {
+    display: inline-block;
+    height: 40px;
+    border: 1px solid #007f76;
+    padding: 0 50px;
+    background: #00a99d;
+    font-size: 16px;
+    color: #fff;
+}
+
+/* НАЧАЛО: О компании - лента фич*/
+.cmpAboutRibbon {
+    padding: 24px 0 0;
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 18px;
+    line-height: 16px;
+}
+
+.cmpAboutRibbon a {
+    text-decoration: none;
+}
+
+.cmpAboutRibbon .item {
+    margin-bottom: 24px;
+    color: #666;
+    cursor: pointer;
+}
+
+.cmpAboutRibbon .icon {
+    margin-right: 10px;
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: #b3b3b3;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 38px auto;
+}
+
+.cmpAboutRibbon .item:hover .text {
+    color: #00a99d;
+}
+
+.cmpAboutRibbon .item:hover .icon {
+    background-color: #00a99d;
+}
+
+.cmpAboutRibbon .icon.calc {
+    background-image: url('../images/feature_ribbon/icon_01.svg');
+}
+.cmpAboutRibbon .icon.key {
+    background-image: url('../images/feature_ribbon/icon_02.svg');
+}
+.cmpAboutRibbon .icon.star {
+    background-image: url('../images/feature_ribbon/icon_03.svg');
+}
+.cmpAboutRibbon .icon.medal {
+    background-image: url('../images/feature_ribbon/icon_04.svg');
+}
+.cmpAboutRibbon .icon.shield {
+    background-image: url('../images/feature_ribbon/icon_05.svg');
+}
+/* КОНЕЦ: О компании - лента фич*/
+
+/* НАЧАЛО: О компании - детально*/
+.cmpAboutPage {
+    padding-top: 10px;
+    font-family: Calibri, Helvetica, sans-serif;
+}
+
+.cmpAboutPage .separator {
+    display: block;
+    height: 1px;
+    background: #ccc;
+}
+
+.cmpAboutPage .main {
+    margin-bottom: 45px;
+    color: #333;
+}
+
+.cmpAboutPage .main img {
+    max-width: 100%;
+}
+
+.cmpAboutPage .main .text .title {
+    margin-bottom: 3px;
+    font-size: 25px;
+}
+
+.cmpAboutPage .main .text .subTitle {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.cmpAboutPage .main .text p {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 16px;
+}
+
+.cmpAboutPage .item {
+    margin-top: 21px;
+}
+
+.cmpAboutPage .item img {
+    margin-bottom: 15px;
+    max-width: 100%;
+}
+
+.cmpAboutPage .item .title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 30px;
+    line-height: 30px;
+    color: #000;
+}
+
+.cmpAboutPage .item .title .icon {
+    margin-right: 15px;
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: #00a99d;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 38px auto;
+}
+
+.cmpAboutPage .item .title .icon.calc {
+    background-image: url('/layout/images/about_page/icon_01.svg');
+}
+.cmpAboutPage .item .title .icon.key {
+    background-image: url('/layout/images/about_page/icon_02.svg');
+}
+.cmpAboutPage .item .title .icon.star {
+    background-image: url('/layout/images/about_page/icon_03.svg');
+}
+.cmpAboutPage .item .title .icon.medal {
+    background-image: url('/layout/images/about_page/icon_04.svg');
+}
+.cmpAboutPage .item .title .icon.shield {
+    background-image: url('/layout/images/about_page/icon_05.svg');
+}
+
+.cmpAboutPage .item p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    line-height: 17px;
+    color: #000;
+}
+
+/* КОНЕЦ: О компании - детально*/
+
+/* НАЧАЛО: О компании - индекс*/
+.cmpAboutCompany {
+    padding: 10px 0 30px;
+}
+
+.cmpAboutCompany .titleBlock {
+    margin-bottom: 10px;
+}
+
+.cmpAboutCompany .titleBlock .title {
+    font-family: Georgia, serif;
+    font-size: 36px;
+    line-height: 36px;
+    color: #00a99d;
+}
+
+.cmpAboutCompany .description {
+    font-family: Calibri, Helvetica, sans-serif;
+    color: #333;
+    font-size: 16px;
+}
+
+.cmpAboutCompany .description .title {
+    margin-bottom: 20px;
+    font-size: 25px;
+    line-height: 25px;
+}
+
+.cmpAboutCompany .description .subTitle {
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.cmpAboutCompany .description p {
+    margin-bottom: 18px;
+}
+
+.cmpAboutCompany .description > *:last-child {
+    margin-bottom: 0;
+}
+
+.cmpAboutCompany .aboutCompanySlider {
+    width: 100%;
+}
+
+.cmpAboutCompany .aboutCompanySlider img {
+    width: 100%;
+}
+
+/* КОНЕЦ: О компании - индекс*/
+
+.pageArticles .description {
+    margin-bottom: 22px;
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+/* НАЧАЛО: Список групп*/
+
+.cmpGroupList {
+    margin-top: 17px;
+}
+
+.cmpGroupList .list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.cmpGroupList .list .item {
+    display: block;
+    margin-bottom: 17px;
+    margin-right: 25px;
+    padding: 4px 18px;
+    font-family: Georgia, serif;
+    font-size: 18px;
+    line-height: 20px;
+    color: #808080;
+    background: #e6e6e6;
+    text-decoration: none;
+}
+
+.cmpGroupList .list .item:last-child {
+    margin-right: 0;
+}
+
+.cmpGroupList .list .item.active,
+.cmpGroupList .list .item:hover {
+    color: #fff;
+    background: #4cc3ba;
+}
+
+/* КОНЕЦ: Список групп*/
+
+@media (max-width: 575.98px) {
+
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+
+}
+
+@media (min-width: 576px) {
+    .pgContacts table {
+        display: table;
+    }
+
+    .pgContacts tbody {
+        display: table-row-group;
+    }
+
+    .pgContacts tr {
+        display: table-row;
+    }
+
+    .pgContacts td {
+        display: table-cell;
+    }
+
+    .pgContacts .label {
+        text-align: left;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}

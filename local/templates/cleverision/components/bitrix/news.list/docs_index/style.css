@@ -1,0 +1,83 @@
+.cmpIndexDocList {
+    padding: 13px 0 30px;
+    background: #e6e6e6;
+}
+
+.cmpIndexDocList .titleBlock {
+    margin-bottom: 35px;
+}
+
+.cmpIndexDocList .titleBlock .title {
+    font-family: Georgia, serif;
+    font-size: 36px;
+    line-height: 36px;
+    color: #00a99d;
+}
+
+.cmpIndexDocList .slides {
+    padding: 0 15px;
+}
+
+.cmpIndexDocList .slick-track {
+    display: flex;
+    align-items: stretch;
+}
+
+.cmpIndexDocList .slick-slide {
+    float: none;
+    height: auto;
+}
+
+.cmpIndexDocList .slides .slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    margin: 0 15px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.cmpIndexDocList .slides .slide:hover {
+    border-color: #00a99d;
+}
+
+.cmpIndexDocList .slides .slide img {
+    max-width: 100%;
+}
+
+.cmpIndexDocList .slick-prev {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    width: 15px;
+    height: 60px;
+    border: none;
+    background: url('./images/arrows_sprite.svg') 0 0 no-repeat;
+    background-size: 30px auto;
+    font-size: 0;
+    outline: none;
+}
+
+.cmpIndexDocList .slick-prev:hover {
+    background-position: 100% 0;
+}
+
+.cmpIndexDocList .slick-next {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%);
+    width: 15px;
+    height: 60px;
+    border: none;
+    background: url('./images/arrows_sprite.svg') 0 100% no-repeat;
+    background-size: 30px auto;
+    font-size: 0;
+    outline: none;
+}
+
+.cmpIndexDocList .slick-next:hover {
+    background-position: 100% 100%;
+}

@@ -1,0 +1,71 @@
+# =========================================
+# Bitrix / 1C-Bitrix
+# =========================================
+
+# --- Runtime / cache / temp ---
+/bitrix/cache/
+/bitrix/managed_cache/
+/bitrix/stack_cache/
+/bitrix/tmp/
+/bitrix/backup/
+/bitrix/php_interface/dbconn.php
+/bitrix/php_interface/*.db.php
+/bitrix/php_interface/*.settings.php
+/bitrix/php_interface/settings.php
+/bitrix/php_interface/default_option.php
+
+# sessions (if stored in filesystem and appears in repo)
+/bitrix/sessions/
+/bitrix/session/
+
+# --- Logs ---
+/bitrix/logs/
+/bitrix/php_interface/log/
+/bitrix/error.log
+/error_log
+*.log
+
+# --- Uploads (usually should not be in git) ---
+/upload/
+/bitrix/upload/
+
+# --- Search / counters / others generated ---
+/bitrix/search/
+/bitrix/updates/
+/bitrix/modules/**/install/version.php
+
+# --- License / keys / sensitive ---
+/bitrix/license_key.php
+/.settings.php
+/.settings_extra.php
+/.access.php
+
+# --- IDE / OS junk ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# --- Composer / Node ---
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- Build artifacts ---
+/dist/
+/build/
+/.cache/
+
+# --- Env files ---
+.env
+.env.*
+!.env.example
+
+# =========================================
+# Optional: keep empty dirs
+# =========================================
+!.gitkeep

@@ -1,0 +1,72 @@
+.cmpSendMessage {
+    font-family: Calibri, Helvetica, sans-serif;
+    padding: 30px 0 30px;
+}
+
+.cmpSendMessage .title {
+    margin-bottom: 18px;
+    font-family: Georgia, serif;
+    font-size: 30px;
+    color: #000;
+}
+
+.cmpSendMessage .description {
+    margin-bottom: 35px;
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+.cmpSendMessage .form .label {
+    margin-bottom: 3px;
+    font-size: 18px;
+    color: #00a99d;
+}
+
+.cmpSendMessage .form textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    border: 1px solid #dcdcdc;
+    padding: 20px;
+    font-size: 18px;
+    line-height: 28px;
+    color: #000;
+    outline: none;
+    resize: none;
+}
+
+.cmpSendMessage .form input[type='text'] {
+    width: 100%;
+    height: 41px;
+    border: 1px solid #dcdcdc;
+    padding: 0 12px;
+    font-size: 18px;
+    line-height: 40px;
+    color: #000;
+    outline: none;
+}
+
+.cmpSendMessage .form .submitWrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 45px;
+}
+
+.cmpSendMessage .form input[type="submit"] {
+    display: inline-block;
+    margin-top: auto;
+    width: 100%;
+    height: 40px;
+    border: 1px solid #007f76;
+    padding: 0 50px;
+    background: #00a99d;
+    font-size: 16px;
+    color: #fff;
+}
+
+@media (min-width: 575.98px) {
+    .cmpSendMessage .form button {
+        width: auto;
+    }
+}

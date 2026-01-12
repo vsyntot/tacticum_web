@@ -1,0 +1,24 @@
+.cmpBreadcrumbs {
+    padding: 18px 0 10px;
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #ccc;
+}
+
+.cmpBreadcrumbs .container > * {
+    margin-right: 12px;
+}
+
+.cmpBreadcrumbs .container > *:last-child {
+    margin-right: 0;
+}
+
+.cmpBreadcrumbs a {
+    color: #ccc;
+    text-decoration: underline;
+}
+
+.cmpBreadcrumbs a:hover {
+    color: #aaa;
+    text-decoration: none;
+}

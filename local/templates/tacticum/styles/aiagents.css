@@ -1,0 +1,29 @@
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+    font-family: 'Inter', sans-serif;
+}
+.hero-section {
+    background-image: url('../images/aibot_hero_bg.png');
+    background-size: cover;
+    background-position: center;
+}
+.hero-overlay {
+    background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.5) 100%);
+}
+.step-connector {
+    position: absolute;
+    top: 40px;
+    left: calc(50% + 100px);
+    width: calc(100% - 200px);
+    height: 2px;
+    background-color: #e5e7eb;
+    z-index: -1;
+}
+input:focus {
+    outline: none;
+    border-color: #1e88e5;
+}
+textarea:focus {
+    outline: none;
+    border-color: #1e88e5;
+}
