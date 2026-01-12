@@ -1,0 +1,114 @@
+.cmpDoneProjectDtl {
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+.cmpDoneProjectDtl .cmpTitle {
+    margin-bottom: 20px;
+    font-family: Georgia, serif;
+    font-size: 36px;
+    line-height: 48px;
+    color: #000;
+}
+
+.cmpDoneProjectDtl .block-1{
+    padding-bottom: 38px;
+}
+
+.cmpDoneProjectDtl .block-1 .text {
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+.cmpDoneProjectDtl .block-1 .text .title {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.cmpDoneProjectDtl .block-1 .text .p {
+    margin-bottom: 20px;
+}
+
+.cmpDoneProjectDtl .block-1 .imgCont img {
+    max-width: 100%;
+}
+
+.cmpDoneProjectDtl .block-2 {
+    padding-bottom: 20px;
+}
+
+.cmpDoneProjectDtl .block-2 .title {
+    margin: 20px 0;
+    font-family: Georgia, serif;
+    font-size: 30px;
+    color: #000;
+}
+
+.cmpDoneProjectDtl .block-2 .text {
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+    column-count: 2;
+}
+
+.cmpDoneProjectDtl .photos img {
+    display: block;
+    margin: 0 auto 28px;
+    max-width: 100%;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.cmpDoneProjectDtl .photos img:hover {
+    opacity: 1;
+}
+
+.cmpDoneProjectDtl .block-3 {
+    padding-bottom: 38px;
+}
+
+.cmpDoneProjectDtl .block-3 .title {
+    margin: 20px 0;
+    font-family: Georgia, serif;
+    font-size: 30px;
+    color: #000;
+}
+
+.cmpDoneProjectDtl .block-3 .text {
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+.cmpDoneProjectDtl .block-3 .imgCont img {
+    max-width: 100%;
+}
+
+@media (max-width: 575.98px) {
+    .cmpDoneProjectDtl .block-2 .text {
+        column-count: 1;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .cmpDoneProjectDtl .block-2 .text {
+        column-count: 1;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .cmpDoneProjectDtl .block-2 .text {
+        column-count: 1;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}

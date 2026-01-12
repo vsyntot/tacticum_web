@@ -1,0 +1,173 @@
+.cmpSrvSelected {
+    padding: 13px 0 40px;
+}
+
+.cmpSrvSelected .separator {
+    width: 100%;
+    height: 1px;
+    background: #ccc;
+}
+
+.cmpSrvSelected .titleBlock {
+    margin-bottom: 35px;
+}
+
+.cmpSrvSelected .titleBlock .title {
+    font-family: Georgia, serif;
+    font-size: 36px;
+    line-height: 36px;
+    color: #00a99d;
+}
+
+.cmpSrvSelected .titleBlock .allServices {
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #00a99d;
+    text-decoration: underline;
+}
+
+.cmpSrvSelected .titleBlock .allServices:hover {
+    text-decoration: none;
+}
+
+.cmpSrvSelected .control {
+    margin-bottom: 13px;
+}
+
+.cmpSrvSelected .control .counter {
+    margin-bottom: 5px;
+    font-size: 26px;
+    color: #808080;
+    font-family: Georgia, serif;
+}
+
+.cmpSrvSelected .control button {
+    margin-bottom: 10px;
+    margin-right: 19px;
+    white-space: nowrap;
+}
+
+.cmpSrvSelected .control button:last-child {
+    margin-right: 0;
+}
+
+.cmpSrvSelected .control a {
+    text-decoration: none;
+}
+
+.cmpSrvSelected .control button.white {
+    display: inline-block;
+    min-width: 260px;
+    height: 40px;
+    border: 1px solid #cccccc;
+    padding: 0 50px;
+    background: #fff;
+    font-size: 16px;
+    color: #b3b3b3;
+    text-decoration: none;
+}
+
+.cmpSrvSelected .control button.default {
+    display: inline-block;
+    margin-top: auto;
+    min-width: 260px;
+    height: 40px;
+    border: 1px solid #007f76;
+    padding: 0 50px;
+    background: #00a99d;
+    font-size: 16px;
+    color: #fff;
+}
+
+.cmpSrvSelected .list {
+    margin-top: 35px;
+    padding: 0 15px;
+}
+
+.cmpSrvSelected .list .item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto 24px;
+    width: 240px;
+    height: 286px;
+    border: 1px solid #e6e6e6;
+}
+
+.cmpSrvSelected .item a {
+    color: #333;
+    text-decoration: none;
+}
+
+.cmpSrvSelected .item img {
+    flex: 0 0 143px;
+    width: 100%;
+    height: 143px;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.cmpSrvSelected .item .desc {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0;
+    padding: 9px 13px 10px;
+    overflow: hidden;
+}
+
+.cmpSrvSelected .item .desc .group {
+    margin-bottom: 5px;
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 13px;
+    color: #999;
+    text-decoration: underline;
+}
+
+.cmpSrvSelected .item .desc .text {
+    height: 64px;
+    line-height: 16px;
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #333;
+    overflow: hidden;
+}
+
+.cmpSrvSelected .item .desc .status {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cmpSrvSelected .item .desc .status .added {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: #00a99d;
+}
+
+.cmpSrvSelected .item .desc .status .added .icon {
+    margin-right: 6px;
+    width: 12px;
+    height: 15px;
+    background: url('./images/ok.svg') center center no-repeat;
+    background-size: cover;
+}
+
+.cmpSrvSelected .item .desc .status .delete {
+    display: block;
+    width: 21px;
+    height: 21px;
+    background: url('./images/close.svg') center center no-repeat;
+    background-size: cover;
+    cursor: pointer;
+}
+
+@media (min-width: 576px) {
+    .cmpSrvSelected .control {
+        padding: 0 35px;
+    }
+
+    .cmpSrvSelected .control .counter {
+        font-size: 30px;
+    }
+}

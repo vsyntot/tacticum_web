@@ -1,0 +1,178 @@
+.cmpServiceDetail {
+    font-family: Calibri, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+.cmpServiceDetail .cmpTitle {
+    margin: 4px 0;
+    font-family: Georgia, serif;
+    font-size: 36px;
+    line-height: 39px;
+    color: #000;
+}
+
+.cmpServiceDetail .group {
+    margin-bottom: 40px;
+    font-size: 12px;
+    color: #999;
+    text-decoration: underline;
+}
+
+.cmpServiceDetail .block-1{
+    padding-bottom: 38px;
+}
+
+.cmpServiceDetail .block-1 .text {
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+.cmpServiceDetail .block-1 .text .title {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.cmpServiceDetail .block-1 .text .p {
+    margin-bottom: 20px;
+}
+
+.cmpServiceDetail .block-1 .add {
+    margin-top: 30px;
+    border: 1px dotted #999;
+    padding: 12px 15px 0;
+    background: #f2f2f2;
+}
+
+.cmpServiceDetail .block-1 .add .desc {
+    font-size: 16px;
+    line-height: 19px;
+    color: #808080;
+}
+
+.cmpServiceDetail .block-1 .add .price {
+    display: flex;
+    align-items: center;
+    height: 75px;
+    font-size: 20px;
+    white-space: nowrap;
+    color: #00a99d;
+}
+
+.cmpServiceDetail .block-1 .add .statusWrapper {
+    display: flex;
+    align-items: center;
+    height: 75px;
+}
+
+.cmpServiceDetail .block-1 .add .actionAdd {
+    display: none;
+    align-items: center;
+    font-size: 18px;
+    white-space: nowrap;
+    color: #00a99d;
+    opacity: 0.5;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cmpServiceDetail .block-1 .add .actionAdd .icon {
+    margin-right: 10px;
+    width: 37px;
+    height: 37px;
+    background: url('./images/add.svg') center center no-repeat;
+    background-size: cover;
+}
+
+.cmpServiceDetail .block-1 .add .actionAdd:hover {
+    opacity: 1;
+}
+
+.cmpServiceDetail .block-1 .add .actionAdded {
+    display: none;
+    align-items: center;
+    font-size: 18px;
+    white-space: nowrap;
+    color: #00a99d;
+    opacity: 1;
+    text-decoration: none;
+}
+
+.cmpServiceDetail .block-1 .add .actionAdded .icon {
+    margin-right: 10px;
+    width: 37px;
+    height: 37px;
+    background: url('./images/ok.svg') center center no-repeat;
+    background-size: cover;
+}
+
+.cmpServiceDetail .block-1 .imgCont img {
+    max-width: 100%;
+}
+
+.cmpServiceDetail .block-2 {
+    padding-bottom: 20px;
+}
+
+.cmpServiceDetail .block-2 .title {
+    margin: 20px 0;
+    font-family: Georgia, serif;
+    font-size: 30px;
+    color: #000;
+}
+
+.cmpServiceDetail .block-2 .text {
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+    column-count: 2;
+}
+
+.cmpServiceDetail .block-3 {
+    padding-bottom: 38px;
+}
+
+.cmpServiceDetail .block-3 .title {
+    margin: 20px 0;
+    font-family: Georgia, serif;
+    font-size: 30px;
+    color: #000;
+}
+
+.cmpServiceDetail .block-3 .text {
+    font-size: 16px;
+    line-height: 21px;
+    color: #4d4d4d;
+}
+
+.cmpServiceDetail .block-3 .imgCont img {
+    max-width: 100%;
+}
+
+@media (max-width: 575.98px) {
+    .cmpServiceDetail .block-2 .text {
+        column-count: 1;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .cmpServiceDetail .block-2 .text {
+        column-count: 1;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .cmpServiceDetail .block-2 .text {
+        column-count: 1;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}
