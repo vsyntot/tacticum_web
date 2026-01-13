@@ -239,9 +239,9 @@ function tacticum_rest_log_tls_error($ch, string $context): void
         CURLE_SSL_CONNECT_ERROR,
         CURLE_SSL_CERTPROBLEM,
         CURLE_SSL_CACERT,
-        CURLE_PEER_FAILED_VERIFICATION,
+//        CURLE_PEER_FAILED_VERIFICATION,
         CURLE_SSL_CACERT_BADFILE,
-        CURLE_SSL_ISSUER_ERROR,
+//        CURLE_SSL_ISSUER_ERROR,
     ];
 
     if (!in_array($error_no, $tls_errors, true)) {
