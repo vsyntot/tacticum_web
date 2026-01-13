@@ -36,17 +36,17 @@ AddMessage2Log('resolve_tg_link input: ' . serialize(tacticum_rest_mask_pii($dat
 AddMessage2Log('resolve_tg_link payload: ' . serialize($payload), 'tacticum_resolve_tg');
 
 // Запрос к внешнему сервису
-$ch = curl_init('http://5.35.90.193:8000/tacticum/v1/chat_agent/get_bot_link');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+$resolver_base = tacticum_rest_get_ai_setting('TELEGRAM_RESOLVER_URL', 'https://5.35.90.193:8000');
+$endpoint_url = tacticum_rest_build_url($resolver_base, '/tacticum/v1/chat_agent/get_bot_link');
+
+$ch = curl_init($endpoint_url);
+tacticum_rest_apply_curl_defaults($ch);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
 $response = curl_exec($ch);
 $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curl_err = curl_error($ch);
+tacticum_rest_log_tls_error($ch, 'resolve_telegram_link');
 curl_close($ch);
 
 AddMessage2Log("resolve_tg_link http_status: {$http_status}; resp: " . serialize(tacticum_rest_mask_string((string)$response)) . "; err: " . $curl_err, 'tacticum_resolve_tg');
