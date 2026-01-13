@@ -8,7 +8,7 @@ foreach ($arResult as $item) {
     }
 }
 
-function buildMenuTree($menu, $mainMenuTitles) {
+$buildMenuTree = function($menu, $mainMenuTitles) {
     $tree = [];
     $parents = [];
 
@@ -40,7 +40,7 @@ function buildMenuTree($menu, $mainMenuTitles) {
     }
 
     return $tree;
-}
+};
 
-$arResult['MENU_TREE'] = buildMenuTree($arResult, $mainMenuTitles);
+$arResult['MENU_TREE'] = $buildMenuTree($arResult, $mainMenuTitles);
 ?>
