@@ -15,6 +15,16 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
             $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
             $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
             ?>
+            <?php
+            // Экранируем пользовательские данные; HTML допускаем только через whitelist.
+            $sanitizeHtml = static fn($text) => strip_tags((string)$text, '<br><b><strong><i><em><p><ul><ol><li><a><span>');
+            $reviewText = $sanitizeHtml($arItem["DETAIL_TEXT"]);
+            $reviewName = htmlspecialcharsbx($arItem["PROPERTIES"]["NAME"]["VALUE"]);
+            $reviewPosition = htmlspecialcharsbx($arItem["PROPERTIES"]["POSITION"]["VALUE"]);
+            $reviewCompany = htmlspecialcharsbx($arItem["PROPERTIES"]["COMPANY"]["VALUE"]);
+            $reviewInitials = mb_strtoupper(implode('', array_map(fn($p) => mb_substr($p, 0, 1), array_slice(preg_split('/\s+/u', trim($arItem["PROPERTIES"]["NAME"]["VALUE"])), 0, 2))));
+            $reviewInitialsEsc = htmlspecialcharsbx($reviewInitials);
+            ?>
             <div class="bg-white rounded-xl p-6 shadow-sm flex flex-col">
                 <div class="flex items-center gap-1 text-yellow-400 mb-4">
                     <?
@@ -36,16 +46,16 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     <?}?>
                 </div>
                 <p class="text-gray-600 mb-6 italic grow">
-                    "<?=$arItem["DETAIL_TEXT"]?>"
+                    "<?=$reviewText?>"
                 </p>
                 <div class="flex items-center gap-4 mt-auto">
                     <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span class="text-primary font-bold"><?=mb_strtoupper(implode('', array_map(fn($p) => mb_substr($p, 0, 1), array_slice(preg_split('/\s+/u', trim($arItem["PROPERTIES"]["NAME"]["VALUE"])), 0, 2))));?></span>
+                        <span class="text-primary font-bold"><?=$reviewInitialsEsc?></span>
                     </div>
                     <div>
-                        <h4 class="font-bold text-secondary"><?=$arItem["PROPERTIES"]["NAME"]["VALUE"]?></h4>
+                        <h4 class="font-bold text-secondary"><?=$reviewName?></h4>
                         <p class="text-sm text-gray-500">
-                            <?=$arItem["PROPERTIES"]["POSITION"]["VALUE"]?>, "<?=$arItem["PROPERTIES"]["COMPANY"]["VALUE"]?>"
+                            <?=$reviewPosition?>, "<?=$reviewCompany?>"
                         </p>
                     </div>
                 </div>

@@ -17,16 +17,22 @@ $curPage = $APPLICATION->GetCurPage(false);
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
                     ?>
+                    <?php
+                    // Экранируем пользовательские данные; HTML допускаем только через whitelist.
+                    $sanitizeHtml = static fn($text) => strip_tags((string)$text, '<br><b><strong><i><em><p><ul><ol><li><a><span>');
+                    $faqTitle = htmlspecialcharsbx($arItem["NAME"]);
+                    $faqAnswer = $sanitizeHtml($arItem["~DETAIL_TEXT"]);
+                    ?>
                     <div class="faq-item py-4">
                         <div class="faq-question flex items-center justify-between">
-                            <h3 class="text-xl font-medium text-secondary"><?=$arItem["NAME"]?></h3>
+                            <h3 class="text-xl font-medium text-secondary"><?=$faqTitle?></h3>
                             <div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full">
                                 <i class="ri-add-line faq-icon text-primary"></i>
                             </div>
                         </div>
                         <div class="faq-answer mt-2 text-gray-600">
                             <p class="mt-2">
-                                <?=$arItem["~DETAIL_TEXT"]?>
+                                <?=$faqAnswer?>
                             </p>
                         </div>
                     </div>
