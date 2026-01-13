@@ -102,6 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const buildPayload = (form) => {
         const data = Object.fromEntries(new FormData(form).entries());
         data.page_url = window.location.href;
+        if (window.BX && typeof BX.bitrix_sessid === "function") {
+            data.sessid = BX.bitrix_sessid();
+        }
 
         if (window.tacticum_offer_context?.groupId) {
             data.group_id = window.tacticum_offer_context.groupId;
