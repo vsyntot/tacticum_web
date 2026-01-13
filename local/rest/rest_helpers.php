@@ -51,6 +51,13 @@ function tacticum_rest_validate_origin(): void
         return;
     }
 
+    if ($origin_host === '' && $referer_host === '') {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if ($host !== '' && tacticum_rest_is_allowed_host($host)) {
+            return;
+        }
+    }
+
     tacticum_rest_error(403, 'invalid_origin', 'Недопустимый источник запроса.');
 }
 
