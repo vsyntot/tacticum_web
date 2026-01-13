@@ -63,4 +63,13 @@ if ($http_status !== 200 || !$response) {
     tacticum_rest_error(502, 'upstream_error', 'AI endpoint error');
 }
 
+if (is_string($response)) {
+    $decoded = json_decode($response, true);
+    if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+        $masked_response = tacticum_rest_mask_string($response);
+        AddMessage2Log('tacticum_chat invalid JSON: ' . serialize($masked_response), 'tacticum_chat');
+        tacticum_rest_error(502, 'upstream_error', 'Invalid upstream JSON');
+    }
+}
+
 echo $response;
