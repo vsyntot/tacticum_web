@@ -49,7 +49,7 @@ $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent');
 
 $ch = curl_init($endpoint_url);
 tacticum_rest_apply_curl_defaults($ch);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
 
 $response = curl_exec($ch);
 $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
