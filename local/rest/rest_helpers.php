@@ -69,9 +69,20 @@ function tacticum_rest_check_csrf(?array $data = null): void
         $sessid = (string)$_REQUEST['sessid'];
     }
 
-    if ($sessid === '' || $sessid !== bitrix_sessid()) {
-        tacticum_rest_error(403, 'invalid_csrf', 'Некорректный токен безопасности.');
+    if ($sessid !== '') {
+        if ($sessid !== bitrix_sessid()) {
+            tacticum_rest_error(403, 'invalid_csrf', 'Некорректный токен безопасности.');
+        }
+        return;
     }
+
+    $session_cookie = session_name();
+    $has_session_cookie = $session_cookie !== '' && isset($_COOKIE[$session_cookie]);
+    if ($has_session_cookie && bitrix_sessid() !== '') {
+        return;
+    }
+
+    tacticum_rest_error(403, 'invalid_csrf', 'Некорректный токен безопасности.');
 }
 
 function tacticum_rest_rate_limit(string $action, int $limit = 20, int $ttl = 60): void
