@@ -96,28 +96,28 @@
                 </button>
             </div>
 
-            <form id="tacticum-modal-form" class="px-6 md:px-8 py-6 space-y-6">
+            <form id="tacticum-modal-form" class="px-6 md:px-8 py-6 space-y-6" data-tacticum-form data-form-id="contact-modal" data-tacticum-close-target="#tacticum-modal" data-tacticum-close-mode="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
                         <label for="modal-name" class="block text-sm text-gray-600 mb-1">Имя<span class="text-red-500">*</span></label>
-                        <input id="modal-name" type="text" required
+                        <input id="modal-name" name="name" type="text" required
                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
                         <p class="mt-1 text-xs text-red-600 hidden" data-error="modal-name">Укажите имя</p>
                     </div>
                     <div>
                         <label for="modal-company" class="block text-sm text-gray-600 mb-1">Компания</label>
-                        <input id="modal-company" type="text"
+                        <input id="modal-company" name="company" type="text"
                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
                     </div>
                     <div>
                         <label for="modal-email" class="block text-sm text-gray-600 mb-1">Email<span class="text-red-500">*</span></label>
-                        <input id="modal-email" type="email" required
+                        <input id="modal-email" name="email" type="email" required
                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
                         <p class="mt-1 text-xs text-red-600 hidden" data-error="modal-email">Укажите корректный email</p>
                     </div>
                     <div>
                         <label for="modal-phone" class="block text-sm text-gray-600 mb-1">Телефон<span class="text-red-500">*</span></label>
-                        <input id="modal-phone" type="tel" required
+                        <input id="modal-phone" name="phone" type="tel" required
                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
                         <p class="mt-1 text-xs text-red-600 hidden" data-error="modal-phone">Укажите телефон</p>
                     </div>
@@ -125,12 +125,12 @@
 
                 <div>
                     <label for="modal-message" class="block text-sm text-gray-600 mb-1">Опишите проект или задачу</label>
-                    <textarea id="modal-message" rows="4"
+                    <textarea id="modal-message" name="message" rows="4" required
                               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60"></textarea>
                 </div>
 
                 <div class="flex items-start gap-3">
-                    <input id="modal-agreement" type="checkbox" required
+                    <input id="modal-agreement" type="checkbox" required data-tacticum-consent
                            class="peer mt-0.5 appearance-none w-4 h-4 border border-gray-300 rounded-sm grid place-content-center focus:outline-none focus:ring-2 focus:ring-primary/40">
                     <label for="modal-agreement" class="text-sm text-gray-600">
                         Я согласен на обработку персональных данных и принимаю условия
@@ -152,12 +152,6 @@
         </div>
     </div>
 
-    <div id="tacticum-toast" class="fixed top-4 right-4 translate-x-full transition-transform duration-300">
-        <div class="bg-green-500 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2">
-            <i class="ri-check-line text-xl"></i>
-            <span>Заявка отправлена! Мы скоро свяжемся с вами.</span>
-        </div>
-    </div>
 </div>
 
 </body>

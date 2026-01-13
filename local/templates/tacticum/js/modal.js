@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const backdrop = tacticumModal.firstElementChild;
         const closeBtn = document.getElementById("tacticum-modal-close");
         const form = document.getElementById("tacticum-modal-form");
-        const toast = document.getElementById("tacticum-toast");
 
         const openModal = () => {
             tacticumModal.classList.remove("hidden");
@@ -94,79 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
             tacticumModal.addEventListener("keydown", loop);
         }
 
-        function showError(id, cond) {
-            const input = document.getElementById(id);
-            const hint = tacticumModal.querySelector(`[data-error="${id}"]`);
-            if (!input) return false;
-            if (!cond) {
-                input.classList.add("ring-2", "ring-red-500", "border-transparent");
-                hint?.classList.remove("hidden");
-                return true;
-            }
-            input.classList.remove("ring-2", "ring-red-500", "border-transparent");
-            hint?.classList.add("hidden");
-            return false;
-        }
-
-        form?.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const name = document.getElementById("modal-name")?.value.trim() || "";
-            const company = document.getElementById("modal-company")?.value.trim() || "";
-            const email = document.getElementById("modal-email")?.value.trim() || "";
-            const phone = document.getElementById("modal-phone")?.value.trim() || "";
-            const task = document.getElementById("modal-message")?.value.trim() || "";
-            const agreement = document.getElementById("modal-agreement")?.checked || false;
-
-            let hasErr = false;
-            hasErr |= showError("modal-name", !!name);
-            hasErr |= showError("modal-email", !!email && email.includes("@"));
-            hasErr |= showError("modal-phone", !!phone);
-            if (!agreement) {
-                alert("Подтвердите согласие на обработку персональных данных");
-                return;
-            }
-            if (hasErr) return;
-
-            const btn = form.querySelector('button[type="submit"]');
-            const spinner = btn?.querySelector('[data-role="spinner"]');
-            const btnText = btn?.querySelector('[data-role="btn-text"]');
-            if (btn) btn.disabled = true;
-            spinner?.classList.remove("hidden");
-            if (btnText) btnText.textContent = "Отправляем...";
-
-            const page_url = window.location.href;
-
-            try {
-                const res = await fetch("/local/rest/tacticum_offer.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, company, email, phone, task, page_url }),
-                });
-                const json = await res.json().catch(() => ({ success: false }));
-                if (json?.success) {
-                    toast?.classList.remove("translate-x-full");
-                    setTimeout(() => toast?.classList.add("translate-x-full"), 4500);
-                    closeModal();
-                } else {
-                    alert("Ошибка отправки: " + (json?.error || "попробуйте позже"));
-                }
-            } catch (err) {
-                alert("Ошибка соединения: " + (err?.message || err));
-            } finally {
-                if (btn) btn.disabled = false;
-                spinner?.classList.add("hidden");
-                if (btnText) btnText.textContent = "Отправить заявку";
-            }
-        });
-
-        const agree = document.getElementById("modal-agreement");
-        agree?.addEventListener("change", () => {
-            agree.style.background = agree.checked
-                ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22><path d=%22M9 16.17L4.83 12l-1.42 1.41L9 19l12-12-1.41-1.41z%22/></svg>') center/90% no-repeat, #0066CC"
-                : "";
-            agree.style.borderColor = agree.checked ? "#0066CC" : "";
-        });
     }
 
     if (!document.querySelector(".order-specialist-btn")) {

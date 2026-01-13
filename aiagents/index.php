@@ -296,7 +296,7 @@ $APPLICATION->IncludeComponent(
         <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-8 md:p-12">
             <h2 class="text-3xl font-bold text-center mb-8">Не готов пробовать? Напиши нам — подготовим бот-прототип!</h2>
 
-            <form id="contactFormInline">
+            <form id="contactFormInline" data-tacticum-form data-form-id="aiagents-inline">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label for="nameInline" class="block text-sm font-medium text-gray-700 mb-1">Имя *</label>
@@ -321,11 +321,11 @@ $APPLICATION->IncludeComponent(
 
                 <div class="mb-6">
                     <label for="projectInline" class="block text-sm font-medium text-gray-700 mb-1">Кратко о проекте</label>
-                    <textarea id="projectInline" name="project" rows="4" class="w-full px-4 py-3 border border-gray-300 !rounded-button"></textarea>
+                    <textarea id="projectInline" name="message" required rows="4" class="w-full px-4 py-3 border border-gray-300 !rounded-button"></textarea>
                 </div>
 
                 <div class="flex items-start gap-2 mb-8">
-                    <input type="checkbox" id="agreementInline" class="mt-1">
+                    <input type="checkbox" id="agreementInline" data-tacticum-consent required class="mt-1">
                     <label for="agreementInline" class="text-sm text-gray-600">
                         Я согласен на обработку персональных данных и принимаю условия
                         <a href="/policies/" class="underline">политики конфиденциальности</a>
@@ -397,54 +397,5 @@ $APPLICATION->IncludeComponent(
         false
 );
 ?>
-
-<!-- JS: отправка inline-формы через tacticum_offer.php -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Общая функция отправки
-        async function sendOffer({name, company, email, phone, task}) {
-            const group_id = window.tacticum_offer_context?.groupId || '';
-            const page_url = window.location.href;
-
-            const resp = await fetch('/local/rest/tacticum_offer.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, company, email, phone, task, group_id, page_url })
-            });
-            return resp.json();
-        }
-
-        // Валидация и хэндлер для встроенной формы
-        const inlineForm = document.getElementById('contactFormInline');
-        if (inlineForm) {
-            inlineForm.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                const name = document.getElementById('nameInline').value.trim();
-                const company = document.getElementById('companyInline').value.trim();
-                const phone = document.getElementById('phoneInline').value.trim();
-                const email = document.getElementById('emailInline').value.trim();
-                const task = document.getElementById('projectInline').value.trim();
-                const agreement = document.getElementById('agreementInline').checked;
-
-                if (!name || !email || !phone || !agreement) {
-                    alert('Пожалуйста, заполните обязательные поля (Имя, Email, Телефон) и отметьте согласие на обработку данных.');
-                    return;
-                }
-
-                try {
-                    const res = await sendOffer({ name, company, email, phone, task });
-                    if (res.success) {
-                        alert('Ваша заявка отправлена! Менеджер свяжется с вами.');
-                        inlineForm.reset();
-                    } else {
-                        alert('Ошибка отправки: ' + (res.error || 'Неизвестная ошибка'));
-                    }
-                } catch (err) {
-                    alert('Ошибка соединения: ' + err.message);
-                }
-            });
-        }
-    });
-</script>
 
 <?php require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php"); ?>
