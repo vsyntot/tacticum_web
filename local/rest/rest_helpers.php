@@ -1,4 +1,5 @@
 <?php
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Data\Cache;
 
 function tacticum_rest_response(bool $success, string $code, ?string $message, array $extra = [], int $status = 200): void
@@ -195,4 +196,67 @@ function tacticum_rest_mask_string(string $value): string
     $value = preg_replace('/([A-Z0-9._%+-]+)@([A-Z0-9.-]+\.[A-Z]{2,})/i', '***@$2', $value);
     $value = preg_replace('/\+?\d[\d\s().-]{6,}\d/', '***', $value);
     return $value;
+}
+
+function tacticum_rest_get_ai_setting(string $key, string $default = ''): string
+{
+    $config = Configuration::getValue('ai_services');
+    if (is_array($config) && isset($config[$key]) && $config[$key] !== '') {
+        return (string)$config[$key];
+    }
+
+    return $default;
+}
+
+function tacticum_rest_build_url(string $base_url, string $path): string
+{
+    if ($base_url === '') {
+        return $path;
+    }
+
+    return rtrim($base_url, '/') . '/' . ltrim($path, '/');
+}
+
+function tacticum_rest_apply_curl_defaults($ch): void
+{
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+}
+
+function tacticum_rest_log_tls_error($ch, string $context): void
+{
+    $error_no = curl_errno($ch);
+    if ($error_no === 0) {
+        return;
+    }
+
+    $tls_errors = [
+        CURLE_SSL_CONNECT_ERROR,
+        CURLE_SSL_CERTPROBLEM,
+        CURLE_SSL_CACERT,
+        CURLE_PEER_FAILED_VERIFICATION,
+        CURLE_SSL_CACERT_BADFILE,
+        CURLE_SSL_ISSUER_ERROR,
+    ];
+
+    if (!in_array($error_no, $tls_errors, true)) {
+        return;
+    }
+
+    $info = curl_getinfo($ch);
+    $url = $info['url'] ?? '';
+    $message = sprintf(
+        'TLS error (%s): errno=%d; error=%s; url=%s',
+        $context,
+        $error_no,
+        curl_error($ch),
+        $url
+    );
+
+    AddMessage2Log($message, 'tacticum_tls');
 }
