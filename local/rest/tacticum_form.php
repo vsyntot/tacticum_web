@@ -2,9 +2,9 @@
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
-
 function tacticum_form_response(bool $success, ?string $error, string $code, array $extra = []): void
 {
     $payload = array_merge([
@@ -17,12 +17,18 @@ function tacticum_form_response(bool $success, ?string $error, string $code, arr
     exit;
 }
 
+tacticum_rest_validate_origin();
+tacticum_rest_rate_limit('tacticum_form');
+
 $data = json_decode(file_get_contents('php://input'), true);
 
 if (!is_array($data)) {
-    http_response_code(400);
-    tacticum_form_response(false, 'Некорректные данные формы.', 'invalid_json');
+    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
 }
+
+$data = array_map(static fn($value) => is_string($value) ? trim($value) : $value, $data);
+
+tacticum_rest_check_csrf($data);
 
 $name = trim((string)($data['name'] ?? ''));
 $company = trim((string)($data['company'] ?? ''));
@@ -32,6 +38,8 @@ $message = trim((string)($data['message'] ?? $data['task'] ?? $data['description
 $page_url = trim((string)($data['page_url'] ?? ($_SERVER['HTTP_REFERER'] ?? '')));
 $group_id = trim((string)($data['group_id'] ?? ''));
 
+$phone_normalized = tacticum_rest_normalize_phone($phone);
+
 $missing = [];
 if ($name === '') {
     $missing[] = 'name';
@@ -39,7 +47,7 @@ if ($name === '') {
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $missing[] = 'email';
 }
-if ($phone === '') {
+if ($phone === '' || !tacticum_rest_is_valid_phone($phone_normalized)) {
     $missing[] = 'phone';
 }
 if ($message === '') {
@@ -49,17 +57,32 @@ if ($page_url === '') {
     $missing[] = 'page_url';
 }
 
+if (mb_strlen($name) > 200) {
+    $missing[] = 'name';
+}
+if ($company !== '' && mb_strlen($company) > 200) {
+    $missing[] = 'company';
+}
+if (mb_strlen($message) > 2000) {
+    $missing[] = 'message';
+}
+if ($page_url !== '' && mb_strlen($page_url) > 1000) {
+    $missing[] = 'page_url';
+}
+if ($group_id !== '' && mb_strlen($group_id) > 64) {
+    $missing[] = 'group_id';
+}
+
 if (!empty($missing)) {
-    http_response_code(400);
     $fields = implode(', ', $missing);
-    tacticum_form_response(false, "Не заполнены обязательные поля: {$fields}.", 'validation_error');
+    tacticum_rest_error(400, 'validation_error', "Некорректные или обязательные поля: {$fields}.");
 }
 
 $payload = [
     'name' => $name,
     'company' => $company,
     'email' => $email,
-    'phone' => $phone,
+    'phone' => $phone_normalized,
     'task' => $message,
     'page_url' => $page_url,
 ];
@@ -87,7 +110,7 @@ if ($is_specialist_order) {
         'client_name' => $name,
         'company' => $company,
         'email' => $email,
-        'phone' => $phone,
+        'phone' => $phone_normalized,
         'task' => $message,
         'start_date' => $start_date,
         'worker_timeline' => $duration,
@@ -109,7 +132,7 @@ if ($is_specialist_order) {
         $payload['page_url'] = $page_url;
     }
 
-    AddMessage2Log(serialize($payload), 'tacticum_form_workers_request');
+    AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_workers_request');
 
     $ch = curl_init('http://5.35.90.193:8000/tacticum/v1/sale/workers');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -121,11 +144,11 @@ if ($is_specialist_order) {
     $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    AddMessage2Log(serialize($response), 'tacticum_form_workers_response');
+    $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
+    AddMessage2Log(serialize($masked_response), 'tacticum_form_workers_response');
 
     if ($http_status !== 200 || !$response) {
-        http_response_code(502);
-        tacticum_form_response(false, 'Ошибка отправки во внешний сервис.', 'upstream_error');
+        tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');
     }
 
     $decoded = json_decode($response, true);
@@ -136,7 +159,7 @@ if ($is_specialist_order) {
     tacticum_form_response(true, null, 'ok', ['data' => $decoded]);
 }
 
-AddMessage2Log(serialize($payload), 'tacticum_form_request');
+AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_request');
 
 $ch = curl_init('http://5.35.90.193:8000/tacticum/v1/chat_agent/sale');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -148,11 +171,11 @@ $response = curl_exec($ch);
 $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-AddMessage2Log(serialize($response), 'tacticum_form_response');
+$masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
+AddMessage2Log(serialize($masked_response), 'tacticum_form_response');
 
 if ($http_status === 200 && $response) {
     tacticum_form_response(true, null, 'ok');
 }
 
-http_response_code(502);
-tacticum_form_response(false, 'Ошибка отправки во внешний сервис.', 'upstream_error');
+tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');

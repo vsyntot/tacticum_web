@@ -2,17 +2,21 @@
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+require_once(__DIR__ . '/rest_helpers.php');
 header('Content-Type: application/json; charset=UTF-8');
 
+tacticum_rest_validate_origin();
+tacticum_rest_rate_limit('tacticum_prefill');
+tacticum_rest_check_csrf();
+
 $group_id = $_GET['group_id'] ?? '';
-if (!$group_id) {
-    echo json_encode(['error' => 'Нет group_id']);
-    exit;
+$group_id = trim((string)$group_id);
+if ($group_id === '' || mb_strlen($group_id) > 64) {
+    tacticum_rest_error(400, 'validation_error', 'Некорректные или обязательные поля: group_id.');
 }
 
 if (!CModule::IncludeModule("iblock")) {
-    echo json_encode(['error' => 'Модуль инфоблоков не подключен']);
-    exit;
+    tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не подключен');
 }
 
 $iblockId = 5;
@@ -34,6 +38,6 @@ if ($ob = $res->Fetch()) {
         'client_name' => $ob['PROPERTY_CLIENT_NAME_VALUE']
     ]);
 } else {
-    echo json_encode(['error' => 'Данные не найдены']);
+    tacticum_rest_error(404, 'not_found', 'Данные не найдены');
 }
 ?>
