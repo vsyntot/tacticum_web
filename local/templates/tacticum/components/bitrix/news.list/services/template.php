@@ -24,6 +24,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     }
 
                     $link = $arItem["PROPERTIES"]["LINK"]["VALUE"];
+                    $linktext = "";
                     if(!empty($link)){
                         $linktext = $arItem["PROPERTIES"]["LINKTEXT"]["VALUE"];
 
@@ -31,12 +32,19 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                             $linktext = "Воспользоваться";
                         }
                     }?>
+                    <?php
+                    // Экранируем пользовательские данные; не удалять при правках шаблона.
+                    $serviceName = htmlspecialcharsbx($arItem["NAME"]);
+                    $serviceIconClass = htmlspecialcharsbx($class);
+                    $serviceLink = htmlspecialcharsbx($link);
+                    $serviceLinkText = htmlspecialcharsbx($linktext);
+                    ?>
 
                     <div class="service-card bg-white rounded-xl p-8 shadow-sm">
                         <div class="service-icon w-20 h-20 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-                            <i class="ri-<?=$class?>-line text-3xl text-primary"></i>
+                            <i class="ri-<?=$serviceIconClass?>-line text-3xl text-primary"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-secondary mb-4"><?=$arItem["NAME"]?></h3>
+                        <h3 class="text-2xl font-bold text-secondary mb-4"><?=$serviceName?></h3>
                         <?if(!empty($arItem["PROPERTIES"])){?>
                             <ul class="space-y-3 mb-8">
                             <?foreach($arItem["PROPERTIES"]["OPTIONS"]["VALUE"] as $sOption){?>
@@ -44,13 +52,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                                     <div class="w-6 h-6 flex-shrink-0 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
                                         <i class="ri-check-line text-primary"></i>
                                     </div>
-                                    <span class="text-gray-600"><?=$sOption?></span>
+                                    <span class="text-gray-600"><?=htmlspecialcharsbx($sOption)?></span>
                                 </li>
                             <?}?>
                             </ul>
                             <?if(!empty($link)){?>
                                 <button class="text-primary font-medium flex items-center gap-2 hover:gap-3 transition-all">
-                                    <a href="<?=$link?>"><?=$linktext?> <i class="ri-arrow-right-line"></i></a>
+                                    <a href="<?=$serviceLink?>"><?=$serviceLinkText?> <i class="ri-arrow-right-line"></i></a>
                                 </button>
                             <?}?>
                         <?}?>
