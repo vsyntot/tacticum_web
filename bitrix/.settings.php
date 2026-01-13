@@ -21,7 +21,7 @@ return array (
   array (
     'value' => 
     array (
-      'debug' => false,
+      'debug' => true,
       'handled_errors_types' => 4437,
       'exception_errors_types' => 4437,
       'ignore_silence' => false,
@@ -38,9 +38,9 @@ return array (
       'default' => 
       array (
         'host' => 'localhost',
-        'database' => '******',
-        'login' => '******',
-        'password' => '******',
+        'database' => 'tacticum_db',
+        'login' => 'tacticum_user',
+        'password' => '!newrub-zyZqa4-mommyr',
         'options' => 2,
         'className' => '\\Bitrix\\Main\\DB\\MysqliConnection',
       ),
