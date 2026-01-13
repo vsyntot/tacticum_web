@@ -63,7 +63,7 @@ $payload = [
 
 AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), "sale_request");
 
-$base_url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL', 'http://5.35.90.193:8000');
+$base_url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL', 'https://5.35.90.193:8000');
 $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
 
 $ch = curl_init($endpoint_url);
