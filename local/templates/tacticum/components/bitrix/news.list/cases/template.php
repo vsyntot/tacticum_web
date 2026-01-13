@@ -18,20 +18,26 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 foreach( $arResult["ITEMS"] as $arItem ){
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM'))) ?>
+                    <?php
+                    // Экранируем пользовательские данные; HTML допускаем только через sanitize().
+                    $caseName = htmlspecialcharsbx($arItem["NAME"]);
+                    $caseImage = htmlspecialcharsbx($arItem["PREVIEW_PICTURE"]["SRC"]);
+                    $casePreview = \Bitrix\Main\Text\Converter::getHtmlConverter()->sanitize($arItem["PREVIEW_TEXT"]);
+                    ?>
                     <!-- Case Study 1 -->
                     <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
                         <div class="h-80 overflow-hidden">
-                            <img src="<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>" alt="<?=$arItem["NAME"]?>" class="w-full h-full object-cover object-top"/>
+                            <img src="<?=$caseImage?>" alt="<?=$caseName?>" class="w-full h-full object-cover object-top"/>
                         </div>
                         <div class="p-6">
                             <div class="flex items-center gap-2 mb-4">
                                 <?foreach( $arItem["SECTIONS"] as $arItemSection ){?>
-                                    <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=$arItemSection["NAME"]?></span>
+                                    <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=htmlspecialcharsbx($arItemSection["NAME"])?></span>
                                 <?}?>
                             </div>
-                            <h3 class="text-xl font-bold text-secondary mb-3"><?=$arItem["NAME"]?></h3>
+                            <h3 class="text-xl font-bold text-secondary mb-3"><?=$caseName?></h3>
                             <p class="text-gray-600 mb-4">
-                                <?=$arItem["PREVIEW_TEXT"]?>
+                                <?=$casePreview?>
                             </p>
                             <?/*<a href="#" class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">Подробнее <i class="ri-arrow-right-line"></i></a>*/?>
                         </div>

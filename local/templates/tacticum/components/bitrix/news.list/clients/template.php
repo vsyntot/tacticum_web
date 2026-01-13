@@ -12,8 +12,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                 $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
                 ?>
+                <?php
+                // Экранируем пользовательские данные; не удалять при правках шаблона.
+                $clientName = htmlspecialcharsbx($arItem["NAME"]);
+                ?>
                 <div class="client-logo w-32 h-16 flex items-center justify-center">
-                    <div class="text-gray-400 font-bold text-xl"><?=$arItem["NAME"]?></div>
+                    <div class="text-gray-400 font-bold text-xl"><?=$clientName?></div>
                 </div>
             <?}?>
         </div>

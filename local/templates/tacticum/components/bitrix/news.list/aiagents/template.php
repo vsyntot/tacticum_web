@@ -17,22 +17,29 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 foreach( $arResult["ITEMS"] as $arItem ){
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM'))) ?>
+                    <?php
+                    // Экранируем пользовательские данные; HTML допускаем только через sanitize().
+                    $agentName = htmlspecialcharsbx($arItem["NAME"]);
+                    $agentImage = htmlspecialcharsbx($arItem["PREVIEW_PICTURE"]["SRC"]);
+                    $agentPreview = \Bitrix\Main\Text\Converter::getHtmlConverter()->sanitize($arItem["PREVIEW_TEXT"]);
+                    $agentLink = htmlspecialcharsbx($arItem["PROPERTIES"]["LINK"]["VALUE"]);
+                    ?>
                     <!-- Case Study 1 -->
                     <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
                         <div class="h-80 overflow-hidden">
-                            <img src="<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>" alt="<?=$arItem["NAME"]?>" class="w-full h-full object-cover object-top"/>
+                            <img src="<?=$agentImage?>" alt="<?=$agentName?>" class="w-full h-full object-cover object-top"/>
                         </div>
                         <div class="p-6">
                             <div class="flex items-center gap-2 mb-4">
                                 <?foreach( $arItem["SECTIONS"] as $arItemSection ){?>
-                                    <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=$arItemSection["NAME"]?></span>
+                                    <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=htmlspecialcharsbx($arItemSection["NAME"])?></span>
                                 <?}?>
                             </div>
-                            <h3 class="text-xl font-bold text-secondary mb-3"><?=$arItem["NAME"]?></h3>
+                            <h3 class="text-xl font-bold text-secondary mb-3"><?=$agentName?></h3>
                             <p class="text-gray-600 mb-4">
-                                <?=$arItem["PREVIEW_TEXT"]?>
+                                <?=$agentPreview?>
                             </p>
-                            <a href="<?=$arItem["PROPERTIES"]["LINK"]["VALUE"]?>" target="_blank" class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">Пообщаться с агентом <i class="ri-arrow-right-line"></i></a>
+                            <a href="<?=$agentLink?>" target="_blank" class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">Пообщаться с агентом <i class="ri-arrow-right-line"></i></a>
                         </div>
                     </div>
                 <?}?>
