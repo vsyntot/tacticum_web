@@ -281,37 +281,37 @@ $APPLICATION->IncludeComponent(
                         Оставьте заявку, и наш менеджер свяжется с вами в течение 2 часов, чтобы обсудить детали и
                         подготовить индивидуальное предложение с учетом всех доступных скидок и акций.
                     </p>
-                    <form id="pricing-cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6">
+                    <form id="pricing-cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6" data-tacticum-form data-form-id="price-cta">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="relative">
-                                <input type="text" id="cta-name" placeholder=" "
+                                <input type="text" id="cta-name" name="name" required placeholder=" "
                                        class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-name" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Имя</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="cta-company" placeholder=" "
+                                <input type="text" id="cta-company" name="company" placeholder=" "
                                        class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-company" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Компания</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="cta-email" placeholder=" "
+                                <input type="email" id="cta-email" name="email" required placeholder=" "
                                        class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-email" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Email</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="cta-phone" placeholder=" "
+                                <input type="tel" id="cta-phone" name="phone" required placeholder=" "
                                        class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-phone" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Телефон</label>
                             </div>
                         </div>
                         <div class="relative mb-6">
-                            <textarea id="cta-message" rows="4" placeholder=" "
+                            <textarea id="cta-message" name="message" rows="4" required placeholder=" "
                                       class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
                             <label for="cta-message" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Опишите ваш
                                 проект или интересующее предложение</label>
                         </div>
                         <div class="flex items-start gap-2 mb-6">
-                            <input type="checkbox" id="cta-agreement"
+                            <input type="checkbox" id="cta-agreement" data-tacticum-consent required
                                    class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
                             <label for="cta-agreement" class="text-sm text-white/70">
                                 Я согласен на обработку персональных данных и принимаю условия
@@ -436,54 +436,6 @@ $APPLICATION->IncludeComponent(
             btn.addEventListener("click", function () {
                 sendMessage(this.textContent.trim());
             });
-        });
-    });
-</script>
-
-<!-- JS: обработка формы на странице "Тарифы" (без изменений) -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('pricing-cta-form');
-        if (!form) return;
-
-        const submitBtn = form.querySelector('button[type="submit"]');
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            submitBtn.disabled = true;
-
-            const name = document.getElementById('cta-name').value.trim();
-            const company = document.getElementById('cta-company').value.trim();
-            const email = document.getElementById('cta-email').value.trim();
-            const phone = document.getElementById('cta-phone').value.trim();
-            const task = document.getElementById('cta-message').value.trim();
-            const agreement = document.getElementById('cta-agreement').checked;
-
-            const group_id = window.tacticum_offer_context?.groupId || '';
-            const page_url = window.location.href;
-
-            if (!name || !email || !phone || !agreement) {
-                alert('Пожалуйста, заполните обязательные поля и отметьте согласие на обработку данных.');
-                submitBtn.disabled = false;
-                return;
-            }
-
-            fetch('/local/rest/tacticum_offer.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, company, email, phone, task, group_id, page_url })
-            })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        alert('Ваша заявка отправлена! Менеджер свяжется с вами.');
-                        form.reset();
-                    } else {
-                        alert('Ошибка отправки: ' + (res.error || 'Неизвестная ошибка'));
-                    }
-                })
-                .catch(err => alert('Ошибка соединения: ' + err.message))
-                .finally(() => { submitBtn.disabled = false; });
         });
     });
 </script>
