@@ -426,35 +426,35 @@ $APPLICATION->SetTitle("О компании - Тактикум");
 
                 <!-- Форма заявки -->
                 <div class="w-full md:w-1/2">
-                    <form id="about-cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <form id="about-cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6" data-tacticum-form data-form-id="about-cta">
                         <h3 class="text-xl font-bold mb-6">Оставить заявку</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="relative">
-                                <input type="text" id="about-name" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="text" id="about-name" name="name" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="about-name" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Имя</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="about-company" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="text" id="about-company" name="company" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="about-company" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Компания</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="about-email" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="email" id="about-email" name="email" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="about-email" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Email</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="about-phone" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="tel" id="about-phone" name="phone" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="about-phone" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Телефон</label>
                             </div>
                         </div>
 
                         <div class="relative mb-6">
-                            <textarea id="about-message" rows="4" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
+                            <textarea id="about-message" name="message" rows="4" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
                             <label for="about-message" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Опишите ваш проект</label>
                         </div>
 
                         <div class="flex items-start gap-2 mb-6">
-                            <input type="checkbox" id="about-agreement" class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
+                            <input type="checkbox" id="about-agreement" data-tacticum-consent required class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
                             <label for="about-agreement" class="text-sm text-white/70">
                                 Я согласен на обработку персональных данных и принимаю условия
                                 <a href="/policies/" class="underline hover:text-white">политики конфиденциальности</a>
@@ -653,56 +653,5 @@ $APPLICATION->SetTitle("О компании - Тактикум");
         </div>
     </div>
 </section>
-
-<!-- JS обработчик формы "О компании" -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const aboutForm = document.getElementById('about-cta-form');
-        if (!aboutForm) return;
-
-        const submitBtn = aboutForm.querySelector('button[type="submit"]');
-
-        aboutForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            submitBtn.disabled = true;
-
-            const name = document.getElementById('about-name').value.trim();
-            const company = document.getElementById('about-company').value.trim();
-            const email = document.getElementById('about-email').value.trim();
-            const phone = document.getElementById('about-phone').value.trim();
-            const task = document.getElementById('about-message').value.trim();
-            const agreement = document.getElementById('about-agreement').checked;
-
-            // На этой странице чата может не быть — оставляем group_id пустым
-            const group_id = window.tacticum_offer_context?.groupId || '';
-
-            // Передаем полный URL (включая UTM)
-            const page_url = window.location.href;
-
-            if (!name || !email || !phone || !agreement) {
-                alert('Пожалуйста, заполните обязательные поля и отметьте согласие на обработку данных.');
-                submitBtn.disabled = false;
-                return;
-            }
-
-            fetch('/local/rest/tacticum_offer.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, company, email, phone, task, group_id, page_url })
-            })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        alert('Ваша заявка отправлена! Менеджер свяжется с вами.');
-                        aboutForm.reset();
-                    } else {
-                        alert('Ошибка отправки: ' + (res.error || 'Неизвестная ошибка'));
-                    }
-                })
-                .catch(err => alert('Ошибка соединения: ' + err.message))
-                .finally(() => { submitBtn.disabled = false; });
-        });
-    });
-</script>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php"); ?>

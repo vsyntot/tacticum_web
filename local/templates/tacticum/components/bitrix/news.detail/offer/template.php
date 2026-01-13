@@ -333,11 +333,11 @@ $curPage = $APPLICATION->GetCurPage();
                 возможных шагов сотрудничества.
             </p>
 
-            <form id="applicationForm" class="space-y-6">
+            <form id="applicationForm" class="space-y-6" data-tacticum-form data-form-id="offer-cta">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                        <input type="text" id="name" name="name" placeholder="Укажите как к Вам обращаться"
+                        <input type="text" id="name" name="name" required placeholder="Укажите как к Вам обращаться"
                                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50" />
                     </div>
                     <div>
@@ -347,24 +347,24 @@ $curPage = $APPLICATION->GetCurPage();
                     </div>
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Укажите Вашу почту"
+                        <input type="email" id="email" name="email" required placeholder="Укажите Вашу почту"
                                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50" />
                     </div>
                     <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-                        <input type="tel" id="phone" name="phone" placeholder="Укажите Ваш контактный номер"
+                        <input type="tel" id="phone" name="phone" required placeholder="Укажите Ваш контактный номер"
                                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50" />
                     </div>
                 </div>
                 <div>
                     <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Дополнительная
                         информация</label>
-                    <textarea id="message" name="message" rows="4"
+                    <textarea id="message" name="message" rows="4" required
                               class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
                               placeholder="Укажите любые дополнительные пожелания или вопросы..."></textarea>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="consent" name="consent" checked>
+                    <input type="checkbox" id="consent" name="consent" data-tacticum-consent required checked>
                     <label for="consent" class="text-sm text-gray-600">
                         Я согласен на обработку персональных данных и принимаю
                         <a href="#" class="text-primary hover:underline">условия использования</a>
