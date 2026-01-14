@@ -16,8 +16,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
             $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
             ?>
             <?php
-            // Экранируем пользовательские данные; HTML допускаем только через sanitize().
-            $reviewText = \Bitrix\Main\Text\Converter::getHtmlConverter()->sanitize($arItem["DETAIL_TEXT"]);
+            // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
+            $sanitizer = new \CBXSanitizer();
+            $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
+            $reviewText = $sanitizer->SanitizeHtml((string)$arItem["DETAIL_TEXT"]);
             $reviewName = htmlspecialcharsbx($arItem["PROPERTIES"]["NAME"]["VALUE"]);
             $reviewPosition = htmlspecialcharsbx($arItem["PROPERTIES"]["POSITION"]["VALUE"]);
             $reviewCompany = htmlspecialcharsbx($arItem["PROPERTIES"]["COMPANY"]["VALUE"]);
