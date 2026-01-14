@@ -97,6 +97,15 @@ if ($form_id !== '') {
 }
 
 $is_specialist_order = !empty($data['specialist']) || !empty($data['rate']) || !empty($data['duration']);
+$base_url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL');
+if ($base_url === '') {
+    tacticum_rest_error(500, 'config_error', 'Не настроен адрес сервиса обработки.');
+}
+
+$base_scheme = strtolower((string)parse_url($base_url, PHP_URL_SCHEME));
+if ($base_scheme !== 'https') {
+    tacticum_rest_error(500, 'config_error', 'Адрес сервиса обработки должен использовать HTTPS.');
+}
 
 if ($is_specialist_order) {
     $rate_raw = (string)($data['rate'] ?? '');
@@ -134,18 +143,25 @@ if ($is_specialist_order) {
 
     AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_workers_request');
 
-    $ch = curl_init('http://5.35.90.193:8000/tacticum/v1/sale/workers');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $workers_url = tacticum_rest_build_url($base_url, '/tacticum/v1/sale/workers');
+    $ch = curl_init($workers_url);
+    tacticum_rest_apply_curl_defaults($ch);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
 
     $response = curl_exec($ch);
+    $curl_error_no = curl_errno($ch);
+    $curl_error = curl_error($ch);
     $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    tacticum_rest_log_tls_error($ch, 'tacticum_form_workers');
     curl_close($ch);
 
     $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
     AddMessage2Log(serialize($masked_response), 'tacticum_form_workers_response');
+
+    if ($curl_error_no !== 0) {
+        AddMessage2Log("Curl error (tacticum_form_workers): errno={$curl_error_no}; error={$curl_error}", 'tacticum_form_workers_error');
+        tacticum_rest_error(502, 'curl_error', 'Ошибка отправки во внешний сервис.');
+    }
 
     if ($http_status !== 200 || !$response) {
         tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');
@@ -161,18 +177,25 @@ if ($is_specialist_order) {
 
 AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_request');
 
-$ch = curl_init('http://5.35.90.193:8000/tacticum/v1/chat_agent/sale');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+$chat_agent_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
+$ch = curl_init($chat_agent_url);
+tacticum_rest_apply_curl_defaults($ch);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
 
 $response = curl_exec($ch);
+$curl_error_no = curl_errno($ch);
+$curl_error = curl_error($ch);
 $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+tacticum_rest_log_tls_error($ch, 'tacticum_form_chat_agent');
 curl_close($ch);
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
 AddMessage2Log(serialize($masked_response), 'tacticum_form_response');
+
+if ($curl_error_no !== 0) {
+    AddMessage2Log("Curl error (tacticum_form_chat_agent): errno={$curl_error_no}; error={$curl_error}", 'tacticum_form_chat_agent_error');
+    tacticum_rest_error(502, 'curl_error', 'Ошибка отправки во внешний сервис.');
+}
 
 if ($http_status === 200 && $response) {
     tacticum_form_response(true, null, 'ok');
