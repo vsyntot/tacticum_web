@@ -17,7 +17,7 @@ if (!CModule::IncludeModule("iblock")) {
     tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен');
 }
 
-$iblockId = 14;  # faq
+$iblockId = 14;
 $type = 'faq';
 
 $arFilter = [
@@ -26,7 +26,7 @@ $arFilter = [
     'ACTIVE' => 'Y'
 ];
 
-$arSelect = ['PROPERTY_question', 'PROPERTY_answer'];  # 'PROPERTY_*' не работает 'ID', 'NAME', 'CODE', 'DATE_CREATE', 'PREVIEW_TEXT', 'DETAIL_TEXT',
+$arSelect = ['PROPERTY_question', 'PROPERTY_answer'];
 
 $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSelect);
 
@@ -35,7 +35,6 @@ $items = [];
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    // Если вопрос/ответ — HTML, берем 'TEXT', иначе просто VALUE
     $question = isset($fields['PROPERTY_QUESTION_VALUE']['TEXT'])
         ? $fields['PROPERTY_QUESTION_VALUE']['TEXT']
         : $fields['PROPERTY_QUESTION_VALUE'];
@@ -44,7 +43,6 @@ while ($ob = $res->GetNextElement()) {
         ? $fields['PROPERTY_ANSWER_VALUE']['TEXT']
         : $fields['PROPERTY_ANSWER_VALUE'];
 
-    // Очищаем спецсимволы, если нужно (например, &quot; → ")
     $question = html_entity_decode($question);
     $answer = html_entity_decode($answer);
 
@@ -53,12 +51,5 @@ while ($ob = $res->GetNextElement()) {
         'answer'   => $answer,
     ];
 }
-
-# while($ob = $res->GetNextElement()){
-#    $fields = $ob->GetFields();
-#    $props = $ob->GetProperties();
-#    $fields['PROPERTIES'] = $props;
-#    $items[] = $fields;
-#}
 
 tacticum_rest_response(true, 'ok', null, ['items' => $items]);

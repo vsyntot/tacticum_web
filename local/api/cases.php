@@ -17,7 +17,7 @@ if (!CModule::IncludeModule("iblock")) {
     tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен');
 }
 
-$iblockId = 13;  # кейсы
+$iblockId = 13;
 $type = 'company';
 
 $arFilter = [
@@ -26,7 +26,7 @@ $arFilter = [
     'ACTIVE' => 'Y'
 ];
 
-$arSelect = ['PREVIEW_TEXT', 'NAME'];  # 'PROPERTY_*' не работает 'ID', 'NAME', 'CODE', 'DATE_CREATE', 'PREVIEW_TEXT', 'DETAIL_TEXT',
+$arSelect = ['PREVIEW_TEXT', 'NAME'];
 
 $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSelect);
 
@@ -53,12 +53,5 @@ while ($ob = $res->GetNextElement()) {
         'name'   => $name,
     ];
 }
-
-# while($ob = $res->GetNextElement()){
-#    $fields = $ob->GetFields();
-#    $props = $ob->GetProperties();
-#    $fields['PROPERTIES'] = $props;
-#    $items[] = $fields;
-#}
 
 tacticum_rest_response(true, 'ok', null, ['items' => $items]);
