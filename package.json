@@ -1,0 +1,11 @@
+{
+  "name": "tacticum-web",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i local/templates/tacticum/styles/tailwind.css -o local/templates/tacticum/template_styles.css --minify",
+    "watch:css": "tailwindcss -c tailwind.config.js -i local/templates/tacticum/styles/tailwind.css -o local/templates/tacticum/template_styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.16"
+  }
+}
