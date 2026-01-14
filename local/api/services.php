@@ -2,12 +2,19 @@
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/local/rest/rest_helpers.php");
 
 header('Content-Type: application/json; charset=UTF-8');
 
+tacticum_rest_validate_origin();
+tacticum_rest_rate_limit('services');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
+}
+
 if (!CModule::IncludeModule("iblock")) {
-    echo json_encode(['error' => 'Модуль инфоблоков не установлен']);
-    exit;
+    tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен');
 }
 
 $iblockId = 12;  # сервисы
@@ -54,4 +61,4 @@ while ($ob = $res->GetNextElement()) {
 #    $items[] = $fields;
 #}
 
-echo json_encode($items, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+tacticum_rest_response(true, 'ok', null, ['items' => $items]);
