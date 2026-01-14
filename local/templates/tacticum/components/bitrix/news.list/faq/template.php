@@ -18,10 +18,11 @@ $curPage = $APPLICATION->GetCurPage(false);
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
                     ?>
                     <?php
-                    // Экранируем пользовательские данные; HTML допускаем только через whitelist.
-                    $sanitizeHtml = static fn($text) => strip_tags((string)$text, '<br><b><strong><i><em><p><ul><ol><li><a><span>');
+                    // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
+                    $sanitizer = new \CBXSanitizer();
+                    $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
                     $faqTitle = htmlspecialcharsbx($arItem["NAME"]);
-                    $faqAnswer = $sanitizeHtml($arItem["~DETAIL_TEXT"]);
+                    $faqAnswer = $sanitizer->SanitizeHtml((string)$arItem["~DETAIL_TEXT"]);
                     ?>
                     <div class="faq-item py-4">
                         <div class="faq-question flex items-center justify-between">

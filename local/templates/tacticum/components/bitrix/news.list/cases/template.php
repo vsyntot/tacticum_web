@@ -19,11 +19,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM'))) ?>
                     <?php
-                    // Экранируем пользовательские данные; HTML допускаем только через whitelist.
-                    $sanitizeHtml = static fn($text) => strip_tags((string)$text, '<br><b><strong><i><em><p><ul><ol><li><a><span>');
+                    // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
+                    $sanitizer = new \CBXSanitizer();
+                    $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
                     $caseName = htmlspecialcharsbx($arItem["NAME"]);
                     $caseImage = htmlspecialcharsbx($arItem["PREVIEW_PICTURE"]["SRC"]);
-                    $casePreview = $sanitizeHtml($arItem["PREVIEW_TEXT"]);
+                    $casePreview = $sanitizer->SanitizeHtml((string)$arItem["PREVIEW_TEXT"]);
                     ?>
                     <!-- Case Study 1 -->
                     <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
