@@ -10,15 +10,6 @@ if (!CModule::IncludeModule("iblock")) {
     exit;
 }
 
-$iblockId = 12;  # услуги
-$type = 'services';
-
-$iblockId = 13;  # ставки
-$type = 'services';
-
-$iblockId = 13;  # кейсы
-$type = 'company';
-
 $iblockId = 14;  # faq
 $type = 'faq';
 
