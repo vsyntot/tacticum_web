@@ -12,13 +12,14 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                 $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));?>
                 <?php
-                // Экранируем пользовательские данные; разрешенный HTML чистим через whitelist.
-                $sanitizeHtml = static fn($text) => strip_tags((string)$text, '<br><b><strong><i><em><p><ul><ol><li><a><span>');
+                // Экранируем пользовательские данные; разрешенный HTML чистим через CBXSanitizer (Bitrix).
+                $sanitizer = new \CBXSanitizer();
+                $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
                 $vacancyName = htmlspecialcharsbx($arItem["NAME"]);
                 $vacancyLocation = htmlspecialcharsbx($arItem["PROPERTIES"]["LOCATION"]["VALUE"]);
                 $vacancyType = htmlspecialcharsbx($arItem["PROPERTIES"]["TYPE"]["VALUE"]);
                 $vacancyTime = htmlspecialcharsbx($arItem["PROPERTIES"]["TIME"]["VALUE"]);
-                $vacancyPreview = $sanitizeHtml($arItem["PREVIEW_TEXT"]);
+                $vacancyPreview = $sanitizer->SanitizeHtml((string)$arItem["PREVIEW_TEXT"]);
                 ?>
 
                 <div class="bg-white rounded-xl p-6 shadow-sm">

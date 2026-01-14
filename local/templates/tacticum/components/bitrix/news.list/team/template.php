@@ -22,13 +22,14 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 //            echo "<pre>"; print_r($arPhoto); echo "</pre>";
             ?>
             <?php
-            // Экранируем пользовательские данные; HTML допускаем только через whitelist.
-            $sanitizeHtml = static fn($text) => strip_tags((string)$text, '<br><b><strong><i><em><p><ul><ol><li><a><span>');
+            // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
+            $sanitizer = new \CBXSanitizer();
+            $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
             $memberPhoto = htmlspecialcharsbx(CFile::GetPath($arItem["PROPERTIES"]["PHOTO"]["VALUE"]));
             $memberName = htmlspecialcharsbx($arItem["NAME"]);
             $memberPosition = htmlspecialcharsbx($arItem["PROPERTIES"]["POSITION"]["VALUE"]);
-            $memberPreview = $sanitizeHtml($arItem["PREVIEW_TEXT"]);
-            $memberDetail = $sanitizeHtml($arItem["DETAIL_TEXT"]);
+            $memberPreview = $sanitizer->SanitizeHtml((string)$arItem["PREVIEW_TEXT"]);
+            $memberDetail = $sanitizer->SanitizeHtml((string)$arItem["DETAIL_TEXT"]);
             $memberLinkedIn = htmlspecialcharsbx($arItem["PROPERTIES"]["LINKEDIN"]["VALUE"]);
             $memberEmail = htmlspecialcharsbx($arItem["PROPERTIES"]["EMAIL"]["VALUE"]);
             ?>
