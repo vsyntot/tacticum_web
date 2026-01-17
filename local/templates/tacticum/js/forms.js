@@ -256,6 +256,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const initPrefillTriggers = () => {
+        document.addEventListener("click", (event) => {
+            const trigger = event.target.closest("[data-tacticum-prefill-value]");
+            if (!trigger) return;
+
+            const targetSelector = trigger.dataset.tacticumPrefillTarget;
+            const value = trigger.dataset.tacticumPrefillValue;
+            if (!targetSelector || !value) return;
+
+            const field = document.querySelector(targetSelector);
+            if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) return;
+
+            const existingValue = field.value.trim();
+            if (existingValue === "") {
+                field.value = value;
+            } else if (!existingValue.includes(value)) {
+                field.value = `${existingValue}\n\n${value}`;
+            }
+            field.focus();
+        });
+    };
+
     initFloatingLabels();
     initCheckboxes();
+    initPrefillTriggers();
 });
