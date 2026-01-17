@@ -18,6 +18,7 @@ $curPage = $APPLICATION->GetCurPage();
 
     <?
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/bundle.v3.4.16.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/init.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/menu.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
@@ -38,7 +39,6 @@ $curPage = $APPLICATION->GetCurPage();
         $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/charts.js"></script>');
     }
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
-    $obAsset->addCss(SITE_TEMPLATE_PATH."/assets/styles.css");
     if(substr_count($curPage, "aiagents") != 0){
         $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/aiagents.css");
     }
