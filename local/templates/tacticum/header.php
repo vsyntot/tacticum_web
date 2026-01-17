@@ -28,6 +28,7 @@ $curPage = $APPLICATION->GetCurPage();
         || substr_count($curPage, "services") != 0
         || substr_count($curPage, "aiagents") != 0
         || substr_count($curPage, "price") != 0
+        || substr_count($curPage, "offer") != 0
         || substr_count($curPage, "calculator") != 0) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
