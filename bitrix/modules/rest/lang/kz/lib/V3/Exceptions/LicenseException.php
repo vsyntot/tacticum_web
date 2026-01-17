@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_LICENSE_EXCEPTION"] = "Бұл функция берілген лицензия үшін белсенді емес";
+$MESS["REST_V3_EXCEPTIONS_LICENCEEXCEPTION"] = "Бұл функция берілген лицензия үшін белсенді емес";

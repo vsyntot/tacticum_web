@@ -1,2 +1,2 @@
 <?
-$MESS['REST_ACCESS_DENIED'] = 'Доступ запрещен';
+$MESS['REST_V3_EXCEPTIONS_ACCESSDENIEDEXCEPTION'] = 'Доступ запрещен';

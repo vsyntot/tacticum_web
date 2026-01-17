@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_INVALID_ORDER_EXCEPTION"] = "`#ORDER#` сұрыптауының өрнегін тану мүмкін емес";
+$MESS["REST_V3_EXCEPTIONS_INVALIDORDEREXCEPTION"] = "`#ORDER#` сұрыптауының өрнегін тану мүмкін емес";

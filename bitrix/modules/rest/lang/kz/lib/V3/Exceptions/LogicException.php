@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_LOGIC_EXCEPTION"] = "Қосымшаның бизнес логикасы деңгейіндегі қате";
+$MESS["REST_V3_EXCEPTIONS_LOGICEXCEPTION"] = "Қосымшаның бизнес логикасы деңгейіндегі қате";

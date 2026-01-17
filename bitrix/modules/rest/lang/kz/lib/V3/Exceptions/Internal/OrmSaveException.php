@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_INTERNAL_ORM_SAVE_EXCEPTION"] = "Жазбаны дерекқорға сақтау кезінде ішкі қате ";
+$MESS["REST_V3_EXCEPTIONS_ORMSAVEEXCEPTION"] = "Жазбаны дерекқорға сақтау кезінде ішкі қате ";

@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_RATE_LIMIT_EXCEPTION"] = "Сұраныс шектен асып кетуіне байланысты бұғатталған";
+$MESS["REST_V3_EXCEPTIONS_RATELIMITEXCEPTION"] = "Сұраныс шектен асып кетуіне байланысты бұғатталған";

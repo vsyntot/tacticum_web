@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_ENTITY_NOT_FOUND"] = "ID жазбасынан = `#ID#` табылмады ";
+$MESS["REST_V3_EXCEPTIONS_ENTITYNOTFOUNDEXCEPTION"] = "ID жазбасынан = `#ID#` табылмады ";

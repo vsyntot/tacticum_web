@@ -1,2 +1,2 @@
 <?
-$MESS['REST_RATE_LIMIT_EXCEPTION'] = 'Запрос заблокирован из-за превышения лимитов';
+$MESS['REST_V3_EXCEPTIONS_RATELIMITEXCEPTION'] = 'Запрос заблокирован из-за превышения лимитов';

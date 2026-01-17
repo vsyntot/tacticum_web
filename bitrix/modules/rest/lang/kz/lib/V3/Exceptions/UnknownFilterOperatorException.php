@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_UNKNOWN_FILTER_OPERATOR_EXCEPTION"] = "`#OPERATOR#` сүзгісінің белгісіз  операторы ";
+$MESS["REST_V3_EXCEPTIONS_UNKNOWNFILTEROPERATOREXCEPTION"] = "`#OPERATOR#` сүзгісінің белгісіз  операторы ";

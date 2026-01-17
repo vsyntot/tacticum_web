@@ -1,2 +1,2 @@
 <?
-$MESS['REST_INVALID_FILTER_EXCEPTION'] = 'Не удается распознать выражение фильтра `#FILTER#`';
+$MESS['REST_V3_EXCEPTIONS_INVALIDFILTEREXCEPTION'] = 'Не удается распознать выражение фильтра `#FILTER#`';

@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_UNKNOWN_AGGREGATE_FUNCTION_EXCEPTION"] = "Белгісіз агрегаттық функция `#FUNCTION#`";
+$MESS["REST_V3_EXCEPTIONS_UNKNOWNAGGREGATEFUNCTIONEXCEPTION"] = "Белгісіз агрегаттық функция `#FUNCTION#`";

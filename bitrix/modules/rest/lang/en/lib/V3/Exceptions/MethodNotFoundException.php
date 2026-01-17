@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_METHOD_NOT_FOUND_EXCEPTION"] = 'Method "#METHOD#" was not found.';
+$MESS["REST_V3_EXCEPTIONS_METHODNOTFOUNDEXCEPTION"] = 'Method "#METHOD#" was not found.';

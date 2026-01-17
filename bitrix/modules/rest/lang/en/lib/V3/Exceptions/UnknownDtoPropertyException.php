@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_UNKNOWN_DTO_PROPERTY_EXCEPTION"] = 'Unknown field "#FIELD#" found in entity "#DTO#".';
+$MESS["REST_V3_EXCEPTIONS_UNKNOWNDTOPROPERTYEXCEPTION"] = 'Unknown field "#FIELD#" found in entity "#DTO#".';

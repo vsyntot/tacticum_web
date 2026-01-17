@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_INVALID_ORDER_EXCEPTION"] = 'Invalid sort order "#ORDER#".';
+$MESS["REST_V3_EXCEPTIONS_INVALIDORDEREXCEPTION"] = 'Invalid sort order "#ORDER#".';

@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_REQUIRED_FIELD_IN_REQUEST_EXCEPTION"] = "`#FIELD#` міндетті өрісі көрсетілмеген";
+$MESS["REST_V3_EXCEPTIONS_VALIDATION_REQUIREDFIELDINREQUESTEXCEPTION"] = "`#FIELD#` міндетті өрісі көрсетілмеген";

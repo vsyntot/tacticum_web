@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_REQUIRED_FIELD_IN_REQUEST_EXCEPTION"] = "Обязательное поле `#FIELD#` не указано";
+$MESS["REST_V3_EXCEPTIONS_VALIDATION_REQUIREDFIELDINREQUESTEXCEPTION"] = "Обязательное поле `#FIELD#` не указано";

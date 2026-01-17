@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_ENTITY_NOT_FOUND"] = 'Entity with ID #ID# was not found.';
+$MESS["REST_V3_EXCEPTIONS_ENTITYNOTFOUNDEXCEPTION"] = 'Entity with ID #ID# was not found.';

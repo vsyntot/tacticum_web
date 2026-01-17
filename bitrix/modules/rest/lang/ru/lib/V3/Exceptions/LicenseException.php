@@ -1,2 +1,2 @@
 <?
-$MESS['REST_LICENSE_EXCEPTION'] = 'Этот функционал не активен для данной лицензии';
+$MESS['REST_V3_EXCEPTIONS_LICENCEEXCEPTION'] = 'Этот функционал не активен для данной лицензии';

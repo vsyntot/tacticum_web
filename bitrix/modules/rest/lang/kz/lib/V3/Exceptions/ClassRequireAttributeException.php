@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_CLASS_REQUIRE_ATTRIBUTE_EXCEPTION"] = "`#CLASS#` сыныбы үшін `#ATTRIBUTE#` атрибутын көрсету қажет";
+$MESS["REST_V3_EXCEPTIONS_CLASSREQUIREATTIBUTEEXCEPTION"] = "`#CLASS#` сыныбы үшін `#ATTRIBUTE#` атрибутын көрсету қажет";

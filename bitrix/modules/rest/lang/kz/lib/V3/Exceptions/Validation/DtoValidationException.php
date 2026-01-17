@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_DTO_VALIDATION_EXCEPTION"] = "Нысанды тексеру кезінде қате";
+$MESS["REST_V3_EXCEPTIONS_VALIDATION_DTOVALIDATIONEXCEPTION"] = "Нысанды тексеру кезінде қате";

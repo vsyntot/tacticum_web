@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_METHOD_NOT_FOUND_EXCEPTION"] = "`#METHOD#` әдісі табылмады";
+$MESS["REST_V3_EXCEPTIONS_METHODNOTFOUNDEXCEPTION"] = "`#METHOD#` әдісі табылмады";

@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_REQUEST_VALIDATION_EXCEPTION"] = 'Error validating request object.';
+$MESS["REST_V3_EXCEPTIONS_VALIDATION_REQUESTVALIDATIONEXCEPTION"] = 'Error validating request object.';

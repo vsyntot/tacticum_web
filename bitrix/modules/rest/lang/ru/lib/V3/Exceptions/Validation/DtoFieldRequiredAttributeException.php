@@ -1,1 +1,1 @@
-<?$MESS['REST_DTO_FIELD_REQUIRE_ATTRIBUTE_EXCEPTION'] = "В DTO `#DTO#` в поле `#FIELD#` требуется наличие атрибута `#ATTRIBUTE#` для такого запроса";
+<?$MESS['REST_V3_EXCEPTIONS_VALIDATION_DTOFIELDREQUIREDATTRIBUTEEXCEPTION'] = "В DTO `#DTO#` в поле `#FIELD#` требуется наличие атрибута `#ATTRIBUTE#` для такого запроса";

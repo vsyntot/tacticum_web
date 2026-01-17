@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_DTO_VALIDATION_EXCEPTION"] = 'Error validating object.';
+$MESS["REST_V3_EXCEPTIONS_VALIDATION_DTOVALIDATIONEXCEPTION"] = 'Error validating object.';

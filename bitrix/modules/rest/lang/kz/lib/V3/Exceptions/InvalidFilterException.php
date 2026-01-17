@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_INVALID_FILTER_EXCEPTION"] = "`#FILTER#` сүзгісінің өрнегін тану мүмкін емес ";
+$MESS["REST_V3_EXCEPTIONS_INVALIDFILTEREXCEPTION"] = "`#FILTER#` сүзгісінің өрнегін тану мүмкін емес ";

@@ -1,2 +1,2 @@
 <?
-$MESS['REST_UNKNOWN_DTO_PROPERTY_EXCEPTION'] = 'Неизвестное поле `#FIELD#` для сущности `#DTO#`';
+$MESS['REST_V3_EXCEPTIONS_UNKNOWNDTOPROPERTYEXCEPTION'] = 'Неизвестное поле `#FIELD#` для сущности `#DTO#`';

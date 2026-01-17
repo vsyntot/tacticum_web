@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_INVALID_PAGINATION_EXCEPTION"] = "`#PAGE#` пагинация параметрін тану мүмкін емес";
+$MESS["REST_V3_EXCEPTIONS_INVALIDPAGINATIONEXCEPTION"] = "`#PAGE#` пагинация параметрін тану мүмкін емес";

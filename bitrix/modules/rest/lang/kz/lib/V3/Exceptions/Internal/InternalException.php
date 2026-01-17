@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_INTERNAL_EXCEPTION"] = " Бірдеңе дұрыс болмады ";
+$MESS["REST_V3_EXCEPTIONS_INTERNALEXCEPTION"] = " Бірдеңе дұрыс болмады ";

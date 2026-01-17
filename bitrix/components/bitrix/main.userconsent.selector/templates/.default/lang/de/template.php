@@ -1,5 +1,5 @@
 <?php
-$MESS["MAIN_USER_CONSENT_SELECTOR_BTN_ADD"] = "Eine Zustimmung hinzufügen";
+$MESS["MAIN_USER_CONSENT_SELECTOR_BTN_ADD"] = "Bestehende Zustimmung hinzufügen";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_CONSENT"] = "Erhaltene Zustimmungen";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_CREATE"] = "Neue Zustimmung erstellen";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_CREATE_1"] = "Neue Zustimmung erstellen";

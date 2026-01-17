@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_REQUIRED_FIELD_IN_REQUEST_EXCEPTION"] = "Required field \"#FIELD#\" is missing.";
+$MESS["REST_V3_EXCEPTIONS_VALIDATION_REQUIREDFIELDINREQUESTEXCEPTION"] = "Required field \"#FIELD#\" is missing.";

@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_LICENSE_EXCEPTION"] = 'This feature is not supported by the active license.';
+$MESS["REST_V3_EXCEPTIONS_LICENCEEXCEPTION"] = 'This feature is not supported by the active license.';

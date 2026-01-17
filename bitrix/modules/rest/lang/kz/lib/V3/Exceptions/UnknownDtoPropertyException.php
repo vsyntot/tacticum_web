@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_UNKNOWN_DTO_PROPERTY_EXCEPTION"] = "`#DTO#` мәні үшін белгісіз `#FIELD#` өрісі";
+$MESS["REST_V3_EXCEPTIONS_UNKNOWNDTOPROPERTYEXCEPTION"] = "`#DTO#` мәні үшін белгісіз `#FIELD#` өрісі";
