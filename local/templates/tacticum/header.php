@@ -17,14 +17,19 @@ $curPage = $APPLICATION->GetCurPage();
     <link rel="manifest" href="<?=SITE_TEMPLATE_PATH?>/images/site.webmanifest">
 
     <?
-    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/3.4.16");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/bundle.v3.4.16.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/init.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/menu.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/scroll.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/tg-link-resolver.js");
-    if ($curPage === SITE_DIR || substr_count($curPage, "about") != 0 || substr_count($curPage, "services") != 0 || substr_count($curPage, "aiagents") != 0 || substr_count($curPage, "offer") != 0) {
+    if ($curPage === SITE_DIR
+        || substr_count($curPage, "services") != 0
+        || substr_count($curPage, "aiagents") != 0
+        || substr_count($curPage, "price") != 0
+        || substr_count($curPage, "offer") != 0
+        || substr_count($curPage, "calculator") != 0) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
     if ($curPage === SITE_DIR || substr_count($curPage, "price") != 0) {
