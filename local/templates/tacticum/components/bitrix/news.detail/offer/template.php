@@ -17,6 +17,7 @@ $sanitizer = new \CBXSanitizer();
 $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
 $safeCurPage = htmlspecialcharsbx($curPage);
 $summaryText = $sanitizer->SanitizeHtml((string)($arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"] ?? ""));
+$summaryPlain = trim(strip_tags($summaryText));
 $goals = array_filter((array)($arResult["PROPERTIES"]["GOALS"]["VALUE"] ?? []), "strlen");
 $functionalRequirements = array_filter((array)($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []), "strlen");
 $nonfunctionalRequirements = array_filter((array)($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []), "strlen");
@@ -24,6 +25,17 @@ $teamMembers = array_filter((array)($arResult["PROPERTIES"]["TEAM"]["VALUE"] ?? 
 $stackItems = array_filter((array)($arResult["PROPERTIES"]["STACK"]["VALUE"] ?? []), "strlen");
 $budget = htmlspecialcharsbx($arResult["PROPERTIES"]["BUDGET"]["VALUE"] ?? "");
 $timeline = htmlspecialcharsbx($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? "");
+$projectInfoLines = array_filter([
+    $summaryPlain !== "" ? "Краткое описание: {$summaryPlain}" : "",
+    !empty($goals) ? "Цели MVP: " . implode(", ", $goals) : "",
+    !empty($functionalRequirements) ? "Функциональные требования: " . implode(", ", $functionalRequirements) : "",
+    !empty($nonfunctionalRequirements) ? "Нефункциональные требования: " . implode(", ", $nonfunctionalRequirements) : "",
+    !empty($teamMembers) ? "Команда: " . implode(", ", $teamMembers) : "",
+    !empty($stackItems) ? "Стек: " . implode(", ", $stackItems) : "",
+    $budget !== "" ? "Бюджет: {$budget}" : "",
+    $timeline !== "" ? "Срок: {$timeline}" : "",
+], "strlen");
+$projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
 ?>
 
 <!-- Project Summary Section -->
@@ -205,7 +217,7 @@ $timeline = htmlspecialcharsbx($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? "
                                 Хотите получить индивидуальное коммерческое предложение, технико-экономическое
                                 обоснование или задать вопросы по архитектуре и команде?
                             </p>
-                            <button onclick="window.location.href='<?=$safeCurPage?>#CTA';" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
+                            <button onclick="window.location.href='<?=$safeCurPage?>#CTA';" data-project-info="<?=$projectInfo?>" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
                                 <i class="ri-mail-send-line"></i>
                                 Получить предложение
                             </button>
@@ -320,7 +332,7 @@ $timeline = htmlspecialcharsbx($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? "
                             </p>
                         </div>
                     </div>
-                    <button onclick="window.location.href='<?=$safeCurPage?>#CTA';"
+                    <button onclick="window.location.href='<?=$safeCurPage?>#CTA';" data-project-info="<?=$projectInfo?>"
                             class="px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg text-lg font-medium flex items-center gap-2 mx-auto">
                         <i class="ri-shield-check-line"></i>
                         Получить консультацию
@@ -464,6 +476,24 @@ $timeline = htmlspecialcharsbx($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? "
         </div>
     </div>
 </section>
+
+<script>
+    document.querySelectorAll("[data-project-info]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            var info = button.getAttribute("data-project-info");
+            var messageField = document.querySelector("#message");
+            if (!messageField || !info) {
+                return;
+            }
+            if (messageField.value.trim() === "") {
+                messageField.value = info;
+            } else if (!messageField.value.includes(info)) {
+                messageField.value = messageField.value.trim() + "\n\n" + info;
+            }
+            messageField.focus();
+        });
+    });
+</script>
 
 <?
 $APPLICATION->IncludeComponent(
