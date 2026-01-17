@@ -17,15 +17,15 @@ $curPage = $APPLICATION->GetCurPage();
     <link rel="manifest" href="<?=SITE_TEMPLATE_PATH?>/images/site.webmanifest">
 
     <?
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/bundle.v3.4.16.js"></script>');
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/init.js"></script>');
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/menu.js"></script>');
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/forms.js"></script>');
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/modal.js"></script>');
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/scroll.js"></script>');
-    $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/tg-link-resolver.js"></script>');
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/bundle.v3.4.16.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/init.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/menu.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/scroll.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/tg-link-resolver.js");
     if (substr_count($curPage, "faq") != 0 || substr_count($curPage, "aiagents") != 0) {
-        $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/faq.js"></script>');
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
     if ($curPage === SITE_DIR || substr_count($curPage, "price") != 0) {
         $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/chat.js"></script>');
