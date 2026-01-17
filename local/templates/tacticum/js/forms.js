@@ -19,6 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return container;
     };
 
+    const normalizeMessage = (message) => {
+        if (typeof message !== "string") return "";
+        return message.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+    };
+
     const showToast = (message, variant = "success") => {
         const container = ensureToastContainer();
         const toast = document.createElement("div");
@@ -28,10 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
             variant === "error" ? "bg-red-500 text-white" : "bg-green-500 text-white";
 
         toast.className = `${baseClasses} ${variantClasses}`;
-        toast.innerHTML = `
-            <i class="${variant === "error" ? "ri-close-circle-line" : "ri-check-line"} text-xl"></i>
-            <span>${message}</span>
-        `;
+        const icon = document.createElement("i");
+        icon.className = `${variant === "error" ? "ri-close-circle-line" : "ri-check-line"} text-xl`;
+        const text = document.createElement("span");
+        text.textContent = message;
+        toast.append(icon, text);
 
         container.appendChild(toast);
         requestAnimationFrame(() => {
@@ -187,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const json = await response.json().catch(() => null);
             if (!response.ok || !json?.success) {
-                const errorMessage = json?.error || DEFAULT_ERROR_MESSAGE;
+                const errorMessage = normalizeMessage(json?.error) || DEFAULT_ERROR_MESSAGE;
                 showToast(errorMessage, "error");
                 return;
             }
