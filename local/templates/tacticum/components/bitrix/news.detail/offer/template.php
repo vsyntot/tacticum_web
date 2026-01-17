@@ -12,10 +12,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-$curPage = $APPLICATION->GetCurPage();
 $sanitizer = new \CBXSanitizer();
 $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
-$safeCurPage = htmlspecialcharsbx($curPage);
 $summaryText = $sanitizer->SanitizeHtml((string)($arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"] ?? ""));
 $summaryPlain = trim(strip_tags($summaryText));
 $goals = array_filter((array)($arResult["PROPERTIES"]["GOALS"]["VALUE"] ?? []), "strlen");
@@ -217,10 +215,10 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                                 Хотите получить индивидуальное коммерческое предложение, технико-экономическое
                                 обоснование или задать вопросы по архитектуре и команде?
                             </p>
-                            <button onclick="window.location.href='<?=$safeCurPage?>#CTA';" data-project-info="<?=$projectInfo?>" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
+                            <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
                                 <i class="ri-mail-send-line"></i>
                                 Получить предложение
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -332,11 +330,11 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                             </p>
                         </div>
                     </div>
-                    <button onclick="window.location.href='<?=$safeCurPage?>#CTA';" data-project-info="<?=$projectInfo?>"
+                    <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>"
                             class="px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg text-lg font-medium flex items-center gap-2 mx-auto">
                         <i class="ri-shield-check-line"></i>
                         Получить консультацию
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
