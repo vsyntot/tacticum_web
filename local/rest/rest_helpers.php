@@ -2,6 +2,42 @@
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Data\Cache;
 
+function tacticum_rest_get_config(): array
+{
+    static $config = null;
+    if ($config !== null) {
+        return $config;
+    }
+
+    $config = [];
+    $config_path = $_SERVER['DOCUMENT_ROOT'] . '/local/php_interface/include/tacticum_config.php';
+    if (file_exists($config_path)) {
+        $loaded = include $config_path;
+        if (is_array($loaded)) {
+            $config = $loaded;
+        }
+    }
+
+    return $config;
+}
+
+function tacticum_rest_get_config_section(string $section): array
+{
+    $config = tacticum_rest_get_config();
+    $section_data = $config[$section] ?? [];
+    return is_array($section_data) ? $section_data : [];
+}
+
+function tacticum_rest_get_iblock_id(string $key, int $default = 0): int
+{
+    $iblocks = tacticum_rest_get_config_section('iblocks');
+    if (array_key_exists($key, $iblocks)) {
+        return (int)$iblocks[$key];
+    }
+
+    return $default;
+}
+
 function tacticum_rest_response(bool $success, string $code, ?string $message, array $extra = [], int $status = 200): void
 {
     http_response_code($status);
@@ -200,6 +236,11 @@ function tacticum_rest_mask_string(string $value): string
 
 function tacticum_rest_get_ai_setting(string $key, string $default = ''): string
 {
+    $base_urls = tacticum_rest_get_config_section('base_urls');
+    if (isset($base_urls[$key]) && $base_urls[$key] !== '') {
+        return (string)$base_urls[$key];
+    }
+
     $config = Configuration::getValue('ai_services');
     if (is_array($config) && isset($config[$key]) && $config[$key] !== '') {
         return (string)$config[$key];

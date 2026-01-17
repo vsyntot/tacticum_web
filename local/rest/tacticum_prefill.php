@@ -19,7 +19,7 @@ if (!CModule::IncludeModule("iblock")) {
     tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не подключен');
 }
 
-$iblockId = 5;
+$iblockId = tacticum_rest_get_iblock_id('offer', 5);
 $arFilter = [
     "IBLOCK_ID" => $iblockId,
     "ACTIVE" => "Y",
