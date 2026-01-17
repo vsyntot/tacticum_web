@@ -12,7 +12,28 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-$curPage = $APPLICATION->GetCurPage();
+$sanitizer = new \CBXSanitizer();
+$sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
+$summaryText = $sanitizer->SanitizeHtml((string)($arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"] ?? ""));
+$summaryPlain = trim(strip_tags($summaryText));
+$goals = array_filter((array)($arResult["PROPERTIES"]["GOALS"]["VALUE"] ?? []), "strlen");
+$functionalRequirements = array_filter((array)($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []), "strlen");
+$nonfunctionalRequirements = array_filter((array)($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []), "strlen");
+$teamMembers = array_filter((array)($arResult["PROPERTIES"]["TEAM"]["VALUE"] ?? []), "strlen");
+$stackItems = array_filter((array)($arResult["PROPERTIES"]["STACK"]["VALUE"] ?? []), "strlen");
+$budget = htmlspecialcharsbx($arResult["PROPERTIES"]["BUDGET"]["VALUE"] ?? "");
+$timeline = htmlspecialcharsbx($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? "");
+$projectInfoLines = array_filter([
+    $summaryPlain !== "" ? "Краткое описание: {$summaryPlain}" : "",
+    !empty($goals) ? "Цели MVP: " . implode(", ", $goals) : "",
+    !empty($functionalRequirements) ? "Функциональные требования: " . implode(", ", $functionalRequirements) : "",
+    !empty($nonfunctionalRequirements) ? "Нефункциональные требования: " . implode(", ", $nonfunctionalRequirements) : "",
+    !empty($teamMembers) ? "Команда: " . implode(", ", $teamMembers) : "",
+    !empty($stackItems) ? "Стек: " . implode(", ", $stackItems) : "",
+    $budget !== "" ? "Бюджет: {$budget}" : "",
+    $timeline !== "" ? "Срок: {$timeline}" : "",
+], "strlen");
+$projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
 ?>
 
 <!-- Project Summary Section -->
@@ -33,7 +54,7 @@ $curPage = $APPLICATION->GetCurPage();
                             Краткое описание вашей потребности
                         </h3>
                         <p class="text-gray-700">
-                            <?=$arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"]?>
+                            <?=$summaryText?>
                         </p>
                     </div>
                 </div>
@@ -46,10 +67,10 @@ $curPage = $APPLICATION->GetCurPage();
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold mb-2">Основные цели MVP</h3>
-                        <?if(is_array($arResult["PROPERTIES"]["GOALS"]["VALUE"]) && !empty($arResult["PROPERTIES"]["GOALS"]["VALUE"])){?>
+                        <?if(!empty($goals)){?>
                             <ul class="list-disc list-inside text-gray-700 space-y-2">
-                                <?foreach ($arResult["PROPERTIES"]["GOALS"]["VALUE"] as $sGoal){?>
-                                    <li><?=$sGoal?></li>
+                                <?foreach ($goals as $sGoal){?>
+                                    <li><?=htmlspecialcharsbx($sGoal)?></li>
                                 <?}?>
                             </ul>
                         <?}?>
@@ -66,10 +87,10 @@ $curPage = $APPLICATION->GetCurPage();
                         <h3 class="text-xl font-semibold mb-2">
                             Ключевые функциональные требования
                         </h3>
-                        <?if(is_array($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"]) && !empty($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"])){?>
+                        <?if(!empty($functionalRequirements)){?>
                             <ul class="list-disc list-inside text-gray-700 space-y-2">
-                                <?foreach ($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"] as $sFR){?>
-                                    <li><?=$sFR?></li>
+                                <?foreach ($functionalRequirements as $sFR){?>
+                                    <li><?=htmlspecialcharsbx($sFR)?></li>
                                 <?}?>
                             </ul>
                         <?}?>
@@ -86,10 +107,10 @@ $curPage = $APPLICATION->GetCurPage();
                         <h3 class="text-xl font-semibold mb-2">
                             Нефункциональные требования
                         </h3>
-                        <?if(is_array($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"]) && !empty($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"])){?>
+                        <?if(!empty($nonfunctionalRequirements)){?>
                             <ul class="list-disc list-inside text-gray-700 space-y-2">
-                                <?foreach ($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"] as $sNFR){?>
-                                    <li><?=$sNFR?></li>
+                                <?foreach ($nonfunctionalRequirements as $sNFR){?>
+                                    <li><?=htmlspecialcharsbx($sNFR)?></li>
                                 <?}?>
                             </ul>
                         <?}?>
@@ -104,10 +125,10 @@ $curPage = $APPLICATION->GetCurPage();
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold mb-2">Команда проекта</h3>
-                        <?if(is_array($arResult["PROPERTIES"]["TEAM"]["VALUE"]) && !empty($arResult["PROPERTIES"]["TEAM"]["VALUE"])){?>
+                        <?if(!empty($teamMembers)){?>
                             <ul class="list-disc list-inside text-gray-700 space-y-2">
-                                <?foreach ($arResult["PROPERTIES"]["TEAM"]["VALUE"] as $sTeamMember){?>
-                                    <li><?=$sTeamMember?></li>
+                                <?foreach ($teamMembers as $sTeamMember){?>
+                                    <li><?=htmlspecialcharsbx($sTeamMember)?></li>
                                 <?}?>
                             </ul>
                         <?}?>
@@ -124,10 +145,10 @@ $curPage = $APPLICATION->GetCurPage();
                         <h3 class="text-xl font-semibold mb-2">
                             Технологический стек
                         </h3>
-                        <?if(is_array($arResult["PROPERTIES"]["STACK"]["VALUE"]) && !empty($arResult["PROPERTIES"]["STACK"]["VALUE"])){?>
+                        <?if(!empty($stackItems)){?>
                             <ul class="list-disc list-inside text-gray-700 space-y-2">
-                                <?foreach ($arResult["PROPERTIES"]["STACK"]["VALUE"] as $sStackItem){?>
-                                    <li><?=$sStackItem?></li>
+                                <?foreach ($stackItems as $sStackItem){?>
+                                    <li><?=htmlspecialcharsbx($sStackItem)?></li>
                                 <?}?>
                             </ul>
                         <?}?>
@@ -157,7 +178,7 @@ $curPage = $APPLICATION->GetCurPage();
                                             Стоимость разработки
                                         </h4>
                                         <p class="text-white font-bold text-xl sm:text-3xl md:text-4xl whitespace-nowrap">
-                                            <?=$arResult["PROPERTIES"]["BUDGET"]["VALUE"]?>*
+                                            <?=$budget?>*
                                         </p>
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-6 sm:gap-12 items-stretch">
@@ -169,7 +190,7 @@ $curPage = $APPLICATION->GetCurPage();
                                                 Плановый срок
                                             </p>
                                             <p class="text-white font-semibold text-base sm:text-lg">
-                                                <?=$arResult["PROPERTIES"]["TIMELINE"]["VALUE"]?>
+                                                <?=$timeline?>
                                             </p>
                                         </div>
                                         <div class="text-center flex flex-col justify-between">
@@ -178,7 +199,7 @@ $curPage = $APPLICATION->GetCurPage();
                                             </div>
                                             <p class="text-white/80 flex-1 text-xs sm:text-sm mb-1 sm:mb-2">Команда</p>
                                             <p class="text-white font-semibold text-base sm:text-lg">
-                                                <?=count($arResult["PROPERTIES"]["TEAM"]["VALUE"])?> человек
+                                                <?=count($teamMembers)?> человек
                                             </p>
                                         </div>
                                     </div>
@@ -194,10 +215,10 @@ $curPage = $APPLICATION->GetCurPage();
                                 Хотите получить индивидуальное коммерческое предложение, технико-экономическое
                                 обоснование или задать вопросы по архитектуре и команде?
                             </p>
-                            <button onclick="window.location.href='<?=$curPage?>#CTA';" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
+                            <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
                                 <i class="ri-mail-send-line"></i>
                                 Получить предложение
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -238,9 +259,9 @@ $curPage = $APPLICATION->GetCurPage();
                             <li class="flex items-start gap-3">
                                 <i class="ri-close-circle-line text-red-500 mt-1"></i>
                                 <div>
-                                    <p class="font-medium mb-1"><?=$sTechRisksItem?></p>
+                                    <p class="font-medium mb-1"><?=htmlspecialcharsbx($sTechRisksItem)?></p>
                                     <?if(isset($arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex]) && !empty($arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex])){?>
-                                        <p class="text-gray-600 text-sm"><?=$arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex]?></p>
+                                        <p class="text-gray-600 text-sm"><?=htmlspecialcharsbx($arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex])?></p>
                                     <?}?>
                                 </div>
                             </li>
@@ -261,9 +282,9 @@ $curPage = $APPLICATION->GetCurPage();
                             <li class="flex items-start gap-3">
                                 <i class="ri-close-circle-line text-amber-500 mt-1"></i>
                                 <div>
-                                    <p class="font-medium mb-1"><?=$sBusinessRisksItem?></p>
+                                    <p class="font-medium mb-1"><?=htmlspecialcharsbx($sBusinessRisksItem)?></p>
                                     <?if(isset($arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex]) && !empty($arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex])){?>
-                                        <p class="text-gray-600 text-sm"><?=$arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex]?></p>
+                                        <p class="text-gray-600 text-sm"><?=htmlspecialcharsbx($arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex])?></p>
                                     <?}?>
                                 </div>
                             </li>
@@ -309,11 +330,11 @@ $curPage = $APPLICATION->GetCurPage();
                             </p>
                         </div>
                     </div>
-                    <button onclick="window.location.href='<?=$curPage?>#CTA';"
+                    <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>"
                             class="px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg text-lg font-medium flex items-center gap-2 mx-auto">
                         <i class="ri-shield-check-line"></i>
                         Получить консультацию
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
