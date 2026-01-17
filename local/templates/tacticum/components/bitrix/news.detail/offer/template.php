@@ -331,7 +331,7 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                         </div>
                     </div>
                     <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>"
-                            class="px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg text-lg font-medium flex items-center gap-2 mx-auto">
+                            class="inline-flex w-fit px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg text-lg font-medium items-center gap-2 mx-auto">
                         <i class="ri-shield-check-line"></i>
                         Получить консультацию
                     </a>
