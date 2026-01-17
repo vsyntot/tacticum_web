@@ -32,10 +32,10 @@ $curPage = $APPLICATION->GetCurPage();
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
     if ($curPage === SITE_DIR || substr_count($curPage, "price") != 0) {
-        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat.js");
+        $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/chat.js"></script>');
     }
     if (substr_count($curPage, "price") != 0) {
-        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/charts.js");
+        $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/charts.js"></script>');
     }
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
     if(substr_count($curPage, "aiagents") != 0){
