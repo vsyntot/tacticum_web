@@ -26,7 +26,7 @@ $menuTree = $arResult['MENU_TREE'];
                         <?endif;?>
                     </a>
                     <?if (!empty($arItem["CHILDREN"])):?>
-                        <div class="absolute left-0 top-full z-20 min-w-[180px] rounded-xl bg-white shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200">
+                        <div class="absolute left-0 top-full z-20 min-w-[180px] overflow-hidden rounded-xl bg-white shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200">
                             <?foreach($arItem["CHILDREN"] as $child):?>
                                 <?if ($child["PERMISSION"] > "D"):?>
                                     <?php
