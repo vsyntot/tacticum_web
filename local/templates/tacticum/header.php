@@ -24,7 +24,11 @@ $curPage = $APPLICATION->GetCurPage();
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/scroll.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/tg-link-resolver.js");
-    if (substr_count($curPage, "faq") != 0 || substr_count($curPage, "aiagents") != 0) {
+    if ($curPage === SITE_DIR
+        || substr_count($curPage, "services") != 0
+        || substr_count($curPage, "aiagents") != 0
+        || substr_count($curPage, "price") != 0
+        || substr_count($curPage, "calculator") != 0) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
     if ($curPage === SITE_DIR || substr_count($curPage, "price") != 0) {
