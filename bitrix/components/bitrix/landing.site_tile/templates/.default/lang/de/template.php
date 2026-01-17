@@ -40,6 +40,7 @@ $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE_STORE"] = "Onlineshop anzeigen";
 $MESS["LANDING_SITE_TILE_OPEN"] = "Öffnen";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_BUTTON"] = "Eine Website erstellen";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION"] = "Wenn erforderlich und nicht aktiv, wird die Testversion <br> aktiviert, wenn Sie auf die Schaltfläche <br> \"Eine Website erstellen\" klicken.";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION_2"] = "<p>Ist das Test-Abonnement für BitrixGPT+Market erforderlich und dabei noch nicht aktiv,<br>wird es aktiviert, wenn Sie auf die Schaltfläche \"Eine Website erstellen\" klicken.</p>";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1"] = "Beschreiben Sie Ihre Anforderungen";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2"] = "Die KI erstellt das Website-Design, erzeugt Bilder und Texte";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3"] = "Ihre Website wird in einigen Minuten fertig sein";

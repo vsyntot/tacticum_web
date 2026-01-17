@@ -113,16 +113,13 @@ if (!defined("BX_COMP_MANAGED_CACHE") && COption::GetOptionString("main", "compo
 // global functions
 require_once __DIR__ . "/filter_tools.php";
 
-/*ZDUyZmZZTk0OTQxNWQ5MTQwOTYwN2VhMjVjODBkYWY2YTIxYTM=*/class CBXFeatures{ public static function IsFeatureEnabled($_1609468294){ return true;} public static function IsFeatureEditable($_1609468294){ return true;} public static function SetFeatureEnabled($_1609468294, $_1015169731= true){} public static function SaveFeaturesSettings($_1392515043, $_894218462){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_1066656320){} public static function ModifyFeaturesSettings($_1066656320, $_528822776){} public static function IsFeatureInstalled($_1609468294){ return true;}}/**/			//Do not remove this
+/*ZDUyZmZNTlkNmVhMWZjZDI2MTcyZjRlMmJhOWIzM2I4NTVjNjU=*/class CBXFeatures{ public static function IsFeatureEnabled($_1319195059){ return true;} public static function IsFeatureEditable($_1319195059){ return true;} public static function SetFeatureEnabled($_1319195059, $_1554939739= true){} public static function SaveFeaturesSettings($_285142567, $_1538938973){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_408198014){} public static function ModifyFeaturesSettings($_408198014, $_1713503018){} public static function IsFeatureInstalled($_1319195059){ return true;}}/**/			//Do not remove this
 
 // Component 2.0 template engines
 $GLOBALS['arCustomTemplateEngines'] = [];
 
 // User fields manager
 $GLOBALS['USER_FIELD_MANAGER'] = new CUserTypeManager;
-
-// todo: remove global
-$GLOBALS['BX_MENU_CUSTOM'] = CMenuCustom::getInstance();
 
 if (file_exists(($_fname = __DIR__ . "/classes/general/update_db_updater.php")))
 {
@@ -148,11 +145,6 @@ if (($_fname = getLocalPath("php_interface/" . SITE_ID . "/init.php", BX_PERSONA
 if ((!(defined("STATISTIC_ONLY") && STATISTIC_ONLY && !str_starts_with($GLOBALS["APPLICATION"]->GetCurPage(), BX_ROOT . "/admin/"))) && COption::GetOptionString("main", "include_charset", "Y") == "Y" && LANG_CHARSET != '')
 {
 	header("Content-Type: text/html; charset=".LANG_CHARSET);
-}
-
-if (COption::GetOptionString("main", "set_p3p_header", "Y") == "Y")
-{
-	header("P3P: policyref=\"/bitrix/p3p.xml\", CP=\"NON DSP COR CUR ADM DEV PSA PSD OUR UNR BUS UNI COM NAV INT DEM STA\"");
 }
 
 $license = $application->getLicense();
@@ -215,7 +207,7 @@ if (
 	(
 		//signed session
 		isset($kernelSession["BX_SESSION_SIGN"])
-		&& $kernelSession["BX_SESSION_SIGN"] != bitrix_sess_sign()
+		&& $kernelSession["BX_SESSION_SIGN"] !== bitrix_sess_sign()
 	)
 	||
 	(
@@ -288,6 +280,10 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 		if (!$secureLogout || check_bitrix_sessid())
 		{
 			$GLOBALS["USER"]->Logout();
+
+			//store cookies for next hit (see CMain::GetSpreadCookieHTML())
+			$GLOBALS["APPLICATION"]->StoreCookies();
+
 			LocalRedirect($GLOBALS["APPLICATION"]->GetCurPageParam('', ['logout', 'sessid']));
 		}
 	}
@@ -612,4 +608,3 @@ if ((!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true) && (!d
 }
 
        //Do not remove this
-
