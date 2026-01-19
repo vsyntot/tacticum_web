@@ -17,11 +17,12 @@ return [
         'allowed_origins' => [
             'tacticum.ru',
             '*.tacticum.ru',
-            '109.120.158.169',
+        ],
+        'allowed_ips' => [
             '77.37.238.241',
+            '109.120.158.169',
             '5.35.90.193',
         ],
-        'allowed_ips' => [],
         'trusted_proxies' => [],
     ],
 ];
