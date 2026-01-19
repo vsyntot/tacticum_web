@@ -73,24 +73,83 @@ function tacticum_rest_is_allowed_host(string $host): bool
     return substr($host, -11) === '.tacticum.ru';
 }
 
+function tacticum_rest_get_allowed_origins(): array
+{
+    $rest = tacticum_rest_get_config_section('rest');
+    $origins = $rest['allowed_origins'] ?? [];
+    return is_array($origins) ? $origins : [];
+}
+
+function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = []): bool
+{
+    $host = strtolower($host);
+    if ($host === '') {
+        return false;
+    }
+
+    if (empty($allowed_origins)) {
+        return tacticum_rest_is_allowed_host($host);
+    }
+
+    foreach ($allowed_origins as $allowed) {
+        $allowed = strtolower(trim((string)$allowed));
+        if ($allowed === '') {
+            continue;
+        }
+
+        if ($allowed === '*') {
+            return true;
+        }
+
+        $allowed_host = $allowed;
+        if (strpos($allowed, '://') !== false) {
+            $allowed_host = (string)parse_url($allowed, PHP_URL_HOST);
+        }
+
+        if ($allowed_host === '') {
+            continue;
+        }
+
+        if (strpos($allowed_host, '*.') === 0 || strpos($allowed_host, '.') === 0) {
+            $suffix = substr($allowed_host, 1);
+            if ($suffix !== '' && substr($host, -strlen($suffix)) === $suffix) {
+                return true;
+            }
+            continue;
+        }
+
+        if ($host === $allowed_host) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function tacticum_rest_validate_origin(): void
 {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    $rest = tacticum_rest_get_config_section('rest');
+    $allowed_origins = tacticum_rest_get_allowed_origins();
+    $allow_no_origin = (bool)($rest['allow_no_origin'] ?? false);
 
     $origin_host = $origin ? (string)parse_url($origin, PHP_URL_HOST) : '';
-    if ($origin_host !== '' && tacticum_rest_is_allowed_host($origin_host)) {
+    if ($origin_host !== '' && tacticum_rest_is_allowed_origin($origin_host, $allowed_origins)) {
         return;
     }
 
     $referer_host = $referer ? (string)parse_url($referer, PHP_URL_HOST) : '';
-    if ($referer_host !== '' && tacticum_rest_is_allowed_host($referer_host)) {
+    if ($referer_host !== '' && tacticum_rest_is_allowed_origin($referer_host, $allowed_origins)) {
         return;
     }
 
     if ($origin_host === '' && $referer_host === '') {
+        if ($allow_no_origin) {
+            return;
+        }
         $host = $_SERVER['HTTP_HOST'] ?? '';
-        if ($host !== '' && tacticum_rest_is_allowed_host($host)) {
+        if ($host !== '' && tacticum_rest_is_allowed_origin($host, $allowed_origins)) {
             return;
         }
     }

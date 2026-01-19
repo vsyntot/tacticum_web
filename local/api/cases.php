@@ -32,21 +32,13 @@ $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSele
 
 $items = [];
 
+$parser = new CTextParser();
+
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    // Если вопрос/ответ — HTML, берем 'TEXT', иначе просто VALUE
-    $description = isset($fields['PREVIEW_TEXT']['TEXT'])
-        ? $fields['PREVIEW_TEXT']['TEXT']
-        : $fields['PREVIEW_TEXT'];
-
-    $name = isset($fields['NAME']['TEXT'])
-        ? $fields['NAME']['TEXT']
-        : $fields['NAME'];
-
-    // Очищаем спецсимволы, если нужно (например, &quot; → ")
-    $description = html_entity_decode($description);
-    $name = html_entity_decode($name);
+    $description = $parser->clearAllTags($fields['PREVIEW_TEXT']);
+    $name = $parser->clearAllTags($fields['NAME']);
 
     $items[] = [
         'description' => $description,
