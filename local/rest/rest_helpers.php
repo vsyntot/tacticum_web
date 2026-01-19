@@ -71,8 +71,9 @@ function tacticum_rest_html_to_text(string $html): string
 
     $text = str_replace(['&nbsp;', "\xC2\xA0"], ' ', $html);
     $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $text);
-    $text = preg_replace('/<\/?\s*(div|section|ul|ol|h[1-6])\b[^>]*>/i', "\n", $text);
-    $text = preg_replace('/<\/\s*(p|li)\s*>/i', "\n", $text);
+    $text = preg_replace('/<\/?\s*(div|section|ul|ol|h[1-6])\b[^>]*>/i', "\n\n", $text);
+    $text = preg_replace('/<\/\s*p\s*>/i', "\n\n", $text);
+    $text = preg_replace('/<\/\s*li\s*>/i', "\n", $text);
     $text = strip_tags($text);
     $text = htmlspecialchars_decode($text, ENT_QUOTES | ENT_HTML5);
     $text = str_replace("\xC2\xA0", ' ', $text);
