@@ -188,10 +188,11 @@ function tacticum_rest_get_client_ip(): string
 
     if ($forwarded_for !== '' && $remote_addr !== '' && tacticum_rest_is_allowed_ip($remote_addr, $trusted_proxies)) {
         $parts = explode(',', $forwarded_for);
-        $first_ip = trim((string)($parts[0] ?? ''));
-        $first_ip = tacticum_rest_normalize_ip($first_ip);
-        if ($first_ip !== '') {
-            return $first_ip;
+        foreach ($parts as $part) {
+            $candidate = tacticum_rest_normalize_ip(trim((string)$part));
+            if ($candidate !== '') {
+                return $candidate;
+            }
         }
     }
 
