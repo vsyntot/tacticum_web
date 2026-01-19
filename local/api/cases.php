@@ -17,7 +17,7 @@ if (!CModule::IncludeModule("iblock")) {
     tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен');
 }
 
-$iblockId = tacticum_rest_get_iblock_id('cases', 13);
+$iblockId = tacticum_rest_get_iblock_id('cases');
 $arFilter = [
     'IBLOCK_ID' => $iblockId,
     'ACTIVE' => 'Y'
