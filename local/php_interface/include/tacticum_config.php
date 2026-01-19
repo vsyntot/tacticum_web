@@ -13,7 +13,7 @@ return [
         'TELEGRAM_RESOLVER_URL' => 'http://5.35.90.193:8000',
     ],
     'rest' => [
-        'allow_no_origin' => true,
+        'allow_no_origin' => false,
         'allowed_origins' => [
             'tacticum.ru',
             '*.tacticum.ru',
