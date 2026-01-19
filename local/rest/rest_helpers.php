@@ -144,6 +144,26 @@ function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = 
     return false;
 }
 
+function tacticum_rest_normalize_host(string $host): string
+{
+    $host = strtolower(trim($host));
+    if ($host === '') {
+        return '';
+    }
+
+    if ($host[0] === '[') {
+        $end = strpos($host, ']');
+        return $end === false ? $host : substr($host, 0, $end + 1);
+    }
+
+    $colon_pos = strpos($host, ':');
+    if ($colon_pos === false) {
+        return $host;
+    }
+
+    return substr($host, 0, $colon_pos);
+}
+
 function tacticum_rest_validate_origin(): void
 {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
@@ -153,21 +173,24 @@ function tacticum_rest_validate_origin(): void
     $allow_no_origin = (bool)($rest['allow_no_origin'] ?? false);
 
     $origin_host = $origin ? (string)parse_url($origin, PHP_URL_HOST) : '';
+    $origin_host = tacticum_rest_normalize_host($origin_host);
     if ($origin_host !== '' && tacticum_rest_is_allowed_origin($origin_host, $allowed_origins)) {
         return;
     }
 
     $referer_host = $referer ? (string)parse_url($referer, PHP_URL_HOST) : '';
+    $referer_host = tacticum_rest_normalize_host($referer_host);
     if ($referer_host !== '' && tacticum_rest_is_allowed_origin($referer_host, $allowed_origins)) {
         return;
     }
 
     if ($origin_host === '' && $referer_host === '') {
-        if ($allow_no_origin) {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $host = tacticum_rest_normalize_host($host);
+        if ($host !== '' && tacticum_rest_is_allowed_origin($host, $allowed_origins)) {
             return;
         }
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        if ($host !== '' && tacticum_rest_is_allowed_origin($host, $allowed_origins)) {
+        if (empty($allowed_origins) && $allow_no_origin) {
             return;
         }
     }
