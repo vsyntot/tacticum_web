@@ -65,23 +65,40 @@ function tacticum_rest_error(int $status, string $code, string $message, array $
 
 function tacticum_rest_html_to_text(string $html): string
 {
+    $html = trim($html);
     if ($html === '') {
         return '';
     }
 
-    $text = str_replace(['&nbsp;', "\xC2\xA0"], ' ', $html);
-    $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $text);
-    $text = preg_replace('/<\/?\s*(div|section|ul|ol|h[1-6])\b[^>]*>/i', "\n\n", $text);
-    $text = preg_replace('/<\/\s*p\s*>/i', "\n\n", $text);
-    $text = preg_replace('/<\/\s*li\s*>/i', "\n", $text);
-    $text = strip_tags($text);
-    $text = htmlspecialchars_decode($text, ENT_QUOTES | ENT_HTML5);
-    $text = str_replace("\xC2\xA0", ' ', $text);
-    $text = str_replace(["\r\n", "\r"], "\n", $text);
-    $text = preg_replace('/[ \t]+/', ' ', $text);
-    $text = preg_replace('/ *\n */', "\n", $text);
-    $text = preg_replace('/[ \t]+([.,;:!?])/', '$1', $text);
-    $text = preg_replace("/\n{3,}/", "\n\n", $text);
+    $html = str_replace(["\\r\\n", "\\n", "\\r", "\\t"], ["\n", "\n", "\n", "\t"], $html);
+    $html = preg_replace('~\R~u', "\n", $html);
+
+    $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $html = str_replace(
+        ["\xC2\xA0", "\xE2\x80\xAF", "\xE2\x80\x89"],
+        " ",
+        $html
+    );
+
+    $html = preg_replace('~<\s*br\s*/?\s*>~iu', "\n", $html);
+    $html = preg_replace('~<\s*(p|div|section|article|blockquote|h[1-6])\b[^>]*>~iu', "\n", $html);
+    $html = preg_replace('~</\s*(p|div|section|article|blockquote|h[1-6])\s*>~iu', "\n\n", $html);
+    $html = preg_replace('~<\s*li\b[^>]*>~iu', "• ", $html);
+    $html = preg_replace('~</\s*li\s*>~iu', "\n", $html);
+    $html = preg_replace('~</\s*(ul|ol)\s*>~iu', "\n", $html);
+
+    $text = strip_tags($html);
+
+    $text = str_replace("\t", " ", $text);
+    $text = preg_replace('~[ ]{2,}~u', ' ', $text);
+    $text = preg_replace('~ *\n *~u', "\n", $text);
+    $text = preg_replace("~\n{3,}~u", "\n\n", $text);
+    $text = preg_replace('~\s+([.,;:!?])~u', '$1', $text);
+    $text = preg_replace('~\s*—\s*~u', ' — ', $text);
+    $text = preg_replace('~\s+\)~u', ')', $text);
+    $text = preg_replace('~\s+%~u', '%', $text);
+    $text = preg_replace('~[ ]{2,}~u', ' ', $text);
+    $text = preg_replace('~ *\n *~u', "\n", $text);
 
     return trim($text);
 }
