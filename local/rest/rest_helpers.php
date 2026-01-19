@@ -199,6 +199,46 @@ function tacticum_rest_get_client_ip(): string
     return tacticum_rest_normalize_ip($remote_addr);
 }
 
+/**
+ * Normalize iblock property metadata for API responses.
+ *
+ * @param array $property
+ * @return array{type:string,multiple:bool,value:mixed}|array{type:string,multiple:bool,values:array}
+ */
+function tacticum_api_normalize_property(array $property): array
+{
+    $property_type = (string)($property['PROPERTY_TYPE'] ?? '');
+    $user_type = (string)($property['USER_TYPE'] ?? '');
+    $type = $property_type;
+    if ($user_type !== '') {
+        $type = $type === '' ? $user_type : $type . ':' . $user_type;
+    }
+
+    $multiple = ($property['MULTIPLE'] ?? 'N') === 'Y';
+    $value = $property['VALUE'] ?? null;
+
+    if ($multiple) {
+        $values = [];
+        if (is_array($value)) {
+            $values = array_values($value);
+        } elseif ($value !== null && $value !== '') {
+            $values = [$value];
+        }
+
+        return [
+            'type' => $type,
+            'multiple' => true,
+            'values' => $values,
+        ];
+    }
+
+    return [
+        'type' => $type,
+        'multiple' => false,
+        'value' => $value,
+    ];
+}
+
 function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = []): bool
 {
     $host = strtolower($host);
