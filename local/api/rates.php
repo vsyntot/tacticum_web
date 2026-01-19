@@ -44,7 +44,48 @@ while ($ob = $res->GetNextElement()) {
         $item[$propCode] = $propValue['VALUE'];
     }
 
+    $sectionLinks = CIBlockElement::GetElementGroups(
+        $fields['ID'],
+        true,
+        ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
+    );
+    $sections = [];
+    $sectionIds = [];
+    while ($section = $sectionLinks->Fetch()) {
+        $sectionId = (int)$section['ID'];
+        $sections[] = [
+            'id' => $sectionId,
+            'name' => $section['NAME'],
+            'code' => $section['CODE'],
+        ];
+        $sectionIds[] = $sectionId;
+    }
+
+    if (!empty($sectionIds)) {
+        $activeSections = [];
+        $sectionRes = CIBlockSection::GetList(
+            [],
+            ['ID' => $sectionIds, 'ACTIVE' => 'Y'],
+            false,
+            ['ID']
+        );
+        while ($section = $sectionRes->Fetch()) {
+            $activeSections[(int)$section['ID']] = true;
+        }
+
+        $filteredSections = [];
+        foreach ($sections as $section) {
+            if (isset($activeSections[$section['id']])) {
+                $filteredSections[] = $section;
+            }
+        }
+        $sections = $filteredSections;
+    }
+
+    $item['sections'] = $sections;
+
     $items[] = $item;
 }
 
+// Response contract: each item includes name, properties, and sections (array of {id, name, code}).
 tacticum_rest_response(true, 'ok', null, ['items' => $items]);
