@@ -24,7 +24,7 @@ $arFilter = [
     'ACTIVE' => 'Y'
 ];
 
-$arSelect = ['ID', 'NAME', 'DETAIL_TEXT'];
+$arSelect = ['ID', 'IBLOCK_ID', 'NAME', 'DETAIL_TEXT'];
 
 $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSelect);
 

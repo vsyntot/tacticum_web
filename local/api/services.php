@@ -18,15 +18,13 @@ if (!CModule::IncludeModule("iblock")) {
 }
 
 $iblockId = tacticum_rest_get_iblock_id('services', 12);
-$type = 'services';
 
 $arFilter = [
     'IBLOCK_ID' => $iblockId,
-    'type' => $type,
     'ACTIVE' => 'Y'
 ];
 
-$arSelect = ['PREVIEW_TEXT', 'NAME'];
+$arSelect = ['ID', 'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'NAME', 'PREVIEW_TEXT', 'DETAIL_TEXT'];
 
 $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSelect);
 
@@ -36,14 +34,19 @@ $parser = new CTextParser();
 
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
+    $props = $ob->GetProperties();
 
-    $description = $parser->clearAllTags($fields['PREVIEW_TEXT']);
     $name = $parser->clearAllTags($fields['NAME']);
-
-    $items[] = [
-        'description' => $description,
-        'name'   => $name,
+    $preview = $parser->clearAllTags($fields['PREVIEW_TEXT']);
+    $detail = $parser->clearAllTags($fields['DETAIL_TEXT']);
+    $item = [
+        'name' => $name,
+        'preview' => $preview,
+        'detail' => $detail,
+        'options' => $props['OPTIONS']['VALUE'] ?? [''],
     ];
+
+    $items[] = $item;
 }
 
 tacticum_rest_response(true, 'ok', null, ['items' => $items]);
