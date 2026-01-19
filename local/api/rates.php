@@ -17,14 +17,14 @@ if (!CModule::IncludeModule("iblock")) {
     tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен');
 }
 
-$iblockId = tacticum_rest_get_iblock_id('rates', 11);
+$iblockId = tacticum_rest_get_iblock_id('rates');
 
 $arFilter = [
     'IBLOCK_ID' => $iblockId,
     'ACTIVE' => 'Y'
 ];
 
-$arSelect = ['ID', 'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'NAME'];
+$arSelect = ['ID', 'IBLOCK_ID', 'NAME'];
 
 $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSelect);
 
@@ -37,12 +37,7 @@ while ($ob = $res->GetNextElement()) {
     $props = $ob->GetProperties();
 
     $name = $parser->clearAllTags($fields['NAME']);
-    $item = [];
     $item['name'] = $name;
-
-    foreach($props as $propCode => $propValue) {
-        $item[$propCode] = $propValue['VALUE'];
-    }
 
     $sectionLinks = CIBlockElement::GetElementGroups(
         $fields['ID'],
@@ -50,42 +45,16 @@ while ($ob = $res->GetNextElement()) {
         ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
     );
     $sections = [];
-    $sectionIds = [];
     while ($section = $sectionLinks->Fetch()) {
-        $sectionId = (int)$section['ID'];
-        $sections[] = [
-            'id' => $sectionId,
-            'name' => $section['NAME'],
-            'code' => $section['CODE'],
-        ];
-        $sectionIds[] = $sectionId;
+        $sections[] = $section['NAME'];
     }
-
-    if (!empty($sectionIds)) {
-        $activeSections = [];
-        $sectionRes = CIBlockSection::GetList(
-            [],
-            ['ID' => $sectionIds, 'ACTIVE' => 'Y'],
-            false,
-            ['ID']
-        );
-        while ($section = $sectionRes->Fetch()) {
-            $activeSections[(int)$section['ID']] = true;
-        }
-
-        $filteredSections = [];
-        foreach ($sections as $section) {
-            if (isset($activeSections[$section['id']])) {
-                $filteredSections[] = $section;
-            }
-        }
-        $sections = $filteredSections;
-    }
-
     $item['sections'] = $sections;
+
+    foreach($props as $propCode => $propValue) {
+        $item[strtolower($propCode)] = $propValue['VALUE'];
+    }
 
     $items[] = $item;
 }
 
-// Response contract: each item includes name, properties, and sections (array of {id, name, code}).
 tacticum_rest_response(true, 'ok', null, ['items' => $items]);

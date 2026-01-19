@@ -39,12 +39,16 @@ while ($ob = $res->GetNextElement()) {
     $name = $parser->clearAllTags($fields['NAME']);
     $preview = $parser->clearAllTags($fields['PREVIEW_TEXT']);
     $detail = $parser->clearAllTags($fields['DETAIL_TEXT']);
+
     $item = [
         'name' => $name,
         'preview' => $preview,
         'detail' => $detail,
-        'options' => $props['OPTIONS']['VALUE'] ?? [''],
     ];
+
+    foreach($props as $propCode => $propValue) {
+        $item[strtolower($propCode)] = $propValue['VALUE'];
+    }
 
     $items[] = $item;
 }
