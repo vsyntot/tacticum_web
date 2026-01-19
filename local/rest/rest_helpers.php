@@ -370,6 +370,37 @@ function tacticum_rest_rate_limit(string $action, int $limit = 20, int $ttl = 60
     }
 }
 
+function tacticum_api_bootstrap(string $action): int
+{
+    tacticum_rest_validate_origin();
+    tacticum_rest_rate_limit($action);
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
+    }
+
+    if (!CModule::IncludeModule("iblock")) {
+        tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен.');
+    }
+
+    $iblockId = tacticum_rest_get_iblock_id($action);
+    if ($iblockId <= 0) {
+        tacticum_rest_error(500, 'iblock_not_configured', 'Инфоблок не настроен.');
+    }
+
+    return $iblockId;
+}
+
+function tacticum_api_fetch_elements(int $iblockId, array $select, array $filter = [], array $order = ['SORT' => 'ASC'])
+{
+    $filter = array_merge([
+        'IBLOCK_ID' => $iblockId,
+        'ACTIVE' => 'Y',
+    ], $filter);
+
+    return CIBlockElement::GetList($order, $filter, false, false, $select);
+}
+
 function tacticum_rest_normalize_phone(string $phone): string
 {
     $digits = preg_replace('/\D/', '', $phone);
