@@ -69,14 +69,18 @@ function tacticum_rest_html_to_text(string $html): string
         return '';
     }
 
-    $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $html);
+    $text = str_replace(['&nbsp;', "\xC2\xA0"], ' ', $html);
+    $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $text);
+    $text = preg_replace('/<\/?\s*(div|section|ul|ol|h[1-6])\b[^>]*>/i', "\n", $text);
     $text = preg_replace('/<\/\s*(p|li)\s*>/i', "\n", $text);
     $text = strip_tags($text);
     $text = htmlspecialchars_decode($text, ENT_QUOTES | ENT_HTML5);
+    $text = str_replace("\xC2\xA0", ' ', $text);
     $text = str_replace(["\r\n", "\r"], "\n", $text);
     $text = preg_replace('/[ \t]+/', ' ', $text);
     $text = preg_replace('/ *\n */', "\n", $text);
-    $text = preg_replace("/\n{2,}/", "\n", $text);
+    $text = preg_replace('/[ \t]+([.,;:!?])/', '$1', $text);
+    $text = preg_replace("/\n{3,}/", "\n\n", $text);
 
     return trim($text);
 }
