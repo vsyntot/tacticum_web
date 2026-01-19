@@ -12,4 +12,10 @@ return [
         'AI_SERVICE_BASE_URL' => 'http://5.35.90.193:8000',
         'TELEGRAM_RESOLVER_URL' => 'http://5.35.90.193:8000',
     ],
+    'rest' => [
+        'allowed_hosts' => [
+            'tacticum.ru',
+            '.tacticum.ru',
+        ],
+    ],
 ];

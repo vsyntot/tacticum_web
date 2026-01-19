@@ -35,13 +35,8 @@ $items = [];
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    $question = isset($fields['PROPERTY_QUESTION_VALUE']['TEXT'])
-        ? $fields['PROPERTY_QUESTION_VALUE']['TEXT']
-        : $fields['PROPERTY_QUESTION_VALUE'];
-
-    $answer = isset($fields['PROPERTY_ANSWER_VALUE']['TEXT'])
-        ? $fields['PROPERTY_ANSWER_VALUE']['TEXT']
-        : $fields['PROPERTY_ANSWER_VALUE'];
+    $question = tacticum_rest_extract_text($fields['PROPERTY_QUESTION_VALUE'] ?? '');
+    $answer = tacticum_rest_extract_text($fields['PROPERTY_ANSWER_VALUE'] ?? '');
 
     $question = html_entity_decode($question);
     $answer = html_entity_decode($answer);

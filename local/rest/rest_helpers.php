@@ -63,14 +63,52 @@ function tacticum_rest_error(int $status, string $code, string $message, array $
     tacticum_rest_response(false, $code, $message, $extra, $status);
 }
 
-function tacticum_rest_is_allowed_host(string $host): bool
+function tacticum_rest_normalize_host(string $host): string
 {
-    $host = strtolower($host);
-    if ($host === 'tacticum.ru') {
-        return true;
+    $host = strtolower(trim($host));
+    if ($host === '') {
+        return '';
     }
 
-    return substr($host, -11) === '.tacticum.ru';
+    $host = preg_replace('/:\d+$/', '', $host);
+    return $host ?? '';
+}
+
+function tacticum_rest_get_allowed_hosts(): array
+{
+    $rest_config = tacticum_rest_get_config_section('rest');
+    $allowed = $rest_config['allowed_hosts'] ?? [];
+    if (!is_array($allowed) || empty($allowed)) {
+        $allowed = ['tacticum.ru', '.tacticum.ru'];
+    }
+
+    return array_values(array_filter(array_map('strval', $allowed)));
+}
+
+function tacticum_rest_is_allowed_host(string $host): bool
+{
+    $host = tacticum_rest_normalize_host($host);
+    if ($host === '') {
+        return false;
+    }
+
+    $allowed_hosts = tacticum_rest_get_allowed_hosts();
+    foreach ($allowed_hosts as $allowed) {
+        $allowed = tacticum_rest_normalize_host($allowed);
+        if ($allowed === '') {
+            continue;
+        }
+
+        if ($allowed === '*' || $host === $allowed) {
+            return true;
+        }
+
+        if ($allowed[0] === '.' && substr($host, -strlen($allowed)) === $allowed) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function tacticum_rest_validate_origin(): void
@@ -96,6 +134,22 @@ function tacticum_rest_validate_origin(): void
     }
 
     tacticum_rest_error(403, 'invalid_origin', 'Недопустимый источник запроса.');
+}
+
+function tacticum_rest_extract_text($value): string
+{
+    if (is_array($value)) {
+        if (isset($value['TEXT'])) {
+            return (string)$value['TEXT'];
+        }
+        if (isset($value['VALUE'])) {
+            return is_array($value['VALUE']) && isset($value['VALUE']['TEXT'])
+                ? (string)$value['VALUE']['TEXT']
+                : (string)$value['VALUE'];
+        }
+    }
+
+    return (string)$value;
 }
 
 function tacticum_rest_check_csrf(?array $data = null): void

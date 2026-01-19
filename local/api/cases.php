@@ -35,16 +35,9 @@ $items = [];
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    // Если вопрос/ответ — HTML, берем 'TEXT', иначе просто VALUE
-    $description = isset($fields['PREVIEW_TEXT']['TEXT'])
-        ? $fields['PREVIEW_TEXT']['TEXT']
-        : $fields['PREVIEW_TEXT'];
+    $description = tacticum_rest_extract_text($fields['PREVIEW_TEXT'] ?? '');
+    $name = tacticum_rest_extract_text($fields['NAME'] ?? '');
 
-    $name = isset($fields['NAME']['TEXT'])
-        ? $fields['NAME']['TEXT']
-        : $fields['NAME'];
-
-    // Очищаем спецсимволы, если нужно (например, &quot; → ")
     $description = html_entity_decode($description);
     $name = html_entity_decode($name);
 

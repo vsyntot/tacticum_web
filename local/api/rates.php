@@ -35,13 +35,8 @@ $items = [];
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    $price = isset($fields['PROPERTY_PRICE_VALUE']['TEXT'])
-        ? $fields['PROPERTY_PRICE_VALUE']['TEXT']
-        : $fields['PROPERTY_PRICE_VALUE'];
-
-    $name = isset($fields['NAME']['TEXT'])
-        ? $fields['NAME']['TEXT']
-        : $fields['NAME'];
+    $price = tacticum_rest_extract_text($fields['PROPERTY_PRICE_VALUE'] ?? '');
+    $name = tacticum_rest_extract_text($fields['NAME'] ?? '');
 
     $price = html_entity_decode($price);
     $name = html_entity_decode($name);
