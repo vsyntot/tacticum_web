@@ -163,11 +163,11 @@ function tacticum_rest_validate_origin(): void
     }
 
     if ($origin_host === '' && $referer_host === '') {
-        if ($allow_no_origin) {
-            return;
-        }
         $host = $_SERVER['HTTP_HOST'] ?? '';
         if ($host !== '' && tacticum_rest_is_allowed_origin($host, $allowed_origins)) {
+            return;
+        }
+        if (empty($allowed_origins) && $allow_no_origin) {
             return;
         }
     }
