@@ -30,14 +30,12 @@ $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSele
 
 $items = [];
 
-$parser = new CTextParser();
-
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
     $props = $ob->GetProperties();
 
-    $question = $parser->clearAllTags($fields['NAME']);
-    $answer = $parser->clearAllTags($fields['DETAIL_TEXT']);
+    $question = tacticum_rest_html_to_text($fields['NAME']);
+    $answer = tacticum_rest_html_to_text($fields['DETAIL_TEXT']);
 
     $item = [
         'question' => $question,

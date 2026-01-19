@@ -37,8 +37,8 @@ while ($ob = $res->GetNextElement()) {
     $props = $ob->GetProperties();
 
     $name = $parser->clearAllTags($fields['NAME']);
-    $preview = $parser->clearAllTags($fields['PREVIEW_TEXT']);
-    $detail = $parser->clearAllTags($fields['DETAIL_TEXT']);
+    $preview = tacticum_rest_html_to_text($fields['PREVIEW_TEXT']);
+    $detail = tacticum_rest_html_to_text($fields['DETAIL_TEXT']);
 
     $item = [
         'name' => $name,
