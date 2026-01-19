@@ -3,7 +3,7 @@
 return [
     'iblocks' => [
         'cases' => 13,
-        'faq' => 14,
+        'faq' => 10,
         'rates' => 11,
         'services' => 12,
         'offer' => 5,

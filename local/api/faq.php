@@ -17,34 +17,26 @@ if (!CModule::IncludeModule("iblock")) {
     tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен');
 }
 
-$iblockId = tacticum_rest_get_iblock_id('faq', 14);
-$type = 'faq';
+$iblockId = tacticum_rest_get_iblock_id('faq', 10);
 
 $arFilter = [
     'IBLOCK_ID' => $iblockId,
-    'type' => $type,
     'ACTIVE' => 'Y'
 ];
 
-$arSelect = ['PROPERTY_question', 'PROPERTY_answer'];
+$arSelect = ['ID', 'NAME', 'DETAIL_TEXT'];
 
 $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSelect);
 
 $items = [];
 
+$parser = new CTextParser();
+
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    $question = isset($fields['PROPERTY_QUESTION_VALUE']['TEXT'])
-        ? $fields['PROPERTY_QUESTION_VALUE']['TEXT']
-        : $fields['PROPERTY_QUESTION_VALUE'];
-
-    $answer = isset($fields['PROPERTY_ANSWER_VALUE']['TEXT'])
-        ? $fields['PROPERTY_ANSWER_VALUE']['TEXT']
-        : $fields['PROPERTY_ANSWER_VALUE'];
-
-    $question = html_entity_decode($question);
-    $answer = html_entity_decode($answer);
+    $question = $parser->clearAllTags($fields['NAME']);
+    $answer = $parser->clearAllTags($fields['DETAIL_TEXT']);
 
     $items[] = [
         'question' => $question,
