@@ -30,13 +30,11 @@ $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSele
 
 $items = [];
 
-$parser = new CTextParser();
-
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
     $props = $ob->GetProperties();
 
-    $name = $parser->clearAllTags($fields['NAME']);
+    $name = tacticum_rest_html_to_text($fields['NAME']);
     $item['name'] = $name;
 
     $sectionLinks = CIBlockElement::GetElementGroups(
