@@ -17,6 +17,9 @@ return [
         'allowed_origins' => [
             'tacticum.ru',
             '*.tacticum.ru',
+            '109.120.158.169',
+            '77.37.238.241',
+            '5.35.90.193',
         ],
     ],
 ];
