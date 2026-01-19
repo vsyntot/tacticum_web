@@ -32,8 +32,8 @@ while ($ob = $res->GetNextElement()) {
     }
     $item['sections'] = $sections;
 
-    foreach($props as $propCode => $propValue) {
-        $item[strtolower($propCode)] = $propValue['VALUE'];
+    foreach ($props as $propCode => $propValue) {
+        $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);
     }
 
     $items[] = $item;
