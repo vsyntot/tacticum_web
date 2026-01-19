@@ -35,13 +35,8 @@ $items = [];
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    $description = isset($fields['PREVIEW_TEXT']['TEXT'])
-        ? $fields['PREVIEW_TEXT']['TEXT']
-        : $fields['PREVIEW_TEXT'];
-
-    $name = isset($fields['NAME']['TEXT'])
-        ? $fields['NAME']['TEXT']
-        : $fields['NAME'];
+    $description = tacticum_rest_extract_text($fields['PREVIEW_TEXT'] ?? '');
+    $name = tacticum_rest_extract_text($fields['NAME'] ?? '');
 
     $description = html_entity_decode($description);
     $name = html_entity_decode($name);
