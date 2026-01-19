@@ -29,13 +29,11 @@ $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSele
 
 $items = [];
 
-$parser = new CTextParser();
-
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
     $props = $ob->GetProperties();
 
-    $name = $parser->clearAllTags($fields['NAME']);
+    $name = tacticum_rest_html_to_text($fields['NAME']);
     $preview = tacticum_rest_html_to_text($fields['PREVIEW_TEXT']);
     $detail = tacticum_rest_html_to_text($fields['DETAIL_TEXT']);
 
