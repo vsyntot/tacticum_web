@@ -63,6 +63,24 @@ function tacticum_rest_error(int $status, string $code, string $message, array $
     tacticum_rest_response(false, $code, $message, $extra, $status);
 }
 
+function tacticum_rest_html_to_text(string $html): string
+{
+    if ($html === '') {
+        return '';
+    }
+
+    $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $html);
+    $text = preg_replace('/<\/\s*(p|li)\s*>/i', "\n", $text);
+    $text = strip_tags($text);
+    $text = htmlspecialchars_decode($text, ENT_QUOTES | ENT_HTML5);
+    $text = str_replace(["\r\n", "\r"], "\n", $text);
+    $text = preg_replace('/[ \t]+/', ' ', $text);
+    $text = preg_replace('/ *\n */', "\n", $text);
+    $text = preg_replace("/\n{2,}/", "\n", $text);
+
+    return trim($text);
+}
+
 function tacticum_rest_is_allowed_host(string $host): bool
 {
     $host = strtolower($host);
