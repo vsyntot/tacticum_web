@@ -98,6 +98,106 @@ function tacticum_rest_get_allowed_origins(): array
     return is_array($origins) ? $origins : [];
 }
 
+function tacticum_rest_normalize_ip(string $ip): string
+{
+    $ip = trim($ip);
+    if ($ip === '') {
+        return '';
+    }
+
+    $normalized = filter_var($ip, FILTER_VALIDATE_IP);
+    return $normalized === false ? '' : $normalized;
+}
+
+function tacticum_rest_is_allowed_ip(string $ip, array $allowed_ips): bool
+{
+    $ip = tacticum_rest_normalize_ip($ip);
+    if ($ip === '' || empty($allowed_ips)) {
+        return false;
+    }
+
+    $ip_binary = inet_pton($ip);
+    if ($ip_binary === false) {
+        return false;
+    }
+
+    $ip_length = strlen($ip_binary);
+
+    foreach ($allowed_ips as $allowed) {
+        $allowed = trim((string)$allowed);
+        if ($allowed === '') {
+            continue;
+        }
+
+        if (strpos($allowed, '/') !== false) {
+            [$network, $prefix] = array_pad(explode('/', $allowed, 2), 2, '');
+            $network = tacticum_rest_normalize_ip($network);
+            if ($network === '' || $prefix === '' || !ctype_digit($prefix)) {
+                continue;
+            }
+
+            $network_binary = inet_pton($network);
+            if ($network_binary === false || strlen($network_binary) !== $ip_length) {
+                continue;
+            }
+
+            $prefix_length = (int)$prefix;
+            $max_prefix = $ip_length * 8;
+            if ($prefix_length < 0 || $prefix_length > $max_prefix) {
+                continue;
+            }
+
+            $bytes = intdiv($prefix_length, 8);
+            $bits = $prefix_length % 8;
+
+            if ($bytes > 0 && substr($ip_binary, 0, $bytes) !== substr($network_binary, 0, $bytes)) {
+                continue;
+            }
+
+            if ($bits === 0) {
+                return true;
+            }
+
+            $mask = (~(0xff >> $bits)) & 0xff;
+            if (isset($ip_binary[$bytes], $network_binary[$bytes])) {
+                if ((ord($ip_binary[$bytes]) & $mask) === (ord($network_binary[$bytes]) & $mask)) {
+                    return true;
+                }
+            }
+            continue;
+        }
+
+        $allowed_ip = tacticum_rest_normalize_ip($allowed);
+        if ($allowed_ip !== '' && $allowed_ip === $ip) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function tacticum_rest_get_client_ip(): string
+{
+    $remote_addr = $_SERVER['REMOTE_ADDR'] ?? '';
+    $forwarded_for = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+    $rest = tacticum_rest_get_config_section('rest');
+    $trusted_proxies = $rest['trusted_proxies'] ?? [];
+    if (!is_array($trusted_proxies)) {
+        $trusted_proxies = [];
+    }
+
+    if ($forwarded_for !== '' && $remote_addr !== '' && tacticum_rest_is_allowed_ip($remote_addr, $trusted_proxies)) {
+        $parts = explode(',', $forwarded_for);
+        $first_ip = trim((string)($parts[0] ?? ''));
+        $first_ip = tacticum_rest_normalize_ip($first_ip);
+        if ($first_ip !== '') {
+            return $first_ip;
+        }
+    }
+
+    return tacticum_rest_normalize_ip($remote_addr);
+}
+
 function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = []): bool
 {
     $host = strtolower($host);
@@ -171,28 +271,41 @@ function tacticum_rest_validate_origin(): void
     $rest = tacticum_rest_get_config_section('rest');
     $allowed_origins = tacticum_rest_get_allowed_origins();
     $allow_no_origin = (bool)($rest['allow_no_origin'] ?? false);
+    $origin_allowed = false;
 
     $origin_host = $origin ? (string)parse_url($origin, PHP_URL_HOST) : '';
     $origin_host = tacticum_rest_normalize_host($origin_host);
     if ($origin_host !== '' && tacticum_rest_is_allowed_origin($origin_host, $allowed_origins)) {
-        return;
+        $origin_allowed = true;
     }
 
     $referer_host = $referer ? (string)parse_url($referer, PHP_URL_HOST) : '';
     $referer_host = tacticum_rest_normalize_host($referer_host);
     if ($referer_host !== '' && tacticum_rest_is_allowed_origin($referer_host, $allowed_origins)) {
-        return;
+        $origin_allowed = true;
     }
 
     if ($origin_host === '' && $referer_host === '') {
         $host = $_SERVER['HTTP_HOST'] ?? '';
         $host = tacticum_rest_normalize_host($host);
         if ($host !== '' && tacticum_rest_is_allowed_origin($host, $allowed_origins)) {
-            return;
+            $origin_allowed = true;
         }
         if (empty($allowed_origins) && $allow_no_origin) {
-            return;
+            $origin_allowed = true;
         }
+    }
+
+    $allowed_ips = $rest['allowed_ips'] ?? [];
+    if (is_array($allowed_ips) && !empty($allowed_ips)) {
+        $client_ip = tacticum_rest_get_client_ip();
+        if ($client_ip === '' || !tacticum_rest_is_allowed_ip($client_ip, $allowed_ips)) {
+            tacticum_rest_error(403, 'invalid_ip', 'Недопустимый IP адрес источника.');
+        }
+    }
+
+    if ($origin_allowed) {
+        return;
     }
 
     tacticum_rest_error(403, 'invalid_origin', 'Недопустимый источник запроса.');
@@ -231,7 +344,10 @@ function tacticum_rest_check_csrf(?array $data = null): void
 
 function tacticum_rest_rate_limit(string $action, int $limit = 20, int $ttl = 60): void
 {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip = tacticum_rest_get_client_ip();
+    if ($ip === '') {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    }
     $sessid = bitrix_sessid();
     $cache_key = 'tacticum_rest_' . $action . '_' . md5($ip . '|' . $sessid);
     $cache_dir = '/tacticum/rest_rate';
