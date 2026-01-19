@@ -32,19 +32,13 @@ $res = CIBlockElement::GetList(['SORT'=>'ASC'], $arFilter, false, false, $arSele
 
 $items = [];
 
+$parser = new CTextParser();
+
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
 
-    $price = isset($fields['PROPERTY_PRICE_VALUE']['TEXT'])
-        ? $fields['PROPERTY_PRICE_VALUE']['TEXT']
-        : $fields['PROPERTY_PRICE_VALUE'];
-
-    $name = isset($fields['NAME']['TEXT'])
-        ? $fields['NAME']['TEXT']
-        : $fields['NAME'];
-
-    $price = html_entity_decode($price);
-    $name = html_entity_decode($name);
+    $price = $parser->clearAllTags($fields['PROPERTY_PRICE_VALUE']);
+    $name = $parser->clearAllTags($fields['NAME']);
 
     $items[] = [
         'price' => $price,
