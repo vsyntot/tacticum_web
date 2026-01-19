@@ -34,14 +34,32 @@ $parser = new CTextParser();
 
 while ($ob = $res->GetNextElement()) {
     $fields = $ob->GetFields();
+    $props = $ob->GetProperties();
 
     $question = $parser->clearAllTags($fields['NAME']);
     $answer = $parser->clearAllTags($fields['DETAIL_TEXT']);
 
-    $items[] = [
+    $item = [
         'question' => $question,
         'answer'   => $answer,
     ];
+
+    $sectionLinks = CIBlockElement::GetElementGroups(
+        $fields['ID'],
+        true,
+        ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
+    );
+    $sections = [];
+    while ($section = $sectionLinks->Fetch()) {
+        $sections[] = $section['NAME'];
+    }
+    $item['sections'] = $sections;
+
+    foreach($props as $propCode => $propValue) {
+        $item[strtolower($propCode)] = $propValue['VALUE'];
+    }
+
+    $items[] = $item;
 }
 
 tacticum_rest_response(true, 'ok', null, ['items' => $items]);
