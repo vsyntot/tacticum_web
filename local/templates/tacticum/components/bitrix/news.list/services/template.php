@@ -57,9 +57,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                             <?}?>
                             </ul>
                             <?if(!empty($link)){?>
-                                <button class="text-primary font-medium flex items-center gap-2 hover:gap-3 transition-all">
-                                    <a href="<?=$serviceLink?>"><?=$serviceLinkText?> <i class="ri-arrow-right-line"></i></a>
-                                </button>
+                                <a href="<?=$serviceLink?>" class="text-primary font-medium inline-flex items-center gap-2 hover:gap-3 transition-all">
+                                    <?=$serviceLinkText?> <i class="ri-arrow-right-line"></i>
+                                </a>
                             <?}?>
                         <?}?>
                     </div>

@@ -3,6 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (root.dataset.tacticumTgResolverInit === "true") return;
     root.dataset.tacticumTgResolverInit = "true";
 
+    const trackEvent = (eventName, params = {}) => {
+        if (typeof window.tacticumTrackEvent === "function") {
+            window.tacticumTrackEvent(eventName, params);
+        }
+    };
+
     try {
         const pageUrl = window.location.href;
 
@@ -71,20 +77,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
-                .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Bad response: " + r.status))))
-                .then((data) => {
+                .then((response) => {
+                    if (!response.ok) {
+                        trackEvent("tacticum_tg_resolver_error", {
+                            status: response.status,
+                            code: "http_error",
+                        });
+                        const error = new Error("Bad response: " + response.status);
+                        error.analyticsTracked = true;
+                        return Promise.reject(error);
+                    }
+                    return response.json().then((data) => ({ data, status: response.status }));
+                })
+                .then(({ data, status }) => {
                     const newLink = data && typeof data.link === "string" ? data.link.trim() : "";
                     if (!newLink) return;
                     setCached(originalHref, newLink);
                     links.forEach((a) => {
                         a.href = newLink;
                     });
+                    trackEvent("tacticum_tg_resolver_success", {
+                        status,
+                        links_count: links.length,
+                    });
                 })
                 .catch((err) => {
+                    if (!err?.analyticsTracked) {
+                        trackEvent("tacticum_tg_resolver_error", {
+                            status: "network",
+                            code: "fetch_error",
+                        });
+                    }
                     console.warn("[tg-link-resolver]", originalHref, "failed:", err?.message || err);
                 });
         });
     } catch (e) {
+        trackEvent("tacticum_tg_resolver_error", {
+            status: "init",
+            code: "runtime_error",
+        });
         console.warn("[tg-link-resolver] init failed:", e);
     }
 });

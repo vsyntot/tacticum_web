@@ -1,6 +1,8 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Политика конфиденциальности - Тактикум");
+$APPLICATION->SetPageProperty("description", "Политика конфиденциальности Tacticum: порядок обработки персональных данных и права пользователей.");
+tacticum_apply_seo_defaults('/policies/');
 ?>
 
 <?
@@ -10,7 +12,7 @@ $APPLICATION->IncludeComponent(
 	[
 		"COMPONENT_TEMPLATE" => "policies",
 		"IBLOCK_TYPE" => "company",
-		"IBLOCK_ID" => "19",
+		"IBLOCK_ID" => tacticum_iblock_id('policies'),
 		"ELEMENT_ID" => "515",
 		"ELEMENT_CODE" => "",
 		"CHECK_DATES" => "Y",

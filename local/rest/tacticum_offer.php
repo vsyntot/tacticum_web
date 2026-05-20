@@ -73,17 +73,14 @@ AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), "sale_request");
 $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
 
-$ch = curl_init($endpoint_url);
-tacticum_rest_apply_curl_defaults($ch);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-
-$response = curl_exec($ch);
-$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-tacticum_rest_log_tls_error($ch, 'tacticum_offer');
-curl_close($ch);
+$result = tacticum_rest_post_json($endpoint_url, $payload, 'tacticum_offer');
+$response = $result['response'];
+$http_status = (int)$result['http_status'];
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
 AddMessage2Log(serialize($masked_response), "sale_response");
+
+tacticum_rest_fail_on_curl_error($result, 'tacticum_offer');
 
 if ($http_status === 200 && $response) {
     echo json_encode(['success' => true]);

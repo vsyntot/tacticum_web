@@ -11,6 +11,85 @@ if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/local/rest/rest_helpers.php')) {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/local/rest/rest_helpers.php';
 }
 
+if (!function_exists('tacticum_iblock_id')) {
+    function tacticum_iblock_id(string $key): int
+    {
+        if (function_exists('tacticum_rest_get_iblock_id')) {
+            return tacticum_rest_get_iblock_id($key);
+        }
+
+        return 0;
+    }
+}
+
+if (!function_exists('tacticum_public_url')) {
+    function tacticum_public_url(string $path = '/'): string
+    {
+        $path = trim($path);
+        if ($path === '') {
+            $path = '/';
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL) !== false) {
+            return $path;
+        }
+
+        if ($path[0] !== '/') {
+            $path = '/' . $path;
+        }
+
+        return 'https://tacticum.ru' . $path;
+    }
+}
+
+if (!function_exists('tacticum_apply_seo_defaults')) {
+    function tacticum_apply_seo_defaults(?string $canonicalPath = null, array $options = []): void
+    {
+        global $APPLICATION;
+
+        if (!is_object($APPLICATION) || !method_exists($APPLICATION, 'AddHeadString')) {
+            return;
+        }
+
+        static $applied = [];
+
+        $currentPath = method_exists($APPLICATION, 'GetCurPage') ? (string)$APPLICATION->GetCurPage(false) : '/';
+        $canonicalUrl = tacticum_public_url($canonicalPath ?: $currentPath);
+        if (isset($applied[$canonicalUrl])) {
+            return;
+        }
+        $applied[$canonicalUrl] = true;
+
+        $title = trim((string)(method_exists($APPLICATION, 'GetTitle') ? $APPLICATION->GetTitle(false) : ''));
+        if ($title === '') {
+            $title = 'Тактикум';
+        }
+
+        $description = trim((string)(method_exists($APPLICATION, 'GetPageProperty') ? $APPLICATION->GetPageProperty('description') : ''));
+        $type = trim((string)($options['type'] ?? 'website'));
+        $templatePath = defined('SITE_TEMPLATE_PATH') ? SITE_TEMPLATE_PATH : '/local/templates/tacticum';
+        $image = tacticum_public_url((string)($options['image'] ?? $templatePath . '/images/hero_bg.jpg'));
+
+        $meta = [
+            '<link rel="canonical" href="' . htmlspecialchars($canonicalUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">',
+            '<meta property="og:site_name" content="Tacticum">',
+            '<meta property="og:locale" content="ru_RU">',
+            '<meta property="og:type" content="' . htmlspecialchars($type ?: 'website', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">',
+            '<meta property="og:url" content="' . htmlspecialchars($canonicalUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">',
+            '<meta property="og:title" content="' . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">',
+            '<meta property="og:image" content="' . htmlspecialchars($image, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">',
+        ];
+
+        if ($description !== '') {
+            $meta[] = '<meta property="og:description" content="' . htmlspecialchars($description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
+        }
+
+        foreach ($meta as $tag) {
+            $APPLICATION->AddHeadString($tag, true);
+        }
+    }
+}
+
 function tacticum_calcrequests_build_error(string $code, string $message, array $extra = []): array
 {
     $payload = [

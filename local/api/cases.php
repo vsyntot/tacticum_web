@@ -8,40 +8,44 @@ header('Content-Type: application/json; charset=UTF-8');
 
 $iblockId = tacticum_api_bootstrap('cases');
 
-$arSelect = ['ID', 'IBLOCK_ID', 'NAME', 'PREVIEW_TEXT', 'DETAIL_TEXT'];
+$payload = tacticum_api_cached_payload('cases', $iblockId, static function () use ($iblockId): array {
+    $arSelect = ['ID', 'IBLOCK_ID', 'NAME', 'PREVIEW_TEXT', 'DETAIL_TEXT'];
 
-$res = tacticum_api_fetch_elements($iblockId, $arSelect);
+    $res = tacticum_api_fetch_elements($iblockId, $arSelect);
 
-$items = [];
+    $items = [];
 
-while ($ob = $res->GetNextElement()) {
-    $fields = $ob->GetFields();
-    $props = $ob->GetProperties();
+    while ($ob = $res->GetNextElement()) {
+        $fields = $ob->GetFields();
+        $props = $ob->GetProperties();
 
-    $name = tacticum_rest_html_to_text($fields['NAME']);
-    $preview = tacticum_rest_html_to_text($fields['PREVIEW_TEXT']);
-    $detail = tacticum_rest_html_to_text($fields['DETAIL_TEXT']);
+        $name = tacticum_rest_html_to_text($fields['NAME']);
+        $preview = tacticum_rest_html_to_text($fields['PREVIEW_TEXT']);
+        $detail = tacticum_rest_html_to_text($fields['DETAIL_TEXT']);
 
-    $item['name'] = $name;
+        $item = ['name' => $name];
 
-    $sectionLinks = CIBlockElement::GetElementGroups(
-        $fields['ID'],
-        true,
-        ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
-    );
-    $sections = [];
-    while ($section = $sectionLinks->Fetch()) {
-        $sections[] = $section['NAME'];
+        $sectionLinks = CIBlockElement::GetElementGroups(
+            $fields['ID'],
+            true,
+            ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
+        );
+        $sections = [];
+        while ($section = $sectionLinks->Fetch()) {
+            $sections[] = $section['NAME'];
+        }
+        $item['sections'] = $sections;
+        $item['preview'] = $preview;
+        $item['detail'] = $detail;
+
+        foreach ($props as $propCode => $propValue) {
+            $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);
+        }
+
+        $items[] = $item;
     }
-    $item['sections'] = $sections;
-    $item['preview'] = $preview;
-    $item['detail'] = $detail;
 
-    foreach ($props as $propCode => $propValue) {
-        $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);
-    }
+    return ['items' => $items];
+});
 
-    $items[] = $item;
-}
-
-tacticum_rest_response(true, 'ok', null, ['items' => $items]);
+tacticum_rest_response(true, 'ok', null, $payload);

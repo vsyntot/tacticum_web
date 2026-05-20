@@ -13,15 +13,18 @@
 - есть ADR по REST, config, iblock IDs, PII masking;
 - есть единый `rest_helpers.php` для CORS/rate limit/CSRF/config/curl/masking;
 - формы унифицированы через `data-tacticum-form` и `forms.js`;
+- публичные GET API используют TTL-кэш поверх инфоблоков;
+- публичные страницы имеют базовый canonical/OpenGraph helper;
+- формы, AI-chat, prefill и Telegram resolver отправляют безопасные analytics events без PII;
 - CI уже проверяет PHP syntax и часть security conventions.
 
 Основные риски:
 
-- часть legacy-кода всё ещё нарушает принятые ADR: хардкод ID инфоблоков в публичных страницах и дублированная chat logic;
-- публичные страницы содержат много inline JS/CSS и дублируют chat logic;
+- остаются frontend-debts: runtime Tailwind, URL-substring asset routing и legacy `chat.js` artifact вне production flow;
+- публичные страницы и компоненты всё ещё содержат отдельные inline/legacy styles, которые нельзя удалять без visual regression;
 - production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy;
-- GET API без явного кеширования может создавать лишнюю нагрузку при росте использования;
-- продуктовые сценарии AI-чата/калькулятора/оффера реализованы, но не оформлены как единый контракт и smoke-suite.
+- локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
+- продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke по зафиксированной матрице.
 
 ## Структура Приложения
 
@@ -31,6 +34,7 @@
 | GET API | `local/api/cases.php`, `faq.php`, `rates.php`, `services.php` | JSON-выдача активных элементов инфоблоков |
 | POST REST | `local/rest/tacticum_form.php`, `tacticum_chat.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_sale_staff.php`, `tacticum_prefill.php`, `resolve_telegram_link.php` | Формы, чат, AI-service, prefill, Telegram resolver |
 | Shared REST helpers | `local/rest/rest_helpers.php` | Config, CORS/origin, IP allowlist, rate limit, CSRF, curl defaults, masking |
+| Config health | `local/rest/health_config.php` | Same-origin health-check config keys without secret values |
 | Bitrix REST | `local/php_interface/init.php` | Методы `calcrequests.list` и `calcrequests.add` через `OnRestServiceBuildDescription` |
 | Template | `local/templates/tacticum/header.php`, `footer.php`, `js/`, `styles/`, `components/bitrix/` | Активный шаблон сайта |
 | CI/CD | `.github/workflows/deploy.yml`, `pr-check.yml`, `sitemap.yml` | Lint, convention checks, deploy, sitemap validation |
@@ -53,7 +57,7 @@
 | `policies` | 19 | Политики / legal контент |
 | `aiagents` | 20 | AI agents |
 
-Публичные страницы пока продолжают использовать legacy numeric `IBLOCK_ID` в `IncludeComponent`; ключи уже описаны для планового рефакторинга.
+Публичные страницы используют `tacticum_iblock_id('key')` для `IncludeComponent`; ключи берутся из config registry через `tacticum_rest_get_iblock_id()`.
 
 ## REST/API State
 
@@ -66,6 +70,13 @@
 - проверяет HTTP method `GET`;
 - подключает `iblock`;
 - получает ID инфоблока по ключу.
+
+Payload строится через `tacticum_api_cached_payload(...)` с TTL из `tacticum_config.php`:
+
+- `api.cache_ttl_default`;
+- `api.cache_ttl[<action>]`.
+
+Default TTL в example config: `300` секунд.
 
 Endpoints:
 
@@ -82,13 +93,14 @@ Endpoints:
 
 | Endpoint | Назначение | Состояние |
 |---|---|---|
-| `tacticum_form.php` | Default endpoint публичных лид-форм | HTTPS URL через shared helper, validation, PII masking |
-| `tacticum_chat.php` | AI chat | Origin/rate/явный CSRF, HTTPS URL через shared helper, унифицированные log tags |
-| `tacticum_offer.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared helper; остаётся дублирование `tacticum_form.php` |
-| `tacticum_sale.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared helper; похоже дублирует `tacticum_offer.php` |
-| `tacticum_sale_staff.php` | Заказ специалистов | Доменный staff endpoint для `/price/`: rich `workers[]` payload + adapter в `/tacticum/v1/chat_agent/sale` до восстановления workers API |
-| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | GET-параметр + явный `sessid`, `Loader::includeModule`, masked summary log; семантика GET/REST остаётся debt |
+| `tacticum_form.php` | Default endpoint публичных лид-форм | HTTPS URL через shared outbound helper, validation, PII masking |
+| `tacticum_chat.php` | AI chat | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper, унифицированные log tags |
+| `tacticum_offer.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper; остаётся доменное пересечение с `tacticum_form.php` |
+| `tacticum_sale.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper; похоже дублирует `tacticum_offer.php` |
+| `tacticum_sale_staff.php` | Заказ специалистов | Доменный staff endpoint для `/price/`: rich `workers[]` payload + adapter в `/tacticum/v1/chat_agent/sale`; outbound через shared helper |
+| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | Production path: POST JSON + явный `sessid`; legacy GET fallback временно сохранён; `Loader::includeModule`, masked summary log |
 | `resolve_telegram_link.php` | Telegram link resolver | Origin/rate/явный CSRF, HTTPS URL через shared helper; logging taxonomy ещё можно улучшить |
+| `health_config.php` | Проверка обязательной конфигурации | GET, origin/rate; возвращает только keys/codes ошибок, без значений secret/config |
 
 ## Frontend State
 
@@ -99,11 +111,13 @@ Endpoints:
 - `bundle.v3.4.16.js`;
 - `init.js`;
 - `menu.js`;
+- `analytics.js`;
 - `forms.js`;
+- `chat-agent.js`;
 - `modal.js`;
 - `scroll.js`;
 - `tg-link-resolver.js`;
-- условно `faq.js`, `chat.js`, `charts.js`;
+- условно `faq.js`, `charts.js`;
 - `fonts/remixicon.min.css`;
 - `styles/aiagents.css` для `/aiagents/`.
 
@@ -118,6 +132,7 @@ Endpoints:
 - services CTA: `services/index.php`;
 - calculator CTA: `calculator/index.php`;
 - price CTA: `price/index.php`;
+- contacts CTA: `contacts/index.php`;
 - offer CTA: `local/templates/tacticum/components/bitrix/news.detail/offer/template.php`;
 - aiagents inline: `aiagents/index.php`;
 - modal form: `footer.php`;
@@ -131,18 +146,23 @@ Endpoints:
 - добавляет `group_id` из `window.tacticum_offer_context`;
 - отправляет формы в `/local/rest/tacticum_form.php` по умолчанию;
 - поддерживает `data-endpoint` для доменных сценариев, например `/price/` staff-order;
-- показывает toast и reset/close modal.
+- показывает toast и reset/close modal;
+- отправляет события `tacticum_form_*` без PII.
 
 ### AI Chat
 
-Есть несколько реализаций:
+Production chat surfaces унифицированы через `local/templates/tacticum/js/chat-agent.js`, подключённый в `header.php` через `Bitrix\Main\Page\Asset`.
 
-- `local/templates/tacticum/js/chat.js` — статический демонстрационный чат, не использует backend endpoint.
-- inline chat logic в `index.php` — реальный fetch в `tacticum_chat.php`, prefill через `tacticum_prefill.php`.
-- inline chat logic в `calculator/index.php`.
-- inline chat logic в `price/index.php`.
+Покрытые поверхности:
 
-Это создаёт расхождение UX, сложность тестирования и риск разного поведения.
+- hero chat в `index.php`;
+- calculator block в `index.php`;
+- calculator chat в `calculator/index.php`;
+- price chat в `price/index.php`.
+
+`local/templates/tacticum/js/chat.js` остаётся legacy/demo artifact и не должен использоваться для production REST flow без отдельного решения.
+
+`chat-agent.js` отправляет события `tacticum_chat_*` и `tacticum_prefill_*` без текста сообщений и пользовательских контактов.
 
 ## SEO State
 
@@ -160,7 +180,18 @@ Endpoints:
 - `/price/`
 - `/services/`
 
-Большинство страниц задают только `SetTitle(...)`; `description`/OpenGraph не систематизированы.
+Публичные страницы задают `SetTitle(...)`, `description` и вызывают `tacticum_apply_seo_defaults(...)`, который добавляет:
+
+- canonical;
+- `og:site_name`;
+- `og:locale`;
+- `og:type`;
+- `og:url`;
+- `og:title`;
+- `og:description`, если задан description;
+- `og:image`.
+
+`/offer/` формирует canonical с `ID`, если он есть в запросе, потому что контент страницы зависит от конкретного предложения.
 
 ## CI/CD State
 
@@ -176,10 +207,10 @@ Endpoints:
 
 - PHP syntax по `local/`;
 - blocker при хардкоде iblock ID, HTTP fallback, raw PII logging и пропущенном bootstrap в изменённых runtime-файлах;
-- warning при hardcoded `IBLOCK_ID` в публичных legacy-страницах;
+- warning при hardcoded `IBLOCK_ID` в новом/legacy-коде вне разрешённых runtime исключений;
 - blocker для изменений в `bitrix/`.
 
-Gap: public page hardcoded `IBLOCK_ID` пока warning-level, потому что полный refactor публичных компонентов вынесен в следующий спринт.
+Gap: новые hardcoded `IBLOCK_ID` не допускаются; публичные страницы переведены на config helper, дальнейший scan нужен только для legacy-кода вне затронутого scope.
 
 ## Архитектурные Решения
 
@@ -190,16 +221,16 @@ Gap: public page hardcoded `IBLOCK_ID` пока warning-level, потому чт
 - ADR-003: ID инфоблоков через `tacticum_rest_get_iblock_id()`.
 - ADR-004: PII masking до логирования.
 
-Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной остаток — legacy публичные страницы и унификация chat/frontend.
+Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основные остатки — runtime Tailwind/static CSS plan, URL-substring asset routing и legacy `chat.js` artifact.
 
 ## Текущее Резюме Здоровья
 
 | Область | Состояние | Риск |
 |---|---|---|
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
-| REST bootstrap | Среднее: pattern есть, но endpoints неоднородны | Средний |
-| Config discipline | Среднее: runtime helpers enforce HTTPS, public pages still legacy | Средний |
-| Frontend maintainability | Среднее/низкое: много inline JS и дублирования | Средний |
-| SEO | Среднее: sitemap исправлен, meta неполные | Средний |
+| REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
+| Config discipline | Хорошее: config validation есть, local config вынесен из Git index | Низкий/средний |
+| Frontend maintainability | Среднее: chat/forms унифицированы, но runtime Tailwind и URL-substring assets остаются | Средний |
+| SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
 | CI/CD | Среднее/хорошее: runtime blockers есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее: лид-формы есть, AI-chat есть, но сценарии разрознены | Средний |

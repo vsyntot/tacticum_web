@@ -1,6 +1,8 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("О компании - Тактикум");
+$APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт внедрения AI-решений для бизнеса.");
+tacticum_apply_seo_defaults('/about/');
 ?>
 
 <!-- Hero Section -->
@@ -223,7 +225,7 @@ $APPLICATION->SetTitle("О компании - Тактикум");
                 [
                         "COMPONENT_TEMPLATE" => "team",
                         "IBLOCK_TYPE" => "company",
-                        "IBLOCK_ID" => "18",
+                        "IBLOCK_ID" => tacticum_iblock_id('team'),
                         "NEWS_COUNT" => "3",
                         "SORT_BY1" => "SORT",
                         "SORT_ORDER1" => "ASC",
@@ -576,7 +578,7 @@ $APPLICATION->SetTitle("О компании - Тактикум");
                 [
                         "COMPONENT_TEMPLATE" => "vacancies",
                         "IBLOCK_TYPE" => "company",
-                        "IBLOCK_ID" => "7",
+                        "IBLOCK_ID" => tacticum_iblock_id('vacancies'),
                         "NEWS_COUNT" => "0",
                         "SORT_BY1" => "SORT",
                         "SORT_ORDER1" => "ASC",

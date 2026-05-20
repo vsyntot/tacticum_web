@@ -1,6 +1,8 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Создание AI-бота в Telegram - Тактикум");
+$APPLICATION->SetPageProperty("description", "Создание AI-бота в Telegram для продаж и консультаций: демо-агенты, настройка и заявка в Tacticum.");
+tacticum_apply_seo_defaults('/aiagents/');
 ?>
 
 <!-- Hero секция -->
@@ -15,7 +17,7 @@ $APPLICATION->SetTitle("Создание AI-бота в Telegram - Тактик�
                     Расскажи о своём бизнесе — и получи готового бота в Telegram, который будет вести диалог и продавать твои услуги
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="#demoagents" target="_blank" class="bg-primary text-white py-3 px-8 !rounded-button flex items-center justify-center hover:bg-primary/90 transition-colors whitespace-nowrap">
+                    <a href="#demoagents" class="bg-primary text-white py-3 px-8 !rounded-button flex items-center justify-center hover:bg-primary/90 transition-colors whitespace-nowrap">
                         <i class="ri-telegram-line mr-2"></i>
                         Попробовать готового Telegram-бота
                     </a>
@@ -92,7 +94,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "aiagents",
                 "IBLOCK_TYPE" => "services",
-                "IBLOCK_ID" => "20",
+                "IBLOCK_ID" => tacticum_iblock_id('aiagents'),
                 "NEWS_COUNT" => "3",
                 "SORT_BY1" => "RAND",
                 "SORT_ORDER1" => "ASC",
@@ -281,7 +283,7 @@ $APPLICATION->IncludeComponent(
                     </li>
                 </ul>
 
-                <a href="https://t.me/tacticum_father_bot" target="_blank" class="bg-primary text-white py-3 px-8 !rounded-button flex items-center justify-center hover:bg-primary/90 transition-colors whitespace-nowrap">
+                <a href="https://t.me/tacticum_father_bot" target="_blank" rel="noopener" class="bg-primary text-white py-3 px-8 !rounded-button flex items-center justify-center hover:bg-primary/90 transition-colors whitespace-nowrap">
                     <i class="ri-telegram-line mr-2"></i>
                     Создать своего агента в Telegram
                 </a>
@@ -347,7 +349,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "faq",
                 "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => "10",
+                "IBLOCK_ID" => tacticum_iblock_id('faq'),
                 "NEWS_COUNT" => "0",
                 "SORT_BY1" => "SORT",
                 "SORT_ORDER1" => "ASC",

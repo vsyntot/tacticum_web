@@ -11,7 +11,11 @@ tacticum_rest_rate_limit('resolve_telegram_link');
 
 // Читаем вход
 $raw = file_get_contents('php://input');
-$data = json_decode($raw, true) ?: [];
+$data = json_decode($raw, true);
+
+if (!is_array($data)) {
+    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
+}
 
 tacticum_rest_check_csrf($data);
 
@@ -39,17 +43,14 @@ AddMessage2Log('resolve_tg_link payload: ' . tacticum_rest_mask_string(serialize
 $resolver_base = tacticum_rest_get_required_https_ai_url('TELEGRAM_RESOLVER_URL', 'сервиса Telegram resolver');
 $endpoint_url = tacticum_rest_build_url($resolver_base, '/tacticum/v1/chat_agent/get_bot_link');
 
-$ch = curl_init($endpoint_url);
-tacticum_rest_apply_curl_defaults($ch);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
-$response = curl_exec($ch);
-$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curl_err = curl_error($ch);
-tacticum_rest_log_tls_error($ch, 'resolve_telegram_link');
-curl_close($ch);
+$result = tacticum_rest_post_json($endpoint_url, $payload, 'resolve_telegram_link');
+$response = $result['response'];
+$http_status = (int)$result['http_status'];
+$curl_err = (string)$result['curl_error'];
 
 AddMessage2Log("resolve_tg_link http_status: {$http_status}; resp: " . serialize(tacticum_rest_mask_string((string)$response)) . "; err: " . $curl_err, 'tacticum_resolve_tg');
+
+tacticum_rest_fail_on_curl_error($result, 'resolve_telegram_link');
 
 if ($response === false || $http_status !== 200) {
     tacticum_rest_error(502, 'upstream_error', 'Upstream error', ['status' => $http_status]);

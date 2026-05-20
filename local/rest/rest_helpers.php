@@ -39,6 +39,99 @@ function tacticum_rest_get_iblock_id(string $key, int $default = 0): int
     return $default;
 }
 
+function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram', 'offer', 'rest']): array
+{
+    $errors = [];
+    $scopes = array_values(array_unique($scopes));
+
+    $addError = static function (string $key, string $code) use (&$errors): void {
+        $errors[] = [
+            'key' => $key,
+            'code' => $code,
+        ];
+    };
+
+    $checkIblock = function (string $key) use ($addError): void {
+        if (tacticum_rest_get_iblock_id($key) <= 0) {
+            $addError('iblocks.' . $key, 'missing_or_invalid');
+        }
+    };
+
+    $checkHttpsUrl = function (string $key) use ($addError): void {
+        $value = trim(tacticum_rest_get_ai_setting($key));
+        if ($value === '') {
+            $addError('base_urls.' . $key, 'missing');
+            return;
+        }
+        if (filter_var($value, FILTER_VALIDATE_URL) === false) {
+            $addError('base_urls.' . $key, 'invalid_url');
+            return;
+        }
+        $scheme = strtolower((string)parse_url($value, PHP_URL_SCHEME));
+        if ($scheme !== 'https') {
+            $addError('base_urls.' . $key, 'https_required');
+        }
+    };
+
+    if (in_array('api', $scopes, true)) {
+        foreach (['cases', 'faq', 'rates', 'services'] as $key) {
+            $checkIblock($key);
+        }
+
+        $api = tacticum_rest_get_config_section('api');
+        $defaultTtl = $api['cache_ttl_default'] ?? null;
+        if ($defaultTtl !== null && !is_numeric($defaultTtl)) {
+            $addError('api.cache_ttl_default', 'invalid_type');
+        }
+
+        $ttlByAction = $api['cache_ttl'] ?? [];
+        if ($ttlByAction !== [] && !is_array($ttlByAction)) {
+            $addError('api.cache_ttl', 'invalid_type');
+        } elseif (is_array($ttlByAction)) {
+            foreach ($ttlByAction as $key => $ttl) {
+                if (!is_numeric($ttl)) {
+                    $addError('api.cache_ttl.' . (string)$key, 'invalid_type');
+                }
+            }
+        }
+    }
+
+    if (in_array('offer', $scopes, true)) {
+        $checkIblock('offer');
+    }
+
+    if (in_array('content', $scopes, true)) {
+        foreach (['vacancies', 'feedback', 'team', 'policies', 'aiagents'] as $key) {
+            $checkIblock($key);
+        }
+    }
+
+    if (in_array('ai', $scopes, true)) {
+        $checkHttpsUrl('AI_SERVICE_BASE_URL');
+    }
+
+    if (in_array('telegram', $scopes, true)) {
+        $checkHttpsUrl('TELEGRAM_RESOLVER_URL');
+    }
+
+    if (in_array('rest', $scopes, true)) {
+        $rest = tacticum_rest_get_config_section('rest');
+        $allowedOrigins = $rest['allowed_origins'] ?? [];
+        $allowNoOrigin = (bool)($rest['allow_no_origin'] ?? false);
+        if (!$allowNoOrigin && (!is_array($allowedOrigins) || empty($allowedOrigins))) {
+            $addError('rest.allowed_origins', 'missing');
+        }
+        if (isset($rest['allowed_ips']) && !is_array($rest['allowed_ips'])) {
+            $addError('rest.allowed_ips', 'invalid_type');
+        }
+        if (isset($rest['trusted_proxies']) && !is_array($rest['trusted_proxies'])) {
+            $addError('rest.trusted_proxies', 'invalid_type');
+        }
+    }
+
+    return $errors;
+}
+
 function tacticum_rest_response(bool $success, string $code, ?string $message, array $extra = [], int $status = 200): void
 {
     http_response_code($status);
@@ -472,6 +565,49 @@ function tacticum_api_bootstrap(string $action): int
     return $iblockId;
 }
 
+function tacticum_api_cache_ttl(string $action, int $default = 300): int
+{
+    $api = tacticum_rest_get_config_section('api');
+    $ttl = $api['cache_ttl_default'] ?? $default;
+    if (isset($api['cache_ttl']) && is_array($api['cache_ttl']) && array_key_exists($action, $api['cache_ttl'])) {
+        $ttl = $api['cache_ttl'][$action];
+    }
+
+    $ttl = (int)$ttl;
+    return $ttl < 0 ? 0 : $ttl;
+}
+
+function tacticum_api_cached_payload(string $action, int $iblockId, callable $builder, array $cacheContext = []): array
+{
+    $ttl = tacticum_api_cache_ttl($action);
+    if ($ttl <= 0) {
+        $payload = $builder();
+        return is_array($payload) ? $payload : [];
+    }
+
+    $cache = Cache::createInstance();
+    $cacheKey = 'tacticum_api_' . $action . '_' . md5($iblockId . '|' . serialize($cacheContext));
+    $cacheDir = '/tacticum/api';
+
+    if ($cache->initCache($ttl, $cacheKey, $cacheDir)) {
+        $vars = $cache->getVars();
+        if (is_array($vars) && isset($vars['payload']) && is_array($vars['payload'])) {
+            return $vars['payload'];
+        }
+    }
+
+    $payload = $builder();
+    if (!is_array($payload)) {
+        $payload = [];
+    }
+
+    if ($cache->startDataCache($ttl, $cacheKey, $cacheDir)) {
+        $cache->endDataCache(['payload' => $payload]);
+    }
+
+    return $payload;
+}
+
 function tacticum_api_fetch_elements(int $iblockId, array $select, array $filter = [], array $order = ['SORT' => 'ASC'])
 {
     $filter = array_merge([
@@ -615,6 +751,48 @@ function tacticum_rest_apply_curl_defaults($ch): void
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+}
+
+function tacticum_rest_post_json(string $endpoint_url, array $payload, string $context): array
+{
+    $ch = curl_init($endpoint_url);
+    tacticum_rest_apply_curl_defaults($ch);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+    $response = curl_exec($ch);
+    $result = [
+        'response' => $response,
+        'curl_error_no' => curl_errno($ch),
+        'curl_error' => curl_error($ch),
+        'http_status' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
+        'total_time' => curl_getinfo($ch, CURLINFO_TOTAL_TIME),
+        'start_transfer_time' => curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME),
+    ];
+
+    tacticum_rest_log_tls_error($ch, $context);
+    curl_close($ch);
+
+    return $result;
+}
+
+function tacticum_rest_fail_on_curl_error(array $result, string $context, string $message = 'Ошибка соединения с внешним сервисом.'): void
+{
+    $curl_error_no = (int)($result['curl_error_no'] ?? 0);
+    if ($curl_error_no === 0) {
+        return;
+    }
+
+    $curl_error = (string)($result['curl_error'] ?? '');
+    $total_time = (float)($result['total_time'] ?? 0);
+    $start_transfer_time = (float)($result['start_transfer_time'] ?? 0);
+    $http_status = (int)($result['http_status'] ?? 0);
+
+    AddMessage2Log("Curl error ({$context}): errno={$curl_error_no}; error={$curl_error}; total_time={$total_time}; start_transfer_time={$start_transfer_time}", $context . '_error');
+    $code = ($curl_error_no === CURLE_OPERATION_TIMEOUTED) ? 'upstream_timeout' : 'curl_error';
+    tacticum_rest_error(502, $code, $message, [
+        'upstream_status' => $http_status,
+        'upstream_time' => $total_time,
+    ]);
 }
 
 function tacticum_rest_log_tls_error($ch, string $context): void

@@ -17,6 +17,15 @@ return [
         'AI_SERVICE_BASE_URL' => 'https://ai.example.com',
         'TELEGRAM_RESOLVER_URL' => 'https://ai.example.com',
     ],
+    'api' => [
+        'cache_ttl_default' => 300,
+        'cache_ttl' => [
+            'cases' => 300,
+            'faq' => 300,
+            'rates' => 300,
+            'services' => 300,
+        ],
+    ],
     'rest' => [
         'allow_no_origin' => false,
         'allowed_origins' => [

@@ -1,6 +1,8 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Тактикум - Искусственный интеллект для вашего бизнеса");
+$APPLICATION->SetPageProperty("description", "AI-решения для бизнеса: автоматизация процессов, AI-консалтинг, внедрение ML и интеллектуальных ассистентов от Tacticum.");
+tacticum_apply_seo_defaults('/');
 ?>
 
 <!-- Hero Section -->
@@ -14,8 +16,8 @@ $APPLICATION->SetTitle("Тактикум - Искусственный интел
                     усиливать аналитику и расти с помощью современных AI-решений.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button onclick="window.location.href='/#calculator';" class="bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap"><a href="#calculator">Оценить свою идею</a></button>
-                    <button class="bg-white/10 backdrop-blur-sm text-white border border-white/30 px-8 py-3 rounded-button hover:bg-white/20 transition-colors whitespace-nowrap"><a href="#contact-form">Получить консультацию</a></button>
+                    <a href="#calculator" class="bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">Оценить свою идею</a>
+                    <a href="#contact-form" class="bg-white/10 backdrop-blur-sm text-white border border-white/30 px-8 py-3 rounded-button hover:bg-white/20 transition-colors whitespace-nowrap text-center">Получить консультацию</a>
                 </div>
             </div>
             <div class="w-full md:w-1/2 relative" id="main_chat">
@@ -131,7 +133,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "cases",
                 "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => "13",
+                "IBLOCK_ID" => tacticum_iblock_id('cases'),
                 "NEWS_COUNT" => "3",
                 "SORT_BY1" => "RAND",
                 "SORT_ORDER1" => "ASC",
@@ -206,7 +208,7 @@ $APPLICATION->IncludeComponent(
                 [
                         "COMPONENT_TEMPLATE" => "feedback",
                         "IBLOCK_TYPE" => "company",
-                        "IBLOCK_ID" => "9",
+                        "IBLOCK_ID" => tacticum_iblock_id('feedback'),
                         "NEWS_COUNT" => "3",
                         "SORT_BY1" => "SORT",
                         "SORT_ORDER1" => "ASC",
@@ -406,7 +408,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "faq",
                 "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => "10",
+                "IBLOCK_ID" => tacticum_iblock_id('faq'),
                 "NEWS_COUNT" => "0",
                 "SORT_BY1" => "SORT",
                 "SORT_ORDER1" => "ASC",
@@ -523,281 +525,5 @@ $APPLICATION->IncludeComponent(
         </div>
     </section>
 </div>
-
-<!-- ================== ЧАТЫ И CTA: JS ================== -->
-<script id="tacticum-chats">
-    document.addEventListener('DOMContentLoaded', function () {
-        function parseChatResult(response) {
-            return response.json()
-                .catch(() => null)
-                .then(data => ({ ok: response.ok, status: response.status, data }));
-        }
-
-        function getChatErrorMessage(result) {
-            const data = result && result.data ? result.data : null;
-            if (data && data.code === 'upstream_timeout') {
-                return 'AI-сервис не ответил вовремя. Попробуйте повторить запрос.';
-            }
-            if (data && (data.code === 'upstream_http_error' || data.code === 'upstream_error' || data.code === 'upstream_contract_error' || data.code === 'curl_error')) {
-                return 'AI-сервис временно перегружен. Оставьте заявку, и мы подготовим оценку вручную.';
-            }
-            if (data && (data.message || data.error)) {
-                return data.message || data.error;
-            }
-            return result && result.status
-                ? 'Ошибка сервера: ' + result.status
-                : 'AI-сервис не вернул ответ. Попробуйте повторить запрос.';
-        }
-
-        // =========================
-        // HERO-чат (#main_chat)
-        // =========================
-        (function initHeroChat(){
-            const root = document.getElementById('main_chat');
-            if (!root) return;
-
-            const chatArea  = root.querySelector('.space-y-4');
-            const chatInput = root.querySelector('input');
-            const sendBtn   = root.querySelector('#aichat');
-
-            if (!chatArea || !chatInput || !sendBtn) return;
-
-            let hero_group_id = null;
-            let hero_is_sending = false;
-            let hero_last_message = '';
-
-            function appendHero(role, htmlText) {
-                const div = document.createElement('div');
-                div.className = (role === 'user')
-                    ? 'bg-white/10 rounded-lg p-3 text-white'
-                    : 'bg-primary/20 rounded-lg p-3 text-white';
-                div.innerHTML = `<p class="text-sm text-white/70 mb-1">${role === 'user' ? 'Пользователь:' : 'AI-ассистент:'}</p>
-<p>${htmlText}</p>`;
-                chatArea.insertBefore(div, chatArea.lastElementChild);
-                chatArea.scrollTop = chatArea.scrollHeight;
-            }
-
-            function showTypingHero() {
-                if (chatArea.querySelector('.typing-indicator-container')) return;
-                const div = document.createElement('div');
-                div.className = 'bg-primary/20 rounded-lg p-3 text-white typing-indicator-container';
-                div.innerHTML = `<p class="text-sm text-white/70 mb-1">AI-ассистент:</p>
-<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-                chatArea.insertBefore(div, chatArea.lastElementChild);
-                chatArea.scrollTop = chatArea.scrollHeight;
-            }
-            function hideTypingHero() {
-                const el = chatArea.querySelector('.typing-indicator-container');
-                if (el) el.remove();
-            }
-
-            function sendHero() {
-                const message = (chatInput.value || '').trim();
-                if (!message || hero_is_sending) return;
-
-                hero_last_message = message;
-                appendHero('user', message.replace(/\n/g, '<br>'));
-                chatInput.value = '';
-                hero_is_sending = true;
-                sendBtn.disabled = true;
-                showTypingHero();
-
-                const body = { user_message: message };
-                if (hero_group_id) {
-                    body.group_id = hero_group_id;
-                } else {
-                    body.startAgent = 'ITExpertAgent';
-                }
-                if (window.BX && typeof BX.bitrix_sessid === 'function') {
-                    body.sessid = BX.bitrix_sessid();
-                }
-
-                fetch('/local/rest/tacticum_chat.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(body)
-                })
-                    .then(parseChatResult)
-                    .then(result => {
-                        const res = result.data || {};
-                        hideTypingHero();
-                        if (result.ok && res.response) {
-                            const offerLink = res.group_id
-                                ? '<a href="#contact-form" class="offer-link">Оформить заявку</a>'
-                                : '<a href="#contact-form" class="fallback-offer-link">Оформить заявку</a>';
-                            const tail = (res.bitrix_url)
-                                ? `<br/><br/>${offerLink} <a href="${res.bitrix_url}" target="_blank" rel="noopener">Полный расчет</a> <a href="/" target="_blank" rel="noopener">Новый расчет</a>`
-                                : '';
-                            appendHero('ai', (res.response || '').replace(/\n/g, '<br>') + tail);
-                            if (res.group_id) hero_group_id = res.group_id;
-                        } else {
-                            appendHero('ai', getChatErrorMessage(result) + '<br/><br/><a href="#contact-form" class="fallback-offer-link">Оформить заявку</a>');
-                        }
-                    })
-                    .catch(err => {
-                        hideTypingHero();
-                        appendHero('ai', 'Ошибка запроса: ' + err.message + '<br/><br/><a href="#contact-form" class="fallback-offer-link">Оформить заявку</a>');
-                    })
-                    .finally(() => {
-                        hero_is_sending = false;
-                        sendBtn.disabled = false;
-                    });
-            }
-
-            sendBtn.addEventListener('click', sendHero);
-            chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendHero(); });
-
-            // Автозаполнение формы из ответа (только клики внутри HERO-чата)
-            chatArea.addEventListener('click', function(e) {
-                const fallbackLink = e.target.closest('.fallback-offer-link');
-                if (fallbackLink) {
-                    e.preventDefault();
-                    const msgEl = document.getElementById('cta-message');
-                    if (msgEl && hero_last_message) {
-                        msgEl.value = hero_last_message;
-                        window.tacticum_offer_context = { task: hero_last_message };
-                    }
-                    const cf = document.getElementById('contact-form');
-                    if (cf) cf.scrollIntoView({behavior: 'smooth'});
-                    if (msgEl) msgEl.focus();
-                    return;
-                }
-
-                if (!e.target.closest('.offer-link')) return;
-                e.preventDefault();
-                if (!hero_group_id) { alert('Не найден идентификатор обращения.'); return; }
-
-                // очистка формы
-                const nameEl = document.getElementById('cta-name');
-                const msgEl  = document.getElementById('cta-message');
-                if (nameEl) nameEl.value = '';
-                if (msgEl)  msgEl.value  = '';
-
-                const prefillParams = new URLSearchParams({ group_id: hero_group_id });
-                if (window.BX && typeof BX.bitrix_sessid === 'function') {
-                    prefillParams.set('sessid', BX.bitrix_sessid());
-                }
-
-                fetch('/local/rest/tacticum_prefill.php?' + prefillParams.toString())
-                    .then(r => r.json())
-                    .then(res => {
-                        if (res.success) {
-                            if (nameEl) nameEl.value = res.client_name || '';
-                            if (msgEl)  msgEl.value  = res.summary || '';
-                            window.tacticum_offer_context = { groupId: res.group_id, task: res.summary };
-                        } else {
-                            alert(res.error || 'Ошибка автозаполнения формы');
-                        }
-                        const cf = document.getElementById('contact-form');
-                        if (cf) cf.scrollIntoView({behavior: 'smooth'});
-                        if (nameEl) nameEl.focus();
-                    })
-                    .catch(err => alert('Ошибка получения данных: ' + err.message));
-            });
-        })();
-
-        // =========================
-        // КАЛЬКУЛЯТОР (section#calculator)
-        // =========================
-        (function initCalculatorChat(){
-            const calcSection = document.querySelector('section#calculator');
-            if (!calcSection) return;
-
-            const msgs     = calcSection.querySelector('#chatMessages');
-            const inputEl  = calcSection.querySelector('#userMessage');
-            const sendBtn  = calcSection.querySelector('#sendMessage');
-            if (!msgs || !inputEl || !sendBtn) return;
-
-            let calc_group_id = null;
-            let calc_is_sending = false;
-
-            function appendCalc(role, text) {
-                const div = document.createElement('div');
-                if (role === 'user') {
-                    div.className = 'bg-white/5 rounded-lg p-3 text-white';
-                    div.innerHTML = `<p class="text-sm text-white/70 mb-1">Пользователь:</p><p>${text}</p>`;
-                } else {
-                    div.className = 'bg-white/10 rounded-lg p-3 text-white';
-                    div.innerHTML = `<p class="text-sm text-white/70 mb-1">AI-ассистент:</p><p>${text}</p>`;
-                }
-                msgs.appendChild(div);
-                msgs.scrollTop = msgs.scrollHeight;
-            }
-            function showTypingCalc() {
-                if (msgs.querySelector('.typing-indicator-container')) return;
-                const div = document.createElement('div');
-                div.className = 'bg-white/10 rounded-lg p-3 text-white typing-indicator-container';
-                div.innerHTML = `<p class="text-sm text-white/70 mb-1">AI-ассистент:</p>
-<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-                msgs.appendChild(div);
-                msgs.scrollTop = msgs.scrollHeight;
-            }
-            function hideTypingCalc() {
-                const el = msgs.querySelector('.typing-indicator-container');
-                if (el) el.remove();
-            }
-
-            function sendCalc() {
-                const raw = (inputEl.value || '').trim();
-                if (!raw || calc_is_sending) return;
-
-                appendCalc('user', raw.replace(/\n/g, '<br>'));
-                inputEl.value = '';
-                calc_is_sending = true;
-                sendBtn.disabled = true;
-                showTypingCalc();
-
-                const body = { user_message: raw };
-                if (window.BX && typeof BX.bitrix_sessid === 'function') {
-                    body.sessid = BX.bitrix_sessid();
-                }
-
-                if (calc_group_id) {
-                    body.group_id = calc_group_id;
-                } else {
-                    body.startAgent = 'ITExpertAgent'; // ключевое отличие калькулятора
-                }
-
-                fetch('/local/rest/tacticum_chat.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(body)
-                })
-                    .then(parseChatResult)
-                    .then(result => {
-                        const res = result.data || {};
-                        hideTypingCalc();
-                        if (result.ok && res.response) {
-                            appendCalc('ai', (res.response || '').replace(/\n/g, '<br>'));
-                            if (res.group_id) calc_group_id = res.group_id;
-                        } else {
-                            appendCalc('ai', getChatErrorMessage(result) + '<br/><br/><a href="#contact-form">Оформить заявку</a>');
-                        }
-                    })
-                    .catch(err => {
-                        hideTypingCalc();
-                        appendCalc('ai', 'Ошибка запроса: ' + err.message + '<br/><br/><a href="#contact-form">Оформить заявку</a>');
-                    })
-                    .finally(() => {
-                        calc_is_sending = false;
-                        sendBtn.disabled = false;
-                    });
-            }
-
-            sendBtn.addEventListener('click', sendCalc);
-            inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') sendCalc(); });
-        })();
-
-    });
-</script>
-
-<!-- Локальные стили для индикатора печати (если нет в общем CSS) -->
-<style>
-    .typing-indicator { display:inline-flex; gap:6px; vertical-align:middle; }
-    .typing-indicator span { width:6px; height:6px; border-radius:50%; display:block; opacity:0.5; animation: ti-bounce 1s infinite ease-in-out; }
-    .typing-indicator span:nth-child(2){ animation-delay:.15s; }
-    .typing-indicator span:nth-child(3){ animation-delay:.3s; }
-    @keyframes ti-bounce { 0%,80%,100%{ transform:translateY(0); opacity:.5; } 40%{ transform:translateY(-6px); opacity:1; } }
-</style>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

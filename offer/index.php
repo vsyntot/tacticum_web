@@ -1,6 +1,9 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$offerId = (int)($_REQUEST["ID"] ?? 0);
 $APPLICATION->SetTitle("Предложение - Тактикум");
+$APPLICATION->SetPageProperty("description", "Персональное предложение Tacticum по AI-проекту: состав работ, команда, сроки и заявка на консультацию.");
+tacticum_apply_seo_defaults($offerId > 0 ? '/offer/?ID=' . $offerId : '/offer/');
 ?>
 
 <?
@@ -10,8 +13,8 @@ $APPLICATION->IncludeComponent(
 	[
 		"COMPONENT_TEMPLATE" => "offer",
 		"IBLOCK_TYPE" => "client_requests",
-		"IBLOCK_ID" => "5",
-		"ELEMENT_ID" => $_REQUEST["ID"],
+		"IBLOCK_ID" => tacticum_iblock_id('offer'),
+		"ELEMENT_ID" => $offerId,
 		"ELEMENT_CODE" => "",
 		"CHECK_DATES" => "Y",
 		"FIELD_CODE" => [

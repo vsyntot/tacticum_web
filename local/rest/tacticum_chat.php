@@ -56,31 +56,16 @@ if ($start_agent !== '') {
     $endpoint_url .= '?' . http_build_query(['startAgent' => $start_agent]);
 }
 
-$ch = curl_init($endpoint_url);
-tacticum_rest_apply_curl_defaults($ch);
-curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
-
-$response = curl_exec($ch);
-$curl_error_no = curl_errno($ch);
-$curl_error = curl_error($ch);
-$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
-$start_transfer_time = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
-tacticum_rest_log_tls_error($ch, 'tacticum_chat');
-curl_close($ch);
+$result = tacticum_rest_post_json($endpoint_url, $payload, 'tacticum_chat');
+$response = $result['response'];
+$http_status = (int)$result['http_status'];
+$total_time = (float)$result['total_time'];
+$start_transfer_time = (float)$result['start_transfer_time'];
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
 AddMessage2Log(serialize($masked_response), "tacticum_chat_response");
 
-if ($curl_error_no !== 0) {
-    AddMessage2Log("Curl error (tacticum_chat): errno={$curl_error_no}; error={$curl_error}; total_time={$total_time}; start_transfer_time={$start_transfer_time}", 'tacticum_chat_error');
-    $code = ($curl_error_no === CURLE_OPERATION_TIMEOUTED) ? 'upstream_timeout' : 'curl_error';
-    tacticum_rest_error(502, $code, 'Ошибка соединения с AI endpoint.', [
-        'upstream_status' => $http_status,
-        'upstream_time' => $total_time,
-    ]);
-}
+tacticum_rest_fail_on_curl_error($result, 'tacticum_chat', 'Ошибка соединения с AI endpoint.');
 
 if ($http_status !== 200 || !$response) {
     $response_length = is_string($response) ? strlen($response) : 0;

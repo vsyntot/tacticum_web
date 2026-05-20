@@ -475,24 +475,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
     </div>
 </section>
 
-<script>
-    document.querySelectorAll("[data-project-info]").forEach(function (button) {
-        button.addEventListener("click", function () {
-            var info = button.getAttribute("data-project-info");
-            var messageField = document.querySelector("#message");
-            if (!messageField || !info) {
-                return;
-            }
-            if (messageField.value.trim() === "") {
-                messageField.value = info;
-            } else if (!messageField.value.includes(info)) {
-                messageField.value = messageField.value.trim() + "\n\n" + info;
-            }
-            messageField.focus();
-        });
-    });
-</script>
-
 <?
 $APPLICATION->IncludeComponent(
     "bitrix:news.list",
@@ -500,7 +482,7 @@ $APPLICATION->IncludeComponent(
     [
         "COMPONENT_TEMPLATE" => "faq",
         "IBLOCK_TYPE" => "company",
-        "IBLOCK_ID" => "10",
+        "IBLOCK_ID" => tacticum_iblock_id('faq'),
         "NEWS_COUNT" => "0",
         "SORT_BY1" => "SORT",
         "SORT_ORDER1" => "ASC",
