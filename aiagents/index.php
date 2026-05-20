@@ -328,7 +328,7 @@ $APPLICATION->IncludeComponent(
                     <input type="checkbox" id="agreementInline" data-tacticum-consent required class="mt-1">
                     <label for="agreementInline" class="text-sm text-gray-600">
                         Я согласен на обработку персональных данных и принимаю условия
-                        <a href="/policies/" class="underline">политики конфиденциальности</a>
+                        <a href="/policies/" target="_blank" rel="noopener" class="underline">политики конфиденциальности</a>
                     </label>
                 </div>
 

@@ -17,10 +17,9 @@
 
 Основные риски:
 
-- часть legacy-кода всё ещё нарушает принятые ADR: хардкод ID инфоблоков, HTTP fallback URL, `CModule::IncludeModule`;
+- часть legacy-кода всё ещё нарушает принятые ADR: хардкод ID инфоблоков в публичных страницах и дублированная chat logic;
 - публичные страницы содержат много inline JS/CSS и дублируют chat logic;
-- sitemap использует HTTP URL и не содержит все публичные страницы;
-- локальный `tacticum_config.php` содержит HTTP base URLs, что конфликтует с правилом production HTTPS;
+- production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy;
 - GET API без явного кеширования может создавать лишнюю нагрузку при росте использования;
 - продуктовые сценарии AI-чата/калькулятора/оффера реализованы, но не оформлены как единый контракт и smoke-suite.
 
@@ -48,16 +47,13 @@
 | `rates` | 11 | Тарифы |
 | `services` | 12 | Услуги |
 | `offer` | 5 | Коммерческие предложения / расчёты |
+| `vacancies` | 7 | Вакансии |
+| `feedback` | 9 | Отзывы / feedback |
+| `team` | 18 | Команда |
+| `policies` | 19 | Политики / legal контент |
+| `aiagents` | 20 | AI agents |
 
-Дополнительно используются на страницах, но не закреплены в текущем config/ADR:
-
-| ID | Где найдено | Предполагаемое назначение |
-|---:|---|---|
-| 7 | `about/index.php` | Партнёры/клиенты/командный контент |
-| 9 | `index.php` | Services/clients/feedback content |
-| 18 | `about/index.php` | Вакансии/команда |
-| 19 | `policies/index.php` | Политика конфиденциальности |
-| 20 | `aiagents/index.php` | AI agents/demo agents |
+Публичные страницы пока продолжают использовать legacy numeric `IBLOCK_ID` в `IncludeComponent`; ключи уже описаны для планового рефакторинга.
 
 ## REST/API State
 
@@ -80,19 +76,19 @@ Endpoints:
 | `/local/api/rates.php` | `rates` | `name`, sections, properties |
 | `/local/api/services.php` | `services` | `name`, preview, detail, properties |
 
-Замечание: используется legacy `CModule::IncludeModule()` внутри helper, хотя проектные правила требуют D7 `Loader::includeModule()` для нового кода.
+Замечание: helper переведён на D7 `Loader::includeModule()` для подключения `iblock`.
 
 ### POST REST
 
 | Endpoint | Назначение | Состояние |
 |---|---|---|
-| `tacticum_form.php` | Единый endpoint форм и заказа специалистов | Лучший текущий эталон: есть HTTPS scheme check, validation, PII masking |
-| `tacticum_chat.php` | AI chat | Есть origin/rate/CSRF, но HTTP fallback URL и лог-теги `data/request/response` слишком общие |
-| `tacticum_offer.php` | Sale request | Есть security bootstrap, но HTTP fallback URL и дублирование логики `tacticum_form.php` |
-| `tacticum_sale.php` | Sale request | Похоже дублирует `tacticum_offer.php`; HTTP fallback URL |
-| `tacticum_sale_staff.php` | Заказ специалистов | Похоже дублирует ветку `tacticum_form.php`; HTTP fallback URL |
-| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | GET-параметр читается через `$_GET`, используется `CModule`, есть fallback `offer=5`, логирует весь объект |
-| `resolve_telegram_link.php` | Telegram link resolver | HTTP fallback URL, request payload без явного `sessid` на фронте, логирование может раскрывать URL/start-параметры |
+| `tacticum_form.php` | Default endpoint публичных лид-форм | HTTPS URL через shared helper, validation, PII masking |
+| `tacticum_chat.php` | AI chat | Origin/rate/явный CSRF, HTTPS URL через shared helper, унифицированные log tags |
+| `tacticum_offer.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared helper; остаётся дублирование `tacticum_form.php` |
+| `tacticum_sale.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared helper; похоже дублирует `tacticum_offer.php` |
+| `tacticum_sale_staff.php` | Заказ специалистов | Доменный staff endpoint для `/price/`: rich `workers[]` payload + adapter в `/tacticum/v1/chat_agent/sale` до восстановления workers API |
+| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | GET-параметр + явный `sessid`, `Loader::includeModule`, masked summary log; семантика GET/REST остаётся debt |
+| `resolve_telegram_link.php` | Telegram link resolver | Origin/rate/явный CSRF, HTTPS URL через shared helper; logging taxonomy ещё можно улучшить |
 
 ## Frontend State
 
@@ -119,6 +115,7 @@ Endpoints:
 
 - main CTA: `index.php`;
 - about CTA: `about/index.php`;
+- services CTA: `services/index.php`;
 - calculator CTA: `calculator/index.php`;
 - price CTA: `price/index.php`;
 - offer CTA: `local/templates/tacticum/components/bitrix/news.detail/offer/template.php`;
@@ -132,7 +129,8 @@ Endpoints:
 - добавляет `page_url`;
 - добавляет `sessid`, если доступен `BX.bitrix_sessid()`;
 - добавляет `group_id` из `window.tacticum_offer_context`;
-- отправляет всё в `/local/rest/tacticum_form.php`;
+- отправляет формы в `/local/rest/tacticum_form.php` по умолчанию;
+- поддерживает `data-endpoint` для доменных сценариев, например `/price/` staff-order;
 - показывает toast и reset/close modal.
 
 ### AI Chat
@@ -148,7 +146,7 @@ Endpoints:
 
 ## SEO State
 
-Текущий `sitemap.xml` — sitemap index, указывает на `http://tacticum.ru/sitemap-files.xml`.
+Текущий `sitemap.xml` — sitemap index, указывает на `https://tacticum.ru/sitemap-files.xml`.
 
 `sitemap-files.xml` содержит:
 
@@ -158,14 +156,9 @@ Endpoints:
 - `/calculator/`
 - `/contacts/`
 - `/offer/`
+- `/policies/`
 - `/price/`
 - `/services/`
-
-Не содержит:
-
-- `/policies/`
-
-Также sitemap URL используют HTTP, тогда как `robots.txt` указывает HTTPS sitemap.
 
 Большинство страниц задают только `SetTitle(...)`; `description`/OpenGraph не систематизированы.
 
@@ -182,13 +175,11 @@ Endpoints:
 `pr-check.yml`:
 
 - PHP syntax по `local/`;
-- warning при хардкоде iblock ID в `local/rest`/`local/api`;
-- warning при возможном PII logging;
-- warning при `curl_init('http://...')`;
-- warning при отсутствии `validate_origin`/`rate_limit` в новых REST-файлах;
+- blocker при хардкоде iblock ID, HTTP fallback, raw PII logging и пропущенном bootstrap в изменённых runtime-файлах;
+- warning при hardcoded `IBLOCK_ID` в публичных legacy-страницах;
 - blocker для изменений в `bitrix/`.
 
-Gap: часть проверок warning, а не blocker; проверки не покрывают публичные страницы с хардкодом `IBLOCK_ID`.
+Gap: public page hardcoded `IBLOCK_ID` пока warning-level, потому что полный refactor публичных компонентов вынесен в следующий спринт.
 
 ## Архитектурные Решения
 
@@ -199,7 +190,7 @@ Gap: часть проверок warning, а не blocker; проверки не
 - ADR-003: ID инфоблоков через `tacticum_rest_get_iblock_id()`.
 - ADR-004: PII masking до логирования.
 
-Фактическое состояние частично не соответствует ADR-003/ADR-004/HTTPS правилу из Copilot instructions.
+Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной остаток — legacy публичные страницы и унификация chat/frontend.
 
 ## Текущее Резюме Здоровья
 
@@ -207,8 +198,8 @@ Gap: часть проверок warning, а не blocker; проверки не
 |---|---|---|
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Среднее: pattern есть, но endpoints неоднородны | Средний |
-| Config discipline | Среднее: helpers есть, но есть fallback/hardcode | Высокий для переносимости/security |
+| Config discipline | Среднее: runtime helpers enforce HTTPS, public pages still legacy | Средний |
 | Frontend maintainability | Среднее/низкое: много inline JS и дублирования | Средний |
-| SEO | Среднее/низкое: sitemap HTTP/stale, meta неполные | Средний |
-| CI/CD | Среднее: есть базовые проверки, мало blockers | Средний |
+| SEO | Среднее: sitemap исправлен, meta неполные | Средний |
+| CI/CD | Среднее/хорошее: runtime blockers есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее: лид-формы есть, AI-chat есть, но сценарии разрознены | Средний |

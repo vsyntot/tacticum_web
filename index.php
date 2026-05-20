@@ -480,34 +480,40 @@ $APPLICATION->IncludeComponent(
                         Оставьте заявку, и наш менеджер свяжется с вами в течение 2 часов, чтобы обсудить детали и
                         подготовить индивидуальное предложение с учетом всех доступных скидок и акций.
                     </p>
-                    <form id="cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6" data-tacticum-form data-form-id="home-cta">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div class="relative">
-                                <input type="text" id="cta-name" name="name" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-name" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Имя</label>
+                    <form id="cta-form" class="tacticum-personal-offer-form bg-white text-secondary rounded-lg p-6 mb-6 shadow-lg border border-white/20" data-tacticum-form data-form-id="home-cta">
+                        <div class="tacticum-personal-offer-form__grid grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="tacticum-personal-offer-form__field">
+                                <label for="cta-name" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Имя <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
+                                <input type="text" id="cta-name" name="name" required autocomplete="name" placeholder="Иван"
+                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
                             </div>
-                            <div class="relative">
-                                <input type="text" id="cta-company" name="company" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-company" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Компания</label>
+                            <div class="tacticum-personal-offer-form__field">
+                                <label for="cta-company" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Компания</label>
+                                <input type="text" id="cta-company" name="company" autocomplete="organization" placeholder="Название компании"
+                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
                             </div>
-                            <div class="relative">
-                                <input type="email" id="cta-email" name="email" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-email" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Email</label>
+                            <div class="tacticum-personal-offer-form__field">
+                                <label for="cta-email" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Email <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
+                                <input type="email" id="cta-email" name="email" required autocomplete="email" placeholder="mail@example.com"
+                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
                             </div>
-                            <div class="relative">
-                                <input type="tel" id="cta-phone" name="phone" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-phone" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Телефон</label>
+                            <div class="tacticum-personal-offer-form__field">
+                                <label for="cta-phone" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Телефон <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
+                                <input type="tel" id="cta-phone" name="phone" required autocomplete="tel" placeholder="+7 999 000-00-00"
+                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
                             </div>
                         </div>
-                        <div class="relative mb-6">
-                            <textarea id="cta-message" name="message" rows="4" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
-                            <label for="cta-message" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Опишите ваш проект или интересующее предложение</label>
+                        <div class="tacticum-personal-offer-form__message mb-6">
+                            <label for="cta-message" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Опишите проект или интересующее предложение <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
+                            <textarea id="cta-message" name="message" rows="4" required placeholder="Кратко опишите задачу, сроки и ожидаемый результат"
+                                      class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3"></textarea>
                         </div>
-                        <div class="flex items-start gap-2 mb-6">
-                            <input type="checkbox" id="cta-agreement" data-tacticum-consent required class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
-                            <label for="cta-agreement" class="text-sm text-white/70">Я согласен на обработку персональных данных и принимаю условия <a href="#" class="underline hover:text-white">политики конфиденциальности</a></label>
+                        <div class="tacticum-personal-offer-form__consent flex items-start gap-3 rounded-lg bg-gray-50 p-3 mb-6">
+                            <input type="checkbox" id="cta-agreement" data-tacticum-consent required
+                                   class="tacticum-personal-offer-form__checkbox mt-1 w-4 h-4">
+                            <label for="cta-agreement" class="tacticum-personal-offer-form__consent-text text-sm leading-5 text-gray-600">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary underline">политики конфиденциальности</a></label>
                         </div>
-                        <button type="submit" class="w-full bg-white text-primary font-medium px-6 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap">Получить персональное предложение</button>
+                        <button type="submit" class="tacticum-personal-offer-form__submit w-full bg-primary text-white font-medium px-6 py-3 rounded-lg transition-colors whitespace-nowrap">Получить персональное предложение</button>
                     </form>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -521,6 +527,28 @@ $APPLICATION->IncludeComponent(
 <!-- ================== ЧАТЫ И CTA: JS ================== -->
 <script id="tacticum-chats">
     document.addEventListener('DOMContentLoaded', function () {
+        function parseChatResult(response) {
+            return response.json()
+                .catch(() => null)
+                .then(data => ({ ok: response.ok, status: response.status, data }));
+        }
+
+        function getChatErrorMessage(result) {
+            const data = result && result.data ? result.data : null;
+            if (data && data.code === 'upstream_timeout') {
+                return 'AI-сервис не ответил вовремя. Попробуйте повторить запрос.';
+            }
+            if (data && (data.code === 'upstream_http_error' || data.code === 'upstream_error' || data.code === 'upstream_contract_error' || data.code === 'curl_error')) {
+                return 'AI-сервис временно перегружен. Оставьте заявку, и мы подготовим оценку вручную.';
+            }
+            if (data && (data.message || data.error)) {
+                return data.message || data.error;
+            }
+            return result && result.status
+                ? 'Ошибка сервера: ' + result.status
+                : 'AI-сервис не вернул ответ. Попробуйте повторить запрос.';
+        }
+
         // =========================
         // HERO-чат (#main_chat)
         // =========================
@@ -535,6 +563,8 @@ $APPLICATION->IncludeComponent(
             if (!chatArea || !chatInput || !sendBtn) return;
 
             let hero_group_id = null;
+            let hero_is_sending = false;
+            let hero_last_message = '';
 
             function appendHero(role, htmlText) {
                 const div = document.createElement('div');
@@ -563,41 +593,55 @@ $APPLICATION->IncludeComponent(
 
             function sendHero() {
                 const message = (chatInput.value || '').trim();
-                if (!message) return;
+                if (!message || hero_is_sending) return;
 
+                hero_last_message = message;
                 appendHero('user', message.replace(/\n/g, '<br>'));
                 chatInput.value = '';
+                hero_is_sending = true;
                 sendBtn.disabled = true;
                 showTypingHero();
 
                 const body = { user_message: message };
-                if (hero_group_id) body.group_id = hero_group_id; // НЕТ startAgent
+                if (hero_group_id) {
+                    body.group_id = hero_group_id;
+                } else {
+                    body.startAgent = 'ITExpertAgent';
+                }
+                if (window.BX && typeof BX.bitrix_sessid === 'function') {
+                    body.sessid = BX.bitrix_sessid();
+                }
 
                 fetch('/local/rest/tacticum_chat.php', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(body)
                 })
-                    .then(r => r.json())
-                    .then(res => {
+                    .then(parseChatResult)
+                    .then(result => {
+                        const res = result.data || {};
                         hideTypingHero();
-                        if (res.response) {
+                        if (result.ok && res.response) {
+                            const offerLink = res.group_id
+                                ? '<a href="#contact-form" class="offer-link">Оформить заявку</a>'
+                                : '<a href="#contact-form" class="fallback-offer-link">Оформить заявку</a>';
                             const tail = (res.bitrix_url)
-                                ? `<br/><br/><a href="#contact-form" class="offer-link">Оформить заявку</a> <a href="${res.bitrix_url}" target="_blank">Полный расчет</a> <a href="/" target="_blank">Новый расчет</a>`
+                                ? `<br/><br/>${offerLink} <a href="${res.bitrix_url}" target="_blank" rel="noopener">Полный расчет</a> <a href="/" target="_blank" rel="noopener">Новый расчет</a>`
                                 : '';
                             appendHero('ai', (res.response || '').replace(/\n/g, '<br>') + tail);
                             if (res.group_id) hero_group_id = res.group_id;
-                        } else if (res.error) {
-                            appendHero('ai', 'Ошибка ответа от AI: ' + res.error);
                         } else {
-                            appendHero('ai', 'Неожиданный ответ сервера.');
+                            appendHero('ai', getChatErrorMessage(result) + '<br/><br/><a href="#contact-form" class="fallback-offer-link">Оформить заявку</a>');
                         }
                     })
                     .catch(err => {
                         hideTypingHero();
-                        appendHero('ai', 'Ошибка запроса: ' + err.message);
+                        appendHero('ai', 'Ошибка запроса: ' + err.message + '<br/><br/><a href="#contact-form" class="fallback-offer-link">Оформить заявку</a>');
                     })
-                    .finally(() => { sendBtn.disabled = false; });
+                    .finally(() => {
+                        hero_is_sending = false;
+                        sendBtn.disabled = false;
+                    });
             }
 
             sendBtn.addEventListener('click', sendHero);
@@ -605,7 +649,21 @@ $APPLICATION->IncludeComponent(
 
             // Автозаполнение формы из ответа (только клики внутри HERO-чата)
             chatArea.addEventListener('click', function(e) {
-                if (!e.target.matches('.offer-link')) return;
+                const fallbackLink = e.target.closest('.fallback-offer-link');
+                if (fallbackLink) {
+                    e.preventDefault();
+                    const msgEl = document.getElementById('cta-message');
+                    if (msgEl && hero_last_message) {
+                        msgEl.value = hero_last_message;
+                        window.tacticum_offer_context = { task: hero_last_message };
+                    }
+                    const cf = document.getElementById('contact-form');
+                    if (cf) cf.scrollIntoView({behavior: 'smooth'});
+                    if (msgEl) msgEl.focus();
+                    return;
+                }
+
+                if (!e.target.closest('.offer-link')) return;
                 e.preventDefault();
                 if (!hero_group_id) { alert('Не найден идентификатор обращения.'); return; }
 
@@ -615,7 +673,12 @@ $APPLICATION->IncludeComponent(
                 if (nameEl) nameEl.value = '';
                 if (msgEl)  msgEl.value  = '';
 
-                fetch('/local/rest/tacticum_prefill.php?group_id=' + encodeURIComponent(hero_group_id))
+                const prefillParams = new URLSearchParams({ group_id: hero_group_id });
+                if (window.BX && typeof BX.bitrix_sessid === 'function') {
+                    prefillParams.set('sessid', BX.bitrix_sessid());
+                }
+
+                fetch('/local/rest/tacticum_prefill.php?' + prefillParams.toString())
                     .then(r => r.json())
                     .then(res => {
                         if (res.success) {
@@ -646,7 +709,7 @@ $APPLICATION->IncludeComponent(
             if (!msgs || !inputEl || !sendBtn) return;
 
             let calc_group_id = null;
-            let calc_started  = false; // чтобы один раз отправить startAgent
+            let calc_is_sending = false;
 
             function appendCalc(role, text) {
                 const div = document.createElement('div');
@@ -676,20 +739,23 @@ $APPLICATION->IncludeComponent(
 
             function sendCalc() {
                 const raw = (inputEl.value || '').trim();
-                if (!raw) return;
+                if (!raw || calc_is_sending) return;
 
                 appendCalc('user', raw.replace(/\n/g, '<br>'));
                 inputEl.value = '';
+                calc_is_sending = true;
                 sendBtn.disabled = true;
                 showTypingCalc();
 
                 const body = { user_message: raw };
+                if (window.BX && typeof BX.bitrix_sessid === 'function') {
+                    body.sessid = BX.bitrix_sessid();
+                }
 
                 if (calc_group_id) {
                     body.group_id = calc_group_id;
-                } else if (!calc_started) {
+                } else {
                     body.startAgent = 'ITExpertAgent'; // ключевое отличие калькулятора
-                    calc_started = true;
                 }
 
                 fetch('/local/rest/tacticum_chat.php', {
@@ -697,23 +763,25 @@ $APPLICATION->IncludeComponent(
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(body)
                 })
-                    .then(r => r.json())
-                    .then(res => {
+                    .then(parseChatResult)
+                    .then(result => {
+                        const res = result.data || {};
                         hideTypingCalc();
-                        if (res.response) {
+                        if (result.ok && res.response) {
                             appendCalc('ai', (res.response || '').replace(/\n/g, '<br>'));
                             if (res.group_id) calc_group_id = res.group_id;
-                        } else if (res.error) {
-                            appendCalc('ai', 'Ошибка ответа от AI: ' + res.error);
                         } else {
-                            appendCalc('ai', 'Неожиданный ответ сервера.');
+                            appendCalc('ai', getChatErrorMessage(result) + '<br/><br/><a href="#contact-form">Оформить заявку</a>');
                         }
                     })
                     .catch(err => {
                         hideTypingCalc();
-                        appendCalc('ai', 'Ошибка запроса: ' + err.message);
+                        appendCalc('ai', 'Ошибка запроса: ' + err.message + '<br/><br/><a href="#contact-form">Оформить заявку</a>');
                     })
-                    .finally(() => { sendBtn.disabled = false; });
+                    .finally(() => {
+                        calc_is_sending = false;
+                        sendBtn.disabled = false;
+                    });
             }
 
             sendBtn.addEventListener('click', sendCalc);

@@ -14,8 +14,8 @@ return [
         'aiagents' => 20,
     ],
     'base_urls' => [
-        'AI_SERVICE_BASE_URL' => 'https://api.tacticum.ru',
-        'TELEGRAM_RESOLVER_URL' => 'https://api.tacticum.ru',
+        'AI_SERVICE_BASE_URL' => 'https://ai.example.com',
+        'TELEGRAM_RESOLVER_URL' => 'https://ai.example.com',
     ],
     'rest' => [
         'allow_no_origin' => false,
@@ -23,12 +23,7 @@ return [
             'tacticum.ru',
             '*.tacticum.ru',
         ],
-        'allowed_ips' => [
-//            '77.37.238.241',
-//            '109.120.158.169',
-//            '5.35.90.193',
-        ],
+        'allowed_ips' => [],
         'trusted_proxies' => [],
     ],
 ];
-

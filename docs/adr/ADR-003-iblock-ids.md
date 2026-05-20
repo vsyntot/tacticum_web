@@ -37,14 +37,19 @@ $iblockId = tacticum_api_bootstrap('offer'); // внутри вызывает ge
 
 | Ключ | ID (prod) | Назначение |
 |---|---|---|
-| `cases` | 13 | Кейсы / портфолио |
+| `offer` | 5 | Коммерческие предложения (calcrequests) |
+| `vacancies` | 7 | Вакансии |
+| `feedback` | 9 | Отзывы / feedback |
 | `faq` | 10 | FAQ |
 | `rates` | 11 | Тарифы |
 | `services` | 12 | Услуги |
-| `offer` | 5 | Коммерческие предложения (calcrequests) |
+| `cases` | 13 | Кейсы / портфолио |
+| `team` | 18 | Команда |
+| `policies` | 19 | Политики / legal контент |
+| `aiagents` | 20 | AI agents |
 
-**Исключение (технический долг):** `local/php_interface/init.php` исторически использует
-`IBLOCK_ID => 5` напрямую в нескольких местах. Подлежит рефакторингу.
+`local/php_interface/init.php` для `calcrequests.*` использует ключ `offer`.
+Публичные страницы с legacy `IncludeComponent` остаются зоной планового рефакторинга.
 
 ---
 
@@ -62,8 +67,8 @@ $iblockId = tacticum_api_bootstrap('offer'); // внутри вызывает ge
 
 ✅ Смена ID при переносе — правка только в `tacticum_config.php`
 ✅ Код читаем: `get_iblock_id('cases')` самодокументируется
-✅ `pr-check.yml` предупреждает при обнаружении хардкода в `local/rest/` и `local/api/`
+✅ `pr-check.yml` блокирует хардкод в изменённых runtime-файлах `local/rest`, `local/api`, `local/php_interface`
+✅ `pr-check.yml` предупреждает о хардкоде в публичных legacy-страницах
 
 ⚠️ Если ключ отсутствует в конфиге — `get_iblock_id()` возвращает `0`, запрос упадёт
 → Митигация: `tacticum_api_bootstrap()` проверяет `$iblockId <= 0` и возвращает 500
-

@@ -1,6 +1,7 @@
 <?php
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Loader;
 
 function tacticum_rest_get_config(): array
 {
@@ -374,7 +375,27 @@ function tacticum_rest_validate_origin(): void
     tacticum_rest_error(403, 'invalid_origin', 'Недопустимый источник запроса.');
 }
 
-function tacticum_rest_check_csrf(?array $data = null): void
+function tacticum_rest_has_allowed_browser_source(): bool
+{
+    $allowed_origins = tacticum_rest_get_allowed_origins();
+    if (empty($allowed_origins)) {
+        return false;
+    }
+
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $origin_host = $origin ? (string)parse_url($origin, PHP_URL_HOST) : '';
+    $origin_host = tacticum_rest_normalize_host($origin_host);
+    if ($origin_host !== '' && tacticum_rest_is_allowed_origin($origin_host, $allowed_origins)) {
+        return true;
+    }
+
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    $referer_host = $referer ? (string)parse_url($referer, PHP_URL_HOST) : '';
+    $referer_host = tacticum_rest_normalize_host($referer_host);
+    return $referer_host !== '' && tacticum_rest_is_allowed_origin($referer_host, $allowed_origins);
+}
+
+function tacticum_rest_check_csrf(?array $data = null, bool $allowAllowedBrowserSource = false): void
 {
     $sessid = '';
     if (is_array($data) && isset($data['sessid'])) {
@@ -396,13 +417,11 @@ function tacticum_rest_check_csrf(?array $data = null): void
         return;
     }
 
-    $session_cookie = session_name();
-    $has_session_cookie = $session_cookie !== '' && isset($_COOKIE[$session_cookie]);
-    if ($has_session_cookie && bitrix_sessid() !== '') {
+    if ($allowAllowedBrowserSource && tacticum_rest_has_allowed_browser_source()) {
         return;
     }
 
-    tacticum_rest_error(403, 'invalid_csrf', 'Некорректный токен безопасности.');
+    tacticum_rest_error(403, 'invalid_csrf', 'Требуется токен безопасности.');
 }
 
 function tacticum_rest_rate_limit(string $action, int $limit = 20, int $ttl = 60): void
@@ -441,7 +460,7 @@ function tacticum_api_bootstrap(string $action): int
         tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
     }
 
-    if (!CModule::IncludeModule("iblock")) {
+    if (!Loader::includeModule('iblock')) {
         tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен.');
     }
 
@@ -559,6 +578,25 @@ function tacticum_rest_get_ai_setting(string $key, string $default = ''): string
     return $default;
 }
 
+function tacticum_rest_get_required_https_ai_url(string $key, string $serviceLabel = 'сервиса обработки'): string
+{
+    $url = trim(tacticum_rest_get_ai_setting($key));
+    if ($url === '') {
+        tacticum_rest_error(500, 'config_error', 'Не настроен адрес ' . $serviceLabel . '.');
+    }
+
+    if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+        tacticum_rest_error(500, 'config_error', 'Некорректный адрес ' . $serviceLabel . '.');
+    }
+
+    $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+    if ($scheme !== 'https') {
+        tacticum_rest_error(500, 'config_error', 'Адрес ' . $serviceLabel . ' должен использовать HTTPS.');
+    }
+
+    return $url;
+}
+
 function tacticum_rest_build_url(string $base_url, string $path): string
 {
     if ($base_url === '') {
@@ -574,7 +612,7 @@ function tacticum_rest_apply_curl_defaults($ch): void
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 }

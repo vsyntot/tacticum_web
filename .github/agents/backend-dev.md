@@ -97,7 +97,7 @@ Loader::includeModule('iblock');
 ['IBLOCK_ID' => 5]
 
 // ❌ Хардкод URL
-curl_init('http://5.35.90.193:8000/...')
+curl_init('https://ai.example.com/...')
 
 // ❌ PII в логах без маскировки
 AddMessage2Log(serialize($data), 'log')
@@ -130,7 +130,7 @@ CModule::IncludeModule('iblock')
 | Путь | Назначение |
 |---|---|
 | `/tacticum/v1/chat_agent/sale` | Обработка лидов (форма) |
-| `/tacticum/v1/sale/workers` | Заказ специалистов |
+| `/tacticum/v1/chat_agent/sale` | Adapter заказа специалистов из `tacticum_sale_staff.php`; rich staff модель хранится в `workers[]` payload |
 | `/tacticum/v1/chat_agent` | Чат на сайте |
 
 ---
@@ -141,4 +141,3 @@ CModule::IncludeModule('iblock')
 - ❌ Не дублировать логику из `rest_helpers.php` — добавлять туда
 - ❌ Не создавать функции без префикса `tacticum_` (в `init.php`) или `tacticum_rest_` / `tacticum_api_` (в `rest_helpers.php`)
 - ❌ Не использовать `http://` для внешних запросов
-

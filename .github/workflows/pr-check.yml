@@ -30,56 +30,133 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Проверка хардкода ID инфоблоков в REST/API
+      - name: Blockers — runtime REST/API/php_interface conventions
+        shell: bash
         run: |
-          RESULT=$(git diff origin/main...HEAD -- 'local/rest/*.php' 'local/api/*.php' \
-            | grep -P "['\"]\s*IBLOCK_ID\s*['\"]?\s*=>\s*(5|10|11|12|13)\b" || true)
+          set +e
+          FAIL=0
+          RUNTIME_FILES=$(git diff origin/main...HEAD --name-only -- \
+            'local/rest/*.php' \
+            'local/api/*.php' \
+            'local/php_interface/*.php' \
+            'local/php_interface/include/*.php' \
+            | grep -v '^local/rest/rest_helpers.php$' \
+            | grep -v '^local/php_interface/include/tacticum_config.php$' \
+            | while read -r f; do [ -f "$f" ] && printf '%s\n' "$f"; done)
+
+          if [ -z "$RUNTIME_FILES" ]; then
+            echo "✅ No changed runtime PHP files in REST/API/php_interface."
+            exit 0
+          fi
+
+          echo "Changed runtime PHP files:"
+          echo "$RUNTIME_FILES"
+
+          RESULT=$(grep -nE "IBLOCK_ID[\"']?[[:space:]]*(=>|=)[[:space:]]*[0-9]+" $RUNTIME_FILES)
           if [ -n "$RESULT" ]; then
-            echo "⚠️  WARNING: Hardcoded iblock IDs detected!"
+            echo "❌ ERROR: Hardcoded IBLOCK_ID detected in changed runtime files."
             echo "$RESULT"
             echo "Use tacticum_rest_get_iblock_id('key') instead."
+            FAIL=1
           else
-            echo "✅ No hardcoded iblock IDs."
+            echo "✅ No hardcoded IBLOCK_ID in changed runtime files."
           fi
 
-      - name: Проверка незамаскированного PII в логах
-        run: |
-          RESULT=$(git diff origin/main...HEAD -- 'local/rest/*.php' 'local/api/*.php' \
-            | grep -P "AddMessage2Log.*\\\$(email|phone|name)\b" || true)
+          RESULT=$(grep -nE "['\"]http://|tacticum_rest_get_ai_setting[[:space:]]*\([^)]*['\"]http://|5\.35\.90\.193" $RUNTIME_FILES)
           if [ -n "$RESULT" ]; then
-            echo "⚠️  WARNING: Possible unmasked PII in logs!"
+            echo "❌ ERROR: Hardcoded HTTP fallback or AI service host detected in changed runtime files."
             echo "$RESULT"
-            echo "Use tacticum_rest_mask_pii() before AddMessage2Log."
+            echo "Use tacticum_rest_get_required_https_ai_url(...) or config helpers; production external requests must use HTTPS."
+            FAIL=1
           else
-            echo "✅ PII logging looks OK."
+            echo "✅ No hardcoded HTTP fallback or AI service host in changed runtime files."
           fi
 
-      - name: Проверка HTTP вместо HTTPS в curl
-        run: |
-          RESULT=$(git diff origin/main...HEAD -- 'local/rest/*.php' \
-            | grep -P "curl_init\s*\(\s*['\"]http://" || true)
+          RESULT=$(grep -nE "curl_init[[:space:]]*\([[:space:]]*['\"]http://" $RUNTIME_FILES)
           if [ -n "$RESULT" ]; then
-            echo "⚠️  WARNING: Plain HTTP used in curl!"
+            echo "❌ ERROR: Plain HTTP used in curl_init()."
             echo "$RESULT"
             echo "External requests must use HTTPS."
+            FAIL=1
           else
-            echo "✅ No plain HTTP curl calls."
+            echo "✅ No plain HTTP curl_init() calls."
           fi
 
-      - name: Проверка отсутствия bootstrap в новых REST-файлах
-        run: |
-          # Проверяем новые файлы в local/rest/ на наличие validate_origin
-          NEW_REST=$(git diff origin/main...HEAD --name-only -- 'local/rest/*.php' \
-            | grep -v "rest_helpers.php" || true)
-          for f in $NEW_REST; do
-            if [ -f "$f" ] && ! grep -q "tacticum_rest_validate_origin" "$f"; then
-              echo "⚠️  WARNING: $f missing tacticum_rest_validate_origin()"
+          RESULT=$(grep -nE 'AddMessage2Log[[:space:]]*\(.*(\$_?(POST|GET|REQUEST)|\$[A-Za-z_]*(email|phone|name|client|contact|message|payload|data|request|response|summary)[A-Za-z_]*|serialize[[:space:]]*\()' $RUNTIME_FILES)
+          MASKED_RESULT=$(printf "%s\n" "$RESULT" | grep -vE "tacticum_rest_mask_(pii|string)[[:space:]]*\(|masked_[A-Za-z_]*")
+          if [ -n "$MASKED_RESULT" ]; then
+            echo "❌ ERROR: Possible raw PII logged via AddMessage2Log()."
+            echo "$MASKED_RESULT"
+            echo "Use tacticum_rest_mask_pii() or tacticum_rest_mask_string() before AddMessage2Log."
+            FAIL=1
+          else
+            echo "✅ PII logging checks passed."
+          fi
+
+          NEW_ENDPOINTS=$(git diff origin/main...HEAD --name-status -- 'local/rest/*.php' 'local/api/*.php' \
+            | awk '$1 == "A" { print $2 }' \
+            | grep -v '^local/rest/rest_helpers.php$')
+
+          for f in $NEW_ENDPOINTS; do
+            [ -f "$f" ] || continue
+
+            if [ "${f#local/rest/}" != "$f" ]; then
+              if ! grep -q "tacticum_rest_validate_origin" "$f"; then
+                echo "❌ ERROR: $f missing tacticum_rest_validate_origin()"
+                FAIL=1
+              fi
+              if ! grep -q "tacticum_rest_rate_limit" "$f"; then
+                echo "❌ ERROR: $f missing tacticum_rest_rate_limit()"
+                FAIL=1
+              fi
+              if ! grep -q "tacticum_rest_check_csrf" "$f"; then
+                echo "❌ ERROR: $f missing tacticum_rest_check_csrf()"
+                FAIL=1
+              fi
+              if ! grep -q "json_decode" "$f"; then
+                echo "❌ ERROR: $f missing JSON request parsing."
+                FAIL=1
+              fi
             fi
-            if [ -f "$f" ] && ! grep -q "tacticum_rest_rate_limit" "$f"; then
-              echo "⚠️  WARNING: $f missing tacticum_rest_rate_limit()"
+
+            if [ "${f#local/api/}" != "$f" ]; then
+              if ! grep -q "tacticum_api_bootstrap" "$f"; then
+                echo "❌ ERROR: $f missing tacticum_api_bootstrap()."
+                FAIL=1
+              fi
             fi
           done
-          echo "✅ Bootstrap checks done."
+
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          else
+            echo "✅ Runtime blocker checks passed."
+          fi
+
+      - name: Warnings — public page hardcoded iblock IDs
+        shell: bash
+        run: |
+          set +e
+          PUBLIC_FILES=$(git diff origin/main...HEAD --name-only -- \
+            '*.php' \
+            ':!local/**' \
+            ':!bitrix/**' \
+            ':!docs/**' \
+            | while read -r f; do [ -f "$f" ] && printf '%s\n' "$f"; done)
+
+          if [ -z "$PUBLIC_FILES" ]; then
+            echo "✅ No changed public PHP pages."
+            exit 0
+          fi
+
+          RESULT=$(grep -nE "IBLOCK_ID[\"']?[[:space:]]*(=>|=)[[:space:]]*[0-9]+" $PUBLIC_FILES)
+          if [ -n "$RESULT" ]; then
+            echo "⚠️  WARNING: Hardcoded IBLOCK_ID detected in public pages outside current runtime scope."
+            echo "$RESULT"
+            echo "Keep this warning-level unless the page enters Sprint 01 runtime scope."
+          else
+            echo "✅ No public page hardcoded IBLOCK_ID warnings."
+          fi
 
       - name: Проверка изменений в bitrix/ (запрещено)
         run: |
@@ -91,4 +168,3 @@ jobs:
           else
             echo "✅ bitrix/ not modified."
           fi
-

@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const root = document.documentElement;
+    if (root.dataset.tacticumDemoChat !== "true") return;
     if (root.dataset.tacticumChatInit === "true") return;
     root.dataset.tacticumChatInit = "true";
 

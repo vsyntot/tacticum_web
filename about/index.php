@@ -457,7 +457,7 @@ $APPLICATION->SetTitle("О компании - Тактикум");
                             <input type="checkbox" id="about-agreement" data-tacticum-consent required class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
                             <label for="about-agreement" class="text-sm text-white/70">
                                 Я согласен на обработку персональных данных и принимаю условия
-                                <a href="/policies/" class="underline hover:text-white">политики конфиденциальности</a>
+                                <a href="/policies/" target="_blank" rel="noopener" class="underline hover:text-white">политики конфиденциальности</a>
                             </label>
                         </div>
 
