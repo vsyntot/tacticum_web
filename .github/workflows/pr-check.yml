@@ -1,0 +1,94 @@
+name: 🔎 PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  php-lint:
+    name: 🔍 PHP 8.4 Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+
+      - name: Проверка синтаксиса — local/
+        run: find local/ -name "*.php" -print0 | xargs -0 -n1 php -l
+
+  security-checks:
+    name: 🛡️ Security & Convention Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Проверка хардкода ID инфоблоков в REST/API
+        run: |
+          RESULT=$(git diff origin/main...HEAD -- 'local/rest/*.php' 'local/api/*.php' \
+            | grep -P "['\"]\s*IBLOCK_ID\s*['\"]?\s*=>\s*(5|10|11|12|13)\b" || true)
+          if [ -n "$RESULT" ]; then
+            echo "⚠️  WARNING: Hardcoded iblock IDs detected!"
+            echo "$RESULT"
+            echo "Use tacticum_rest_get_iblock_id('key') instead."
+          else
+            echo "✅ No hardcoded iblock IDs."
+          fi
+
+      - name: Проверка незамаскированного PII в логах
+        run: |
+          RESULT=$(git diff origin/main...HEAD -- 'local/rest/*.php' 'local/api/*.php' \
+            | grep -P "AddMessage2Log.*\\\$(email|phone|name)\b" || true)
+          if [ -n "$RESULT" ]; then
+            echo "⚠️  WARNING: Possible unmasked PII in logs!"
+            echo "$RESULT"
+            echo "Use tacticum_rest_mask_pii() before AddMessage2Log."
+          else
+            echo "✅ PII logging looks OK."
+          fi
+
+      - name: Проверка HTTP вместо HTTPS в curl
+        run: |
+          RESULT=$(git diff origin/main...HEAD -- 'local/rest/*.php' \
+            | grep -P "curl_init\s*\(\s*['\"]http://" || true)
+          if [ -n "$RESULT" ]; then
+            echo "⚠️  WARNING: Plain HTTP used in curl!"
+            echo "$RESULT"
+            echo "External requests must use HTTPS."
+          else
+            echo "✅ No plain HTTP curl calls."
+          fi
+
+      - name: Проверка отсутствия bootstrap в новых REST-файлах
+        run: |
+          # Проверяем новые файлы в local/rest/ на наличие validate_origin
+          NEW_REST=$(git diff origin/main...HEAD --name-only -- 'local/rest/*.php' \
+            | grep -v "rest_helpers.php" || true)
+          for f in $NEW_REST; do
+            if [ -f "$f" ] && ! grep -q "tacticum_rest_validate_origin" "$f"; then
+              echo "⚠️  WARNING: $f missing tacticum_rest_validate_origin()"
+            fi
+            if [ -f "$f" ] && ! grep -q "tacticum_rest_rate_limit" "$f"; then
+              echo "⚠️  WARNING: $f missing tacticum_rest_rate_limit()"
+            fi
+          done
+          echo "✅ Bootstrap checks done."
+
+      - name: Проверка изменений в bitrix/ (запрещено)
+        run: |
+          RESULT=$(git diff origin/main...HEAD --name-only -- 'bitrix/' || true)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Changes in bitrix/ are not allowed!"
+            echo "$RESULT"
+            exit 1
+          else
+            echo "✅ bitrix/ not modified."
+          fi
+

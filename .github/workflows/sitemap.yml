@@ -1,0 +1,26 @@
+name: 🗺️ Validate Sitemap
+
+on:
+  push:
+    paths:
+      - 'sitemap.xml'
+      - 'sitemap-files.xml'
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate XML sitemaps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+
+      - name: Validate sitemap.xml
+        run: xmllint --noout sitemap.xml && echo "✅ sitemap.xml valid"
+
+      - name: Validate sitemap-files.xml
+        run: xmllint --noout sitemap-files.xml && echo "✅ sitemap-files.xml valid"
+

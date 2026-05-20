@@ -1,0 +1,204 @@
+# Copilot Instructions — tacticum.ru
+
+## Проект
+
+Корпоративный сайт **tacticum.ru** — IT-компания, специализируется на внедрении AI.
+Стек: **PHP 8.4**, **1C-Bitrix** (актуальная версия), шаблон `local/templates/tacticum/`.
+
+Перед началом нетривиальной задачи прочитать `AGENTS.md`, `docs/workflow/README.md`,
+`docs/workflow/current-state.md` и `docs/workflow/gap-analysis.md`.
+Для задач, которые не являются простым Fast Fix, оформить план по `docs/workflow/codex-plan-template.md`.
+
+---
+
+## Структура проекта
+
+```
+/
+├── local/
+│   ├── api/                        # GET-эндпоинты (cases, faq, rates, services)
+│   ├── rest/                       # POST-эндпоинты (форма, чат, оффер, продажи)
+│   │   ├── rest_helpers.php        # ВСЕ общие утилиты: CSRF, rate limit, IP, origin, curl
+│   │   ├── tacticum_form.php       # ЭТАЛОН для новых POST-эндпоинтов
+│   │   ├── tacticum_chat.php       # Чат-агент → AI_SERVICE_BASE_URL/tacticum/v1/chat_agent
+│   │   ├── tacticum_offer.php      # Коммерческое предложение
+│   │   ├── tacticum_sale.php       # Продажи
+│   │   ├── tacticum_sale_staff.php # Заказ специалистов
+│   │   ├── tacticum_prefill.php    # Предзаполнение форм
+│   │   └── resolve_telegram_link.php
+│   ├── php_interface/
+│   │   ├── init.php                # EventManager, Bitrix REST (calcrequests.*)
+│   │   └── include/
+│   │       ├── tacticum_config.php # Конфиг: инфоблоки, URL, CORS, IP (НЕ в git)
+│   │       └── menu_helpers.php
+│   └── templates/tacticum/        # Активный шаблон Bitrix
+│       ├── header.php              # Подключение JS/CSS, Яндекс.Метрика (ID: 103471113)
+│       ├── footer.php              # Футер, попап "Связаться с нами", мобильное меню
+│       ├── styles/                 # CSS по разделам: main, services, price, calculator...
+│       ├── js/                     # bundle.v3.4.16.js, forms.js, modal.js, chat.js...
+│       └── components/bitrix/      # Компоненты Bitrix шаблона
+├── local/api/cases.php             # ЭТАЛОН для новых GET-эндпоинтов
+├── about/, services/, contacts/   # Страницы сайта
+├── calculator/, price/, offer/
+├── aiagents/, policies/
+└── bitrix/                         # Ядро Bitrix — НЕ РЕДАКТИРОВАТЬ
+```
+
+---
+
+## Инфоблоки
+
+| Ключ конфига | ID | Назначение |
+|---|---|---|
+| `cases` | 13 | Кейсы / портфолио |
+| `faq` | 10 | FAQ |
+| `rates` | 11 | Тарифы |
+| `services` | 12 | Услуги |
+| `offer` | 5 | Коммерческие предложения (calcrequests) |
+
+---
+
+## Соглашения по коду
+
+### PHP
+- Стиль: **PSR-12**, в новых файлах `declare(strict_types=1)`.
+- PHP 8.4: `match`, `readonly`, named arguments, `enum` — приветствуется.
+- Функции в `init.php` — префикс `tacticum_`.
+- Функции в `rest_helpers.php` — префикс `tacticum_rest_` или `tacticum_api_`.
+- Предпочитать Bitrix D7 / ORM над старым API где возможно.
+- Загрузка модулей: `Loader::includeModule()`, не `CModule::IncludeModule()`.
+
+### REST/API эндпоинты — обязательный bootstrap (см. `tacticum_form.php`)
+
+**POST-эндпоинт** (шаблон):
+```php
+<?php
+define('NO_KEEP_STATISTIC', true);
+define('NOT_CHECK_PERMISSIONS', true);
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+require_once(__DIR__ . '/rest_helpers.php');
+
+header('Content-Type: application/json; charset=UTF-8');
+
+tacticum_rest_validate_origin();          // 1. CORS/Referer
+tacticum_rest_rate_limit('action_name'); // 2. Rate limiting
+
+$data = json_decode(file_get_contents('php://input'), true);
+if (!is_array($data)) {
+    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные.');
+}
+tacticum_rest_check_csrf($data);          // 3. CSRF
+
+// ... валидация, бизнес-логика, вызов AI-сервиса
+```
+
+**GET-эндпоинт** (шаблон, см. `local/api/cases.php`):
+```php
+<?php
+define('NO_KEEP_STATISTIC', true);
+define('NOT_CHECK_PERMISSIONS', true);
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/local/rest/rest_helpers.php");
+
+header('Content-Type: application/json; charset=UTF-8');
+
+$iblockId = tacticum_api_bootstrap('key_from_config'); // validate_origin + rate_limit + GET check
+$res = tacticum_api_fetch_elements($iblockId, ['ID', 'NAME', '...']);
+```
+
+### Работа с конфигом
+```php
+// ❌ Нельзя
+$url = 'http://5.35.90.193:8000';
+$iblockId = 5;
+
+// ✅ Правильно
+$url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL');
+$iblockId = tacticum_rest_get_iblock_id('offer');
+```
+
+### Логирование — обязательная маскировка PII
+```php
+// ❌ Нельзя
+AddMessage2Log(serialize($data), 'my_action');
+
+// ✅ Правильно
+AddMessage2Log(serialize(tacticum_rest_mask_pii($data)), 'my_action');
+AddMessage2Log(tacticum_rest_mask_string($errorMessage), 'my_action_error');
+```
+
+### Внешние HTTP-запросы
+```php
+$url = tacticum_rest_build_url($base_url, '/tacticum/v1/endpoint');
+$ch = curl_init($url);
+tacticum_rest_apply_curl_defaults($ch); // таймауты, SSL, JSON headers
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
+tacticum_rest_log_tls_error($ch, 'context_name');
+```
+
+---
+
+## Безопасность — обязательные правила
+
+| Правило | Где реализовано |
+|---|---|
+| CORS/Referer проверка | `tacticum_rest_validate_origin()` |
+| Rate limiting (IP + сессия) | `tacticum_rest_rate_limit('action')` |
+| CSRF для POST-форм | `tacticum_rest_check_csrf($data)` |
+| Маскировка PII в логах | `tacticum_rest_mask_pii()` / `tacticum_rest_mask_string()` |
+| Только HTTPS для внешних запросов | проверка scheme в `tacticum_form.php` |
+| IP allowlist | `rest.allowed_ips` в `tacticum_config.php` |
+| Разрешённые origins | `tacticum.ru`, `*.tacticum.ru` |
+
+---
+
+## Frontend (шаблон `local/templates/tacticum/`)
+
+- CSS: Tailwind-классы (через бандл), кастомные стили в `styles/`.
+- JS: `bundle.v3.4.16.js` (основной), отдельные файлы по функционалу.
+- Новый JS для страницы подключается в `header.php` через `$obAsset->addJs(...)`.
+- Новый CSS для раздела: создать `styles/section.css`, подключить в `header.php`.
+- Форма: атрибут `data-tacticum-form` на `<form>` — автоматически подхватывается `forms.js`.
+
+---
+
+## Чего НЕ делать
+
+- ❌ Не редактировать файлы в `bitrix/`
+- ❌ Не хардкодить ID инфоблоков — только `tacticum_rest_get_iblock_id('key')`
+- ❌ Не хардкодить URL AI-сервиса — только `tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL')`
+- ❌ Не дублировать логику из `rest_helpers.php`
+- ❌ Не логировать PII без маскировки
+- ❌ Не использовать `$_GET`/`$_POST` напрямую — только Bitrix Context или `php://input`
+- ❌ Не использовать `http://` для внешних curl-запросов в production
+- ❌ Не создавать глобальные функции без префикса `tacticum_`
+
+---
+
+## AI-интеграция
+
+Сайт интегрирован с внешним AI-сервисом (`AI_SERVICE_BASE_URL`):
+
+| Эндпоинт AI | Вызывается из |
+|---|---|
+| `/tacticum/v1/chat_agent/sale` | `tacticum_form.php` — обработка лидов |
+| `/tacticum/v1/sale/workers` | `tacticum_form.php` — заказ специалистов |
+| `/tacticum/v1/chat_agent` | `tacticum_chat.php` — чат на сайте |
+
+Bitrix REST API: `calcrequests.add` / `calcrequests.list` — работа с расчётами (инфоблок 5).
+
+---
+
+## GitHub Projects / рабочий процесс
+
+- Ветки: `feature/<issue-number>-slug`, `fix/<issue-number>-slug`
+- Коммиты: Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `infra:`)
+- PR: закрывает Issue (`Closes #N`), заполнен шаблон `PULL_REQUEST_TEMPLATE.md`
+- Деплой: автоматически при merge в `main` через GitHub Actions
+
+---
+
+## ADR — архитектурные решения
+
+Документация в `docs/adr/`. При значимом архитектурном решении — создавать новый ADR.
+Текущие решения: см. `docs/adr/README.md`.
