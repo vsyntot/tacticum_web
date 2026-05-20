@@ -97,6 +97,7 @@ QA подключается до разработки, если задача к�
 - POST endpoints живут в `local/rest/`, GET endpoints — в `local/api/`.
 - `rest_helpers.php` — единственная точка для CORS/origin, rate limit, CSRF, curl defaults, masking, config access.
 - `tacticum_form.php` — текущий эталон POST endpoint.
+- Контракт лид-форм зафиксирован в `docs/workflow/lead-form-contract.md`; изменения payload, `form_id`, consent/CSRF или error model требуют обновления этого документа.
 - `local/api/cases.php` — текущий эталон GET endpoint.
 - Для новых API контрактов добавить section в Issue или отдельную spec в `docs/workflow/`.
 
@@ -121,6 +122,7 @@ QA подключается до разработки, если задача к�
 - `codex-plan-template.md` — шаблон плана перед реализацией.
 - `sprint-template.md` — шаблон спринта.
 - `post-deploy-smoke.md` — чеклист smoke-check.
+- `lead-form-contract.md` — контракт `/local/rest/tacticum_form.php` и taxonomy `form_id`.
 - `sprints/` — snapshot-ы спринтов.
 
 ## Definition Of Ready

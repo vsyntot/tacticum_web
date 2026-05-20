@@ -48,7 +48,42 @@ function tacticum_calcrequests_get_config(): array
     return $config;
 }
 
-function tacticum_calcrequests_check_access(array $params, int $iblockId = 5): ?array
+function tacticum_calcrequests_get_offer_iblock_id(): int
+{
+    if (function_exists('tacticum_rest_get_iblock_id')) {
+        return tacticum_rest_get_iblock_id('offer');
+    }
+
+    return 0;
+}
+
+function tacticum_calcrequests_user_has_access(int $iblockId): bool
+{
+    global $USER;
+
+    if (isset($USER) && is_object($USER) && method_exists($USER, 'IsAuthorized') && $USER->IsAuthorized()) {
+        if (method_exists($USER, 'IsAdmin') && $USER->IsAdmin()) {
+            return true;
+        }
+
+        $userId = method_exists($USER, 'GetID') ? (int)$USER->GetID() : 0;
+        return $iblockId > 0 && $userId > 0 && Loader::includeModule('iblock') && \CIBlock::GetPermission($iblockId, $userId) >= 'W';
+    }
+
+    $user = CurrentUser::get();
+    $userId = method_exists($user, 'getId') ? (int)$user->getId() : 0;
+    if ($userId <= 0) {
+        return false;
+    }
+
+    if (method_exists($user, 'isAdmin') && $user->isAdmin()) {
+        return true;
+    }
+
+    return $iblockId > 0 && Loader::includeModule('iblock') && \CIBlock::GetPermission($iblockId, $userId) >= 'W';
+}
+
+function tacticum_calcrequests_check_access(array $params, int $iblockId = 0): ?array
 {
     $config = tacticum_calcrequests_get_config();
     $request = Context::getCurrent()->getRequest();
@@ -68,14 +103,8 @@ function tacticum_calcrequests_check_access(array $params, int $iblockId = 5): ?
         return null;
     }
 
-    $user = CurrentUser::get();
-    if ($user->isAuthorized()) {
-        if ($user->isAdmin()) {
-            return null;
-        }
-        if (\CIBlock::GetPermission($iblockId) >= 'W') {
-            return null;
-        }
+    if (tacticum_calcrequests_user_has_access($iblockId)) {
+        return null;
     }
 
     return tacticum_calcrequests_build_error(
@@ -123,7 +152,7 @@ function tacticum_calcrequests_validate_payload(array $params): array
     $stringLimits = [
         'business_context' => 2000,
         'summary' => 2000,
-        'response' => 2000,
+        'response' => 12000,
         'client_name' => 255,
         'timeline' => 255,
     ];
@@ -207,11 +236,27 @@ function tacticum_calcrequests_validate_payload(array $params): array
         }
     }
 
-    if (isset($params['group_id']) && !is_numeric($params['group_id'])) {
-        $errors[] = ['field' => 'group_id', 'message' => 'Должно быть числом.'];
-    }
-    if (isset($params['response_id']) && !is_numeric($params['response_id'])) {
-        $errors[] = ['field' => 'response_id', 'message' => 'Должно быть числом.'];
+    $identifierLimits = [
+        'group_id' => 64,
+        'response_id' => 128,
+    ];
+    foreach ($identifierLimits as $field => $limit) {
+        if (!isset($params[$field])) {
+            continue;
+        }
+
+        if (!is_string($params[$field]) && !is_numeric($params[$field])) {
+            $errors[] = ['field' => $field, 'message' => 'Должно быть строковым идентификатором.'];
+            continue;
+        }
+
+        $value = trim((string)$params[$field]);
+        if (mb_strlen($value) > $limit) {
+            $errors[] = ['field' => $field, 'message' => 'Превышена длина ' . $limit . ' символов.'];
+            continue;
+        }
+
+        $normalized[$field] = $value;
     }
 
     if (isset($params['slug']['keywords'])) {
@@ -279,16 +324,23 @@ EventManager::getInstance()->addEventHandler('rest', 'OnRestServiceBuildDescript
         'calcrequests_api' => [
             'calcrequests_list' => [
                 'callback' => function ($params) {
-                    $accessError = tacticum_calcrequests_check_access((array)$params);
+                    $iblockId = tacticum_calcrequests_get_offer_iblock_id();
+                    if ($iblockId <= 0) {
+                        return tacticum_calcrequests_build_error('iblock_not_configured', 'Инфоблок заявок не настроен.');
+                    }
+
+                    $accessError = tacticum_calcrequests_check_access((array)$params, $iblockId);
                     if ($accessError !== null) {
                         return $accessError;
                     }
 
-                    \CModule::IncludeModule("iblock");
+                    if (!Loader::includeModule('iblock')) {
+                        return tacticum_calcrequests_build_error('iblock_missing', 'Модуль инфоблоков не установлен.');
+                    }
 
                     $res = CIBlockElement::GetList(
                         ['ID' => 'DESC'],
-                        ['IBLOCK_ID' => 5, 'ACTIVE' => 'Y'],
+                        ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y'],
                         false,
                         ['nTopCount' => 10],
                         ['ID', 'NAME', 'PROPERTY_*']
@@ -309,7 +361,12 @@ EventManager::getInstance()->addEventHandler('rest', 'OnRestServiceBuildDescript
             ],
             'calcrequests_add' => [
                 'callback' => function ($params) {
-                    $accessError = tacticum_calcrequests_check_access((array)$params);
+                    $iblockId = tacticum_calcrequests_get_offer_iblock_id();
+                    if ($iblockId <= 0) {
+                        return tacticum_calcrequests_build_error('iblock_not_configured', 'Инфоблок заявок не настроен.');
+                    }
+
+                    $accessError = tacticum_calcrequests_check_access((array)$params, $iblockId);
                     if ($accessError !== null) {
                         return $accessError;
                     }
@@ -328,13 +385,15 @@ EventManager::getInstance()->addEventHandler('rest', 'OnRestServiceBuildDescript
                         AddMessage2Log(serialize(tacticum_rest_mask_pii($params)), "debug");
                     }
 
-                    \CModule::IncludeModule("iblock");
+                    if (!Loader::includeModule('iblock')) {
+                        return tacticum_calcrequests_build_error('iblock_missing', 'Модуль инфоблоков не установлен.');
+                    }
                     $el = new CIBlockElement;
 
                     $name = 'resp_'.uniqid();
                     $normalizedCode = '';
                     if (!empty($params['slug']['slug']) && is_string($params['slug']['slug'])) {
-                        $normalizedCode = tacticum_calcrequests_normalize_code($params['slug']['slug'], 5);
+                        $normalizedCode = tacticum_calcrequests_normalize_code($params['slug']['slug'], $iblockId);
                     }
 
                     $props = [];
@@ -417,7 +476,7 @@ EventManager::getInstance()->addEventHandler('rest', 'OnRestServiceBuildDescript
 
                     $fields = [
                         'CODE' => $normalizedCode,
-                        'IBLOCK_ID' => 5,
+                        'IBLOCK_ID' => $iblockId,
                         'NAME' => $name,
                         'ACTIVE' => 'Y',
                         'PROPERTY_VALUES' => $props

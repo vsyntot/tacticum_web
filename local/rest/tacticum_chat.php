@@ -15,7 +15,7 @@ if (!is_array($data)) {
     tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
 }
 
-tacticum_rest_check_csrf($data);
+tacticum_rest_check_csrf($data, true);
 
 $user_message = trim((string)($data['user_message'] ?? ''));
 
@@ -31,44 +31,82 @@ $payload = [
     'user_message' => $user_message,
 ];
 
-// Передаём group_id, если он есть
 if (!empty($data['group_id'])) {
     $payload['group_id'] = $data['group_id'];
 }
 
-// Передаём startAgent ТОЛЬКО если явно пришёл с фронта
-if (!empty($data['startAgent'])) {
-    $payload['startAgent'] = $data['startAgent'];
+$start_agent = trim((string)($data['startAgent'] ?? ''));
+if ($start_agent !== '') {
+    $allowed_agents = ['ITExpertAgent', 'SalesConsultantAgent', 'TriageAgent'];
+    if (!in_array($start_agent, $allowed_agents, true)) {
+        tacticum_rest_error(400, 'validation_error', 'Некорректные или обязательные поля: startAgent.');
+    }
 }
 
-AddMessage2Log(serialize(tacticum_rest_mask_pii($data)), "data");
-AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), "request");
+AddMessage2Log(serialize(tacticum_rest_mask_pii($data)), "tacticum_chat_data");
+$request_log = $payload;
+if ($start_agent !== '') {
+    $request_log['startAgent'] = $start_agent;
+}
+AddMessage2Log(serialize(tacticum_rest_mask_pii($request_log)), "tacticum_chat_request");
 
-$base_url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL', 'http://5.35.90.193:8000');
+$base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent');
+if ($start_agent !== '') {
+    $endpoint_url .= '?' . http_build_query(['startAgent' => $start_agent]);
+}
 
 $ch = curl_init($endpoint_url);
 tacticum_rest_apply_curl_defaults($ch);
+curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
 
 $response = curl_exec($ch);
+$curl_error_no = curl_errno($ch);
+$curl_error = curl_error($ch);
 $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+$start_transfer_time = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
 tacticum_rest_log_tls_error($ch, 'tacticum_chat');
 curl_close($ch);
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
-AddMessage2Log(serialize($masked_response), "response");
+AddMessage2Log(serialize($masked_response), "tacticum_chat_response");
+
+if ($curl_error_no !== 0) {
+    AddMessage2Log("Curl error (tacticum_chat): errno={$curl_error_no}; error={$curl_error}; total_time={$total_time}; start_transfer_time={$start_transfer_time}", 'tacticum_chat_error');
+    $code = ($curl_error_no === CURLE_OPERATION_TIMEOUTED) ? 'upstream_timeout' : 'curl_error';
+    tacticum_rest_error(502, $code, 'Ошибка соединения с AI endpoint.', [
+        'upstream_status' => $http_status,
+        'upstream_time' => $total_time,
+    ]);
+}
 
 if ($http_status !== 200 || !$response) {
-    tacticum_rest_error(502, 'upstream_error', 'AI endpoint error');
+    $response_length = is_string($response) ? strlen($response) : 0;
+    $decoded_error = is_string($response) ? json_decode($response, true) : null;
+    $upstream_error = is_array($decoded_error)
+        ? (string)($decoded_error['title'] ?? $decoded_error['description'] ?? '')
+        : '';
+
+    AddMessage2Log("Upstream error (tacticum_chat): http_status={$http_status}; response_length={$response_length}; total_time={$total_time}; start_transfer_time={$start_transfer_time}; upstream_error={$upstream_error}", 'tacticum_chat_error');
+    tacticum_rest_error(502, 'upstream_http_error', 'AI endpoint error', [
+        'upstream_status' => $http_status,
+        'upstream_time' => $total_time,
+    ]);
 }
 
 if (is_string($response)) {
     $decoded = json_decode($response, true);
-    if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+    if (!is_array($decoded)) {
         $masked_response = tacticum_rest_mask_string($response);
         AddMessage2Log('tacticum_chat invalid JSON: ' . serialize($masked_response), 'tacticum_chat');
         tacticum_rest_error(502, 'upstream_error', 'Invalid upstream JSON');
+    }
+
+    if (empty($decoded['response']) && empty($decoded['error']) && empty($decoded['message'])) {
+        AddMessage2Log('tacticum_chat unexpected JSON shape: ' . serialize(tacticum_rest_mask_pii($decoded)), 'tacticum_chat');
+        tacticum_rest_error(502, 'upstream_contract_error', 'AI endpoint returned unexpected payload.');
     }
 }
 

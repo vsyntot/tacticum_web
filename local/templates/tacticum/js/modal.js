@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="flex items-start gap-2">
               <input type="checkbox" id="orderAgreement" required class="mt-1 appearance-none w-4 h-4 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
-              <label for="orderAgreement" class="text-sm text-gray-600">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" class="text-primary hover:underline">политики конфиденциальности</a></label>
+              <label for="orderAgreement" class="text-sm text-gray-600">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a></label>
             </div>
             <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white pt-4">
               <button type="submit" class="w-full sm:flex-1 bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">Отправить заявку</button>

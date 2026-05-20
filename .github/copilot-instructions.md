@@ -109,11 +109,11 @@ $res = tacticum_api_fetch_elements($iblockId, ['ID', 'NAME', '...']);
 ### Работа с конфигом
 ```php
 // ❌ Нельзя
-$url = 'http://5.35.90.193:8000';
+$url = 'https://ai.example.com';
 $iblockId = 5;
 
 // ✅ Правильно
-$url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL');
+$url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $iblockId = tacticum_rest_get_iblock_id('offer');
 ```
 
@@ -182,7 +182,7 @@ tacticum_rest_log_tls_error($ch, 'context_name');
 | Эндпоинт AI | Вызывается из |
 |---|---|
 | `/tacticum/v1/chat_agent/sale` | `tacticum_form.php` — обработка лидов |
-| `/tacticum/v1/sale/workers` | `tacticum_form.php` — заказ специалистов |
+| `/tacticum/v1/chat_agent/sale` | `tacticum_sale_staff.php` — adapter заказа специалистов; rich staff модель хранится в `workers[]` payload |
 | `/tacticum/v1/chat_agent` | `tacticum_chat.php` — чат на сайте |
 
 Bitrix REST API: `calcrequests.add` / `calcrequests.list` — работа с расчётами (инфоблок 5).

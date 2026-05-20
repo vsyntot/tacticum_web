@@ -58,13 +58,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+            const payload = {
+                url: pageUrl,
+                bot_name: originalHref,
+            };
+            if (window.BX && typeof BX.bitrix_sessid === "function") {
+                payload.sessid = BX.bitrix_sessid();
+            }
+
             requestWithTimeout(ENDPOINT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    url: pageUrl,
-                    bot_name: originalHref,
-                }),
+                body: JSON.stringify(payload),
             })
                 .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Bad response: " + r.status))))
                 .then((data) => {

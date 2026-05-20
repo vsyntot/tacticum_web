@@ -123,6 +123,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return data;
     };
 
+    const getFormEndpoint = (form) => {
+        const endpoint = (form.dataset.endpoint || "").trim();
+        return endpoint.startsWith("/") && !endpoint.startsWith("//") ? endpoint : FORM_ENDPOINT;
+    };
+
     const setLoadingState = (form, isLoading) => {
         const submitBtn = form.querySelector("button[type='submit']");
         if (!submitBtn) return;
@@ -185,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             setLoadingState(form, true);
-            const response = await fetch(FORM_ENDPOINT, {
+            const response = await fetch(getFormEndpoint(form), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -193,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const json = await response.json().catch(() => null);
             if (!response.ok || !json?.success) {
-                const errorMessage = normalizeMessage(json?.error) || DEFAULT_ERROR_MESSAGE;
+                const errorMessage = normalizeMessage(json?.error || json?.message) || DEFAULT_ERROR_MESSAGE;
                 showToast(errorMessage, "error");
                 return;
             }
@@ -210,7 +215,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const initFloatingLabels = () => {
-        const formInputs = document.querySelectorAll("input, textarea");
+        const formInputs = document.querySelectorAll(
+            'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), textarea'
+        );
         formInputs.forEach((input) => {
             if (input.dataset.tacticumLabelBound) return;
             input.dataset.tacticumLabelBound = "true";
@@ -246,6 +253,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const initCheckboxes = () => {
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach((checkbox) => {
+            const usesCustomAppearance = checkbox.classList.contains("appearance-none");
+            if (!usesCustomAppearance) return;
+
             if (checkbox.dataset.tacticumCheckboxBound) return;
             checkbox.dataset.tacticumCheckboxBound = "true";
             checkbox.addEventListener("change", function () {

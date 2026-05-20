@@ -388,7 +388,7 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     <input type="checkbox" id="consent" name="consent" data-tacticum-consent required checked>
                     <label for="consent" class="text-sm text-gray-600">
                         Я согласен на обработку персональных данных и принимаю
-                        <a href="#" class="text-primary hover:underline">условия использования</a>
+                        <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">условия использования</a>
                     </label>
                 </div>
 

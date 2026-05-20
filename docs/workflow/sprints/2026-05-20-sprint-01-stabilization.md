@@ -8,13 +8,13 @@
 
 | Item | Gap | Lane | Owner | Priority | Status | Dependencies |
 |---|---|---|---|---|---|---|
-| 1 | TG-001 | Security / Integration | Architect + QA + Backend | P0 | planned | Проверить production HTTPS URL AI-сервиса |
-| 2 | TG-002 | Security / Integration | Architect + Backend | P1 | planned | Расширить config keys для IDs 7/9/18/19/20 |
-| 3 | TG-004 | Security / Integration | QA + Backend + Frontend | P1 | planned | Решить public CSRF policy для chat/resolver |
-| 4 | TG-005 | Fast Fix | Backend + QA | P1 | planned | Unified log tags и masking prefill |
-| 5 | TG-007 + PG-004 | Fast Fix | SEO | P1 | planned | HTTPS sitemap, `/policies/`, meta minimum |
-| 6 | TG-012 | Security / Integration | DevOps + QA | P2 | planned | Перевести критичные warning в blockers для новых REST/API |
-| 7 | PG-002 | Full Feature | Analyst + Frontend + Backend | P1 | planned | Lead Form Contract |
+| 1 | TG-001 | Security / Integration | Architect + QA + Backend | P0 | in-progress | Runtime требует HTTPS; DevOps должен прописать реальные HTTPS URLs в server config |
+| 2 | TG-002 | Security / Integration | Architect + Backend | P1 | in-progress | Backend `init.php` исправлен; публичные страницы остаются долгом Sprint 02 |
+| 3 | TG-004 | Security / Integration | QA + Backend + Frontend | P1 | done | Явный `sessid` обязателен и передаётся chat/prefill/resolver |
+| 4 | TG-005 | Fast Fix | Backend + QA | P1 | done | Chat tags и prefill masking исправлены |
+| 5 | TG-007 + PG-004 | Fast Fix | SEO | P1 | partial | Sitemap исправлен; полный meta/OG audit остаётся |
+| 6 | TG-012 | Security / Integration | DevOps + QA | P2 | done | Runtime critical checks стали blockers |
+| 7 | PG-002 | Full Feature | Analyst + Frontend + Backend | P1 | done | Lead Form Contract задокументирован |
 
 ## Out Of Scope
 
@@ -65,12 +65,25 @@
 
 ### Done
 
-- TBD
+- `rest_helpers.php`: добавлен обязательный HTTPS helper для AI URLs, CSRF требует явный token, `iblock` подключается через `Loader`.
+- REST endpoints AI/chat/sale/resolver/form переведены с HTTP fallback на shared HTTPS helper.
+- Frontend chat/prefill/Telegram resolver передаёт `BX.bitrix_sessid()`.
+- `tacticum_prefill.php` больше не логирует весь объект инфоблока.
+- `local/php_interface/init.php` использует config key `offer` вместо hardcoded `IBLOCK_ID => 5`.
+- Sitemap переведён на HTTPS и включает `/policies/`.
+- Lead Form Contract добавлен в workflow docs.
+- PR checks усилены: runtime security/convention violations стали blockers.
+- ADR/config example обновлены под полный registry используемых iblocks.
 
 ### Not Done
 
-- TBD
+- Серверный `local/php_interface/include/tacticum_config.php` должен быть обновлён DevOps на реальные HTTPS URLs внешних сервисов. Без этого REST endpoints вернут `500 config_error`.
+- Публичные страницы всё ещё содержат legacy numeric `IBLOCK_ID` в `IncludeComponent`.
+- Полный SEO meta/OG audit не входил в фактический runtime scope.
+- Дублированные chat implementations остаются до Sprint 02.
 
 ### Follow-Up
 
-- PG-001 unified AI chat implementation likely becomes Sprint 02 item.
+- PG-001: unified AI chat implementation как задача Sprint 02.
+- TG-002: refactor public page iblocks как технический долг Sprint 02.
+- PG-004: meta/OG audit запланировать с SEO owner.

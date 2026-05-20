@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <i class="ri-close-line text-xl text-gray-500"></i>
                 </button>
             </div>
-            <form id="specialistOrderForm" class="space-y-6" data-tacticum-form data-form-id="price-specialist" data-tacticum-close-target="#specialistOrderModal" data-tacticum-close-mode="overlay">
+            <form id="specialistOrderForm" class="space-y-6" data-tacticum-form data-form-id="price-specialist" data-endpoint="/local/rest/tacticum_sale_staff.php" data-tacticum-close-target="#specialistOrderModal" data-tacticum-close-mode="overlay">
                 <div class="relative mb-6">
                     <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
                         <p class="text-primary font-medium mb-2">Выбранный специалист:</p>
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <input type="hidden" id="orderRate" name="rate">
                 <div class="flex items-start gap-3">
                     <input type="checkbox" id="orderAgreement" data-tacticum-consent required class="mt-1 w-5 h-5 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
-                    <label for="orderAgreement" class="text-sm text-gray-600 leading-5 pt-0.5">Я согласен на обработку персональных данных и принимаю условия <a href="#" class="text-primary hover:underline">политики конфиденциальности</a></label>
+                    <label for="orderAgreement" class="text-sm text-gray-600 leading-5 pt-0.5">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a></label>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white pt-4">
                     <button type="submit" class="w-full sm:flex-1 bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">Отправить заявку</button>

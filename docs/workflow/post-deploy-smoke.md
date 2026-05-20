@@ -12,10 +12,13 @@
 
 ## Forms
 
+Контракт публичных лид-форм: `docs/workflow/lead-form-contract.md`.
+
 Для каждой затронутой формы:
 
 - [ ] Обязательные поля валидируются на клиенте.
 - [ ] Consent checkbox обязателен.
+- [ ] Consent-ссылка ведёт на `/policies/`.
 - [ ] `sessid` передаётся или endpoint ожидаемо проходит CSRF policy.
 - [ ] POST возвращает JSON `{ success: true }` или документированную ошибку.
 - [ ] Пользователь видит success/error state.
@@ -25,6 +28,8 @@
 
 - [ ] Main CTA `/`
 - [ ] Modal form
+- [ ] `/about/` CTA
+- [ ] `/services/` CTA
 - [ ] `/calculator/` CTA
 - [ ] `/price/` CTA
 - [ ] Specialist order modal
@@ -47,6 +52,7 @@
 - [ ] `/local/api/rates.php`
 - [ ] `/local/api/services.php`
 - [ ] `/local/rest/tacticum_form.php`
+- [ ] `/local/rest/tacticum_sale_staff.php`
 - [ ] `/local/rest/tacticum_chat.php`
 - [ ] `/local/rest/tacticum_prefill.php`
 - [ ] `/local/rest/resolve_telegram_link.php`
@@ -56,7 +62,9 @@
 ## SEO
 
 - [ ] `https://tacticum.ru/sitemap.xml` отдаёт XML.
+- [ ] `https://tacticum.ru/sitemap-files.xml` отдаёт XML.
 - [ ] Sitemap loc используют HTTPS.
+- [ ] `/policies/` есть в `sitemap-files.xml`.
 - [ ] `robots.txt` указывает HTTPS sitemap.
 - [ ] Новый публичный URL есть в sitemap.
 - [ ] У затронутой страницы есть один H1.

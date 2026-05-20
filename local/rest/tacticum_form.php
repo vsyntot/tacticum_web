@@ -28,7 +28,7 @@ if (!is_array($data)) {
 
 $data = array_map(static fn($value) => is_string($value) ? trim($value) : $value, $data);
 
-tacticum_rest_check_csrf($data);
+tacticum_rest_check_csrf($data, true);
 
 $name = trim((string)($data['name'] ?? ''));
 $company = trim((string)($data['company'] ?? ''));
@@ -97,82 +97,38 @@ if ($form_id !== '') {
 }
 
 $is_specialist_order = !empty($data['specialist']) || !empty($data['rate']) || !empty($data['duration']);
-$base_url = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL');
-if ($base_url === '') {
-    tacticum_rest_error(500, 'config_error', 'Не настроен адрес сервиса обработки.');
-}
-
-$base_scheme = strtolower((string)parse_url($base_url, PHP_URL_SCHEME));
-if ($base_scheme !== 'https') {
-    tacticum_rest_error(500, 'config_error', 'Адрес сервиса обработки должен использовать HTTPS.');
-}
+$base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 
 if ($is_specialist_order) {
     $rate_raw = (string)($data['rate'] ?? '');
-    $rate_value = preg_replace('/[^\d.,]/', '', $rate_raw);
     $start_date = trim((string)($data['startDate'] ?? $data['start_date'] ?? ''));
     $duration = trim((string)($data['duration'] ?? ''));
     $specialist = trim((string)($data['specialist'] ?? ''));
     $level = trim((string)($data['level'] ?? ''));
 
-    $payload = [
-        'client_name' => $name,
-        'company' => $company,
-        'email' => $email,
-        'phone' => $phone_normalized,
-        'task' => $message,
-        'start_date' => $start_date,
-        'worker_timeline' => $duration,
-        'workers' => [
-            [
-                'role' => $specialist,
-                'level' => $level,
-                'cost_per_hour' => $rate_value !== '' ? $rate_value : $rate_raw,
-                'amount_of_workers' => 1,
-            ],
-        ],
+    $durationLabels = [
+        '1-month' => '1 месяц',
+        '3-months' => '3 месяца',
+        '6-months' => '6 месяцев',
     ];
+    $durationLabel = $durationLabels[$duration] ?? $duration;
 
-    if ($group_id !== '') {
-        $payload['group_id'] = $group_id;
+    $taskParts = [];
+    if ($specialist !== '') {
+        $taskParts[] = 'Специалист: ' . $specialist . ($level !== '' ? ' (' . $level . ')' : '');
     }
-
-    if ($page_url !== '') {
-        $payload['page_url'] = $page_url;
+    if ($rate_raw !== '') {
+        $taskParts[] = 'Ставка: ' . $rate_raw . ' руб/час';
     }
-
-    AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_workers_request');
-
-    $workers_url = tacticum_rest_build_url($base_url, '/tacticum/v1/sale/workers');
-    $ch = curl_init($workers_url);
-    tacticum_rest_apply_curl_defaults($ch);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
-
-    $response = curl_exec($ch);
-    $curl_error_no = curl_errno($ch);
-    $curl_error = curl_error($ch);
-    $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    tacticum_rest_log_tls_error($ch, 'tacticum_form_workers');
-    curl_close($ch);
-
-    $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
-    AddMessage2Log(serialize($masked_response), 'tacticum_form_workers_response');
-
-    if ($curl_error_no !== 0) {
-        AddMessage2Log("Curl error (tacticum_form_workers): errno={$curl_error_no}; error={$curl_error}", 'tacticum_form_workers_error');
-        tacticum_rest_error(502, 'curl_error', 'Ошибка отправки во внешний сервис.');
+    if ($start_date !== '') {
+        $taskParts[] = 'Дата начала: ' . $start_date;
     }
-
-    if ($http_status !== 200 || !$response) {
-        tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');
+    if ($durationLabel !== '') {
+        $taskParts[] = 'Срок работы: ' . $durationLabel;
     }
+    $taskParts[] = 'Описание задачи: ' . $message;
 
-    $decoded = json_decode($response, true);
-    if ($decoded === null) {
-        tacticum_form_response(true, null, 'ok');
-    }
-
-    tacticum_form_response(true, null, 'ok', ['data' => $decoded]);
+    $payload['task'] = implode("\n", $taskParts);
 }
 
 AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_request');

@@ -33,10 +33,10 @@ $payload = [
 ];
 
 AddMessage2Log('resolve_tg_link input: ' . serialize(tacticum_rest_mask_pii($data)), 'tacticum_resolve_tg');
-AddMessage2Log('resolve_tg_link payload: ' . serialize($payload), 'tacticum_resolve_tg');
+AddMessage2Log('resolve_tg_link payload: ' . tacticum_rest_mask_string(serialize($payload)), 'tacticum_resolve_tg');
 
 // Запрос к внешнему сервису
-$resolver_base = tacticum_rest_get_ai_setting('TELEGRAM_RESOLVER_URL', 'http://5.35.90.193:8000');
+$resolver_base = tacticum_rest_get_required_https_ai_url('TELEGRAM_RESOLVER_URL', 'сервиса Telegram resolver');
 $endpoint_url = tacticum_rest_build_url($resolver_base, '/tacticum/v1/chat_agent/get_bot_link');
 
 $ch = curl_init($endpoint_url);

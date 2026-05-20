@@ -26,11 +26,16 @@
 <?php
 return [
     'iblocks' => [
-        'cases'    => 13,
+        'offer'    => 5,
+        'vacancies' => 7,
+        'feedback' => 9,
         'faq'      => 10,
         'rates'    => 11,
         'services' => 12,
-        'offer'    => 5,
+        'cases'    => 13,
+        'team'     => 18,
+        'policies' => 19,
+        'aiagents' => 20,
     ],
     'base_urls' => [
         'AI_SERVICE_BASE_URL'    => 'https://...',
@@ -50,9 +55,12 @@ return [
 - `tacticum_rest_get_config_section('rest')` — секция
 - `tacticum_rest_get_iblock_id('cases')` — ID инфоблока
 - `tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL')` — URL сервиса
+- `tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL')` — обязательный HTTPS URL для outbound AI-запросов
 
 **Файл исключён из git** (`.gitignore`) и из rsync-деплоя (`--exclude` в `deploy.yml`).
 Хранится на сервере отдельно — вне репозитория.
+
+Шаблон без секретов хранится в `local/php_interface/include/tacticum_config.example.php`.
 
 ---
 
@@ -77,4 +85,3 @@ return [
 ⚠️ Нужно вручную создать файл на новом сервере при первом деплое
 ⚠️ Нет валидации схемы конфига при загрузке
 → Митигация: хелперы возвращают fallback-значения при отсутствии ключа
-

@@ -32,9 +32,6 @@ $curPage = $APPLICATION->GetCurPage();
         || substr_count($curPage, "calculator") != 0) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
-    if ($curPage === SITE_DIR || substr_count($curPage, "price") != 0) {
-        $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/chat.js"></script>');
-    }
     if (substr_count($curPage, "price") != 0) {
         $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/charts.js"></script>');
     }

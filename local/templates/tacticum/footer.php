@@ -71,7 +71,7 @@
             <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify_between items-center gap-4">
                 <p class="text-white/50 text-sm">&copy; 2022 - <?=date("Y")?> Tacticum. Все права защищены.</p>
                 <div class="flex items-center gap-6">
-                    <a href="/policies/" class="text-white/50 text-sm hover:text-white transition-colors">Политика конфиденциальности</a>
+                    <a href="/policies/" target="_blank" rel="noopener" class="text-white/50 text-sm hover:text-white transition-colors">Политика конфиденциальности</a>
                     <?/*<a href="#" class="text-white/50 text-sm hover:text-white transition-colors">Условия использования</a>
                     <a href="#" class="text-white/50 text-sm hover:text-white transition-colors">Карта сайта</a>*/?>
                 </div>
@@ -105,63 +105,63 @@ $APPLICATION->IncludeComponent(
 <div id="tacticum-modal" class="fixed inset-0 z-[999] hidden" role="dialog" aria-modal="true" aria-labelledby="tacticum-modal-title">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
 
-    <div class="relative mx-auto my-8 w-[min(92vw,880px)]">
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-            <div class="bg-secondary text-white px-6 md:px-8 py-5 flex items-center justify-between">
+    <div class="tacticum-contact-modal-shell relative mx-auto my-6 w-[min(92vw,760px)]">
+        <div class="tacticum-contact-modal-card bg-white rounded-lg shadow-2xl overflow-hidden">
+            <div class="tacticum-contact-modal-header bg-secondary text-white px-6 md:px-7 py-5 flex items-center justify-between">
                 <div>
                     <h2 id="tacticum-modal-title" class="text-xl md:text-2xl font-bold">Связаться с нами</h2>
                     <p class="text-white/70 text-sm mt-1">Оценим задачу и подскажем лучший вариант запуска</p>
                 </div>
-                <button id="tacticum-modal-close" class="shrink-0 w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center" aria-label="Закрыть диалог">
+                <button id="tacticum-modal-close" class="tacticum-contact-modal-close shrink-0 w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center" aria-label="Закрыть диалог">
                     <i class="ri-close-line text-2xl"></i>
                 </button>
             </div>
 
-            <form id="tacticum-modal-form" class="px-6 md:px-8 py-6 space-y-6" data-tacticum-form data-form-id="contact-modal" data-tacticum-close-target="#tacticum-modal" data-tacticum-close-mode="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div>
-                        <label for="modal-name" class="block text-sm text-gray-600 mb-1">Имя<span class="text-red-500">*</span></label>
-                        <input id="modal-name" name="name" type="text" required
-                               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
+            <form id="tacticum-modal-form" class="tacticum-contact-form px-6 md:px-7 py-6" data-tacticum-form data-form-id="contact-modal" data-tacticum-close-target="#tacticum-modal" data-tacticum-close-mode="hidden">
+                <div class="tacticum-contact-form__grid grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="tacticum-contact-form__field">
+                        <label for="modal-name" class="tacticum-contact-form__label block text-sm text-gray-700 mb-1">Имя <span class="tacticum-contact-form__required text-primary">*</span></label>
+                        <input id="modal-name" name="name" type="text" required autocomplete="name" placeholder="Иван"
+                               class="tacticum-contact-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none" />
                         <p class="mt-1 text-xs text-red-600 hidden" data-error="modal-name">Укажите имя</p>
                     </div>
-                    <div>
-                        <label for="modal-company" class="block text-sm text-gray-600 mb-1">Компания</label>
-                        <input id="modal-company" name="company" type="text"
-                               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
+                    <div class="tacticum-contact-form__field">
+                        <label for="modal-company" class="tacticum-contact-form__label block text-sm text-gray-700 mb-1">Компания</label>
+                        <input id="modal-company" name="company" type="text" autocomplete="organization" placeholder="Название компании"
+                               class="tacticum-contact-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none" />
                     </div>
-                    <div>
-                        <label for="modal-email" class="block text-sm text-gray-600 mb-1">Email<span class="text-red-500">*</span></label>
-                        <input id="modal-email" name="email" type="email" required
-                               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
+                    <div class="tacticum-contact-form__field">
+                        <label for="modal-email" class="tacticum-contact-form__label block text-sm text-gray-700 mb-1">Email <span class="tacticum-contact-form__required text-primary">*</span></label>
+                        <input id="modal-email" name="email" type="email" required autocomplete="email" placeholder="mail@example.com"
+                               class="tacticum-contact-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none" />
                         <p class="mt-1 text-xs text-red-600 hidden" data-error="modal-email">Укажите корректный email</p>
                     </div>
-                    <div>
-                        <label for="modal-phone" class="block text-sm text-gray-600 mb-1">Телефон<span class="text-red-500">*</span></label>
-                        <input id="modal-phone" name="phone" type="tel" required
-                               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60" />
+                    <div class="tacticum-contact-form__field">
+                        <label for="modal-phone" class="tacticum-contact-form__label block text-sm text-gray-700 mb-1">Телефон <span class="tacticum-contact-form__required text-primary">*</span></label>
+                        <input id="modal-phone" name="phone" type="tel" required autocomplete="tel" placeholder="+7 999 000-00-00"
+                               class="tacticum-contact-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none" />
                         <p class="mt-1 text-xs text-red-600 hidden" data-error="modal-phone">Укажите телефон</p>
                     </div>
                 </div>
 
-                <div>
-                    <label for="modal-message" class="block text-sm text-gray-600 mb-1">Опишите проект или задачу</label>
-                    <textarea id="modal-message" name="message" rows="4" required
-                              class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60"></textarea>
+                <div class="tacticum-contact-form__field">
+                    <label for="modal-message" class="tacticum-contact-form__label block text-sm text-gray-700 mb-1">Опишите проект или задачу <span class="tacticum-contact-form__required text-primary">*</span></label>
+                    <textarea id="modal-message" name="message" rows="4" required placeholder="Кратко опишите задачу, сроки и ожидаемый результат"
+                              class="tacticum-contact-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none"></textarea>
                 </div>
 
-                <div class="flex items-start gap-3">
+                <div class="tacticum-contact-form__consent flex items-start gap-3">
                     <input id="modal-agreement" type="checkbox" required data-tacticum-consent
-                           class="peer mt-0.5 appearance-none w-4 h-4 border border-gray-300 rounded-sm grid place-content-center focus:outline-none focus:ring-2 focus:ring-primary/40">
-                    <label for="modal-agreement" class="text-sm text-gray-600">
+                           class="tacticum-contact-form__checkbox mt-1 w-4 h-4">
+                    <label for="modal-agreement" class="tacticum-contact-form__consent-text text-sm text-gray-600">
                         Я согласен на обработку персональных данных и принимаю условия
-                        <a href="/policies/" class="text-primary hover:underline">политики конфиденциальности</a>
+                        <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a>
                     </label>
                 </div>
 
                 <div class="pt-2">
                     <button type="submit"
-                            class="w-full bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
+                            class="tacticum-contact-form__submit w-full bg-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
                         <svg class="animate-spin h-5 w-5 hidden" data-role="spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
