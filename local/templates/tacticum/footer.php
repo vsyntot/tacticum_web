@@ -13,7 +13,7 @@
                         реальных задач и достижения измеримых результатов.
                     </p>
                     <div class="flex items-center gap-4">
-                        <a href="https://t.me/Tacticum_official_bot" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" aria-label="Telegram"><i class="ri-telegram-fill"></i></a>
+                        <a href="https://t.me/Tacticum_official_bot" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" aria-label="Telegram"><i class="ri-telegram-fill"></i></a>
                         <?/*<a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"><i class="ri-vk-fill"></i></a>
                         <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"><i class="ri-youtube-fill"></i></a>
                         <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"><i class="ri-linkedin-fill"></i></a>*/?>
@@ -68,7 +68,7 @@
                     </div>
                 </div>
             </div>
-            <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify_between items-center gap-4">
+            <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-white/50 text-sm">&copy; 2022 - <?=date("Y")?> Tacticum. Все права защищены.</p>
                 <div class="flex items-center gap-6">
                     <a href="/policies/" target="_blank" rel="noopener" class="text-white/50 text-sm hover:text-white transition-colors">Политика конфиденциальности</a>

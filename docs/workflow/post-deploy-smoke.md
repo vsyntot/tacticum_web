@@ -22,6 +22,7 @@
 - [ ] `sessid` передаётся или endpoint ожидаемо проходит CSRF policy.
 - [ ] POST возвращает JSON `{ success: true }` или документированную ошибку.
 - [ ] Пользователь видит success/error state.
+- [ ] Срабатывают analytics events `tacticum_form_submit` и success/error без PII.
 - [ ] В логах нет PII без маскировки.
 
 Формы:
@@ -43,7 +44,9 @@
 - [ ] Price chat отправляет message.
 - [ ] Upstream errors показываются пользователю без raw stack/PII.
 - [ ] `group_id` сохраняется и используется для prefill, если сценарий это предполагает.
+- [ ] Prefill production path вызывает `POST /local/rest/tacticum_prefill.php` с JSON `group_id` + `sessid`.
 - [ ] `bitrix_url` открывает offer page, если AI вернул ссылку.
+- [ ] Срабатывают analytics events `tacticum_chat_*` и `tacticum_prefill_*` без текста сообщений.
 
 ## REST/API
 
@@ -56,6 +59,7 @@
 - [ ] `/local/rest/tacticum_chat.php`
 - [ ] `/local/rest/tacticum_prefill.php`
 - [ ] `/local/rest/resolve_telegram_link.php`
+- [ ] `/local/rest/health_config.php`
 
 Проверять только затронутые endpoints, но при security/config изменениях — весь список.
 
@@ -69,6 +73,8 @@
 - [ ] Новый публичный URL есть в sitemap.
 - [ ] У затронутой страницы есть один H1.
 - [ ] Title/description корректны.
+- [ ] Canonical присутствует и соответствует URL-стратегии страницы.
+- [ ] OpenGraph meta присутствуют без дублей.
 
 ## DevOps Handoff
 

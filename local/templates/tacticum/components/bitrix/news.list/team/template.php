@@ -48,12 +48,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     <p class="text-white/90 mb-4"><?=$memberDetail?></p>
                     <div class="flex items-center gap-3">
                         <?if(!empty($arItem["PROPERTIES"]["LINKEDIN"]["VALUE"])){?>
-                            <a href="<?=$memberLinkedIn?>" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <a href="<?=$memberLinkedIn?>" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                                 <i class="ri-linkedin-fill text-white"></i>
                             </a>
                         <?}?>
                         <?if(!empty($arItem["PROPERTIES"]["EMAIL"]["VALUE"])){?>
-                            <a href="mailto:<?=$memberEmail?>" target="_blank" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <a href="mailto:<?=$memberEmail?>" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                                 <i class="ri-mail-fill text-white"></i>
                             </a>
                         <?}?>

@@ -41,7 +41,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                             <p class="text-gray-600 mb-4">
                                 <?=$agentPreview?>
                             </p>
-                            <a href="<?=$agentLink?>" target="_blank" class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">Пообщаться с агентом <i class="ri-arrow-right-line"></i></a>
+                            <a href="<?=$agentLink?>" target="_blank" rel="noopener" class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">Пообщаться с агентом <i class="ri-arrow-right-line"></i></a>
                         </div>
                     </div>
                 <?}?>

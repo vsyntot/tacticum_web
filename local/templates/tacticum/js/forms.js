@@ -7,6 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const DEFAULT_SUCCESS_MESSAGE = "Заявка отправлена! Мы скоро свяжемся с вами.";
     const DEFAULT_ERROR_MESSAGE = "Не удалось отправить форму. Попробуйте позже.";
 
+    const trackEvent = (eventName, params = {}) => {
+        if (typeof window.tacticumTrackEvent === "function") {
+            window.tacticumTrackEvent(eventName, params);
+        }
+    };
+
+    const getFormId = (form) => form.dataset.formId || form.id || "unknown";
+
     const ensureToastContainer = () => {
         let container = document.getElementById("tacticum-toast-container");
         if (!container) {
@@ -128,6 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return endpoint.startsWith("/") && !endpoint.startsWith("//") ? endpoint : FORM_ENDPOINT;
     };
 
+    const getEndpointKey = (endpoint) => {
+        const parts = endpoint.split("/");
+        return parts.pop() || "unknown";
+    };
+
     const setLoadingState = (form, isLoading) => {
         const submitBtn = form.querySelector("button[type='submit']");
         if (!submitBtn) return;
@@ -182,15 +195,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const valid = validateForm(form);
         if (!valid) {
+            trackEvent("tacticum_form_validation_error", {
+                form_id: getFormId(form),
+            });
             showToast("Пожалуйста, заполните обязательные поля и подтвердите согласие.", "error");
             return;
         }
 
         const payload = buildPayload(form);
+        const endpoint = getFormEndpoint(form);
+        const formMeta = {
+            form_id: getFormId(form),
+            endpoint: getEndpointKey(endpoint),
+        };
 
         try {
             setLoadingState(form, true);
-            const response = await fetch(getFormEndpoint(form), {
+            trackEvent("tacticum_form_submit", formMeta);
+            const response = await fetch(endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -199,15 +221,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const json = await response.json().catch(() => null);
             if (!response.ok || !json?.success) {
                 const errorMessage = normalizeMessage(json?.error || json?.message) || DEFAULT_ERROR_MESSAGE;
+                trackEvent("tacticum_form_error", {
+                    ...formMeta,
+                    status: response.status,
+                    code: json?.code || "unknown",
+                });
                 showToast(errorMessage, "error");
                 return;
             }
 
             const successMessage = form.dataset.successMessage || DEFAULT_SUCCESS_MESSAGE;
+            trackEvent("tacticum_form_success", {
+                ...formMeta,
+                status: response.status,
+            });
             showToast(successMessage, "success");
             form.reset();
             closeModalIfNeeded(form);
         } catch (error) {
+            trackEvent("tacticum_form_error", {
+                ...formMeta,
+                status: "network",
+                code: "fetch_error",
+            });
             showToast(DEFAULT_ERROR_MESSAGE, "error");
         } finally {
             setLoadingState(form, false);

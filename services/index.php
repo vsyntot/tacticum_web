@@ -1,6 +1,8 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Услуги - Тактикум");
+$APPLICATION->SetPageProperty("description", "Услуги Tacticum: AI-консалтинг, внедрение искусственного интеллекта, разработка ML-решений, чат-ботов и автоматизация бизнеса.");
+tacticum_apply_seo_defaults('/services/');
 ?>
 
 <!-- Hero Section -->
@@ -29,7 +31,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "services",
                 "IBLOCK_TYPE" => "services",
-                "IBLOCK_ID" => "12",
+                "IBLOCK_ID" => tacticum_iblock_id('services'),
                 "NEWS_COUNT" => "3",
                 "SORT_BY1" => "SORT",
                 "SORT_ORDER1" => "ASC",
@@ -132,7 +134,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "cases",
                 "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => "13",
+                "IBLOCK_ID" => tacticum_iblock_id('cases'),
                 "NEWS_COUNT" => "3",
                 "SORT_BY1" => "RAND",
                 "SORT_ORDER1" => "DESC",
@@ -338,7 +340,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "faq",
                 "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => "10",
+                "IBLOCK_ID" => tacticum_iblock_id('faq'),
                 "NEWS_COUNT" => "0",
                 "SORT_BY1" => "SORT",
                 "SORT_ORDER1" => "ASC",

@@ -1,6 +1,8 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("AI-калькулятор - Тактикум");
+$APPLICATION->SetPageProperty("description", "AI-калькулятор Tacticum помогает предварительно оценить сроки, бюджет и команду для AI-проекта.");
+tacticum_apply_seo_defaults('/calculator/');
 ?>
 
 <!-- AI Calculator Section -->
@@ -160,7 +162,7 @@ $APPLICATION->IncludeComponent(
         [
                 "COMPONENT_TEMPLATE" => "faq",
                 "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => "10",
+                "IBLOCK_ID" => tacticum_iblock_id('faq'),
                 "NEWS_COUNT" => "0",
                 "SORT_BY1" => "SORT",
                 "SORT_ORDER1" => "ASC",
@@ -271,162 +273,5 @@ $APPLICATION->IncludeComponent(
         </div>
     </section>
 </div>
-
-<!-- ===== ЛОКАЛЬНАЯ логика чата для страницы калькулятора ===== -->
-<script>
-    // На всякий случай — флаг, который можно использовать для отключения глобального кода
-    window.TACTICUM_DISABLE_FOOTER_AI_CHAT = true;
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const aiChatRoot = document.querySelector(".ai-chat-container");
-        if (!aiChatRoot) return;
-
-        let group_id = null; // При желании можно сохранить в sessionStorage/localStorage
-
-        const chatInput       = aiChatRoot.querySelector("input");
-        const sendButton      = chatInput ? chatInput.nextElementSibling : null;
-        const aiChatContainer = aiChatRoot.querySelector(".p-6");
-        const quickReplies    = aiChatRoot.querySelectorAll(".mt-3 button");
-
-        if (!chatInput || !sendButton || !aiChatContainer) return;
-
-        function addUserMessage(message) {
-            const el = document.createElement("div");
-            el.className = "bg-gray-100 rounded-lg p-4 ml-auto max-w-[80%]";
-            el.innerHTML = `<p class="text-gray-700"></p>`;
-            el.querySelector("p").textContent = message;
-            aiChatContainer.appendChild(el);
-            aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
-        }
-
-        function addAIMessage(text, bitrix_url = null) {
-            const el = document.createElement("div");
-            el.className = "bg-primary/10 rounded-lg p-4";
-            el.innerHTML = `
-        <p class="text-gray-700"></p>
-        ${bitrix_url ? `<p class="mt-3"><a class="underline text-primary" href="${bitrix_url}" target="_blank" rel="noopener">Полный расчет</a></p>` : ""}
-      `;
-            el.querySelector("p").textContent = text;
-            aiChatContainer.appendChild(el);
-            aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            const el = document.createElement("div");
-            el.className = "ai-typing bg-primary/10 rounded-lg p-4 inline-block";
-            el.innerHTML = `
-        <div class="typing-indicator">
-          <span></span><span></span><span></span>
-        </div>
-      `;
-            aiChatContainer.appendChild(el);
-            aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
-            return el;
-        }
-
-        function parseChatResult(response) {
-            return response.json()
-                .catch(() => null)
-                .then(data => ({ ok: response.ok, status: response.status, data }));
-        }
-
-        function getChatErrorMessage(result) {
-            const data = result && result.data ? result.data : null;
-            if (data && data.code === "upstream_timeout") {
-                return "AI-сервис не ответил вовремя. Попробуйте повторить запрос.";
-            }
-            if (data && (data.code === "upstream_http_error" || data.code === "upstream_error" || data.code === "upstream_contract_error" || data.code === "curl_error")) {
-                return "AI-сервис временно перегружен. Оставьте заявку, и мы подготовим оценку вручную.";
-            }
-            if (data && (data.message || data.error)) {
-                return data.message || data.error;
-            }
-            return result && result.status
-                ? "Ошибка сервера: " + result.status
-                : "AI-сервис не вернул ответ. Попробуйте повторить запрос.";
-        }
-
-        let isSending = false;
-
-        function sendMessage(message) {
-            if (!message || !message.trim() || isSending) return;
-
-            chatInput.value = "";
-            isSending = true;
-            sendButton.disabled = true;
-
-            addUserMessage(message);
-            const typing = showTypingIndicator();
-
-            const payload = { user_message: message };
-            if (group_id) {
-                payload.group_id = group_id;
-            } else {
-                payload.startAgent = "ITExpertAgent";
-            }
-            if (window.BX && typeof BX.bitrix_sessid === "function") {
-                payload.sessid = BX.bitrix_sessid();
-            }
-
-            fetch('/local/rest/tacticum_chat.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            })
-                .then(parseChatResult)
-                .then(result => {
-                    const res = result.data || {};
-                    typing.remove();
-                    if (result.ok && res.response) {
-                        addAIMessage(res.response, res.bitrix_url || null);
-                        if (res.group_id) group_id = res.group_id;
-                    } else {
-                        addAIMessage(getChatErrorMessage(result));
-                    }
-                })
-                .catch(err => {
-                    typing.remove();
-                    addAIMessage("Ошибка запроса: " + err.message);
-                })
-                .finally(() => {
-                    isSending = false;
-                    sendButton.disabled = false;
-                });
-        }
-
-        // Отправка по кнопке
-        sendButton.addEventListener("click", function () {
-            sendMessage(chatInput.value);
-        });
-
-        // Отправка по Enter
-        chatInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") sendMessage(chatInput.value);
-        });
-
-        // Быстрые подсказки
-        quickReplies.forEach(btn => {
-            btn.addEventListener("click", function () {
-                sendMessage(this.textContent.trim());
-            });
-        });
-    });
-</script>
-
- 
-<style>
-    /* Индикатор печати — локально, если нет в общем CSS */
-    .typing-indicator { display:inline-flex; gap:6px; vertical-align:middle; }
-    .typing-indicator span {
-        width:6px; height:6px; border-radius:50%; display:block; opacity:0.5;
-        animation: ti-bounce 1s infinite ease-in-out;
-    }
-    .typing-indicator span:nth-child(2){ animation-delay:.15s; }
-    .typing-indicator span:nth-child(3){ animation-delay:.3s; }
-    @keyframes ti-bounce {
-        0%, 80%, 100% { transform: translateY(0); opacity:.5; }
-        40%           { transform: translateY(-6px); opacity:1;  }
-    }
-</style>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

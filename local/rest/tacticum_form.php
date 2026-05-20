@@ -134,24 +134,14 @@ if ($is_specialist_order) {
 AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_request');
 
 $chat_agent_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
-$ch = curl_init($chat_agent_url);
-tacticum_rest_apply_curl_defaults($ch);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
-
-$response = curl_exec($ch);
-$curl_error_no = curl_errno($ch);
-$curl_error = curl_error($ch);
-$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-tacticum_rest_log_tls_error($ch, 'tacticum_form_chat_agent');
-curl_close($ch);
+$result = tacticum_rest_post_json($chat_agent_url, $payload, 'tacticum_form_chat_agent');
+$response = $result['response'];
+$http_status = (int)$result['http_status'];
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
 AddMessage2Log(serialize($masked_response), 'tacticum_form_response');
 
-if ($curl_error_no !== 0) {
-    AddMessage2Log("Curl error (tacticum_form_chat_agent): errno={$curl_error_no}; error={$curl_error}", 'tacticum_form_chat_agent_error');
-    tacticum_rest_error(502, 'curl_error', 'Ошибка отправки во внешний сервис.');
-}
+tacticum_rest_fail_on_curl_error($result, 'tacticum_form_chat_agent', 'Ошибка отправки во внешний сервис.');
 
 if ($http_status === 200 && $response) {
     tacticum_form_response(true, null, 'ok');

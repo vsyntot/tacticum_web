@@ -1,6 +1,8 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Контакты - Тактикум");
+$APPLICATION->SetPageProperty("description", "Контакты Tacticum: телефон, email, адрес офиса и форма заявки на консультацию по AI-проекту.");
+tacticum_apply_seo_defaults('/contacts/');
 ?>
 
 <!-- Page Title Section -->
@@ -75,35 +77,35 @@ $APPLICATION->SetTitle("Контакты - Тактикум");
                         Оставьте заявку, и наш менеджер свяжется с вами в течение 2 часов, чтобы обсудить детали и
                         подготовить индивидуальное предложение с учетом всех доступных скидок и акций.
                     </p>
-                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6">
+                    <form id="contacts-cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6" data-tacticum-form data-form-id="contacts-cta">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="relative">
-                                <input type="text" id="cta-name" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="text" id="cta-name" name="name" required autocomplete="name" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-name" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Имя</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="cta-company" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="text" id="cta-company" name="company" autocomplete="organization" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-company" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Компания</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="cta-email" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="email" id="cta-email" name="email" required autocomplete="email" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-email" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Email</label>
                             </div>
                             <div class="relative">
-                                <input type="text" id="cta-phone" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
+                                <input type="tel" id="cta-phone" name="phone" required autocomplete="tel" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
                                 <label for="cta-phone" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Телефон</label>
                             </div>
                         </div>
                         <div class="relative mb-6">
-                            <textarea id="cta-message" rows="4" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
+                            <textarea id="cta-message" name="message" rows="4" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
                             <label for="cta-message" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Опишите ваш проект или интересующее предложение</label>
                         </div>
                         <div class="flex items-start gap-2 mb-6">
-                            <input type="checkbox" id="cta-agreement" class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
-                            <label for="cta-agreement" class="text-sm text-white/70">Я согласен на обработку персональных данных и принимаю условия <a href="#" class="underline hover:text-white">политики конфиденциальности</a></label>
+                            <input type="checkbox" id="cta-agreement" required data-tacticum-consent class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
+                            <label for="cta-agreement" class="text-sm text-white/70">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="underline hover:text-white">политики конфиденциальности</a></label>
                         </div>
-                        <button class="w-full bg-white text-primary font-medium px-6 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap">Получить персональное предложение</button>
-                    </div>
+                        <button type="submit" class="w-full bg-white text-primary font-medium px-6 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap">Получить персональное предложение</button>
+                    </form>
                 </div>
                 <div class="w-full md:w-1/2">
                     <img src="<?=SITE_TEMPLATE_PATH?>/images/specialoffer.jpg" alt="Персональное предложение" class="w-full h-auto rounded-xl shadow-lg object-cover object-top">

@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-    if (!document.querySelector(".order-specialist-btn")) {
+    if (!document.querySelector(".order-specialist-btn") && !document.getElementById("specialistOrderModal")) {
         const orderButtons = Array.from(document.querySelectorAll("button")).filter(
             (button) => button.textContent.trim() === "Заказать специалиста"
         );
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <i class="ri-close-line text-xl text-gray-500"></i>
             </button>
           </div>
-          <form id="specialistOrderForm" class="space-y-6">
+          <form id="specialistOrderForm" class="space-y-6" data-tacticum-form data-form-id="price-specialist-legacy" data-endpoint="/local/rest/tacticum_sale_staff.php" data-tacticum-close-target="#specialistOrderModal" data-tacticum-close-mode="overlay">
             <div class="relative mb-6">
               <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
                 <p class="text-primary font-medium mb-2">Выбранный специалист:</p>
@@ -161,16 +161,18 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
             </div>
             <div class="relative">
-              <textarea id="orderDescription" name="description" required rows="4" placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50"></textarea>
+              <textarea id="orderDescription" name="message" required rows="4" placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50"></textarea>
               <label for="orderDescription" class="absolute left-4 top-3 text-gray-500 transition-transform origin-left">Описание задачи</label>
             </div>
+            <input type="hidden" id="orderSpecialist" name="specialist">
+            <input type="hidden" id="orderRate" name="rate">
             <div class="flex items-start gap-2">
-              <input type="checkbox" id="orderAgreement" required class="mt-1 appearance-none w-4 h-4 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
+              <input type="checkbox" id="orderAgreement" required data-tacticum-consent class="mt-1 appearance-none w-4 h-4 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
               <label for="orderAgreement" class="text-sm text-gray-600">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a></label>
             </div>
             <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white pt-4">
               <button type="submit" class="w-full sm:flex-1 bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">Отправить заявку</button>
-              <button type="button" id="cancelOrderModal" class="w-full sm:flex-1 bg_white border border-gray-200 text-gray-700 px-6 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">Отмена</button>
+              <button type="button" id="cancelOrderModal" class="w-full sm:flex-1 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">Отмена</button>
             </div>
           </form>
         </div>
@@ -195,6 +197,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         const selectedRate = document.getElementById("selectedRate");
                         if (selectedSpecialist) selectedSpecialist.textContent = specialistTitle;
                         if (selectedRate) selectedRate.textContent = `Ставка: ${rate}`;
+                        const hiddenSpecialist = document.getElementById("orderSpecialist");
+                        const hiddenRate = document.getElementById("orderRate");
+                        if (hiddenSpecialist) hiddenSpecialist.value = specialistTitle;
+                        if (hiddenRate) hiddenRate.value = rate;
                     }
                     modal.classList.remove("opacity-0", "pointer-events-none");
                     modal.querySelector(".bg-white")?.classList.remove("scale-95");
@@ -213,31 +219,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (e.target === modal) closeModal();
             });
 
-            orderForm?.addEventListener("submit", (e) => {
-                e.preventDefault();
-                const formData = new FormData(orderForm);
-                const data = Object.fromEntries(formData);
-                console.log("Form submitted:", data);
-
-                const successMessage = document.createElement("div");
-                successMessage.className =
-                    "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-y-[-100%]";
-                successMessage.textContent =
-                    "Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.";
-                document.body.appendChild(successMessage);
-
-                requestAnimationFrame(() => {
-                    successMessage.style.transform = "translateY(0)";
-                    successMessage.style.transition = "transform 0.3s ease";
-                });
-                setTimeout(() => {
-                    successMessage.style.transform = "translateY(-100%)";
-                    setTimeout(() => successMessage.remove(), 300);
-                }, 5000);
-
-                closeModal();
-                orderForm.reset();
-            });
         }
     }
 });

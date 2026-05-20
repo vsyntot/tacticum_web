@@ -123,6 +123,8 @@ QA подключается до разработки, если задача к�
 - `sprint-template.md` — шаблон спринта.
 - `post-deploy-smoke.md` — чеклист smoke-check.
 - `lead-form-contract.md` — контракт `/local/rest/tacticum_form.php` и taxonomy `form_id`.
+- `chat-offer-contract.md` — контракт AI chat, `group_id`, prefill и handoff в lead form.
+- `asset-layout-audit.md` — карта текущих CSS/JS assets, inline-долги и правила дальнейшей верстки.
 - `sprints/` — snapshot-ы спринтов.
 
 ## Definition Of Ready

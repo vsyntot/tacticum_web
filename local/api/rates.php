@@ -8,35 +8,39 @@ header('Content-Type: application/json; charset=UTF-8');
 
 $iblockId = tacticum_api_bootstrap('rates');
 
-$arSelect = ['ID', 'IBLOCK_ID', 'NAME'];
+$payload = tacticum_api_cached_payload('rates', $iblockId, static function () use ($iblockId): array {
+    $arSelect = ['ID', 'IBLOCK_ID', 'NAME'];
 
-$res = tacticum_api_fetch_elements($iblockId, $arSelect);
+    $res = tacticum_api_fetch_elements($iblockId, $arSelect);
 
-$items = [];
+    $items = [];
 
-while ($ob = $res->GetNextElement()) {
-    $fields = $ob->GetFields();
-    $props = $ob->GetProperties();
+    while ($ob = $res->GetNextElement()) {
+        $fields = $ob->GetFields();
+        $props = $ob->GetProperties();
 
-    $name = tacticum_rest_html_to_text($fields['NAME']);
-    $item['name'] = $name;
+        $name = tacticum_rest_html_to_text($fields['NAME']);
+        $item = ['name' => $name];
 
-    $sectionLinks = CIBlockElement::GetElementGroups(
-        $fields['ID'],
-        true,
-        ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
-    );
-    $sections = [];
-    while ($section = $sectionLinks->Fetch()) {
-        $sections[] = $section['NAME'];
+        $sectionLinks = CIBlockElement::GetElementGroups(
+            $fields['ID'],
+            true,
+            ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
+        );
+        $sections = [];
+        while ($section = $sectionLinks->Fetch()) {
+            $sections[] = $section['NAME'];
+        }
+        $item['sections'] = $sections;
+
+        foreach ($props as $propCode => $propValue) {
+            $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);
+        }
+
+        $items[] = $item;
     }
-    $item['sections'] = $sections;
 
-    foreach ($props as $propCode => $propValue) {
-        $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);
-    }
+    return ['items' => $items];
+});
 
-    $items[] = $item;
-}
-
-tacticum_rest_response(true, 'ok', null, ['items' => $items]);
+tacticum_rest_response(true, 'ok', null, $payload);

@@ -177,24 +177,14 @@ AddMessage2Log(serialize(tacticum_rest_mask_pii($hotSalePayload)), 'tacticum_sal
 $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
 
-$ch = curl_init($endpoint_url);
-tacticum_rest_apply_curl_defaults($ch);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($hotSalePayload, JSON_UNESCAPED_UNICODE));
-
-$response = curl_exec($ch);
-$curl_error_no = curl_errno($ch);
-$curl_error = curl_error($ch);
-$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-tacticum_rest_log_tls_error($ch, 'tacticum_sale_staff_hot_sale');
-curl_close($ch);
+$result = tacticum_rest_post_json($endpoint_url, $hotSalePayload, 'tacticum_sale_staff_hot_sale');
+$response = $result['response'];
+$http_status = (int)$result['http_status'];
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
 AddMessage2Log(serialize($masked_response), 'tacticum_sale_staff_response');
 
-if ($curl_error_no !== 0) {
-    AddMessage2Log("Curl error (tacticum_sale_staff_hot_sale): errno={$curl_error_no}; error={$curl_error}", 'tacticum_sale_staff_error');
-    tacticum_rest_error(502, 'curl_error', 'Ошибка отправки во внешний сервис.');
-}
+tacticum_rest_fail_on_curl_error($result, 'tacticum_sale_staff_hot_sale', 'Ошибка отправки во внешний сервис.');
 
 if ($http_status !== 200 || !$response) {
     $error_text = is_string($response) && $response ? tacticum_rest_mask_string($response) : 'AI endpoint error';
