@@ -1,0 +1,105 @@
+name: "🤖 AI Agent Task"
+description: "Задача для автономного AI-агента (Copilot Agent Mode, Claude и др.)"
+title: "[agent] "
+labels: ["ai-agent", "backlog"]
+assignees: []
+body:
+  - type: dropdown
+    id: agent
+    attributes:
+      label: "Агент-исполнитель"
+      options:
+        - "Copilot Agent Mode (PHPStorm) — Backend"
+        - "Copilot Agent Mode (PHPStorm) — Frontend"
+        - "Claude + MCP GitHub — Architect"
+        - "Claude + MCP GitHub — PM"
+        - "GitHub Copilot Workspace"
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Область"
+      options:
+        - backend
+        - frontend
+        - ai-integration
+        - seo
+        - infra
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workflow_lane
+    attributes:
+      label: "Workflow lane"
+      description: "Укажи режим работы агента по правилам PM workflow"
+      options:
+        - "Full Feature Lane"
+        - "Fast Fix Lane"
+        - "Security / Integration Lane"
+        - "Incident Lane"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Контекст для агента"
+      description: "Укажи ключевые файлы, инфоблоки, паттерны которые агент должен знать"
+      placeholder: |
+        Ключевые файлы:
+        - local/rest/tacticum_form.php (эталон POST-эндпоинта)
+        - local/rest/rest_helpers.php (все утилиты)
+        - local/php_interface/include/tacticum_config.php (конфиг)
+
+        Инфоблок: offer (ID=5)
+        AI-сервис: AI_SERVICE_BASE_URL из конфига
+    validations:
+      required: true
+
+  - type: textarea
+    id: task
+    attributes:
+      label: "Точное задание агенту"
+      description: "Конкретная инструкция — что создать, изменить, по какому образцу"
+      placeholder: |
+        Создай новый REST-эндпоинт /local/rest/tacticum_callback.php по образцу tacticum_form.php.
+        Endpoint принимает POST JSON: { name, phone, page_url }.
+        Валидация phone через tacticum_rest_is_valid_phone().
+        Пересылает на AI_SERVICE_BASE_URL/tacticum/v1/callback.
+        Логировать с маскировкой: tacticum_rest_mask_pii().
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Критерии приёмки"
+      placeholder: |
+        - [ ] Файл создан по паттерну tacticum_form.php
+        - [ ] validate_origin + rate_limit + check_csrf на месте
+        - [ ] PII маскируется в логах
+        - [ ] Нет хардкода URL (только tacticum_rest_get_ai_setting)
+        - [ ] Нет хардкода ID инфоблоков
+        - [ ] Файлы в bitrix/ не тронуты
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: "Обязательные ограничения для агента"
+      options:
+        - label: "Не редактировать файлы в bitrix/"
+          required: true
+        - label: "Использовать существующие хелперы из rest_helpers.php, не дублировать"
+          required: true
+        - label: "Не логировать PII без маскировки"
+          required: true
+        - label: "ID инфоблоков только через tacticum_rest_get_iblock_id()"
+        - label: "URL AI-сервиса только через tacticum_rest_get_ai_setting()"

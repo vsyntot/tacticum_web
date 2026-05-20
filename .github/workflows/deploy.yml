@@ -1,0 +1,91 @@
+name: 🚀 Deploy to tacticum.ru
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ──────────────────────────────────────────
+  # 1. Линтинг PHP
+  # ──────────────────────────────────────────
+  lint:
+    name: 🔍 PHP Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+
+      - name: Check PHP syntax — local/
+        run: find local/ -name "*.php" -print0 | xargs -0 -n1 php -l
+
+  # ──────────────────────────────────────────
+  # 2. Деплой
+  # ──────────────────────────────────────────
+  deploy:
+    name: 📦 Deploy via rsync
+    runs-on: ubuntu-latest
+    needs: lint
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync local/ (кастомный код)
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='*.log' \
+            --exclude='local/php_interface/include/tacticum_config.php' \
+            ./local/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/local/
+
+      - name: Sync публичные разделы сайта
+        run: |
+          rsync -avz --relative \
+            --exclude='.git' \
+            ./about/ ./services/ ./contacts/ ./calculator/ \
+            ./price/ ./offer/ ./aiagents/ ./policies/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+
+      - name: Sync корневые файлы
+        run: |
+          rsync -avz \
+            index.php 404.php robots.txt sitemap.xml sitemap-files.xml urlrewrite.php \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+
+      - name: Очистка Bitrix cache
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/managed_cache/* 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/tacticum 2>/dev/null || true; \
+             echo 'Cache cleared'"
+
+      - name: ✅ Deploy success
+        if: success()
+        run: echo "Deploy to tacticum.ru completed at $(date)"
+
+      - name: ❌ Deploy failed
+        if: failure()
+        run: echo "Deploy FAILED. Check logs above."
+

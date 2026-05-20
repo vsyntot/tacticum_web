@@ -40,6 +40,9 @@
 /.settings_extra.php
 /.access.php
 
+# --- Tacticum: конфиг с секретами (IP, URL AI-сервиса) — хранится на сервере отдельно ---
+/local/php_interface/include/tacticum_config.php
+
 # --- IDE / OS junk ---
 .idea/
 .vscode/
@@ -59,6 +62,7 @@ pnpm-lock.yaml
 /dist/
 /build/
 /.cache/
+/.mcp/
 
 # --- Env files ---
 .env

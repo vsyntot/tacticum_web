@@ -1,0 +1,86 @@
+name: "✨ Feature Request"
+description: "Новая функция или улучшение сайта"
+title: "[feat] "
+labels: ["feat", "backlog"]
+assignees: []
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Область"
+      options:
+        - backend
+        - frontend
+        - ai-integration
+        - seo
+        - infra
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Приоритет"
+      options:
+        - "P0 — критично"
+        - "P1 — важно (ближайший спринт)"
+        - "P2 — хорошо бы (бэклог)"
+      default: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workflow_lane
+    attributes:
+      label: "Workflow lane"
+      description: "Выбери самый лёгкий безопасный процесс для задачи"
+      options:
+        - "Full Feature Lane — новая фича / неясные требования / новый UX"
+        - "Fast Fix Lane — маленькое изменение без нового контракта"
+        - "Security / Integration Lane — API / AI / PII / security"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Цель / зачем нужно"
+      placeholder: "Что должно измениться и почему это важно для пользователя или бизнеса"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Критерии приёмки"
+      placeholder: |
+        - [ ] Эндпоинт /local/rest/tacticum_xxx.php возвращает 200
+        - [ ] Данные сохраняются в инфоблоке offer (ID=5)
+        - [ ] Форма на фронте отправляет и показывает success-state
+        - [ ] PII замаскировано в логах
+    validations:
+      required: true
+
+  - type: textarea
+    id: tech_notes
+    attributes:
+      label: "Технические заметки (опционально)"
+      placeholder: |
+        - Смотри паттерн в local/rest/tacticum_form.php
+        - Нужен новый ключ в tacticum_config.php
+        - Инфоблок: cases (ID=13)
+        - ADR: docs/adr/ADR-NNN.md
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: "Исполнитель"
+      options:
+        - "Copilot Agent (Backend)"
+        - "Copilot Agent (Frontend)"
+        - "Claude Architect"
+        - "Человек"
+        - "TBD"
+      default: 4

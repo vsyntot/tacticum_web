@@ -1,0 +1,80 @@
+name: "🐛 Bug Report"
+description: "Что-то работает неправильно"
+title: "[fix] "
+labels: ["bug", "backlog"]
+assignees: []
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Область"
+      options:
+        - backend
+        - frontend
+        - ai-integration
+        - seo
+        - infra
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Серьёзность"
+      options:
+        - "P0 — critical (сайт не работает / утечка данных)"
+        - "P1 — high (важная функция сломана)"
+        - "P2 — medium (неудобно, но работает)"
+        - "P3 — low (косметика)"
+      default: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workflow_lane
+    attributes:
+      label: "Workflow lane"
+      description: "P0/P1 production-дефекты обычно идут через Incident Lane"
+      options:
+        - "Incident Lane — production P0/P1"
+        - "Fast Fix Lane — локальный баг без security/API риска"
+        - "Security / Integration Lane — CSRF / CORS / PII / API / AI"
+        - "Full Feature Lane — баг требует переосмысления сценария"
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: "Что происходит"
+      placeholder: "Опиши баг: URL, действие, ошибка (HTTP-код, текст ошибки)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Ожидаемое поведение"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Шаги для воспроизведения"
+      placeholder: |
+        1. Открыть /calculator/
+        2. Заполнить форму
+        3. Нажать "Отправить"
+        4. Получить 502
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Логи / скриншоты (опционально)"
+      placeholder: |
+        Логи Bitrix: AddMessage2Log с тегом tacticum_*
+        Браузер: DevTools → Network / Console
+        Сервер: /var/log/...

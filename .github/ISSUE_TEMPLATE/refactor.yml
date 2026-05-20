@@ -1,0 +1,64 @@
+name: "♻️ Refactor / Tech Debt"
+description: "Улучшение кода без изменения поведения"
+title: "[refactor] "
+labels: ["refactor", "backlog"]
+assignees: []
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Область"
+      options:
+        - backend
+        - frontend
+        - ai-integration
+        - infra
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workflow_lane
+    attributes:
+      label: "Workflow lane"
+      description: "Для архитектурного рефакторинга проверь ADR gate"
+      options:
+        - "Fast Fix Lane — локальный рефакторинг без изменения поведения"
+        - "Full Feature Lane — затрагивает несколько частей системы"
+        - "Security / Integration Lane — влияет на security/API/AI"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Что не так сейчас"
+      placeholder: |
+        Например: в init.php хардкодится IBLOCK_ID => 5,
+        нужно заменить на tacticum_rest_get_iblock_id('offer')
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Предлагаемое решение"
+    validations:
+      required: true
+
+  - type: textarea
+    id: adr_link
+    attributes:
+      label: "Ссылка на ADR (если применимо)"
+      placeholder: "docs/adr/ADR-003-iblock-ids.md"
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Чеклист"
+      options:
+        - label: "Поведение не меняется (нет breaking changes)"
+        - label: "Покрыто тестом или проверено вручную"
+        - label: "Обновлён .github/copilot-instructions.md если нужно"
+        - label: "Обновлён ADR если нужно"
