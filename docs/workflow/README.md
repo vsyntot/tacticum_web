@@ -124,6 +124,7 @@ QA подключается до разработки, если задача к�
 - `post-deploy-smoke.md` — чеклист smoke-check.
 - `lead-form-contract.md` — контракт `/local/rest/tacticum_form.php` и taxonomy `form_id`.
 - `chat-offer-contract.md` — контракт AI chat, `group_id`, prefill и handoff в lead form.
+- `chat-api-contract.md` — низкоуровневый contract `/local/rest/tacticum_chat.php`.
 - `asset-layout-audit.md` — карта текущих CSS/JS assets, inline-долги и правила дальнейшей верстки.
 - `sprints/` — snapshot-ы спринтов.
 

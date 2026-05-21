@@ -45,7 +45,7 @@
   - `header.php` — подключение JS/CSS, мета-теги, Яндекс.Метрика (ID: 103471113)
   - `footer.php` — футер, попап «Связаться с нами», мобильное меню
   - `styles/` — CSS по разделам: `main.css`, `services.css`, `price.css`, `calculator.css`, `aiagents.css`, `about.css`, `contacts.css`
-  - `js/` — JS по функционалу: `forms.js`, `modal.js`, `chat.js`, `faq.js`, `menu.js`, `scroll.js`, `tg-link-resolver.js`
+  - `js/` — JS по функционалу: `forms.js`, `modal.js`, `chat-agent.js`, `faq.js`, `menu.js`, `scroll.js`, `tg-link-resolver.js`
   - `components/bitrix/` — шаблоны Bitrix-компонентов
 - Страницы сайта: `about/index.php`, `services/index.php`, `contacts/index.php`, и т.д.
 
@@ -62,9 +62,10 @@ local/templates/tacticum/
 ├── images/             # logo.png, logo2.png, favicon-*
 ├── js/
 │   ├── bundle.v3.4.16.js  # Основной бандл (Tailwind + утилиты) — не редактировать
+│   ├── analytics.js        # Safe client-side events без PII
 │   ├── forms.js            # Обработка форм с data-tacticum-form
 │   ├── modal.js            # Попап «Связаться с нами»
-│   ├── chat.js             # Чат-виджет
+│   ├── chat-agent.js       # Production AI chat surfaces
 │   ├── faq.js              # Аккордеон FAQ
 │   ├── menu.js             # Навигация
 │   ├── scroll.js           # Scroll-эффекты
@@ -85,20 +86,23 @@ local/templates/tacticum/
 
 ### Новый JS-файл для раздела
 ```php
-// В header.php — добавить в нужное условие:
-if (substr_count($curPage, "new_section") != 0) {
+// На странице до require bitrix/header.php:
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['new_section'];
+
+// В header.php подключать по explicit flag:
+if ($hasPageAsset('new_section')) {
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/new_section.js");
 }
-
-// Или через defer (для некритичных скриптов):
-$obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/new_section.js"></script>');
 ```
 
 ### Новый CSS для раздела
 ```php
 // 1. Создать файл: local/templates/tacticum/styles/new_section.css
-// 2. Подключить в header.php:
-if (substr_count($curPage, "new_section") != 0) {
+// 2. На странице до require bitrix/header.php:
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['new_section_css'];
+
+// 3. Подключить в header.php по explicit flag:
+if ($hasPageAsset('new_section_css')) {
     $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/new_section.css");
 }
 ```
@@ -149,4 +153,3 @@ if (substr_count($curPage, "new_section") != 0) {
 - ❌ Не писать inline-стили там, где можно использовать Tailwind-классы
 - ❌ Не редактировать файлы в `bitrix/`
 - ❌ Не трогать Яндекс.Метрику (ID: 103471113) без отдельной задачи
-

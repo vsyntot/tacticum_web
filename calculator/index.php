@@ -1,4 +1,5 @@
 <?php
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("AI-калькулятор - Тактикум");
 $APPLICATION->SetPageProperty("description", "AI-калькулятор Tacticum помогает предварительно оценить сроки, бюджет и команду для AI-проекта.");

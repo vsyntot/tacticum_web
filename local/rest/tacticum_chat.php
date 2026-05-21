@@ -6,11 +6,14 @@ require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
 
-$data = json_decode(file_get_contents('php://input'), true);
-
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_chat');
 
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
+}
+
+$data = json_decode(file_get_contents('php://input'), true);
 if (!is_array($data)) {
     tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
 }
@@ -31,8 +34,12 @@ $payload = [
     'user_message' => $user_message,
 ];
 
-if (!empty($data['group_id'])) {
-    $payload['group_id'] = $data['group_id'];
+$group_id = trim((string)($data['group_id'] ?? ''));
+if ($group_id !== '') {
+    if (mb_strlen($group_id) > 64) {
+        tacticum_rest_error(400, 'validation_error', 'Некорректные или обязательные поля: group_id.');
+    }
+    $payload['group_id'] = $group_id;
 }
 
 $start_agent = trim((string)($data['startAgent'] ?? ''));

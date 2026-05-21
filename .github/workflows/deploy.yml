@@ -81,6 +81,14 @@ jobs:
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/tacticum 2>/dev/null || true; \
              echo 'Cache cleared'"
 
+      - name: Smoke config health
+        run: |
+          curl --fail --show-error --silent --location \
+            --max-time 20 \
+            --output /tmp/tacticum-health-config.json \
+            "https://tacticum.ru/local/rest/health_config.php"
+          grep -q '"success":true' /tmp/tacticum-health-config.json
+
       - name: ✅ Deploy success
         if: success()
         run: echo "Deploy to tacticum.ru completed at $(date)"
@@ -88,4 +96,3 @@ jobs:
       - name: ❌ Deploy failed
         if: failure()
         run: echo "Deploy FAILED. Check logs above."
-

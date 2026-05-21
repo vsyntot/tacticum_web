@@ -8,23 +8,17 @@ header('Content-Type: application/json; charset=UTF-8');
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_prefill');
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$data = null;
-
-if ($method === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!is_array($data)) {
-        tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
-    }
-    tacticum_rest_check_csrf($data, true);
-    $group_id = $data['group_id'] ?? '';
-} elseif ($method === 'GET') {
-    tacticum_rest_check_csrf(null, true);
-    $group_id = $_GET['group_id'] ?? '';
-} else {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
 }
 
+$data = json_decode(file_get_contents('php://input'), true);
+if (!is_array($data)) {
+    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
+}
+tacticum_rest_check_csrf($data, true);
+
+$group_id = $data['group_id'] ?? '';
 $group_id = trim((string)$group_id);
 if ($group_id === '' || mb_strlen($group_id) > 64) {
     tacticum_rest_error(400, 'validation_error', 'Некорректные или обязательные поля: group_id.');

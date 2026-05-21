@@ -2,6 +2,8 @@
 
 Документ фиксирует production contract для AI chat surfaces и перехода к заявке через `group_id`.
 
+Низкоуровневый REST contract для `/local/rest/tacticum_chat.php` зафиксирован отдельно: `docs/workflow/chat-api-contract.md`.
+
 ## Frontend Surfaces
 
 Единый frontend module: `local/templates/tacticum/js/chat-agent.js`.
@@ -93,7 +95,7 @@ Request:
 }
 ```
 
-Legacy GET with `group_id` and `sessid` query params is accepted temporarily for backward compatibility, but new frontend code must use POST JSON.
+GET is not supported. The endpoint returns `405 method_not_allowed` for non-POST requests.
 
 Successful response:
 
