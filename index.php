@@ -341,7 +341,7 @@ $APPLICATION->IncludeComponent(
                                     </div>
                                 </div>
                                 <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-primary h-full" style="width: 65%"></div>
+                                    <div class="bg-primary h-full tacticum-progress-bar--65"></div>
                                 </div>
                             </div>
                             <div class="bg-white/10 rounded-lg p-4">
@@ -365,7 +365,7 @@ $APPLICATION->IncludeComponent(
                                     </div>
                                 </div>
                                 <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-primary h-full" style="width: 35%"></div>
+                                    <div class="bg-primary h-full tacticum-progress-bar--35"></div>
                                 </div>
                             </div>
                             <div class="bg-white/10 rounded-lg p-4">
@@ -391,7 +391,7 @@ $APPLICATION->IncludeComponent(
                                     </div>
                                 </div>
                                 <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-primary h-full" style="width: 85%"></div>
+                                    <div class="bg-primary h-full tacticum-progress-bar--85"></div>
                                 </div>
                             </div>
                         </div>

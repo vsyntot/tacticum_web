@@ -1,10 +1,13 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-$curPage = $APPLICATION->GetCurPage(false);
+$sectionClass = trim((string)($arParams["SECTION_CLASS"] ?? "py-16"));
+if ($sectionClass === "") {
+    $sectionClass = "py-16";
+}
 ?>
 
 <?if(!empty($arResult["ITEMS"])){?>
-    <section class="py-16 <?if(substr_count($curPage, "aiagents") != 0){?>bg-gray-50<?}?>">
+    <section class="<?=htmlspecialcharsbx($sectionClass)?>">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Часто задаваемые вопросы</h2>

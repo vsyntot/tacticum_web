@@ -21,7 +21,7 @@
 Основные риски:
 
 - остаются frontend-debts: runtime Tailwind и stale/generated page CSS files; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
-- публичные страницы и компоненты всё ещё содержат отдельные inline/legacy styles, которые нельзя удалять без visual regression;
+- публичные страницы всё ещё содержат повторяемые CTA/form sections, которые нужно выносить в include/component после visual baseline;
 - production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy, иначе deploy health smoke упадёт;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
 - продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke по зафиксированной матрице.
@@ -129,6 +129,10 @@ Endpoints:
 
 Проблема: большинство page-specific CSS (`main.css`, `services.css`, `price.css`, `calculator.css`, `about.css`, `contacts.css`) не видно как явно подключённые в `header.php` по условиям, при этом файлы крупные. Нужно отдельно проверить фактическое подключение через template_styles/bundle/Bitrix settings.
 
+FAQ presentation задаётся параметром компонента `SECTION_CLASS`, а не текущим URL. `/aiagents/` явно передаёт `py-16 bg-gray-50`.
+
+Specialist order modal для `/price/` находится в Bitrix component template `news.list/price/template.php`; component `script.js` только управляет открытием, выбранным специалистом и hidden fields.
+
 ### Forms
 
 Формы с `data-tacticum-form` найдены:
@@ -216,6 +220,7 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - blocker при хардкоде iblock ID, HTTP fallback, raw PII logging и пропущенном bootstrap в изменённых runtime-файлах;
 - warning при hardcoded `IBLOCK_ID` в новом/legacy-коде вне разрешённых runtime исключений;
 - blocker при tracked ignored files, восстановлении legacy `chat.js`, URL-substring asset routing в header, GET fallback в `tacticum_prefill.php`, direct curl вне `rest_helpers.php`;
+- blocker при URL/text-based layout behavior, inline `onclick`, policy inline styles и JS-generated specialist modal markup;
 - blocker для изменений в `bitrix/`.
 
 Gap: новые hardcoded `IBLOCK_ID` не допускаются; публичные страницы переведены на config helper, дальнейший scan нужен только для legacy-кода вне затронутого scope.
@@ -238,7 +243,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
 | Config discipline | Хорошее: config validation есть, local config вынесен из Git index, deploy проверяет health endpoint | Низкий/средний |
-| Frontend maintainability | Среднее/хорошее: chat/forms/assets унифицированы, но runtime Tailwind и stale CSS требуют отдельного плана | Средний |
+| Frontend maintainability | Среднее/хорошее: chat/forms/assets и часть layout contracts унифицированы, но runtime Tailwind, stale CSS и repeated CTA blocks требуют отдельных задач | Средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
 | CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; нужен регулярный post-deploy smoke | Низкий/средний |

@@ -17,10 +17,10 @@ tacticum_apply_seo_defaults('/services/');
                 оптимизировать расходы и увеличивать прибыль.
             </p>
             <!-- исправлен якорь -->
-            <button onclick="window.location.href='/services/#contact-form';"
-                    class="bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">
+            <a href="/services/#contact-form"
+                    class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">
                 Запросить расчет
-            </button>
+            </a>
         </div>
     </div>
 </section>

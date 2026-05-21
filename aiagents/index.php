@@ -349,6 +349,7 @@ $APPLICATION->IncludeComponent(
         "faq",
         [
                 "COMPONENT_TEMPLATE" => "faq",
+                "SECTION_CLASS" => "py-16 bg-gray-50",
                 "IBLOCK_TYPE" => "company",
                 "IBLOCK_ID" => tacticum_iblock_id('faq'),
                 "NEWS_COUNT" => "0",

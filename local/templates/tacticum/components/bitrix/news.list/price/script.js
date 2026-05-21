@@ -18,19 +18,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const matchesName = name.includes(searchTerm);
 
                 const isVisible = matchesCategory && matchesName;
-                card.style.display = isVisible ? '' : 'none';
+                card.classList.toggle('hidden', !isVisible);
                 return isVisible;
             });
 
             // Показываем или скрываем раздел
             const heading = grid.previousElementSibling;
-            if (visibleCards.length > 0) {
-                grid.style.display = 'grid';
-                heading.style.display = '';
-            } else {
-                grid.style.display = 'none';
-                heading.style.display = 'none';
-            }
+            const sectionVisible = visibleCards.length > 0;
+            grid.classList.toggle('hidden', !sectionVisible);
+            heading.classList.toggle('hidden', !sectionVisible);
         });
     }
 
@@ -78,96 +74,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // --- 3. МОДАЛКА: СОЗДАНИЕ И ЛОГИКА ОТКРЫТИЯ/ЗАКРЫТИЯ ---
-    if (!document.getElementById('specialistOrderModal')) {
-        const modalTemplate = document.createElement("div");
-        modalTemplate.id = "specialistOrderModal";
-        modalTemplate.className =
-            "fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300";
-        modalTemplate.innerHTML = `
-        <div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 sticky top-0 bg-white z-10">
-                <h3 class="text-2xl font-bold text-secondary">Заказать специалиста</h3>
-                <button id="closeOrderModal" type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
-                    <i class="ri-close-line text-xl text-gray-500"></i>
-                </button>
-            </div>
-            <form id="specialistOrderForm" class="space-y-6" data-tacticum-form data-form-id="price-specialist" data-endpoint="/local/rest/tacticum_sale_staff.php" data-tacticum-close-target="#specialistOrderModal" data-tacticum-close-mode="overlay">
-                <div class="relative mb-6">
-                    <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                        <p class="text-primary font-medium mb-2">Выбранный специалист:</p>
-                        <p id="selectedSpecialist" class="text-gray-700">Не выбран</p>
-                        <p id="selectedRate" class="text-sm text-gray-500 mt-1">Ставка: —</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="relative">
-                        <input type="text" id="orderName" name="name" required placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
-                        <label for="orderName" class="input-label">Имя</label>
-                    </div>
-                    <div class="relative">
-                        <input type="email" id="orderEmail" name="email" required placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
-                        <label for="orderEmail" class="input-label">Email</label>
-                    </div>
-                    <div class="relative">
-                        <input type="tel" id="orderPhone" name="phone" required placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
-                        <label for="orderPhone" class="input-label">Телефон</label>
-                    </div>
-                    <div class="relative">
-                        <input type="text" id="orderCompany" name="company" placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
-                        <label for="orderCompany" class="input-label">Компания</label>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="relative">
-                        <label for="orderStartDate" class="block text-gray-500 mb-2">Предпочтительная дата начала</label>
-                        <input type="date" id="orderStartDate" name="startDate" required class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50">
-                    </div>
-                    <div class="relative">
-                        <label for="orderDuration" class="block text-gray-500 mb-2">Предполагаемый срок работы</label>
-                        <div class="relative">
-                            <select id="orderDuration" name="duration" required class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none bg-white">
-                                <option value="">Выберите срок</option>
-                                <option value="1-month">1 месяц</option>
-                                <option value="3-months">3 месяца</option>
-                                <option value="6-months">6 месяцев</option>
-<!--                                <option value="custom">Другой срок</option>-->
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                <i class="ri-arrow-down-s-line text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="relative">
-                    <textarea id="orderDescription" name="message" required rows="4" placeholder=" " class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer"></textarea>
-                    <label for="orderDescription" class="input-label">Описание задачи</label>
-                </div>
-                <input type="hidden" id="orderSpecialist" name="specialist">
-                <input type="hidden" id="orderLevel" name="level">
-                <input type="hidden" id="orderRate" name="rate">
-                <div class="flex items-start gap-3">
-                    <input type="checkbox" id="orderAgreement" data-tacticum-consent required class="mt-1 w-5 h-5 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
-                    <label for="orderAgreement" class="text-sm text-gray-600 leading-5 pt-0.5">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a></label>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white pt-4">
-                    <button type="submit" class="w-full sm:flex-1 bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">Отправить заявку</button>
-                    <button type="button" id="cancelOrderModal" class="w-full sm:flex-1 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">Отмена</button>
-                </div>
-            </form>
-        </div>
-        `;
-        document.body.appendChild(modalTemplate);
-    }
-
-    // --- 3.2. Логика открытия модалки по кнопке ---
+    // --- 3. МОДАЛКА: ЛОГИКА ОТКРЫТИЯ/ЗАКРЫТИЯ ---
     const modal = document.getElementById("specialistOrderModal");
     const closeButton = document.getElementById("closeOrderModal");
     const cancelButton = document.getElementById("cancelOrderModal");
     const orderForm = document.getElementById("specialistOrderForm");
-    if (orderForm) {
-        orderForm.dataset.tacticumSubmitBound = "true";
-    }
+    if (!modal || !orderForm) return;
 
     document.body.addEventListener('click', function(e) {
         const btn = e.target.closest('.order-specialist-btn');
@@ -207,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.add("overflow-hidden");
     });
 
-    // --- 3.3. Закрытие модалки ---
+    // --- 3.2. Закрытие модалки ---
     function closeModal() {
         modal.classList.add("opacity-0", "pointer-events-none");
         modal.querySelector(".bg-white").classList.add("scale-95");
@@ -219,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.target === modal) closeModal();
     });
 
-    // --- 3.4. Сабмит формы (отправка на endpoint!) ---
+    // --- 3.3. Сабмит формы ---
     orderForm?.addEventListener("submit", () => {
         const hiddenSpecialist = orderForm.querySelector("#orderSpecialist");
         const hiddenLevel = orderForm.querySelector("#orderLevel");
@@ -229,28 +141,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (hiddenRate && modal.dataset.rate) hiddenRate.value = modal.dataset.rate;
     });
 
-    // --- 3.5. Анимация лейблов ---
+    // --- 3.4. Анимация лейблов ---
     function updateLabelState(input) {
         const label = input.parentElement.querySelector('.input-label');
         if (!label) return;
         if (input.value || input === document.activeElement) {
-            label.style.transform = "translateY(-21px) scale(0.90)";
-            label.style.fontSize = "0.75rem";
-            label.style.color = "#0066CC";
-            label.style.left = "10px";
-            label.style.top = "4px";
-            label.style.background = "#fff";
-            label.style.padding = "0 4px";
-            label.style.zIndex = "10";
+            label.classList.add("is-floating");
         } else {
-            label.style.transform = "";
-            label.style.fontSize = "";
-            label.style.color = "";
-            label.style.left = "";
-            label.style.top = "";
-            label.style.background = "";
-            label.style.padding = "";
-            label.style.zIndex = "";
+            label.classList.remove("is-floating");
         }
     }
     document.querySelectorAll('#specialistOrderForm input[type="text"], #specialistOrderForm input[type="email"], #specialistOrderForm input[type="tel"], #specialistOrderForm textarea').forEach(input => {
@@ -258,22 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
         input.addEventListener("blur", function () { updateLabelState(this); });
         input.addEventListener("input", function () { updateLabelState(this); });
         updateLabelState(input);
-    });
-
-    // --- 3.6. Checkbox стилизация ---
-    const checkboxes = document.querySelectorAll('#specialistOrderForm input[type="checkbox"]');
-    checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener("change", function () {
-            if (this.checked) {
-                this.style.backgroundImage =
-                    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E\")";
-                this.style.backgroundSize = "70%";
-                this.style.backgroundPosition = "center";
-                this.style.backgroundRepeat = "no-repeat";
-            } else {
-                this.style.backgroundImage = "none";
-            }
-        });
     });
 
     // --- Инициализация ---

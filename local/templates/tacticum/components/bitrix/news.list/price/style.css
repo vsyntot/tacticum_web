@@ -1,0 +1,27 @@
+.input-label {
+    position: absolute;
+    left: 1rem;
+    top: .75rem;
+    color: #6b7280;
+    transform-origin: left;
+    transition: transform .15s ease, font-size .15s ease, color .15s ease, left .15s ease, top .15s ease;
+    pointer-events: none;
+}
+
+.input-label.is-floating {
+    left: 10px;
+    top: 4px;
+    z-index: 10;
+    padding: 0 4px;
+    background: #fff;
+    color: #0066CC;
+    font-size: .75rem;
+    transform: translateY(-21px) scale(.9);
+}
+
+#specialistOrderForm input[type="checkbox"][data-tacticum-consent]:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 70%;
+}

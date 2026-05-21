@@ -1232,6 +1232,18 @@
     background-position: center;
 }
 
+.tacticum-progress-bar--35 {
+    width: 35%;
+}
+
+.tacticum-progress-bar--65 {
+    width: 65%;
+}
+
+.tacticum-progress-bar--85 {
+    width: 85%;
+}
+
 .feature-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.1);
@@ -1697,6 +1709,13 @@ textarea.tacticum-contact-form__control {
 
 .active::after {
     width: 100%;
+}
+
+input[type="checkbox"][data-tacticum-consent].appearance-none:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 70%;
 }
 
 .faq-item {

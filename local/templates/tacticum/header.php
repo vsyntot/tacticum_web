@@ -71,7 +71,7 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     <header class="fixed w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center">
-                <a href="/"><img src="<?=SITE_TEMPLATE_PATH?>/images/logo.png" width="181" height="50"></a>
+                <a href="/"><img src="<?=SITE_TEMPLATE_PATH?>/images/logo.png" width="181" height="50" alt="Tacticum"></a>
             </div>
             <?
             $APPLICATION->IncludeComponent(

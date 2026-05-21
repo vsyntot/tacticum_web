@@ -16,7 +16,7 @@ tacticum_apply_seo_defaults('/about/');
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
                 <!-- Исправлен якорь -->
-                <button onclick="window.location.href='/calculator/';" class="bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">Познакомиться ближе</button>
+                <a href="/calculator/" class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">Познакомиться ближе</a>
                 <!-- <button class="bg-white text-primary border border-primary px-8 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">Связаться с командой</button> -->
             </div>
         </div>
@@ -641,16 +641,16 @@ tacticum_apply_seo_defaults('/about/');
                 бизнесу достичь новых высот.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button
-                        class="bg-white text-primary px-8 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap"
-                        onclick="window.location.href='/calculator/';">
+                <a
+                        class="inline-block bg-white text-primary px-8 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap text-center"
+                        href="/calculator/">
                     Познакомиться ближе
-                </button>
-                <button
-                        class="bg-white/10 backdrop-blur-sm text-white border border-white/30 px-8 py-3 rounded-button hover:bg-white/20 transition-colors whitespace-nowrap"
-                        onclick="window.location.href='#contact-form';">
+                </a>
+                <a
+                        class="inline-block bg-white/10 backdrop-blur-sm text-white border border-white/30 px-8 py-3 rounded-button hover:bg-white/20 transition-colors whitespace-nowrap text-center"
+                        href="#contact-form">
                     Связаться с командой
-                </button>
+                </a>
             </div>
         </div>
     </div>
