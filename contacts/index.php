@@ -65,55 +65,14 @@ tacticum_apply_seo_defaults('/contacts/');
     </div>
 </section>
 
-<!-- Contact Form Section -->
-<div id="contact-form">
-    <!-- CTA Section -->
-    <section class="py-16 bg-gradient-to-r from-secondary to-primary text-white">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-center gap-12">
-                <div class="w-full md:w-1/2">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Получите персональное предложение</h2>
-                    <p class="text-lg mb-8 text-blue-100">
-                        Оставьте заявку, и наш менеджер свяжется с вами в течение 2 часов, чтобы обсудить детали и
-                        подготовить индивидуальное предложение с учетом всех доступных скидок и акций.
-                    </p>
-                    <form id="contacts-cta-form" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6" data-tacticum-form data-form-id="contacts-cta">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div class="relative">
-                                <input type="text" id="cta-name" name="name" required autocomplete="name" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-name" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Имя</label>
-                            </div>
-                            <div class="relative">
-                                <input type="text" id="cta-company" name="company" autocomplete="organization" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-company" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Компания</label>
-                            </div>
-                            <div class="relative">
-                                <input type="email" id="cta-email" name="email" required autocomplete="email" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-email" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Email</label>
-                            </div>
-                            <div class="relative">
-                                <input type="tel" id="cta-phone" name="phone" required autocomplete="tel" placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30">
-                                <label for="cta-phone" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Телефон</label>
-                            </div>
-                        </div>
-                        <div class="relative mb-6">
-                            <textarea id="cta-message" name="message" rows="4" required placeholder=" " class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-white/30"></textarea>
-                            <label for="cta-message" class="absolute left-4 top-3 text-white/60 transition-transform origin-left">Опишите ваш проект или интересующее предложение</label>
-                        </div>
-                        <div class="flex items-start gap-2 mb-6">
-                            <input type="checkbox" id="cta-agreement" required data-tacticum-consent class="mt-1 appearance-none w-4 h-4 border border-white/30 rounded bg-white/5 checked:bg-primary checked:border-0 relative">
-                            <label for="cta-agreement" class="text-sm text-white/70">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="underline hover:text-white">политики конфиденциальности</a></label>
-                        </div>
-                        <button type="submit" class="w-full bg-white text-primary font-medium px-6 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap">Получить персональное предложение</button>
-                    </form>
-                </div>
-                <div class="w-full md:w-1/2">
-                    <img src="<?=SITE_TEMPLATE_PATH?>/images/specialoffer.jpg" alt="Персональное предложение" class="w-full h-auto rounded-xl shadow-lg object-cover object-top">
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
+<?php
+$tacticumPersonalOfferCta = [
+    "form_id" => "contacts-cta",
+    "form_html_id" => "contacts-cta-form",
+    "variant" => "glass",
+];
+include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/personal-offer-cta.php";
+?>
 
 <!-- Map Section -->
 <section id="map" class="py-16 bg-gray-50">

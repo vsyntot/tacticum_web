@@ -72,7 +72,8 @@ Global CSS:
 
 После Sprint 05 cleanup:
 
-- основной personal-offer CTA для `/`, `/calculator/` и `/price/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`;
+- основной personal-offer CTA для `/`, `/calculator/`, `/price/` и `/contacts/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`;
+- `/contacts/` использует явный `glass` variant внутри shared personal-offer CTA;
 - project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`;
 - public pages передают только page-specific `form_id`/HTML `id`/field prefix, а не копируют form markup.
 
@@ -82,7 +83,7 @@ Global CSS:
 - Page-specific CSS files выглядят как generated/stale artifacts, но удалять их без visual regression нельзя.
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` остаётся общим местом для unrelated page rules.
-- Contacts CTA variant ещё требует отдельного visual review перед унификацией с одним из shared includes или выделением третьего варианта.
+- Repeated CTA markup больше не живёт копиями в public page PHP; новые варианты нужно добавлять через includes/components.
 
 ## Rules Going Forward
 
@@ -98,6 +99,5 @@ Global CSS:
 
 Следующий cleanup:
 
-1. Провести visual review CTA variant на contacts и решить: общий include с variant config или отдельный component/include.
-2. Реализовать `docs/workflow/static-css-build-plan.md`.
-3. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.
+1. Реализовать `docs/workflow/static-css-build-plan.md`.
+2. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.

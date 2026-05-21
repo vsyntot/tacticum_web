@@ -21,7 +21,7 @@
 Основные риски:
 
 - остаются frontend-debts: runtime Tailwind и stale/generated page CSS files; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
-- personal-offer CTA на `/`, `/calculator/`, `/price/` и project-discussion CTA на `/about/`, `/services/` уже вынесены в template includes; contacts CTA ещё требует отдельной нормализации после visual review;
+- repeated CTA/form sections на `/`, `/calculator/`, `/price/`, `/contacts/`, `/about/`, `/services/` вынесены в template includes с явными page-specific form config;
 - production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy, иначе deploy health smoke упадёт;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
 - продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke по зафиксированной матрице.
@@ -132,7 +132,7 @@ Endpoints:
 
 FAQ presentation задаётся параметром компонента `SECTION_CLASS`, а не текущим URL. `/aiagents/` явно передаёт `py-16 bg-gray-50`.
 
-Основной personal-offer CTA для `/`, `/calculator/`, `/price/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`. Project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`. Страницы передают только page-specific `form_id`, HTML `id` формы и field prefix.
+Основной personal-offer CTA для `/`, `/calculator/`, `/price/`, `/contacts/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`. `/contacts/` использует явный вариант `glass`. Project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`. Страницы передают только page-specific `form_id`, HTML `id` формы, field prefix и variant.
 
 Specialist order modal для `/price/` находится в Bitrix component template `news.list/price/template.php`; component `script.js` только управляет открытием, выбранным специалистом и hidden fields.
 
@@ -145,7 +145,7 @@ Specialist order modal для `/price/` находится в Bitrix component t
 - services CTA: `services/index.php` через `include/project-discussion-cta.php`;
 - calculator CTA: `calculator/index.php` через `include/personal-offer-cta.php`;
 - price CTA: `price/index.php` через `include/personal-offer-cta.php`;
-- contacts CTA: `contacts/index.php`;
+- contacts CTA: `contacts/index.php` через `include/personal-offer-cta.php` с `variant=glass`;
 - offer CTA: `local/templates/tacticum/components/bitrix/news.detail/offer/template.php`;
 - aiagents inline: `aiagents/index.php`;
 - modal form: `footer.php`;
