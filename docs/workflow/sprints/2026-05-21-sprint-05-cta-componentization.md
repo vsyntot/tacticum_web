@@ -17,6 +17,7 @@ Date: 21.05.2026
 ### Goal
 
 - Вынести повторяемый personal-offer CTA/form markup в общий include активного шаблона.
+- Поддержать `glass` variant для contacts CTA без изменения form contract.
 - Вынести повторяемый project-discussion CTA/form markup для `/about/` и `/services/`.
 - Сохранить разные `data-form-id` и field IDs для каждой публичной страницы.
 - Добавить PR guards против обратного копирования CTA markup в публичные страницы.
@@ -24,7 +25,6 @@ Date: 21.05.2026
 ### Non-Goals
 
 - Не менять backend endpoints форм.
-- Не смешивать contacts CTA с основными includes, потому что у него другой визуальный контракт.
 - Не трогать static CSS build из TG-015.
 
 ### Context Read
@@ -38,10 +38,11 @@ Date: 21.05.2026
 
 | Item | Gap | Lane | Status | Acceptance Criteria |
 |---|---|---|---|---|
-| Shared personal offer CTA include | PG-008, TG-017 | Full Feature | done | CTA markup lives in `local/templates/tacticum/include/personal-offer-cta.php`; public pages pass only page-specific config |
+| Shared personal offer CTA include | PG-008, TG-017 | Full Feature | done | CTA markup lives in `local/templates/tacticum/include/personal-offer-cta.php`; public pages pass only page-specific config and optional `variant` |
 | Home CTA migration | PG-008 | Full Feature | done | `index.php` uses shared include and keeps `data-form-id="home-cta"` plus `id="cta-form"` |
 | Calculator CTA migration | PG-008 | Full Feature | done | `calculator/index.php` uses shared include and keeps `data-form-id="calculator-cta"` |
 | Price CTA migration | PG-008 | Full Feature | done | `price/index.php` uses shared include and keeps `data-form-id="price-cta"` plus `id="pricing-cta-form"` |
+| Contacts CTA migration | PG-008 | Full Feature | done | `contacts/index.php` uses shared include with `variant="glass"` and keeps `data-form-id="contacts-cta"` plus `id="contacts-cta-form"` |
 | Project discussion CTA include | PG-008, TG-017 | Full Feature | done | CTA markup lives in `local/templates/tacticum/include/project-discussion-cta.php`; `/about/` and `/services/` pass only page-specific config |
 | About CTA migration | PG-008 | Full Feature | done | `about/index.php` uses shared include and keeps `data-form-id="about-cta"` plus `id="about-cta-form"` |
 | Services CTA migration | PG-008 | Full Feature | done | `services/index.php` uses shared include and keeps `data-form-id="services-cta"` plus `id="services-cta-form"` |
@@ -52,6 +53,7 @@ Date: 21.05.2026
 - `/`: CTA renders with the same layout, image, consent link and submits as `home-cta`.
 - `/calculator/`: CTA renders with the same layout, image, consent link and submits as `calculator-cta`.
 - `/price/`: CTA renders with the same layout, image, consent link and submits as `price-cta`.
+- `/contacts/`: CTA renders with the same glass form layout, image, consent link and submits as `contacts-cta`.
 - `/about/`: project discussion CTA renders with the same layout, benefit bullets and submits as `about-cta`.
 - `/services/`: project discussion CTA renders with the same layout, benefit bullets and submits as `services-cta`.
 - All consent links inside the shared CTA open `/policies/` in a new tab.
@@ -66,7 +68,7 @@ Date: 21.05.2026
 
 ## Follow-Up
 
-- Decide separately whether contacts CTA should be normalized into one of the includes or kept as a page-specific contact variant.
+- Keep new CTA variants include/component driven; do not copy form markup into public pages.
 - TG-015 static CSS build remains deferred until rendered visual baseline.
 
 ## Sprint Review
@@ -75,7 +77,7 @@ Date: 21.05.2026
 
 - Основной repeated CTA вынесен в template include.
 - Project discussion CTA для `/about/` и `/services/` вынесен во второй template include.
-- Главная, `/calculator/`, `/price/`, `/about/` и `/services/` переведены на includes с сохранением analytics/form IDs.
+- Главная, `/calculator/`, `/price/`, `/contacts/`, `/about/` и `/services/` переведены на includes с сохранением analytics/form IDs.
 - Gap registry и asset/layout audit обновлены.
 - PR checks расширены guard против повторного копирования CTA markup.
 

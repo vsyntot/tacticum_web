@@ -248,7 +248,8 @@ jobs:
           RESULT=$(grep -nE 'tacticum-personal-offer-form|Получите персональное предложение|specialoffer' \
             index.php \
             calculator/index.php \
-            price/index.php)
+            price/index.php \
+            contacts/index.php)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: Shared personal offer CTA markup must not be duplicated in public pages."
             echo "$RESULT"
