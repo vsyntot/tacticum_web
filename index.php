@@ -1,4 +1,5 @@
 <?
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Тактикум - Искусственный интеллект для вашего бизнеса");
 $APPLICATION->SetPageProperty("description", "AI-решения для бизнеса: автоматизация процессов, AI-консалтинг, внедрение ML и интеллектуальных ассистентов от Tacticum.");

@@ -2,7 +2,14 @@
 <?
 use Bitrix\Main\Page\Asset;
 $obAsset = Asset::getInstance();
-$curPage = $APPLICATION->GetCurPage();
+$pageAssets = $GLOBALS['TACTICUM_PAGE_ASSETS'] ?? [];
+if (!is_array($pageAssets)) {
+    $pageAssets = [];
+}
+$hasPageAsset = static function (string $asset) use ($pageAssets): bool {
+    return in_array($asset, $pageAssets, true) || !empty($pageAssets[$asset]);
+};
+$bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
 ?>
 <!DOCTYPE html>
 <html>
@@ -26,19 +33,14 @@ $curPage = $APPLICATION->GetCurPage();
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/scroll.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/tg-link-resolver.js");
-    if ($curPage === SITE_DIR
-        || substr_count($curPage, "services") != 0
-        || substr_count($curPage, "aiagents") != 0
-        || substr_count($curPage, "price") != 0
-        || substr_count($curPage, "offer") != 0
-        || substr_count($curPage, "calculator") != 0) {
+    if ($hasPageAsset('faq')) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/faq.js");
     }
-    if (substr_count($curPage, "price") != 0) {
-        $obAsset->addString('<script defer src="'.SITE_TEMPLATE_PATH.'/js/charts.js"></script>');
+    if ($hasPageAsset('charts')) {
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/charts.js");
     }
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
-    if(substr_count($curPage, "aiagents") != 0){
+    if ($hasPageAsset('aiagents_css')) {
         $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/aiagents.css");
     }
     ?>
@@ -62,7 +64,7 @@ $curPage = $APPLICATION->GetCurPage();
 
     <title><?$APPLICATION->ShowTitle(); ?></title>
 </head>
-<body class="<?=(substr_count($curPage, "offer") == 0) ? 'bg-white font-sans' : 'bg-gray-50'?>">
+<body class="<?=htmlspecialchars($bodyClass, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')?>">
 <?$APPLICATION->ShowPanel(); ?>
 <!-- Header -->
 <div id="header">

@@ -1,4 +1,6 @@
 <?
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
+$GLOBALS['TACTICUM_BODY_CLASS'] = 'bg-gray-50';
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $offerId = (int)($_REQUEST["ID"] ?? 0);
 $APPLICATION->SetTitle("Предложение - Тактикум");

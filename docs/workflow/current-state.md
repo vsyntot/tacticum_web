@@ -20,9 +20,9 @@
 
 Основные риски:
 
-- остаются frontend-debts: runtime Tailwind, URL-substring asset routing и legacy `chat.js` artifact вне production flow;
+- остаются frontend-debts: runtime Tailwind и stale/generated page CSS files; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
 - публичные страницы и компоненты всё ещё содержат отдельные inline/legacy styles, которые нельзя удалять без visual regression;
-- production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy;
+- production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy, иначе deploy health smoke упадёт;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
 - продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke по зафиксированной матрице.
 
@@ -98,7 +98,7 @@ Endpoints:
 | `tacticum_offer.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper; остаётся доменное пересечение с `tacticum_form.php` |
 | `tacticum_sale.php` | Sale request | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper; похоже дублирует `tacticum_offer.php` |
 | `tacticum_sale_staff.php` | Заказ специалистов | Доменный staff endpoint для `/price/`: rich `workers[]` payload + adapter в `/tacticum/v1/chat_agent/sale`; outbound через shared helper |
-| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | Production path: POST JSON + явный `sessid`; legacy GET fallback временно сохранён; `Loader::includeModule`, masked summary log |
+| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | POST JSON + явный `sessid`; GET не поддерживается; `Loader::includeModule`, masked summary log |
 | `resolve_telegram_link.php` | Telegram link resolver | Origin/rate/явный CSRF, HTTPS URL через shared helper; logging taxonomy ещё можно улучшить |
 | `health_config.php` | Проверка обязательной конфигурации | GET, origin/rate; возвращает только keys/codes ошибок, без значений secret/config |
 
@@ -117,9 +117,15 @@ Endpoints:
 - `modal.js`;
 - `scroll.js`;
 - `tg-link-resolver.js`;
-- условно `faq.js`, `charts.js`;
+- `faq.js`, `charts.js` условно через `TACTICUM_PAGE_ASSETS`;
 - `fonts/remixicon.min.css`;
-- `styles/aiagents.css` для `/aiagents/`.
+- `styles/aiagents.css` условно через `TACTICUM_PAGE_ASSETS`.
+
+Страницы объявляют page-specific assets до `require bitrix/header.php`, например:
+
+- `['faq']` для главной, services, calculator, offer;
+- `['faq', 'charts']` для price;
+- `['faq', 'aiagents_css']` для aiagents.
 
 Проблема: большинство page-specific CSS (`main.css`, `services.css`, `price.css`, `calculator.css`, `about.css`, `contacts.css`) не видно как явно подключённые в `header.php` по условиям, при этом файлы крупные. Нужно отдельно проверить фактическое подключение через template_styles/bundle/Bitrix settings.
 
@@ -160,7 +166,7 @@ Production chat surfaces унифицированы через `local/templates/
 - calculator chat в `calculator/index.php`;
 - price chat в `price/index.php`.
 
-`local/templates/tacticum/js/chat.js` остаётся legacy/demo artifact и не должен использоваться для production REST flow без отдельного решения.
+REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/workflow/chat-api-contract.md`: endpoint POST-only, `user_message` ограничен 2000 символами, `group_id` ограничен 64 символами, `startAgent` проходит allowlist.
 
 `chat-agent.js` отправляет события `tacticum_chat_*` и `tacticum_prefill_*` без текста сообщений и пользовательских контактов.
 
@@ -202,12 +208,14 @@ Production chat surfaces унифицированы через `local/templates/
 - rsync публичных разделов;
 - rsync корневых файлов;
 - чистит `bitrix/managed_cache` и `bitrix/cache/tacticum`.
+- проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
 
 `pr-check.yml`:
 
 - PHP syntax по `local/`;
 - blocker при хардкоде iblock ID, HTTP fallback, raw PII logging и пропущенном bootstrap в изменённых runtime-файлах;
 - warning при hardcoded `IBLOCK_ID` в новом/legacy-коде вне разрешённых runtime исключений;
+- blocker при tracked ignored files, восстановлении legacy `chat.js`, URL-substring asset routing в header, GET fallback в `tacticum_prefill.php`, direct curl вне `rest_helpers.php`;
 - blocker для изменений в `bitrix/`.
 
 Gap: новые hardcoded `IBLOCK_ID` не допускаются; публичные страницы переведены на config helper, дальнейший scan нужен только для legacy-кода вне затронутого scope.
@@ -221,7 +229,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 - ADR-003: ID инфоблоков через `tacticum_rest_get_iblock_id()`.
 - ADR-004: PII masking до логирования.
 
-Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основные остатки — runtime Tailwind/static CSS plan, URL-substring asset routing и legacy `chat.js` artifact.
+Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной остаток frontend cleanup — реализация static CSS build plan после visual baseline.
 
 ## Текущее Резюме Здоровья
 
@@ -229,8 +237,8 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 |---|---|---|
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
-| Config discipline | Хорошее: config validation есть, local config вынесен из Git index | Низкий/средний |
-| Frontend maintainability | Среднее: chat/forms унифицированы, но runtime Tailwind и URL-substring assets остаются | Средний |
+| Config discipline | Хорошее: config validation есть, local config вынесен из Git index, deploy проверяет health endpoint | Низкий/средний |
+| Frontend maintainability | Среднее/хорошее: chat/forms/assets унифицированы, но runtime Tailwind и stale CSS требуют отдельного плана | Средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
-| CI/CD | Среднее/хорошее: runtime blockers есть, public hardcode warnings остаются | Средний |
-| Product flows | Среднее: лид-формы есть, AI-chat есть, но сценарии разрознены | Средний |
+| CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
+| Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; нужен регулярный post-deploy smoke | Низкий/средний |

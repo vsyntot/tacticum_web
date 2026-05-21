@@ -1,4 +1,5 @@
 <?php
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq', 'charts'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Тарифы - Тактикум");
 $APPLICATION->SetPageProperty("description", "Тарифы и ставки специалистов Tacticum для AI, ML, разработки, аналитики, дизайна и управления проектами.");

@@ -18,14 +18,14 @@ Global JS подключается в `local/templates/tacticum/header.php` че
 
 Conditional JS:
 
-- `js/faq.js` по URL-substring для главной, services, aiagents, price, offer, calculator;
-- `js/charts.js` для `price` через `addString`.
+- `js/faq.js` подключается через explicit page asset flag `TACTICUM_PAGE_ASSETS = ['faq']`;
+- `js/charts.js` подключается через explicit page asset flag `TACTICUM_PAGE_ASSETS = ['charts']`.
 
 Global CSS:
 
 - `fonts/remixicon.min.css`;
 - `template_styles.css` подключается штатно как CSS активного Bitrix template;
-- `styles/aiagents.css` подключается только для `aiagents`.
+- `styles/aiagents.css` подключается через explicit page asset flag `TACTICUM_PAGE_ASSETS = ['aiagents_css']`.
 
 ## CSS Inventory
 
@@ -41,7 +41,7 @@ Global CSS:
 | `about.css` | 946 | не подключён явно |
 | `expertise.css` | 950 | не подключён явно |
 | `css2.css` | 45 | не подключён явно |
-| `aiagents.css` | 28 | подключён conditionally |
+| `aiagents.css` | 28 | подключён через page asset flag на `/aiagents/` |
 
 `template_styles.css` содержит 2185 строк и фактически является основным CSS bundle активного шаблона. Внутри уже смешаны global styles, Tailwind-generated utilities и page-specific sections.
 
@@ -52,6 +52,8 @@ Global CSS:
 - `index.php`;
 - `calculator/index.php`;
 - `price/index.php`.
+
+После Sprint 03 cleanup удалён legacy `local/templates/tacticum/js/chat.js`; production chat обслуживает только `chat-agent.js`.
 
 Оставшиеся известные inline assets:
 
@@ -64,7 +66,7 @@ Global CSS:
 
 - Browser Tailwind/runtime bundle остаётся production dependency; часть классов продолжает зависеть от JS.
 - Page-specific CSS files выглядят как generated/stale artifacts, но удалять их без visual regression нельзя.
-- Header использует URL-substring routing для optional assets; это хрупко при новых URL.
+- Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` остаётся общим местом для unrelated page rules.
 
 ## Rules Going Forward
@@ -72,13 +74,12 @@ Global CSS:
 - Новый JS/CSS подключать через `Asset`, компонентный `script.js/style.css` или approved template asset.
 - Не добавлять inline JS/CSS в публичные страницы.
 - Новый form/chat behavior добавлять в `forms.js`, `chat-agent.js` или компонентный asset, не копировать в page PHP.
-- Page-specific asset подключать компонентом или через явное page property, не через новый URL-substring.
+- Page-specific asset подключать компонентом или через explicit page asset flag, не через URL-substring.
 - Runtime Tailwind migration планировать отдельно: static build first, visual regression second, cleanup third.
 
 ## Recommended Next Step
 
-Sprint 03:
+Следующий cleanup:
 
-1. Заменить URL-substring asset routing на component/page-property routing.
-2. Подготовить static CSS build plan для отказа от browser Tailwind runtime.
-3. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.
+1. Реализовать `docs/workflow/static-css-build-plan.md`.
+2. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.

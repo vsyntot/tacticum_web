@@ -1,4 +1,5 @@
 <?php
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq', 'aiagents_css'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Создание AI-бота в Telegram - Тактикум");
 $APPLICATION->SetPageProperty("description", "Создание AI-бота в Telegram для продаж и консультаций: демо-агенты, настройка и заявка в Tacticum.");

@@ -158,6 +158,69 @@ jobs:
             echo "✅ No public page hardcoded IBLOCK_ID warnings."
           fi
 
+      - name: Blockers — repository and frontend conventions
+        shell: bash
+        run: |
+          set +e
+          FAIL=0
+
+          RESULT=$(git ls-files -c -i --exclude-standard)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Tracked files are matched by .gitignore."
+            echo "$RESULT"
+            echo "Remove local/runtime files from Git index or update .gitignore intentionally."
+            FAIL=1
+          else
+            echo "✅ No tracked ignored files."
+          fi
+
+          if [ -f "local/templates/tacticum/js/chat.js" ]; then
+            echo "❌ ERROR: Legacy demo chat.js must not be restored."
+            echo "Use local/templates/tacticum/js/chat-agent.js for production chat surfaces."
+            FAIL=1
+          else
+            echo "✅ Legacy chat.js is absent."
+          fi
+
+          RESULT=$(grep -nE 'substr_count[[:space:]]*\(|GetCurPage[[:space:]]*\(|addString[[:space:]]*\(' local/templates/tacticum/header.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Header must not route optional assets by URL substring or raw addString script injection."
+            echo "$RESULT"
+            echo "Use explicit TACTICUM_PAGE_ASSETS flags and Asset::addJs/addCss."
+            FAIL=1
+          else
+            echo "✅ Header optional asset routing checks passed."
+          fi
+
+          RESULT=$(grep -nE '\$_GET|method[[:space:]]*===[[:space:]]*['\''"]GET|elseif.*GET' local/rest/tacticum_prefill.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: tacticum_prefill.php must remain POST JSON only."
+            echo "$RESULT"
+            FAIL=1
+          else
+            echo "✅ Prefill endpoint is POST-only."
+          fi
+
+          if ! grep -qE 'REQUEST_METHOD.*POST' local/rest/tacticum_chat.php || ! grep -q 'method_not_allowed' local/rest/tacticum_chat.php; then
+            echo "❌ ERROR: tacticum_chat.php must explicitly reject non-POST requests."
+            FAIL=1
+          else
+            echo "✅ Chat endpoint has explicit POST-only method guard."
+          fi
+
+          RESULT=$(grep -RInE 'curl_init|curl_exec|curl_errno|CURLOPT_TIMEOUT' local/rest/*.php | grep -v 'local/rest/rest_helpers.php')
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Direct curl usage in /local/rest must go through rest_helpers.php."
+            echo "$RESULT"
+            FAIL=1
+          else
+            echo "✅ Direct curl usage is isolated in rest_helpers.php."
+          fi
+
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          fi
+
       - name: Проверка изменений в bitrix/ (запрещено)
         run: |
           RESULT=$(git diff origin/main...HEAD --name-only -- 'bitrix/' || true)

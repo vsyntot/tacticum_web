@@ -336,7 +336,7 @@ Acceptance criteria:
 - Все outbound AI/Telegram requests в `/local/rest` переведены на shared helper `tacticum_rest_post_json()` / `tacticum_rest_fail_on_curl_error()`.
 - Public `IBLOCK_ID` cleanup выполнен: добавлен `tacticum_iblock_id()` и активные публичные `IncludeComponent` переведены на config registry.
 - `group_id` lifecycle, chat response states и prefill handoff зафиксированы в `docs/workflow/chat-offer-contract.md`.
-- Production prefill flow переведён на `POST /local/rest/tacticum_prefill.php`; legacy GET fallback временно сохранён для совместимости.
+- Production prefill flow переведён на `POST /local/rest/tacticum_prefill.php`; legacy GET fallback удалён в Sprint 03 cleanup.
 - Asset/layout audit зафиксирован в `docs/workflow/asset-layout-audit.md`.
 - D7 scan выполнен: `CModule::IncludeModule()` в `local/` и публичных страницах не найден.
 - На публичные страницы добавлены базовые meta `description`.
@@ -347,6 +347,8 @@ Acceptance criteria:
 - Добавлен `tacticum_rest_validate_config(...)` и `GET /local/rest/health_config.php`.
 - Repository hygiene audit зафиксирован в `docs/workflow/repository-hygiene.md`.
 - `local/php_interface/include/tacticum_config.php` убран из Git index и оставлен на диске как ignored local config.
+- Optional assets переведены с URL-substring routing на explicit page flags.
+- Legacy `local/templates/tacticum/js/chat.js` удалён.
 
 ### Not Done
 
@@ -356,6 +358,5 @@ Acceptance criteria:
 ### Follow-Up
 
 - Sprint 03 candidate: унифицировать success-body contract только после отдельного API decision.
-- Sprint 03 candidate: спланировать переход с runtime Tailwind на static build и заменить URL-substring asset routing.
-- Sprint 03 candidate: удалить legacy GET fallback из `tacticum_prefill.php`, если внешних потребителей нет.
+- Sprint 03 candidate: спланировать переход с runtime Tailwind на static build.
 - DevOps/PM: синхронизировать production/staging `tacticum_config.php` с `tacticum_config.example.php` при новых config keys.

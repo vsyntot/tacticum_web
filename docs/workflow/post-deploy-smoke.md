@@ -40,11 +40,13 @@
 ## AI Chat / Offer
 
 - [ ] Hero chat отправляет message.
+- [ ] `GET /local/rest/tacticum_chat.php` возвращает controlled `405 method_not_allowed`.
 - [ ] Calculator chat отправляет message.
 - [ ] Price chat отправляет message.
 - [ ] Upstream errors показываются пользователю без raw stack/PII.
 - [ ] `group_id` сохраняется и используется для prefill, если сценарий это предполагает.
 - [ ] Prefill production path вызывает `POST /local/rest/tacticum_prefill.php` с JSON `group_id` + `sessid`.
+- [ ] `GET /local/rest/tacticum_prefill.php` возвращает controlled `405 method_not_allowed`.
 - [ ] `bitrix_url` открывает offer page, если AI вернул ссылку.
 - [ ] Срабатывают analytics events `tacticum_chat_*` и `tacticum_prefill_*` без текста сообщений.
 
@@ -76,12 +78,20 @@
 - [ ] Canonical присутствует и соответствует URL-стратегии страницы.
 - [ ] OpenGraph meta присутствуют без дублей.
 
+## Assets
+
+- [ ] `/`, `/services/`, `/calculator/`, `/offer/`: `faq.js` подключается.
+- [ ] `/price/`: `faq.js` и `charts.js` подключаются.
+- [ ] `/aiagents/`: `faq.js` и `aiagents.css` подключаются.
+- [ ] `/about/`, `/contacts/`, `/policies/`: optional assets не подключаются без явной необходимости.
+
 ## DevOps Handoff
 
 DevOps/PM фиксирует в Issue:
 
 - commit / PR;
 - время deploy;
+- результат автоматического `Smoke config health` из deploy workflow;
 - затронутые URL/API;
 - кто выполнил smoke-check;
 - найденные follow-up gaps.
