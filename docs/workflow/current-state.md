@@ -21,7 +21,7 @@
 Основные риски:
 
 - остаются frontend-debts: runtime Tailwind и stale/generated page CSS files; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
-- публичные страницы всё ещё содержат повторяемые CTA/form sections, которые нужно выносить в include/component после visual baseline;
+- personal-offer CTA на `/`, `/calculator/`, `/price/` и project-discussion CTA на `/about/`, `/services/` уже вынесены в template includes; contacts CTA ещё требует отдельной нормализации после visual review;
 - production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy, иначе deploy health smoke упадёт;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
 - продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke по зафиксированной матрице.
@@ -37,6 +37,7 @@
 | Config health | `local/rest/health_config.php` | Same-origin health-check config keys without secret values |
 | Bitrix REST | `local/php_interface/init.php` | Методы `calcrequests.list` и `calcrequests.add` через `OnRestServiceBuildDescription` |
 | Template | `local/templates/tacticum/header.php`, `footer.php`, `js/`, `styles/`, `components/bitrix/` | Активный шаблон сайта |
+| Template includes | `local/templates/tacticum/include/personal-offer-cta.php`, `project-discussion-cta.php` | Общие CTA/form sections для ключевых публичных страниц |
 | CI/CD | `.github/workflows/deploy.yml`, `pr-check.yml`, `sitemap.yml` | Lint, convention checks, deploy, sitemap validation |
 | Architecture | `docs/adr/` | Принятые архитектурные решения |
 
@@ -131,17 +132,19 @@ Endpoints:
 
 FAQ presentation задаётся параметром компонента `SECTION_CLASS`, а не текущим URL. `/aiagents/` явно передаёт `py-16 bg-gray-50`.
 
+Основной personal-offer CTA для `/`, `/calculator/`, `/price/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`. Project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`. Страницы передают только page-specific `form_id`, HTML `id` формы и field prefix.
+
 Specialist order modal для `/price/` находится в Bitrix component template `news.list/price/template.php`; component `script.js` только управляет открытием, выбранным специалистом и hidden fields.
 
 ### Forms
 
 Формы с `data-tacticum-form` найдены:
 
-- main CTA: `index.php`;
-- about CTA: `about/index.php`;
-- services CTA: `services/index.php`;
-- calculator CTA: `calculator/index.php`;
-- price CTA: `price/index.php`;
+- main CTA: `index.php` через `include/personal-offer-cta.php`;
+- about CTA: `about/index.php` через `include/project-discussion-cta.php`;
+- services CTA: `services/index.php` через `include/project-discussion-cta.php`;
+- calculator CTA: `calculator/index.php` через `include/personal-offer-cta.php`;
+- price CTA: `price/index.php` через `include/personal-offer-cta.php`;
 - contacts CTA: `contacts/index.php`;
 - offer CTA: `local/templates/tacticum/components/bitrix/news.detail/offer/template.php`;
 - aiagents inline: `aiagents/index.php`;
