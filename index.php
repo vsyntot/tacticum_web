@@ -2,7 +2,7 @@
 $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Тактикум - Искусственный интеллект для вашего бизнеса");
-$APPLICATION->SetPageProperty("description", "AI-решения для бизнеса: автоматизация процессов, AI-консалтинг, внедрение ML и интеллектуальных ассистентов от Tacticum.");
+$APPLICATION->SetPageProperty("description", "Разработка программного обеспечения и AI-решений для бизнеса: автоматизация процессов, AI-консалтинг, внедрение ML и интеллектуальных ассистентов от Tacticum.");
 tacticum_apply_seo_defaults('/');
 ?>
 
@@ -29,34 +29,36 @@ tacticum_apply_seo_defaults('/');
                         <div class="w-3 h-3 rounded-full bg-green-400"></div>
                         <div class="text-white/70 text-sm">AI-ассистент Tacticum</div>
                     </div>
-                    <div class="space-y-4">
-                        <div class="bg-white/10 rounded-lg p-3 text-white">
-                            <p class="text-sm text-white/70 mb-1">Пользователь:</p>
-                            <p>
-                                Как искусственный интеллект может помочь оптимизировать наши
-                                бизнес-процессы?
-                            </p>
-                        </div>
-                        <div class="bg-primary/20 rounded-lg p-3 text-white">
-                            <p class="text-sm text-white/70 mb-1">AI-ассистент:</p>
-                            <p>
-                                Искусственный интеллект может значительно оптимизировать
-                                ваши бизнес-процессы через:
-                            </p>
-                            <ul class="list-disc pl-5 mt-2 space-y-1">
-                                <li>Автоматизацию рутинных задач</li>
-                                <li>Предиктивную аналитику для прогнозирования трендов</li>
-                                <li>Интеллектуальную обработку документов</li>
-                                <li>Оптимизацию цепочек поставок</li>
-                                <li>Персонализацию клиентского опыта</li>
-                            </ul>
-                            <p class="mt-2">
-                                Давайте обсудим, какие конкретные процессы в вашей компании
-                                требуют оптимизации?
-                            </p>
+                    <div class="flex flex-col h-[400px]" data-hero-chat-shell>
+                        <div class="flex-1 min-h-0 overflow-y-auto mb-4 space-y-4" data-hero-chat-messages>
+                            <div class="bg-white/10 rounded-lg p-3 text-white">
+                                <p class="text-sm text-white/70 mb-1">Пользователь:</p>
+                                <p>
+                                    Как искусственный интеллект может помочь оптимизировать наши
+                                    бизнес-процессы?
+                                </p>
+                            </div>
+                            <div class="bg-primary/20 rounded-lg p-3 text-white">
+                                <p class="text-sm text-white/70 mb-1">AI-ассистент:</p>
+                                <p>
+                                    Искусственный интеллект может значительно оптимизировать
+                                    ваши бизнес-процессы через:
+                                </p>
+                                <ul class="list-disc pl-5 mt-2 space-y-1">
+                                    <li>Автоматизацию рутинных задач</li>
+                                    <li>Предиктивную аналитику для прогнозирования трендов</li>
+                                    <li>Интеллектуальную обработку документов</li>
+                                    <li>Оптимизацию цепочек поставок</li>
+                                    <li>Персонализацию клиентского опыта</li>
+                                </ul>
+                                <p class="mt-2">
+                                    Давайте обсудим, какие конкретные процессы в вашей компании
+                                    требуют оптимизации?
+                                </p>
+                            </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="text" placeholder="Введите ваш вопрос..." class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                            <input type="text" placeholder="Введите ваш вопрос..." class="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" />
                             <button id="aichat" class="bg-primary w-10 h-10 rounded-full flex items-center justify-center text-white"><i class="ri-send-plane-fill"></i></button>
                         </div>
                     </div>
@@ -72,8 +74,8 @@ tacticum_apply_seo_defaults('/');
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Что мы делаем?</h2>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                Мы помогаем компаниям внедрять передовые технологии искусственного
-                интеллекта для решения реальных бизнес-задач
+                Мы разрабатываем программные решения на базе искусственного интеллекта
+                и помогаем внедрять их для решения реальных бизнес-задач
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

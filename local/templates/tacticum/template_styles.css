@@ -1232,6 +1232,43 @@
     background-position: center;
 }
 
+#main_chat [data-hero-chat-shell] {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    min-height: 0;
+}
+
+#main_chat [data-hero-chat-messages] {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+}
+
+#main_chat [data-hero-chat-messages]::-webkit-scrollbar {
+    width: 6px;
+}
+
+#main_chat [data-hero-chat-messages]::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#main_chat [data-hero-chat-messages]::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+}
+
+@media (max-width: 767px) {
+    #main_chat [data-hero-chat-shell] {
+        height: 360px;
+    }
+}
+
 .tacticum-progress-bar--35 {
     width: 35%;
 }

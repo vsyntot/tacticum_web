@@ -134,7 +134,7 @@ if ($is_specialist_order) {
 AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_request');
 
 $chat_agent_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
-$result = tacticum_rest_post_json($chat_agent_url, $payload, 'tacticum_form_chat_agent');
+$result = tacticum_rest_post_json_retry_without_group_id($chat_agent_url, $payload, 'tacticum_form_chat_agent');
 $response = $result['response'];
 $http_status = (int)$result['http_status'];
 
@@ -143,8 +143,9 @@ AddMessage2Log(serialize($masked_response), 'tacticum_form_response');
 
 tacticum_rest_fail_on_curl_error($result, 'tacticum_form_chat_agent', 'Ошибка отправки во внешний сервис.');
 
-if ($http_status === 200 && $response) {
+if ($http_status >= 200 && $http_status < 300) {
     tacticum_form_response(true, null, 'ok');
 }
 
+AddMessage2Log("Upstream error (tacticum_form_chat_agent): http_status={$http_status}", 'tacticum_form_chat_agent_error');
 tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');

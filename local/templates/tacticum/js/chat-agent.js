@@ -54,6 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
             : "AI-сервис не вернул ответ. Попробуйте повторить запрос.";
     };
 
+    const hasFinalOfferActions = (data) => {
+        return typeof data?.bitrix_url === "string" && data.bitrix_url.trim() !== "";
+    };
+
     const createTextBlock = (text, className) => {
         const block = document.createElement("div");
         block.className = className;
@@ -125,7 +129,12 @@ document.addEventListener("DOMContentLoaded", () => {
             div.appendChild(links);
         }
 
-        chatArea.insertBefore(div, chatArea.lastElementChild);
+        const inputRow = chatArea.querySelector("input")?.closest("div");
+        if (inputRow?.parentElement === chatArea) {
+            chatArea.insertBefore(div, inputRow);
+        } else {
+            chatArea.appendChild(div);
+        }
         chatArea.scrollTop = chatArea.scrollHeight;
     };
 
@@ -218,11 +227,44 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseChatResult(response);
     };
 
+    const prepareHeroChatArea = (root) => {
+        const existingMessages = root.querySelector("[data-hero-chat-messages]");
+        if (existingMessages) {
+            existingMessages.parentElement?.setAttribute("data-hero-chat-shell", "");
+            return existingMessages;
+        }
+
+        const legacyShell = root.querySelector(".space-y-4");
+        if (!legacyShell) return null;
+
+        const inputRow = root.querySelector("#aichat")?.closest("div");
+        if (!inputRow || inputRow.parentElement !== legacyShell) {
+            legacyShell.setAttribute("data-hero-chat-messages", "");
+            return legacyShell;
+        }
+
+        const messages = document.createElement("div");
+        messages.className = "flex-1 min-h-0 overflow-y-auto mb-4 space-y-4";
+        messages.setAttribute("data-hero-chat-messages", "");
+
+        Array.from(legacyShell.children).forEach((child) => {
+            if (child !== inputRow) {
+                messages.appendChild(child);
+            }
+        });
+
+        legacyShell.className = "flex flex-col h-[400px]";
+        legacyShell.setAttribute("data-hero-chat-shell", "");
+        legacyShell.append(messages, inputRow);
+
+        return messages;
+    };
+
     const initHeroChat = () => {
         const root = document.getElementById("main_chat");
         if (!root || root.dataset.tacticumChatBound === "true") return;
 
-        const chatArea = root.querySelector(".space-y-4");
+        const chatArea = prepareHeroChatArea(root);
         const chatInput = root.querySelector("input");
         const sendBtn = root.querySelector("#aichat");
         if (!chatArea || !chatInput || !sendBtn) return;
@@ -240,7 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const showTyping = () => {
             if (chatArea.querySelector(".typing-indicator-container")) return null;
             const typing = createTyping("bg-primary/20 rounded-lg p-3 text-white", true);
-            chatArea.insertBefore(typing, chatArea.lastElementChild);
+            const inputRow = chatArea.querySelector("input")?.closest("div");
+            if (inputRow?.parentElement === chatArea) {
+                chatArea.insertBefore(typing, inputRow);
+            } else {
+                chatArea.appendChild(typing);
+            }
             chatArea.scrollTop = chatArea.scrollHeight;
             return typing;
         };
@@ -262,13 +309,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 typing?.remove();
 
                 if (result.ok && res.response) {
+                    const showFinalActions = hasFinalOfferActions(res);
                     trackChat("tacticum_chat_success", "hero", {
                         status: result.status,
                         has_group_id: Boolean(res.group_id || groupId),
                         has_offer_url: Boolean(res.bitrix_url),
+                        is_final: showFinalActions,
                     });
                     appendHeroMessage(chatArea, "ai", res.response, {
-                        showOfferLink: true,
+                        showOfferLink: showFinalActions,
                         groupId: res.group_id || groupId,
                         bitrixUrl: res.bitrix_url || "",
                     });
@@ -280,14 +329,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     status: result.status,
                     code: getResultCode(result),
                 });
-                appendHeroMessage(chatArea, "ai", getChatErrorMessage(result), { showOfferLink: true });
+                appendHeroMessage(chatArea, "ai", getChatErrorMessage(result), { showOfferLink: false });
             } catch (error) {
                 typing?.remove();
                 trackChat("tacticum_chat_error", "hero", {
                     status: "network",
                     code: "fetch_error",
                 });
-                appendHeroMessage(chatArea, "ai", `Ошибка запроса: ${error.message}`, { showOfferLink: true });
+                appendHeroMessage(chatArea, "ai", `Ошибка запроса: ${error.message}`, { showOfferLink: false });
             } finally {
                 setSending(false);
             }
@@ -365,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     code: "fetch_error",
                 });
                 appendHeroMessage(chatArea, "ai", `Ошибка получения данных: ${error.message}`, {
-                    showOfferLink: true,
+                    showOfferLink: false,
                 });
             }
         });
@@ -413,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         status: result.status,
                         code: getResultCode(result),
                     });
-                    appendDarkCalculatorMessage(messages, "ai", getChatErrorMessage(result), { showOfferLink: true });
+                    appendDarkCalculatorMessage(messages, "ai", getChatErrorMessage(result), { showOfferLink: false });
                 }
             } catch (error) {
                 typing.remove();
@@ -422,7 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     code: "fetch_error",
                 });
                 appendDarkCalculatorMessage(messages, "ai", `Ошибка запроса: ${error.message}`, {
-                    showOfferLink: true,
+                    showOfferLink: false,
                 });
             } finally {
                 isSending = false;
@@ -483,7 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             code: getResultCode(result),
                         });
                         appendLightCalculatorMessage(messages, "ai", getChatErrorMessage(result), {
-                            showOfferLink: true,
+                            showOfferLink: false,
                         });
                     }
                 } catch (error) {
@@ -493,7 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         code: "fetch_error",
                     });
                     appendLightCalculatorMessage(messages, "ai", `Ошибка запроса: ${error.message}`, {
-                        showOfferLink: true,
+                        showOfferLink: false,
                     });
                 } finally {
                     isSending = false;

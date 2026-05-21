@@ -25,8 +25,8 @@ Date: 21.05.2026
 ### Non-Goals
 
 - Не удалять `template_styles.css`.
-- Не удалять `local/templates/tacticum/styles/*.css`.
-- Не удалять `bundle.v3.4.16.js` и `init.js` до отдельного JS inventory и staging visual smoke.
+- Не менять `template_styles.css` и не сливать CSS bundles в рамках этого спринта.
+- Не удалять `styles/aiagents.css`, пока `/aiagents/` использует explicit page asset flag.
 
 ## Scope
 
@@ -37,6 +37,7 @@ Date: 21.05.2026
 | Static generated CSS | TG-015 | Full Feature | done | `local/templates/tacticum/tailwind.generated.css` собирается `npm run css:build` |
 | Header runtime switch | TG-015 | Full Feature | done | `header.php` подключает `tailwind.generated.css` и не подключает `bundle.v3.4.16.js` / `init.js` |
 | CI guard | TG-015 | Security / Integration | done | `pr-check.yml` запускает `npm run css:check` и блокирует возврат browser Tailwind runtime |
+| Dead asset cleanup | TG-015 | Fast Fix | done | Legacy Tailwind JS artifacts и dead page-specific CSS artifacts удалены после source/rendered asset inventory |
 
 ## QA Smoke
 
@@ -70,11 +71,15 @@ Date: 21.05.2026
 - Static Tailwind CSS build added to the working tree.
 - Browser Tailwind runtime no longer loads from `header.php`.
 - CI now checks generated CSS parity.
+- Incident fix: build no longer uses Tailwind CLI `--minify`, because preserving cascade layer order is required while Bitrix combines `tailwind.generated.css` with legacy `template_styles.css`.
+- Dead generated CSS files and legacy Tailwind JS artifacts removed after inventory.
 - TG-015 moved to `in-progress` until staging visual smoke confirms layout parity.
 
 ### Verified Locally
 
 - `npm run css:check`
+- Generated CSS starts with Tailwind cascade layer order declaration
+- Source/rendered asset inventory confirms only `styles/aiagents.css` is still approved under `local/templates/tacticum/styles/`
 - YAML parse for `.github/workflows/pr-check.yml`
 - `node --check` for touched/guarded frontend scripts
 - `git diff --check`
