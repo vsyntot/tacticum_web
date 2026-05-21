@@ -214,65 +214,11 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 
-<!-- Contact Form Section -->
-<div id="contact-form">
-    <!-- CTA Section -->
-    <section class="py-16 bg-gradient-to-r from-secondary to-primary text-white">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-center gap-12">
-                <div class="w-full md:w-1/2">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Получите персональное предложение</h2>
-                    <p class="text-lg mb-8 text-blue-100">
-                        Оставьте заявку, и наш менеджер свяжется с вами в течение 2 часов, чтобы обсудить детали и
-                        подготовить индивидуальное предложение с учетом всех доступных скидок и акций.
-                    </p>
-                    <form class="tacticum-personal-offer-form bg-white text-secondary rounded-lg p-6 mb-6 shadow-lg border border-white/20" data-tacticum-form data-form-id="calculator-cta">
-                        <div class="tacticum-personal-offer-form__grid grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div class="tacticum-personal-offer-form__field">
-                                <label for="cta-name" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Имя <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
-                                <input type="text" id="cta-name" name="name" required autocomplete="name" placeholder="Иван"
-                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
-                            </div>
-                            <div class="tacticum-personal-offer-form__field">
-                                <label for="cta-company" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Компания</label>
-                                <input type="text" id="cta-company" name="company" autocomplete="organization" placeholder="Название компании"
-                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
-                            </div>
-                            <div class="tacticum-personal-offer-form__field">
-                                <label for="cta-email" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Email <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
-                                <input type="email" id="cta-email" name="email" required autocomplete="email" placeholder="mail@example.com"
-                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
-                            </div>
-                            <div class="tacticum-personal-offer-form__field">
-                                <label for="cta-phone" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Телефон <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
-                                <input type="tel" id="cta-phone" name="phone" required autocomplete="tel" placeholder="+7 999 000-00-00"
-                                       class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3">
-                            </div>
-                        </div>
-                        <div class="tacticum-personal-offer-form__message mb-6">
-                            <label for="cta-message" class="tacticum-personal-offer-form__label block text-sm font-medium text-gray-700 mb-1">Опишите проект или интересующее предложение <span class="tacticum-personal-offer-form__required text-primary">*</span></label>
-                            <textarea id="cta-message" name="message" rows="4" required placeholder="Кратко опишите задачу, сроки и ожидаемый результат"
-                                      class="tacticum-personal-offer-form__control w-full rounded-lg border border-gray-300 bg-white px-4 py-3"></textarea>
-                        </div>
-                        <div class="tacticum-personal-offer-form__consent flex items-start gap-3 rounded-lg bg-gray-50 p-3 mb-6">
-                            <input type="checkbox" id="cta-agreement" data-tacticum-consent required
-                                   class="tacticum-personal-offer-form__checkbox mt-1 w-4 h-4">
-                            <label for="cta-agreement" class="tacticum-personal-offer-form__consent-text text-sm leading-5 text-gray-600">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary underline">политики конфиденциальности</a></label>
-                        </div>
-                        <button type="submit"
-                                class="tacticum-personal-offer-form__submit w-full bg-primary text-white font-medium px-6 py-3 rounded-lg transition-colors whitespace-nowrap">
-                            Получить персональное предложение
-                        </button>
-                    </form>
-                </div>
-                <div class="w-full md:w-1/2">
-                    <img src="<?=SITE_TEMPLATE_PATH?>/images/specialoffer.jpg"
-                         alt="Персональное предложение"
-                         class="w-full h-auto rounded-xl shadow-lg object-cover object-top">
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
+<?php
+$tacticumPersonalOfferCta = [
+    "form_id" => "calculator-cta",
+];
+include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/personal-offer-cta.php";
+?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

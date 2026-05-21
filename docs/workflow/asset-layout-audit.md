@@ -70,13 +70,19 @@ Global CSS:
 - `modal.js` и `scroll.js` очищены от path/text selector heuristics.
 - form/price UI state переведён с inline style mutations на CSS selectors/classes.
 
+После Sprint 05 cleanup:
+
+- основной personal-offer CTA для `/`, `/calculator/` и `/price/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`;
+- project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`;
+- public pages передают только page-specific `form_id`/HTML `id`/field prefix, а не копируют form markup.
+
 ## Risks
 
 - Browser Tailwind/runtime bundle остаётся production dependency; часть классов продолжает зависеть от JS.
 - Page-specific CSS files выглядят как generated/stale artifacts, но удалять их без visual regression нельзя.
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` остаётся общим местом для unrelated page rules.
-- Repeated CTA/form sections всё ещё скопированы между публичными страницами и требуют отдельной componentization задачи.
+- Contacts CTA variant ещё требует отдельного visual review перед унификацией с одним из shared includes или выделением третьего варианта.
 
 ## Rules Going Forward
 
@@ -92,5 +98,6 @@ Global CSS:
 
 Следующий cleanup:
 
-1. Реализовать `docs/workflow/static-css-build-plan.md`.
-2. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.
+1. Провести visual review CTA variant на contacts и решить: общий include с variant config или отдельный component/include.
+2. Реализовать `docs/workflow/static-css-build-plan.md`.
+3. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.
