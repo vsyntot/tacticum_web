@@ -58,9 +58,17 @@ Global CSS:
 Оставшиеся известные inline assets:
 
 - Yandex.Metrika в `header.php` — допустимое vendor exception;
-- policy detail inline style в `local/templates/tacticum/components/bitrix/news.detail/policies/template.php`;
+- Yandex Maps constructor script в `contacts/index.php` — vendor embed exception;
 - JSON data islands в price component — допустимо как `application/json`;
 - generated font demo HTML в `local/templates/tacticum/fonts/` — не production page flow.
+
+После Sprint 04 cleanup:
+
+- FAQ background больше не определяется через current URL; используется component param `SECTION_CLASS`;
+- policy detail styles перенесены в `local/templates/tacticum/components/bitrix/news.detail/policies/style.css`;
+- price specialist modal markup перенесён из JS в `news.list/price/template.php`;
+- `modal.js` и `scroll.js` очищены от path/text selector heuristics.
+- form/price UI state переведён с inline style mutations на CSS selectors/classes.
 
 ## Risks
 
@@ -68,6 +76,7 @@ Global CSS:
 - Page-specific CSS files выглядят как generated/stale artifacts, но удалять их без visual regression нельзя.
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` остаётся общим местом для unrelated page rules.
+- Repeated CTA/form sections всё ещё скопированы между публичными страницами и требуют отдельной componentization задачи.
 
 ## Rules Going Forward
 
@@ -75,6 +84,8 @@ Global CSS:
 - Не добавлять inline JS/CSS в публичные страницы.
 - Новый form/chat behavior добавлять в `forms.js`, `chat-agent.js` или компонентный asset, не копировать в page PHP.
 - Page-specific asset подключать компонентом или через explicit page asset flag, не через URL-substring.
+- Presentation differences between pages pass through component params, not current URL checks.
+- JS behavior must bind to explicit selectors/data attributes; do not infer behavior from button text.
 - Runtime Tailwind migration планировать отдельно: static build first, visual regression second, cleanup third.
 
 ## Recommended Next Step

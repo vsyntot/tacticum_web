@@ -192,6 +192,59 @@ jobs:
             echo "✅ Header optional asset routing checks passed."
           fi
 
+          RESULT=$(grep -nE 'substr_count[[:space:]]*\(|GetCurPage[[:space:]]*\(' local/templates/tacticum/components/bitrix/news.list/faq/template.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: FAQ component must not change presentation by current URL."
+            echo "$RESULT"
+            echo "Pass explicit component params such as SECTION_CLASS instead."
+            FAIL=1
+          else
+            echo "✅ FAQ presentation is parameter-driven."
+          fi
+
+          RESULT=$(grep -RInE --include='*.php' 'onclick=' index.php about services calculator contacts offer aiagents policies price local/templates/tacticum)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Inline onclick handlers are not allowed in public/template markup."
+            echo "$RESULT"
+            echo "Use links for navigation or JS behavior bound by data-* attributes."
+            FAIL=1
+          else
+            echo "✅ No inline onclick handlers in public/template markup."
+          fi
+
+          RESULT=$(grep -nE '<style|style=' local/templates/tacticum/components/bitrix/news.detail/policies/template.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Policies component styles must live in component style.css, not inline markup."
+            echo "$RESULT"
+            FAIL=1
+          else
+            echo "✅ Policies component has no inline style block."
+          fi
+
+          RESULT=$(grep -nE 'pathname\.includes|document\.querySelectorAll\("\.container button"\)|textContent\.trim\(\)|price-specialist-legacy|modalTemplate\.innerHTML' \
+            local/templates/tacticum/js/modal.js \
+            local/templates/tacticum/js/scroll.js \
+            local/templates/tacticum/components/bitrix/news.list/price/script.js)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Frontend behavior must not depend on URL/text selectors or generate specialist modal HTML in JS."
+            echo "$RESULT"
+            echo "Use explicit data-* contracts and Bitrix template markup."
+            FAIL=1
+          else
+            echo "✅ Frontend behavior selector discipline checks passed."
+          fi
+
+          RESULT=$(grep -nE '\.style\.' \
+            local/templates/tacticum/js/forms.js \
+            local/templates/tacticum/components/bitrix/news.list/price/script.js)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Form UI state must be represented by CSS classes/selectors, not inline style mutations."
+            echo "$RESULT"
+            FAIL=1
+          else
+            echo "✅ Form UI state has no inline style mutations."
+          fi
+
           RESULT=$(grep -nE '\$_GET|method[[:space:]]*===[[:space:]]*['\''"]GET|elseif.*GET' local/rest/tacticum_prefill.php)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: tacticum_prefill.php must remain POST JSON only."

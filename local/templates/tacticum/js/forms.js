@@ -250,64 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    const initFloatingLabels = () => {
-        const formInputs = document.querySelectorAll(
-            'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), textarea'
-        );
-        formInputs.forEach((input) => {
-            if (input.dataset.tacticumLabelBound) return;
-            input.dataset.tacticumLabelBound = "true";
-
-            if (input.value) {
-                const label = input.nextElementSibling;
-                if (label && label.tagName === "LABEL") {
-                    label.style.transform = "translateY(-24px)";
-                    label.style.fontSize = "0.75rem";
-                }
-            }
-
-            input.addEventListener("focus", function () {
-                const label = this.nextElementSibling;
-                if (label && label.tagName === "LABEL") {
-                    label.style.transform = "translateY(-24px)";
-                    label.style.fontSize = "0.75rem";
-                    label.style.color = "#0066CC";
-                }
-            });
-
-            input.addEventListener("blur", function () {
-                const label = this.nextElementSibling;
-                if (label && label.tagName === "LABEL" && !this.value) {
-                    label.style.transform = "";
-                    label.style.fontSize = "";
-                    label.style.color = "";
-                }
-            });
-        });
-    };
-
-    const initCheckboxes = () => {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach((checkbox) => {
-            const usesCustomAppearance = checkbox.classList.contains("appearance-none");
-            if (!usesCustomAppearance) return;
-
-            if (checkbox.dataset.tacticumCheckboxBound) return;
-            checkbox.dataset.tacticumCheckboxBound = "true";
-            checkbox.addEventListener("change", function () {
-                if (this.checked) {
-                    this.style.backgroundImage =
-                        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E\")";
-                    this.style.backgroundSize = "70%";
-                    this.style.backgroundPosition = "center";
-                    this.style.backgroundRepeat = "no-repeat";
-                } else {
-                    this.style.backgroundImage = "none";
-                }
-            });
-        });
-    };
-
     const initPrefillTriggers = () => {
         document.addEventListener("click", (event) => {
             const trigger = event.target.closest("[data-tacticum-prefill-value]");
@@ -330,7 +272,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    initFloatingLabels();
-    initCheckboxes();
     initPrefillTriggers();
 });

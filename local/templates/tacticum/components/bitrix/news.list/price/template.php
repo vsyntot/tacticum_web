@@ -108,3 +108,109 @@
         <?php endforeach; ?>
     </div>
 </section>
+
+<div id="specialistOrderModal"
+     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6 sticky top-0 bg-white z-10">
+            <h3 class="text-2xl font-bold text-secondary">Заказать специалиста</h3>
+            <button id="closeOrderModal" type="button"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                    aria-label="Закрыть">
+                <i class="ri-close-line text-xl text-gray-500"></i>
+            </button>
+        </div>
+
+        <form id="specialistOrderForm"
+              class="space-y-6"
+              data-tacticum-form
+              data-form-id="price-specialist"
+              data-endpoint="/local/rest/tacticum_sale_staff.php"
+              data-tacticum-close-target="#specialistOrderModal"
+              data-tacticum-close-mode="overlay">
+            <div class="relative mb-6">
+                <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
+                    <p class="text-primary font-medium mb-2">Выбранный специалист:</p>
+                    <p id="selectedSpecialist" class="text-gray-700">Не выбран</p>
+                    <p id="selectedRate" class="text-sm text-gray-500 mt-1">Ставка: —</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="relative">
+                    <input type="text" id="orderName" name="name" required placeholder=" "
+                           class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
+                    <label for="orderName" class="input-label">Имя</label>
+                </div>
+                <div class="relative">
+                    <input type="email" id="orderEmail" name="email" required placeholder=" "
+                           class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
+                    <label for="orderEmail" class="input-label">Email</label>
+                </div>
+                <div class="relative">
+                    <input type="tel" id="orderPhone" name="phone" required placeholder=" "
+                           class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
+                    <label for="orderPhone" class="input-label">Телефон</label>
+                </div>
+                <div class="relative">
+                    <input type="text" id="orderCompany" name="company" placeholder=" "
+                           class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer">
+                    <label for="orderCompany" class="input-label">Компания</label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="relative">
+                    <label for="orderStartDate" class="block text-gray-500 mb-2">Предпочтительная дата начала</label>
+                    <input type="date" id="orderStartDate" name="startDate" required
+                           class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+                <div class="relative">
+                    <label for="orderDuration" class="block text-gray-500 mb-2">Предполагаемый срок работы</label>
+                    <div class="relative">
+                        <select id="orderDuration" name="duration" required
+                                class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none bg-white">
+                            <option value="">Выберите срок</option>
+                            <option value="1-month">1 месяц</option>
+                            <option value="3-months">3 месяца</option>
+                            <option value="6-months">6 месяцев</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <i class="ri-arrow-down-s-line text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <textarea id="orderDescription" name="message" required rows="4" placeholder=" "
+                          class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 peer"></textarea>
+                <label for="orderDescription" class="input-label">Описание задачи</label>
+            </div>
+
+            <input type="hidden" id="orderSpecialist" name="specialist">
+            <input type="hidden" id="orderLevel" name="level">
+            <input type="hidden" id="orderRate" name="rate">
+
+            <div class="flex items-start gap-3">
+                <input type="checkbox" id="orderAgreement" data-tacticum-consent required
+                       class="appearance-none mt-1 w-5 h-5 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
+                <label for="orderAgreement" class="text-sm text-gray-600 leading-5 pt-0.5">
+                    Я согласен на обработку персональных данных и принимаю условия
+                    <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a>
+                </label>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white pt-4">
+                <button type="submit"
+                        class="w-full sm:flex-1 bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">
+                    Отправить заявку
+                </button>
+                <button type="button" id="cancelOrderModal"
+                        class="w-full sm:flex-1 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                    Отмена
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
