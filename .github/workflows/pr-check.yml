@@ -22,6 +22,24 @@ jobs:
       - name: Проверка синтаксиса — local/
         run: find local/ -name "*.php" -print0 | xargs -0 -n1 php -l
 
+  css-build:
+    name: 🎨 Static CSS Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install frontend tooling
+        run: npm ci
+
+      - name: Check generated Tailwind CSS
+        run: npm run css:check
+
   security-checks:
     name: 🛡️ Security & Convention Checks
     runs-on: ubuntu-latest
@@ -180,6 +198,19 @@ jobs:
             FAIL=1
           else
             echo "✅ Legacy chat.js is absent."
+          fi
+
+          RESULT=$(grep -nE 'bundle\.v3\.4\.16\.js|js/init\.js' local/templates/tacticum/header.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Browser Tailwind runtime must not be loaded from header.php."
+            echo "$RESULT"
+            echo "Use local/templates/tacticum/tailwind.generated.css built by npm run css:build."
+            FAIL=1
+          elif ! grep -q 'tailwind.generated.css' local/templates/tacticum/header.php; then
+            echo "❌ ERROR: header.php must load static tailwind.generated.css."
+            FAIL=1
+          else
+            echo "✅ Static Tailwind CSS is loaded without browser runtime."
           fi
 
           RESULT=$(grep -nE 'substr_count[[:space:]]*\(|GetCurPage[[:space:]]*\(|addString[[:space:]]*\(' local/templates/tacticum/header.php)

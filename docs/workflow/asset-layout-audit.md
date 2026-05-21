@@ -6,8 +6,6 @@
 
 Global JS подключается в `local/templates/tacticum/header.php` через `Bitrix\Main\Page\Asset`:
 
-- `js/bundle.v3.4.16.js`;
-- `js/init.js`;
 - `js/menu.js`;
 - `js/analytics.js`;
 - `js/forms.js`;
@@ -23,9 +21,12 @@ Conditional JS:
 
 Global CSS:
 
+- `tailwind.generated.css`;
 - `fonts/remixicon.min.css`;
 - `template_styles.css` подключается штатно как CSS активного Bitrix template;
 - `styles/aiagents.css` подключается через explicit page asset flag `TACTICUM_PAGE_ASSETS = ['aiagents_css']`.
+
+`js/bundle.v3.4.16.js` и `js/init.js` остаются в репозитории как legacy Tailwind artifacts, но не подключаются из `header.php`. Static Tailwind utilities собираются из `local/templates/tacticum/assets/src/tailwind.css` командой `npm run css:build`.
 
 ## CSS Inventory
 
@@ -77,9 +78,17 @@ Global CSS:
 - project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`;
 - public pages передают только page-specific `form_id`/HTML `id`/field prefix, а не копируют form markup.
 
+После Sprint 06 cleanup:
+
+- добавлен минимальный Node/Tailwind toolchain (`package.json`, `package-lock.json`);
+- добавлен source entrypoint `local/templates/tacticum/assets/src/tailwind.css`;
+- сгенерирован и подключён `local/templates/tacticum/tailwind.generated.css`;
+- `header.php` больше не подключает browser Tailwind runtime `bundle.v3.4.16.js` и `init.js`;
+- `pr-check.yml` выполняет `npm run css:check` и блокирует возврат runtime Tailwind в `header.php`.
+
 ## Risks
 
-- Browser Tailwind/runtime bundle остаётся production dependency; часть классов продолжает зависеть от JS.
+- Browser Tailwind/runtime bundle больше не подключается в production header; требуется staging visual smoke для подтверждения layout parity.
 - Page-specific CSS files выглядят как generated/stale artifacts, но удалять их без visual regression нельзя.
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` остаётся общим местом для unrelated page rules.
@@ -93,11 +102,12 @@ Global CSS:
 - Page-specific asset подключать компонентом или через explicit page asset flag, не через URL-substring.
 - Presentation differences between pages pass through component params, not current URL checks.
 - JS behavior must bind to explicit selectors/data attributes; do not infer behavior from button text.
-- Runtime Tailwind migration планировать отдельно: static build first, visual regression second, cleanup third.
+- Static Tailwind source менять вместе с `tailwind.generated.css`; запускать `npm run css:build` и проверять `npm run css:check`.
 
 ## Recommended Next Step
 
 Следующий cleanup:
 
-1. Реализовать `docs/workflow/static-css-build-plan.md`.
+1. Выполнить staging visual smoke desktop/mobile для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`.
 2. После visual smoke пометить stale `styles/*.css` как used/dead и удалить только подтверждённые dead files.
+3. После отдельного JS inventory удалить legacy `bundle.v3.4.16.js` и `init.js`, если не используются.

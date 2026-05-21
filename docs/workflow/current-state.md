@@ -20,9 +20,9 @@
 
 Основные риски:
 
-- остаются frontend-debts: runtime Tailwind и stale/generated page CSS files; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
+- остаются frontend-debts: stale/generated page CSS files и post-deploy visual smoke static Tailwind bundle; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
 - repeated CTA/form sections на `/`, `/calculator/`, `/price/`, `/contacts/`, `/about/`, `/services/` вынесены в template includes с явными page-specific form config;
-- production REST теперь требует HTTPS URL внешних AI-сервисов; серверный `tacticum_config.php` должен быть обновлён перед deploy, иначе deploy health smoke упадёт;
+- production REST требует HTTPS URL внешних AI-сервисов; production health-check `GET /local/rest/health_config.php` подтверждён 21.05.2026, deploy health smoke остаётся обязательным guard;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
 - продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke по зафиксированной матрице.
 
@@ -38,6 +38,7 @@
 | Bitrix REST | `local/php_interface/init.php` | Методы `calcrequests.list` и `calcrequests.add` через `OnRestServiceBuildDescription` |
 | Template | `local/templates/tacticum/header.php`, `footer.php`, `js/`, `styles/`, `components/bitrix/` | Активный шаблон сайта |
 | Template includes | `local/templates/tacticum/include/personal-offer-cta.php`, `project-discussion-cta.php` | Общие CTA/form sections для ключевых публичных страниц |
+| Frontend build | `package.json`, `package-lock.json`, `local/templates/tacticum/assets/src/tailwind.css`, `tailwind.generated.css` | Static Tailwind CSS сборка для шаблона |
 | CI/CD | `.github/workflows/deploy.yml`, `pr-check.yml`, `sitemap.yml` | Lint, convention checks, deploy, sitemap validation |
 | Architecture | `docs/adr/` | Принятые архитектурные решения |
 
@@ -109,8 +110,6 @@ Endpoints:
 
 `header.php` использует `Bitrix\Main\Page\Asset::getInstance()` для подключения:
 
-- `bundle.v3.4.16.js`;
-- `init.js`;
 - `menu.js`;
 - `analytics.js`;
 - `forms.js`;
@@ -119,8 +118,11 @@ Endpoints:
 - `scroll.js`;
 - `tg-link-resolver.js`;
 - `faq.js`, `charts.js` условно через `TACTICUM_PAGE_ASSETS`;
+- `tailwind.generated.css`;
 - `fonts/remixicon.min.css`;
 - `styles/aiagents.css` условно через `TACTICUM_PAGE_ASSETS`.
+
+Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` остаются в репозитории как legacy artifacts, но больше не подключаются из `header.php`. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность через `npm run css:check`.
 
 Страницы объявляют page-specific assets до `require bitrix/header.php`, например:
 
@@ -217,6 +219,8 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - чистит `bitrix/managed_cache` и `bitrix/cache/tacticum`.
 - проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
 
+Production smoke 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.php` с `Origin: https://tacticum.ru` вернул `200` и `{"success":true,"code":"ok"}` по scopes `api`, `ai`, `telegram`, `offer`, `content`, `rest`.
+
 `pr-check.yml`:
 
 - PHP syntax по `local/`;
@@ -237,7 +241,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 - ADR-003: ID инфоблоков через `tacticum_rest_get_iblock_id()`.
 - ADR-004: PII masking до логирования.
 
-Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной остаток frontend cleanup — реализация static CSS build plan после visual baseline.
+Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной остаток frontend cleanup — staging visual smoke static Tailwind bundle и последующая классификация stale CSS / legacy Tailwind JS artifacts.
 
 ## Текущее Резюме Здоровья
 
@@ -245,8 +249,8 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 |---|---|---|
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
-| Config discipline | Хорошее: config validation есть, local config вынесен из Git index, deploy проверяет health endpoint | Низкий/средний |
-| Frontend maintainability | Среднее/хорошее: chat/forms/assets и часть layout contracts унифицированы, но runtime Tailwind, stale CSS и repeated CTA blocks требуют отдельных задач | Средний |
+| Config discipline | Хорошее: config validation есть, local config вынесен из Git index, production health подтверждён, deploy проверяет health endpoint | Низкий |
+| Frontend maintainability | Среднее/хорошее: chat/forms/assets, repeated CTA и layout contracts унифицированы; static Tailwind bundle есть, но нужен staging visual smoke и stale CSS inventory | Средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
 | CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; нужен регулярный post-deploy smoke | Низкий/средний |

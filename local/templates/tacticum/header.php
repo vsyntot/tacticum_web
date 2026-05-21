@@ -24,8 +24,6 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     <link rel="manifest" href="<?=SITE_TEMPLATE_PATH?>/images/site.webmanifest">
 
     <?
-    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/bundle.v3.4.16.js");
-    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/init.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/menu.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/analytics.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
@@ -39,6 +37,7 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     if ($hasPageAsset('charts')) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/charts.js");
     }
+    $obAsset->addCss(SITE_TEMPLATE_PATH."/tailwind.generated.css");
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
     if ($hasPageAsset('aiagents_css')) {
         $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/aiagents.css");

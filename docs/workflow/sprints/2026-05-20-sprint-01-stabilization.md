@@ -8,11 +8,11 @@
 
 | Item | Gap | Lane | Owner | Priority | Status | Dependencies |
 |---|---|---|---|---|---|---|
-| 1 | TG-001 | Security / Integration | Architect + QA + Backend | P0 | in-progress | Runtime требует HTTPS; DevOps должен прописать реальные HTTPS URLs в server config |
-| 2 | TG-002 | Security / Integration | Architect + Backend | P1 | in-progress | Backend `init.php` исправлен; публичные страницы остаются долгом Sprint 02 |
+| 1 | TG-001 | Security / Integration | Architect + QA + Backend | P0 | done | Production config health подтверждён 21.05.2026 |
+| 2 | TG-002 | Security / Integration | Architect + Backend | P1 | done | Backend `init.php` и публичные страницы используют config registry |
 | 3 | TG-004 | Security / Integration | QA + Backend + Frontend | P1 | done | Явный `sessid` обязателен и передаётся chat/prefill/resolver |
 | 4 | TG-005 | Fast Fix | Backend + QA | P1 | done | Chat tags и prefill masking исправлены |
-| 5 | TG-007 + PG-004 | Fast Fix | SEO | P1 | partial | Sitemap исправлен; полный meta/OG audit остаётся |
+| 5 | TG-007 + PG-004 | Fast Fix | SEO | P1 | done | Sitemap исправлен; базовый meta/OG/canonical baseline добавлен |
 | 6 | TG-012 | Security / Integration | DevOps + QA | P2 | done | Runtime critical checks стали blockers |
 | 7 | PG-002 | Full Feature | Analyst + Frontend + Backend | P1 | done | Lead Form Contract задокументирован |
 
@@ -67,6 +67,7 @@
 
 - `rest_helpers.php`: добавлен обязательный HTTPS helper для AI URLs, CSRF требует явный token, `iblock` подключается через `Loader`.
 - REST endpoints AI/chat/sale/resolver/form переведены с HTTP fallback на shared HTTPS helper.
+- Production config health 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.php` вернул `success: true`.
 - Frontend chat/prefill/Telegram resolver передаёт `BX.bitrix_sessid()`.
 - `tacticum_prefill.php` больше не логирует весь объект инфоблока.
 - `local/php_interface/init.php` использует config key `offer` вместо hardcoded `IBLOCK_ID => 5`.
@@ -75,12 +76,12 @@
 - PR checks усилены: runtime security/convention violations стали blockers.
 - ADR/config example обновлены под полный registry используемых iblocks.
 
-### Not Done
+### Closed By Follow-Up
 
-- Серверный `local/php_interface/include/tacticum_config.php` должен быть обновлён DevOps на реальные HTTPS URLs внешних сервисов. Без этого REST endpoints вернут `500 config_error`.
-- Публичные страницы всё ещё содержат legacy numeric `IBLOCK_ID` в `IncludeComponent`.
-- Полный SEO meta/OG audit не входил в фактический runtime scope.
-- Дублированные chat implementations остаются до Sprint 02.
+- Серверный `local/php_interface/include/tacticum_config.php` подтверждён production health-check без вывода секретов.
+- Публичные страницы переведены на `tacticum_iblock_id(...)`.
+- Базовый SEO meta/OG/canonical baseline добавлен.
+- Дублированные chat implementations закрыты в Sprint 02.
 
 ### Follow-Up
 

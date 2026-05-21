@@ -1,0 +1,29 @@
+@import "tailwindcss/theme.css" layer(theme) source(none);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../../../../../*.php";
+@source "../../../../../about/**/*.php";
+@source "../../../../../aiagents/**/*.php";
+@source "../../../../../calculator/**/*.php";
+@source "../../../../../contacts/**/*.php";
+@source "../../../../../offer/**/*.php";
+@source "../../../../../policies/**/*.php";
+@source "../../../../../price/**/*.php";
+@source "../../../../../services/**/*.php";
+@source "../../components/**/*.php";
+@source "../../components/**/*.js";
+@source "../../include/**/*.php";
+@source "../../js/**/*.js";
+@source "../../header.php";
+@source "../../footer.php";
+
+@source inline("bg-primary bg-primary/5 bg-primary/10 bg-primary/20 bg-primary/50 bg-primary/90 bg-secondary/95");
+@source inline("text-primary text-secondary border-primary border-primary/10 from-primary/5 from-secondary to-primary to-primary/10");
+@source inline("hover:bg-primary hover:bg-primary/90 hover:text-primary hover:text-white focus:ring-primary/50 checked:bg-primary shadow-primary/30");
+@source inline("rounded-button !rounded-button");
+
+@theme {
+  --color-primary: #0066CC;
+  --color-secondary: #001F3F;
+  --radius-button: 8px;
+}
