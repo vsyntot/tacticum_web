@@ -18,14 +18,17 @@
 
 ## Executive Summary
 
-Главные gaps на ближайший стабилизационный спринт:
+Главный оставшийся gap после стабилизационных спринтов:
 
-1. HTTPS/config discipline для AI endpoints.
-2. Убрать хардкод инфоблоков из `init.php`, REST и публичных страниц.
-3. Унифицировать AI chat frontend вместо нескольких inline реализаций.
-4. Поддерживать post-deploy smoke для форм, AI-чата, API cache и SEO meta.
-5. Продолжить frontend cleanup: runtime Tailwind/static CSS plan и stale generated CSS inventory.
-6. Свести верстку к явным component/data contracts вместо URL/text/inline handlers.
+1. Завершить `TG-015`: выполнить staging visual smoke static Tailwind bundle и только после этого классифицировать stale CSS / legacy Tailwind JS artifacts.
+
+Закрытые, но требующие постоянного контроля области:
+
+- HTTPS/config discipline для AI endpoints через deploy health smoke.
+- Iblock registry вместо hardcoded IDs.
+- Unified AI chat / lead form contracts.
+- Post-deploy smoke для форм, AI-чата, API cache и SEO meta.
+- Explicit component/data contracts вместо URL/text/inline handlers.
 
 ## Product Gaps
 
@@ -44,7 +47,7 @@
 
 | ID | Status | Priority | Lane | Area | Gap | Evidence | Impact | Suggested Next Step |
 |---|---|---|---|---|---|---|---|---|
-| TG-001 | in-progress | P0 | Security / Integration | HTTPS/config | Runtime REST больше не имеет HTTP fallback и требует HTTPS; deploy теперь проверяет health endpoint, но серверный `tacticum_config.php` всё ещё должен содержать реальные HTTPS URL | `rest_helpers.php`, REST endpoints, `local/php_interface/include/tacticum_config.example.php`, `.github/workflows/deploy.yml` | Runtime защищён от silent HTTP fallback; deploy упадёт на `Smoke config health`, если production config невалиден | DevOps: прописать реальные HTTPS URLs в серверном `tacticum_config.php` и подтвердить зелёный deploy smoke |
+| TG-001 | closed | P0 | Security / Integration | HTTPS/config | Runtime REST не имеет HTTP fallback, требует HTTPS и production config health подтверждён | `rest_helpers.php`, REST endpoints, `local/php_interface/include/tacticum_config.example.php`, `.github/workflows/deploy.yml`, `GET https://tacticum.ru/local/rest/health_config.php` 21.05.2026 вернул `success: true` | Runtime защищён от silent HTTP fallback; deploy smoke продолжит ловить невалидный server config до пользовательских 500 | Поддерживать deploy health smoke и синхронизировать server `tacticum_config.php` при новых config keys |
 | TG-002 | closed | P1 | Security / Integration | Config/iblocks | `init.php` и публичные `IncludeComponent` используют config registry для ID инфоблоков | `local/php_interface/init.php`, `docs/adr/ADR-003-iblock-ids.md`, public pages | Backend callbacks и публичные страницы стали переносимее между окружениями | Поддерживать `tacticum_iblock_id()` / `tacticum_rest_get_iblock_id()` как стандарт |
 | TG-003 | closed | P1 | Security / Integration | REST consistency | Все outbound AI/Telegram requests в `/local/rest` проходят через shared helper; response shapes остаются доменными | `rest_helpers.php`, `tacticum_form.php`, `tacticum_chat.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_sale_staff.php`, `resolve_telegram_link.php` | Curl/timeout/TLS handling больше не расходится между endpoints | Отдельный будущий gap: унифицировать success-body contract, если потребуется продуктово |
 | TG-004 | closed | P1 | Security / Integration | CSRF | `tacticum_rest_check_csrf()` требует явный token; chat/prefill/resolver frontend передаёт `BX.bitrix_sessid()` | `rest_helpers.php`, `index.php`, `calculator/index.php`, `price/index.php`, `tg-link-resolver.js` | CSRF модель приведена к явному Bitrix token для state-changing POST | Поддерживать правило в Lead Form Contract и PR checks |
@@ -58,7 +61,7 @@
 | TG-012 | closed | P2 | Security / Integration | CI quality gates | Critical runtime checks стали blockers, public hardcoded iblocks остаются warning-level | `.github/workflows/pr-check.yml` | Нарушения REST/API conventions сложнее протащить в main | Поддерживать список checks при новых ADR |
 | TG-013 | closed | P2 | Full Feature | Config validation | Добавлен `tacticum_rest_validate_config()` и same-origin health endpoint без вывода secret values | `rest_helpers.php`, `local/rest/health_config.php`, `tacticum_config.example.php` | Ошибки config можно проверить до пользовательского runtime 500 | Post-deploy smoke: `GET /local/rest/health_config.php` с allowed host/origin |
 | TG-014 | closed | P2 | Fast Fix | Repository hygiene | `.DS_Store`/cache/backup/IDE files ignored; `tacticum_config.php` убран из Git index и остаётся локальным ignored config | `.gitignore`, `docs/workflow/repository-hygiene.md`, `git ls-files -c -i --exclude-standard` | Риск случайного commit local config/runtime мусора снижен | Поддерживать hygiene check перед PR |
-| TG-015 | open | P1 | Full Feature | CSS architecture | Production всё ещё зависит от browser Tailwind runtime, хотя есть generated `template_styles.css` | `bundle.v3.4.16.js`, `template_styles.css`, `docs/workflow/static-css-build-plan.md` | Возможны FOUC, no-JS расхождения и невоспроизводимое изменение utility CSS | Реализовать static CSS build plan только после rendered asset list и screenshots baseline |
+| TG-015 | in-progress | P1 | Full Feature | CSS architecture | Browser Tailwind runtime больше не подключается из `header.php`; static Tailwind bundle собирается через npm, но нужен staging visual smoke до закрытия | `package.json`, `package-lock.json`, `local/templates/tacticum/assets/src/tailwind.css`, `local/templates/tacticum/tailwind.generated.css`, `header.php`, `.github/workflows/pr-check.yml` | FOUC/no-JS риск снижен, CSS utilities воспроизводимы локально и в CI; visual regression ещё не подтверждён на Bitrix runtime | Выполнить staging visual smoke desktop/mobile и затем удалить/архивировать legacy Tailwind runtime artifacts отдельной задачей |
 | TG-016 | closed | P1 | Full Feature | Layout contracts | URL/text-based presentation и behavior убраны из затронутых мест | `faq/template.php`, `aiagents/index.php`, `modal.js`, `scroll.js`, `.github/workflows/pr-check.yml` | Компоненты меньше зависят от текущего URL и текста кнопок, риск случайного поведения ниже | Поддерживать explicit component params и data-* contracts в PR checks |
 | TG-017 | closed | P1 | Full Feature | JS-owned markup | Specialist modal markup перенесён из JS в Bitrix component template; repeated CTA sections вынесены в template includes | `news.list/price/template.php`, `news.list/price/script.js`, `modal.js`, `local/templates/tacticum/include/personal-offer-cta.php`, `local/templates/tacticum/include/project-discussion-cta.php`, public pages | Заказ специалистов и CTA sections стали ближе к Bitrix component/include pattern; JS больше не владеет крупным modal markup | Поддерживать component/include pattern для новых повторяемых layout blocks |
 | TG-018 | closed | P2 | Fast Fix | Inline markup cleanup | Убраны inline `onclick`, policy `<style>`/`style=`, progress inline widths и form UI inline style mutations; header logo получил `alt` | `about/index.php`, `services/index.php`, `policies/template.php`, `policies/style.css`, `index.php`, `forms.js`, `price/script.js`, `header.php` | HTML/JS стали семантичнее, меньше inline presentation/behavior | Поддерживать guard против inline `onclick`, policy inline styles и form inline style mutations |
