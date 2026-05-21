@@ -200,6 +200,24 @@ jobs:
             echo "✅ Legacy chat.js is absent."
           fi
 
+          if [ -f "local/templates/tacticum/js/bundle.v3.4.16.js" ] || [ -f "local/templates/tacticum/js/init.js" ]; then
+            echo "❌ ERROR: Legacy browser Tailwind JS artifacts must not be restored."
+            echo "Use local/templates/tacticum/tailwind.generated.css built by npm run css:build."
+            FAIL=1
+          else
+            echo "✅ Legacy browser Tailwind JS artifacts are absent."
+          fi
+
+          RESULT=$(find local/templates/tacticum/styles -maxdepth 1 -type f ! -name 'aiagents.css' -print)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Unused generated page CSS artifacts must not be restored."
+            echo "$RESULT"
+            echo "Use template/component CSS or document a new explicit Asset flag."
+            FAIL=1
+          else
+            echo "✅ No stale generated page CSS artifacts."
+          fi
+
           RESULT=$(grep -nE 'bundle\.v3\.4\.16\.js|js/init\.js' local/templates/tacticum/header.php)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: Browser Tailwind runtime must not be loaded from header.php."

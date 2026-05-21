@@ -1,7 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("О компании - Тактикум");
-$APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт внедрения AI-решений для бизнеса.");
+$APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт разработки программного обеспечения, внедрения AI-решений и автоматизации бизнеса.");
 tacticum_apply_seo_defaults('/about/');
 ?>
 
@@ -11,8 +11,8 @@ tacticum_apply_seo_defaults('/about/');
         <div class="max-w-3xl">
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-secondary">О компании Тактикум</h1>
             <p class="text-lg md:text-xl mb-8 text-gray-700">
-                Мы помогаем компаниям быстро внедрять инновации с помощью ИИ и автоматизации, превращая
-                технологические возможности в реальные бизнес-результаты.
+                Мы разрабатываем программное обеспечение и помогаем компаниям быстро внедрять инновации с помощью
+                ИИ и автоматизации, превращая технологические возможности в реальные бизнес-результаты.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
                 <!-- Исправлен якорь -->
@@ -29,12 +29,13 @@ tacticum_apply_seo_defaults('/about/');
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Кто мы?</h2>
             <div class="bg-primary/5 border-l-4 border-primary p-6 rounded-lg mb-8">
-                <p class="text-xl italic text-gray-700">"Мы помогаем компаниям быстро внедрять инновации с помощью ИИ и автоматизации"</p>
+                <p class="text-xl italic text-gray-700">"Мы разрабатываем программные решения и помогаем компаниям быстро внедрять инновации с помощью ИИ и автоматизации"</p>
             </div>
             <p class="text-lg text-gray-600">
-                Tacticum — это команда экспертов в области искусственного интеллекта и автоматизации
-                бизнес-процессов. Мы фокусируемся на глубокой экспертизе и индивидуальном подходе к каждому клиенту,
-                что позволяет нам создавать решения, которые действительно работают и приносят измеримую пользу.
+                Tacticum — это команда экспертов в области разработки программного обеспечения, искусственного
+                интеллекта и автоматизации бизнес-процессов. Мы фокусируемся на глубокой экспертизе и индивидуальном
+                подходе к каждому клиенту, что позволяет нам создавать решения, которые действительно работают и
+                приносят измеримую пользу.
             </p>
         </div>
 
@@ -60,11 +61,10 @@ tacticum_apply_seo_defaults('/about/');
                     <div class="absolute left-0 top-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                         <span class="text-primary font-bold">2019</span>
                     </div>
-                    <h4 class="text-xl font-bold text-secondary mb-2">Основание компании</h4>
+                    <h4 class="text-xl font-bold text-secondary mb-2">Предыстория команды</h4>
                     <p class="text-gray-600">
-                        Компания Tacticum была основана группой специалистов в области искусственного интеллекта и
-                        машинного обучения с целью помочь бизнесу внедрять инновационные технологии для решения
-                        реальных задач.
+                        Будущая команда Tacticum начала работать над проектами в области искусственного интеллекта,
+                        машинного обучения и разработки программных решений для автоматизации реальных бизнес-задач.
                     </p>
                 </div>
                 <div class="relative pl-14 timeline-item">
@@ -81,10 +81,10 @@ tacticum_apply_seo_defaults('/about/');
                     <div class="absolute left-0 top-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                         <span class="text-primary font-bold">2022</span>
                     </div>
-                    <h4 class="text-xl font-bold text-secondary mb-2">Расширение команды и экспертизы</h4>
+                    <h4 class="text-xl font-bold text-secondary mb-2">Регистрация ООО и расширение экспертизы</h4>
                     <p class="text-gray-600">
-                        Значительное расширение команды и спектра услуг. Открытие офиса в Санкт-Петербурге. Начало
-                        работы с международными клиентами.
+                        Зарегистрировано ООО «Тактикум» с основным ОКВЭД 62.01 «Разработка компьютерного программного
+                        обеспечения». Команда расширила спектр услуг и начала работу с более сложными проектами.
                     </p>
                 </div>
                 <div class="relative pl-14 timeline-item">

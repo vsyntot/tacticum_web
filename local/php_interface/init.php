@@ -11,6 +11,10 @@ if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/local/rest/rest_helpers.php')) {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/local/rest/rest_helpers.php';
 }
 
+if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/local/php_interface/include/content_migrations.php')) {
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/local/php_interface/include/content_migrations.php';
+}
+
 if (!function_exists('tacticum_iblock_id')) {
     function tacticum_iblock_id(string $key): int
     {

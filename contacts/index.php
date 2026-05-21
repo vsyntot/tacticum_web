@@ -65,6 +65,60 @@ tacticum_apply_seo_defaults('/contacts/');
     </div>
 </section>
 
+<!-- Legal Info Section -->
+<section class="pb-16">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-xl p-8 shadow-sm">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                    <i class="ri-file-list-line text-2xl text-primary"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-secondary mb-2">Реквизиты и ИТ-деятельность</h2>
+                    <p class="text-gray-600">
+                        Информация об организации и виде деятельности в области информационных технологий.
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold text-secondary mb-4">Организация</h3>
+                    <dl class="space-y-3 text-gray-600">
+                        <div>
+                            <dt class="font-medium text-secondary">Наименование</dt>
+                            <dd>ООО "Тактикум"</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium text-secondary">ИНН</dt>
+                            <dd>9722028080</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium text-secondary">КПП</dt>
+                            <dd>772901001</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium text-secondary">ОГРН</dt>
+                            <dd>1227700525942</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium text-secondary">ОКВЭД</dt>
+                            <dd>62.01 Разработка компьютерного программного обеспечения</dd>
+                        </div>
+                    </dl>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-secondary mb-4">Вид деятельности в области информационных технологий</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        По приказу Минцифры N 449: 1.01 Проектирование, обследование, разработка, адаптация,
+                        модификация, интеграция, внедрение, сопровождение, тестирование и техническая поддержка
+                        программ для ЭВМ, баз данных и визуальных пользовательских интерфейсов.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <?php
 $tacticumPersonalOfferCta = [
     "form_id" => "contacts-cta",

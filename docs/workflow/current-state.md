@@ -122,7 +122,7 @@ Endpoints:
 - `fonts/remixicon.min.css`;
 - `styles/aiagents.css` условно через `TACTICUM_PAGE_ASSETS`.
 
-Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` остаются в репозитории как legacy artifacts, но больше не подключаются из `header.php`. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность через `npm run css:check`.
+Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`.
 
 Страницы объявляют page-specific assets до `require bitrix/header.php`, например:
 
@@ -216,7 +216,7 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - rsync `local/`;
 - rsync публичных разделов;
 - rsync корневых файлов;
-- чистит `bitrix/managed_cache` и `bitrix/cache/tacticum`.
+- чистит `bitrix/managed_cache`, `bitrix/cache/tacticum` и CSS/JS asset cache активного шаблона.
 - проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
 
 Production smoke 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.php` с `Origin: https://tacticum.ru` вернул `200` и `{"success":true,"code":"ok"}` по scopes `api`, `ai`, `telegram`, `offer`, `content`, `rest`.
@@ -226,7 +226,7 @@ Production smoke 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.p
 - PHP syntax по `local/`;
 - blocker при хардкоде iblock ID, HTTP fallback, raw PII logging и пропущенном bootstrap в изменённых runtime-файлах;
 - warning при hardcoded `IBLOCK_ID` в новом/legacy-коде вне разрешённых runtime исключений;
-- blocker при tracked ignored files, восстановлении legacy `chat.js`, URL-substring asset routing в header, GET fallback в `tacticum_prefill.php`, direct curl вне `rest_helpers.php`;
+- blocker при tracked ignored files, восстановлении legacy `chat.js`, восстановлении legacy Tailwind JS/dead page CSS artifacts, URL-substring asset routing в header, GET fallback в `tacticum_prefill.php`, direct curl вне `rest_helpers.php`;
 - blocker при URL/text-based layout behavior, inline `onclick`, policy inline styles и JS-generated specialist modal markup;
 - blocker для изменений в `bitrix/`.
 

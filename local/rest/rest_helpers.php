@@ -775,6 +775,40 @@ function tacticum_rest_post_json(string $endpoint_url, array $payload, string $c
     return $result;
 }
 
+function tacticum_rest_post_json_retry_without_group_id(string $endpoint_url, array $payload, string $context): array
+{
+    $result = tacticum_rest_post_json($endpoint_url, $payload, $context);
+    $http_status = (int)($result['http_status'] ?? 0);
+    if ($http_status >= 200 && $http_status < 300) {
+        return $result;
+    }
+
+    if ((int)($result['curl_error_no'] ?? 0) !== 0) {
+        return $result;
+    }
+
+    $group_id = trim((string)($payload['group_id'] ?? ''));
+    if ($group_id === '') {
+        return $result;
+    }
+
+    $response = $result['response'] ?? '';
+    $response_length = is_string($response) ? strlen($response) : 0;
+    AddMessage2Log(
+        "Retry without group_id ({$context}): initial_http_status={$http_status}; response_length={$response_length}",
+        $context . '_group_retry'
+    );
+
+    $retry_payload = $payload;
+    unset($retry_payload['group_id']);
+
+    $retry_result = tacticum_rest_post_json($endpoint_url, $retry_payload, $context . '_without_group_id');
+    $retry_result['retried_without_group_id'] = true;
+    $retry_result['initial_http_status'] = $http_status;
+
+    return $retry_result;
+}
+
 function tacticum_rest_fail_on_curl_error(array $result, string $context, string $message = 'Ошибка соединения с внешним сервисом.'): void
 {
     $curl_error_no = (int)($result['curl_error_no'] ?? 0);

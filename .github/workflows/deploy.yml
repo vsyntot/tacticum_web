@@ -79,6 +79,8 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/managed_cache/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/tacticum 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/css/s1/tacticum/* 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/js/s1/tacticum/* 2>/dev/null || true; \
              echo 'Cache cleared'"
 
       - name: Smoke config health

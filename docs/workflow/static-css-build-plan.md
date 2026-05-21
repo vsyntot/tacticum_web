@@ -8,8 +8,8 @@
 - Source entrypoint: `local/templates/tacticum/assets/src/tailwind.css`.
 - Production static output: `local/templates/tacticum/tailwind.generated.css`.
 - `local/templates/tacticum/template_styles.css` уже содержит generated Tailwind CSS (`tailwindcss v4.1.8`) и является основным шаблонным CSS.
-- `local/templates/tacticum/styles/*.css` выглядят как generated page-specific artifacts, но почти не подключаются явно.
-- Runtime/legacy JS bundle `local/templates/tacticum/js/bundle.v3.4.16.js` больше не подключается из `header.php`; удалять файл без отдельного JS inventory нельзя.
+- `local/templates/tacticum/styles/aiagents.css` остаётся approved page-specific CSS через explicit page asset flag.
+- Dead generated page-specific CSS artifacts и legacy browser Tailwind JS artifacts удалены после source/rendered asset inventory.
 
 ## Target
 
@@ -53,18 +53,22 @@
 ## Implemented
 
 - `npm run css:build` собирает `local/templates/tacticum/tailwind.generated.css`.
-- `npm run css:check` пересобирает CSS во временный файл и сравнивает с committed bundle.
+- `npm run css:check` пересобирает CSS во временный файл, сравнивает с committed bundle и проверяет наличие Tailwind cascade layer order declaration.
 - `.github/workflows/pr-check.yml` запускает `npm ci` и `npm run css:check`.
 - `header.php` подключает `tailwind.generated.css` и больше не подключает `bundle.v3.4.16.js` / `init.js`.
+- `tailwind.generated.css` намеренно собирается без Tailwind CLI `--minify`: minifier удаляет пустую декларацию порядка слоёв, после чего legacy `template_styles.css` может перебить utilities своим `@layer base` reset.
+- Rendered asset inventory выполнен для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`.
+- Dead `styles/*.css` artifacts удалены; `styles/aiagents.css` оставлен как реально подключаемый на `/aiagents/`.
+- Legacy browser Tailwind JS artifacts `bundle.v3.4.16.js` и `init.js` удалены.
+- PR checks блокируют восстановление dead CSS/JS artifacts.
 
 ## Remaining
 
-- Снять rendered asset list и screenshots на staging/production после deploy.
-- Пометить `local/templates/tacticum/styles/*.css` как `used`, `dead` или `unknown`.
-- Удалять stale CSS и legacy Tailwind JS только после visual smoke и отдельного JS inventory.
+- Снять screenshots desktop/mobile на staging/production после deploy.
+- Закрыть `TG-015` после visual smoke или зафиксировать найденные visual regressions отдельными задачами.
 
 ## Do Not Do
 
-- Не удалять `bundle.v3.4.16.js` без отдельного JS inventory.
-- Не удалять `styles/*.css` только потому, что они не видны в `header.php`.
 - Не менять классы в публичных страницах массово до появления visual regression baseline.
+- Не включать Tailwind CLI `--minify` для `tailwind.generated.css`, пока файл склеивается Bitrix asset pipeline вместе с legacy `template_styles.css`.
+- Не добавлять новые файлы в `local/templates/tacticum/styles/` без explicit Asset flag и обновления asset inventory.

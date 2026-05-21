@@ -99,6 +99,8 @@
 }
 ```
 
+Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
+
 `tacticum_sale_staff.php` возвращает тот же формат успешного ответа; детали выбранного специалиста передаются upstream внутри `task`, а rich staff payload остаётся в backend-логике и masked logs.
 
 ## Error Model
@@ -130,5 +132,6 @@ Frontend не должен показывать пользователю raw ups
 - Отсутствующий или неправильный `sessid` без разрешённого browser source: endpoint возвращает `403 invalid_csrf`.
 - Невалидный JSON: endpoint возвращает `400 invalid_json`.
 - Слишком длинные `name`, `company`, `message`, `page_url`, `group_id`: endpoint возвращает `400 validation_error`.
+- Prefilled chat form with a valid lead payload but upstream failure on `group_id`: endpoint retries without `group_id` and returns success if the plain lead is accepted.
 - Specialist order с `/price/`: форма отправляется в `/local/rest/tacticum_sale_staff.php`, rich staff payload содержит `workers[]`, adapter отправляет заявку в `/tacticum/v1/chat_agent/sale`, PII в логах маскируется.
 - Upstream недоступен: endpoint возвращает `502`, пользователь видит общий error state без технических деталей.
