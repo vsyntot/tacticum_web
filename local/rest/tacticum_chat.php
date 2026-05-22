@@ -8,16 +8,9 @@ header('Content-Type: application/json; charset=UTF-8');
 
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_chat');
+tacticum_rest_require_method('POST');
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-    tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
-}
-
-$data = json_decode(file_get_contents('php://input'), true);
-if (!is_array($data)) {
-    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
-}
-
+$data = tacticum_rest_read_json_body();
 tacticum_rest_check_csrf($data, true);
 
 $user_message = trim((string)($data['user_message'] ?? ''));

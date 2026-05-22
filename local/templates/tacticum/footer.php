@@ -13,7 +13,7 @@
                         реальных задач и достижения измеримых результатов.
                     </p>
                     <div class="flex items-center gap-4">
-                        <a href="https://t.me/Tacticum_official_bot" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" aria-label="Telegram"><i class="ri-telegram-fill"></i></a>
+                        <a href="https://t.me/Tacticum_official_bot" target="_blank" rel="noopener" data-tacticum-tg-resolve class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" aria-label="Telegram"><i class="ri-telegram-fill"></i></a>
                         <?/*<a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"><i class="ri-vk-fill"></i></a>
                         <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"><i class="ri-youtube-fill"></i></a>
                         <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"><i class="ri-linkedin-fill"></i></a>*/?>

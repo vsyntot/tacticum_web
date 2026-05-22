@@ -113,6 +113,5 @@ $APPLICATION->SetPageProperty('og:image', 'https://tacticum.ru/upload/og-image.j
 
 - ❌ Не ставить одинаковый `<title>` и `description` на разные страницы
 - ❌ Не добавлять страницы в sitemap с `noindex` мета-тегом
-- ❌ Не редактировать `bundle.v3.4.16.js` для SEO-правок
+- ❌ Не возвращать legacy browser Tailwind runtime `bundle.v3.4.16.js` / `js/init.js` для SEO-правок
 - ❌ Не трогать ID Яндекс.Метрики (103471113) без отдельной задачи от владельца
-

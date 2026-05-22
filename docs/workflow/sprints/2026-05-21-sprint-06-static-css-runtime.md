@@ -25,7 +25,7 @@ Date: 21.05.2026
 ### Non-Goals
 
 - Не удалять `template_styles.css`.
-- Не менять `template_styles.css` и не сливать CSS bundles в рамках этого спринта.
+- Не сливать CSS bundles в рамках этого спринта.
 - Не удалять `styles/aiagents.css`, пока `/aiagents/` использует explicit page asset flag.
 
 ## Scope
@@ -38,6 +38,8 @@ Date: 21.05.2026
 | Header runtime switch | TG-015 | Full Feature | done | `header.php` подключает `tailwind.generated.css` и не подключает `bundle.v3.4.16.js` / `init.js` |
 | CI guard | TG-015 | Security / Integration | done | `pr-check.yml` запускает `npm run css:check` и блокирует возврат browser Tailwind runtime |
 | Dead asset cleanup | TG-015 | Fast Fix | done | Legacy Tailwind JS artifacts и dead page-specific CSS artifacts удалены после source/rendered asset inventory |
+| Visual smoke tooling | TG-015 | Full Feature | done | `npm run visual:smoke` проверяет public pages desktop/mobile и сохраняет screenshots/manifest |
+| Layout parity fixes | TG-015 | Fast Fix | done | Закрыты найденные horizontal overflow regressions на `/about/`, `/services/`, `/aiagents/` |
 
 ## QA Smoke
 
@@ -60,9 +62,8 @@ Date: 21.05.2026
 
 ## Follow-Up
 
-- Run staging/production visual smoke on desktop/mobile.
-- Inventory and classify `local/templates/tacticum/styles/*.css`.
-- Delete legacy Tailwind JS artifacts only after a separate JS inventory confirms no runtime use.
+- Run post-deploy visual smoke on desktop/mobile without `TACTICUM_VISUAL_INJECT_CSS`.
+- Plan merge/retirement strategy for legacy `template_styles.css`.
 
 ## Sprint Review
 
@@ -73,11 +74,14 @@ Date: 21.05.2026
 - CI now checks generated CSS parity.
 - Incident fix: build no longer uses Tailwind CLI `--minify`, because preserving cascade layer order is required while Bitrix combines `tailwind.generated.css` with legacy `template_styles.css`.
 - Dead generated CSS files and legacy Tailwind JS artifacts removed after inventory.
-- TG-015 moved to `in-progress` until staging visual smoke confirms layout parity.
+- Visual smoke tooling added for desktop/mobile page checks.
+- Horizontal overflow regressions fixed in hidden mobile menu, services step connectors and aiagents step connector.
+- TG-015 closed at code level; post-deploy visual smoke remains the deployment gate.
 
 ### Verified Locally
 
 - `npm run css:check`
+- `npm run visual:smoke` with `TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/template_styles.css,local/templates/tacticum/styles/aiagents.css` against `https://tacticum.ru`
 - Generated CSS starts with Tailwind cascade layer order declaration
 - Source/rendered asset inventory confirms only `styles/aiagents.css` is still approved under `local/templates/tacticum/styles/`
 - YAML parse for `.github/workflows/pr-check.yml`
@@ -90,4 +94,4 @@ Date: 21.05.2026
 ### Not Run Locally
 
 - PHP syntax lint: local `php` binary is not available in this environment.
-- Browser visual smoke: requires staging/production Bitrix runtime.
+- Production smoke without CSS injection: requires deploy of the changed CSS first.

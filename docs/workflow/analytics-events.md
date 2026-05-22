@@ -26,6 +26,7 @@
 | `tacticum_prefill_error` | `chat-agent.js` | `surface`, `status`, `code`, `page_path` |
 | `tacticum_tg_resolver_success` | `tg-link-resolver.js` | `status`, `links_count`, `page_path` |
 | `tacticum_tg_resolver_error` | `tg-link-resolver.js` | `status`, `code`, `page_path` |
+| `tacticum_tg_resolver_skip` | `tg-link-resolver.js` | `status`, `code`, `page_path` |
 
 ## Destinations
 
@@ -34,4 +35,3 @@
 - Yandex.Metrika `reachGoal`, если доступен `window.ym`;
 - `window.dataLayer`, если он уже создан внешним tag manager;
 - browser event `tacticum:analytics` для QA/debug hooks.
-

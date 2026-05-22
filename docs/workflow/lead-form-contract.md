@@ -11,7 +11,7 @@
 - Method: `POST`
 - Content-Type: `application/json; charset=UTF-8`
 - Response: JSON
-- Security bootstrap: `tacticum_rest_validate_origin()` -> `tacticum_rest_rate_limit('tacticum_form')` -> parse JSON -> `tacticum_rest_check_csrf($data, true)` -> validation -> upstream request.
+- Security bootstrap: `tacticum_rest_validate_origin()` -> `tacticum_rest_rate_limit('tacticum_form')` -> `tacticum_rest_require_method('POST')` -> parse JSON -> `tacticum_rest_check_csrf($data, true)` -> validation -> upstream request.
 - Production upstream должен использовать только HTTPS через `tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL')`.
 
 ## Обязательные Поля

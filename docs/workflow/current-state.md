@@ -122,7 +122,9 @@ Endpoints:
 - `fonts/remixicon.min.css`;
 - `styles/aiagents.css` условно через `TACTICUM_PAGE_ASSETS`.
 
-Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`.
+Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`. Для визуальной проверки добавлен `npm run visual:smoke`; перед deploy можно использовать `TACTICUM_VISUAL_INJECT_CSS`, после deploy smoke запускается против целевого URL без injection.
+
+После browser-error challenge 22.05.2026 `visual:smoke` также фиксирует `console.error`, page exceptions и network/resource errors. Фоновый Telegram resolver больше не должен вызывать `/local/rest/resolve_telegram_link.php` при initial page load; resolver включается только для ссылок с `data-tacticum-tg-resolve` и доступным `BX.bitrix_sessid()`. После deploy требуется smoke без injection для подтверждения browser errors = 0 на initial load.
 
 Страницы объявляют page-specific assets до `require bitrix/header.php`, например:
 
@@ -130,7 +132,7 @@ Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены 
 - `['faq', 'charts']` для price;
 - `['faq', 'aiagents_css']` для aiagents.
 
-Проблема: большинство page-specific CSS (`main.css`, `services.css`, `price.css`, `calculator.css`, `about.css`, `contacts.css`) не видно как явно подключённые в `header.php` по условиям, при этом файлы крупные. Нужно отдельно проверить фактическое подключение через template_styles/bundle/Bitrix settings.
+Dead page-specific CSS (`main.css`, `services.css`, `price.css`, `calculator.css`, `about.css`, `contacts.css`, `expertise.css`, `css2.css`) удалены после source/rendered asset inventory. Единственный approved файл в `local/templates/tacticum/styles/` — `aiagents.css`, подключаемый через explicit page asset flag.
 
 FAQ presentation задаётся параметром компонента `SECTION_CLASS`, а не текущим URL. `/aiagents/` явно передаёт `py-16 bg-gray-50`.
 
@@ -241,7 +243,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 - ADR-003: ID инфоблоков через `tacticum_rest_get_iblock_id()`.
 - ADR-004: PII masking до логирования.
 
-Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной остаток frontend cleanup — staging visual smoke static Tailwind bundle и последующая классификация stale CSS / legacy Tailwind JS artifacts.
+Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной CSS cleanup по static Tailwind bundle закрыт: stale CSS / legacy Tailwind JS artifacts классифицированы и удалены, добавлен visual smoke. После deploy CSS-изменений остаётся обязательный post-deploy visual smoke.
 
 ## Текущее Резюме Здоровья
 
@@ -250,7 +252,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
 | Config discipline | Хорошее: config validation есть, local config вынесен из Git index, production health подтверждён, deploy проверяет health endpoint | Низкий |
-| Frontend maintainability | Среднее/хорошее: chat/forms/assets, repeated CTA и layout contracts унифицированы; static Tailwind bundle есть, но нужен staging visual smoke и stale CSS inventory | Средний |
+| Frontend maintainability | Хорошее: chat/forms/assets, repeated CTA и layout contracts в основном унифицированы; static Tailwind bundle и browser-error smoke есть; light chat/price data contracts и legacy `template_styles.css` остаются отдельными техдолгами | Средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
 | CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; нужен регулярный post-deploy smoke | Низкий/средний |

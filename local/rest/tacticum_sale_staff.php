@@ -6,15 +6,11 @@ require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
 
-$data = json_decode(file_get_contents('php://input'), true);
-
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_sale_staff');
+tacticum_rest_require_method('POST');
 
-if (!is_array($data)) {
-    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
-}
-
+$data = tacticum_rest_read_json_body();
 tacticum_rest_check_csrf($data, true);
 
 $client_name = trim((string)($data['name'] ?? ''));

@@ -5,15 +5,12 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
-$data = json_decode(file_get_contents('php://input'), true);
 
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_sale');
+tacticum_rest_require_method('POST');
 
-if (!is_array($data)) {
-    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
-}
-
+$data = tacticum_rest_read_json_body();
 tacticum_rest_check_csrf($data);
 
 $name = trim((string)($data['name'] ?? ''));
@@ -61,7 +58,7 @@ $payload = [
     'group_id' => $group_id,
 ];
 
-AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), "sale_request");
+AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), "tacticum_sale_request");
 
 $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
@@ -71,7 +68,7 @@ $response = $result['response'];
 $http_status = (int)$result['http_status'];
 
 $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
-AddMessage2Log(serialize($masked_response), "sale_response");
+AddMessage2Log(serialize($masked_response), "tacticum_sale_response");
 
 tacticum_rest_fail_on_curl_error($result, 'tacticum_sale');
 

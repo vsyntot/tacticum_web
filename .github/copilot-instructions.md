@@ -34,8 +34,11 @@
 │   └── templates/tacticum/        # Активный шаблон Bitrix
 │       ├── header.php              # Подключение JS/CSS, Яндекс.Метрика (ID: 103471113)
 │       ├── footer.php              # Футер, попап "Связаться с нами", мобильное меню
-│       ├── styles/                 # CSS по разделам: main, services, price, calculator...
-│       ├── js/                     # bundle.v3.4.16.js, analytics.js, forms.js, modal.js, chat-agent.js...
+│       ├── assets/src/tailwind.css # Source entrypoint static Tailwind CSS
+│       ├── tailwind.generated.css  # Generated CSS, обновлять через npm run css:build
+│       ├── template_styles.css     # Legacy template CSS bundle
+│       ├── styles/aiagents.css     # Единственный approved page-specific CSS через explicit flag
+│       ├── js/                     # analytics.js, forms.js, modal.js, chat-agent.js...
 │       └── components/bitrix/      # Компоненты Bitrix шаблона
 ├── local/api/cases.php             # ЭТАЛОН для новых GET-эндпоинтов
 ├── about/, services/, contacts/   # Страницы сайта
@@ -82,12 +85,10 @@ header('Content-Type: application/json; charset=UTF-8');
 
 tacticum_rest_validate_origin();          // 1. CORS/Referer
 tacticum_rest_rate_limit('action_name'); // 2. Rate limiting
+tacticum_rest_require_method('POST');    // 3. Method guard
 
-$data = json_decode(file_get_contents('php://input'), true);
-if (!is_array($data)) {
-    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные.');
-}
-tacticum_rest_check_csrf($data);          // 3. CSRF
+$data = tacticum_rest_read_json_body();  // 4. JSON parse
+tacticum_rest_check_csrf($data);         // 5. CSRF
 
 // ... валидация, бизнес-логика, вызов AI-сервиса
 ```
@@ -154,11 +155,14 @@ tacticum_rest_log_tls_error($ch, 'context_name');
 
 ## Frontend (шаблон `local/templates/tacticum/`)
 
-- CSS: Tailwind-классы (через бандл), кастомные стили в `styles/`.
-- JS: `bundle.v3.4.16.js` (основной), отдельные файлы по функционалу.
-- Новый JS для страницы подключается в `header.php` через `$obAsset->addJs(...)`.
-- Новый CSS для раздела: создать `styles/section.css`, подключить в `header.php`.
+- CSS: static Tailwind bundle собирается из `assets/src/tailwind.css` в `tailwind.generated.css`.
+- `template_styles.css` остаётся legacy bundle активного шаблона; менять точечно и проверять visual smoke.
+- `local/templates/tacticum/styles/` не расширять без явного asset contract; сейчас approved только `styles/aiagents.css`.
+- Legacy browser Tailwind runtime `bundle.v3.4.16.js` и `js/init.js` удалены и не должны возвращаться.
+- Новый JS для страницы подключается в `header.php` через `$obAsset->addJs(...)` по explicit page asset flag.
+- Новый CSS предпочтительно добавлять через Tailwind source или component `style.css`; page-specific CSS только через explicit flag и обновление `docs/workflow/asset-layout-audit.md`.
 - Форма: атрибут `data-tacticum-form` на `<form>` — автоматически подхватывается `forms.js`.
+- После CSS/JS правок запускать `npm run css:check`; для браузерных ошибок и layout smoke использовать `npm run visual:smoke`.
 
 ---
 

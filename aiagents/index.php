@@ -284,7 +284,7 @@ $APPLICATION->IncludeComponent(
                     </li>
                 </ul>
 
-                <a href="https://t.me/tacticum_father_bot" target="_blank" rel="noopener" class="bg-primary text-white py-3 px-8 !rounded-button flex items-center justify-center hover:bg-primary/90 transition-colors whitespace-nowrap">
+                <a href="https://t.me/tacticum_father_bot" target="_blank" rel="noopener" data-tacticum-tg-resolve class="bg-primary text-white py-3 px-8 !rounded-button flex items-center justify-center hover:bg-primary/90 transition-colors whitespace-nowrap">
                     <i class="ri-telegram-line mr-2"></i>
                     Создать своего агента в Telegram
                 </a>

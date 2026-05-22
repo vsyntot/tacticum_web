@@ -19,13 +19,9 @@ function tacticum_form_response(bool $success, ?string $error, string $code, arr
 
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_form');
+tacticum_rest_require_method('POST');
 
-$data = json_decode(file_get_contents('php://input'), true);
-
-if (!is_array($data)) {
-    tacticum_rest_error(400, 'invalid_json', 'Некорректные данные формы.');
-}
-
+$data = tacticum_rest_read_json_body();
 $data = array_map(static fn($value) => is_string($value) ? trim($value) : $value, $data);
 
 tacticum_rest_check_csrf($data, true);

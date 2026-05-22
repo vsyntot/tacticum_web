@@ -34,11 +34,11 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 | File | Lines | Current status |
 |---|---:|---|
-| `aiagents.css` | 28 | подключён через page asset flag на `/aiagents/` |
+| `aiagents.css` | 35 | подключён через page asset flag на `/aiagents/` |
 
 Удалены как dead artifacts после source scan и rendered asset inventory на `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`: `main.css`, `services.css`, `price.css`, `calculator.css`, `contacts.css`, `about.css`, `expertise.css`, `css2.css`.
 
-`template_styles.css` содержит 2185 строк и фактически является основным CSS bundle активного шаблона. Внутри уже смешаны global styles, Tailwind-generated utilities и page-specific sections.
+`template_styles.css` содержит около 2400 строк и фактически является основным CSS bundle активного шаблона. Внутри уже смешаны global styles, Tailwind-generated utilities и page-specific sections.
 
 ## Inline Assets
 
@@ -82,9 +82,16 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 - Incident fix 21.05.2026: `tailwind.generated.css` собирается без `--minify`, чтобы сохранить `@layer theme, base, components, utilities;` перед Bitrix-склейкой с legacy `template_styles.css`.
 - Legacy Tailwind JS artifacts и dead page-specific CSS artifacts удалены; `pr-check.yml` блокирует их восстановление.
 
+После закрытия `TG-015` 22.05.2026:
+
+- добавлен `npm run visual:smoke` (`tools/visual-smoke.mjs`) для desktop/mobile smoke публичных страниц через headless Chrome;
+- добавлен режим `TACTICUM_VISUAL_INJECT_CSS` для проверки локального CSS против production/staging HTML до deploy;
+- закрыты найденные horizontal overflow regressions: скрыто off-canvas меню в закрытом состоянии, ограничены step connectors на `/services/` и `/aiagents/`;
+- в `template_styles.css` добавлен compatibility-блок responsive Tailwind utilities, потому что legacy bundle подключается после `tailwind.generated.css` и может перебивать responsive classes базовыми utilities.
+
 ## Risks
 
-- Browser Tailwind/runtime bundle больше не подключается в production header; требуется staging visual smoke для подтверждения layout parity.
+- Browser Tailwind/runtime bundle больше не подключается в production header; post-deploy visual smoke остаётся обязательным gate после CSS-правок.
 - `styles/aiagents.css` остаётся единственным approved file в `local/templates/tacticum/styles/`; новые page CSS artifacts требуют явного asset contract.
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` остаётся общим местом для unrelated page rules.
@@ -105,6 +112,6 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 Следующий cleanup:
 
-1. Выполнить staging visual smoke desktop/mobile для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`.
-2. После visual smoke закрыть `TG-015` или зафиксировать найденные visual regressions отдельными задачами.
-3. Отдельно спланировать merge/retirement strategy для legacy `template_styles.css`.
+1. После deploy выполнить `npm run visual:smoke` против целевого URL без `TACTICUM_VISUAL_INJECT_CSS`.
+2. Отдельно спланировать merge/retirement strategy для legacy `template_styles.css`.
+3. Не расширять compatibility-блок responsive utilities без последующего visual smoke.

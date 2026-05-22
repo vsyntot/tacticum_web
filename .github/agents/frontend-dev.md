@@ -44,7 +44,10 @@
 - `local/templates/tacticum/` — активный шаблон Bitrix
   - `header.php` — подключение JS/CSS, мета-теги, Яндекс.Метрика (ID: 103471113)
   - `footer.php` — футер, попап «Связаться с нами», мобильное меню
-  - `styles/` — CSS по разделам: `main.css`, `services.css`, `price.css`, `calculator.css`, `aiagents.css`, `about.css`, `contacts.css`
+  - `assets/src/tailwind.css` — source entrypoint static Tailwind CSS
+  - `tailwind.generated.css` — generated CSS, обновлять только через `npm run css:build`
+  - `template_styles.css` — legacy template CSS bundle
+  - `styles/aiagents.css` — единственный approved page-specific CSS через explicit page asset flag
   - `js/` — JS по функционалу: `forms.js`, `modal.js`, `chat-agent.js`, `faq.js`, `menu.js`, `scroll.js`, `tg-link-resolver.js`
   - `components/bitrix/` — шаблоны Bitrix-компонентов
 - Страницы сайта: `about/index.php`, `services/index.php`, `contacts/index.php`, и т.д.
@@ -57,11 +60,12 @@
 local/templates/tacticum/
 ├── header.php          # <head>, подключение assets, Яндекс.Метрика
 ├── footer.php          # <footer>, попап формы, мобильное меню
-├── template_styles.css # Базовые стили (Tailwind-бандл)
+├── assets/src/tailwind.css # Source static Tailwind CSS
+├── tailwind.generated.css  # Generated Tailwind CSS
+├── template_styles.css     # Legacy template CSS bundle
 ├── fonts/              # RemixIcons (remixicon.min.css)
 ├── images/             # logo.png, logo2.png, favicon-*
 ├── js/
-│   ├── bundle.v3.4.16.js  # Основной бандл (Tailwind + утилиты) — не редактировать
 │   ├── analytics.js        # Safe client-side events без PII
 │   ├── forms.js            # Обработка форм с data-tacticum-form
 │   ├── modal.js            # Попап «Связаться с нами»
@@ -71,13 +75,7 @@ local/templates/tacticum/
 │   ├── scroll.js           # Scroll-эффекты
 │   └── tg-link-resolver.js # Telegram-ссылки
 └── styles/
-    ├── main.css
-    ├── services.css
-    ├── price.css
-    ├── calculator.css
-    ├── aiagents.css
-    ├── about.css
-    └── contacts.css
+    └── aiagents.css        # Approved через explicit flag
 ```
 
 ---
@@ -97,11 +95,15 @@ if ($hasPageAsset('new_section')) {
 
 ### Новый CSS для раздела
 ```php
-// 1. Создать файл: local/templates/tacticum/styles/new_section.css
-// 2. На странице до require bitrix/header.php:
+// Предпочтительно: добавить классы/токены в assets/src/tailwind.css и выполнить:
+// npm run css:build
+// npm run css:check
+
+// Если нужен отдельный page CSS, сначала обновить asset contract/audit.
+// На странице до require bitrix/header.php:
 $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['new_section_css'];
 
-// 3. Подключить в header.php по explicit flag:
+// В header.php подключать по explicit flag:
 if ($hasPageAsset('new_section_css')) {
     $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/new_section.css");
 }
@@ -137,7 +139,9 @@ if ($hasPageAsset('new_section_css')) {
 
 ## CSS: стиль проекта
 
-- **Tailwind CSS** через `bundle.v3.4.16.js` — использовать utility-классы
+- **Tailwind CSS** через static `tailwind.generated.css`; browser Tailwind runtime удалён и не должен возвращаться.
+- Source CSS менять в `local/templates/tacticum/assets/src/tailwind.css`, затем запускать `npm run css:build` и `npm run css:check`.
+- После CSS/JS правок запускать `npm run visual:smoke` или Playwright smoke, чтобы проверить layout и browser console/page errors.
 - Кастомные CSS переменные: `--color-primary`, `--color-secondary`
 - Кнопки: `bg-primary text-white px-6 py-2 rounded-button hover:bg-primary/90`
 - Контейнер: `container mx-auto px-4`
@@ -148,7 +152,8 @@ if ($hasPageAsset('new_section_css')) {
 
 ## Чего НЕ делать
 
-- ❌ Не редактировать `bundle.v3.4.16.js` (основной бандл)
+- ❌ Не возвращать `bundle.v3.4.16.js` / `js/init.js`
+- ❌ Не добавлять новые файлы в `styles/` без explicit asset flag и обновления `docs/workflow/asset-layout-audit.md`
 - ❌ Не добавлять `<script>` / `<link>` напрямую в HTML — только через `$obAsset`
 - ❌ Не писать inline-стили там, где можно использовать Tailwind-классы
 - ❌ Не редактировать файлы в `bitrix/`
