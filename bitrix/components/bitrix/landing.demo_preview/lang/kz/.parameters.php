@@ -1,4 +1,7 @@
 <?php
+$MESS["LANDING_CMP_DEMO_PREVIEW_FOLDER_ID"] = "Бума идентификаторы";
+$MESS["LANDING_CMP_DEMO_PREVIEW_REPLACE_LID"] = "Ауыстыру үшін парақша идентификаторы";
+$MESS["LANDING_CMP_DEMO_PREVIEW_REPLACE_SITE_ID"] = "Ауыстыру үшін сайт идентификаторы";
 $MESS["LANDING_CMP_PAR_BINDING_ID"] = "Байланыстырушы идентификаторы";
 $MESS["LANDING_CMP_PAR_BINDING_TYPE"] = "Байланыстыру түрі";
 $MESS["LANDING_CMP_PAR_BINDING_TYPE_GROUP"] = "Топ";

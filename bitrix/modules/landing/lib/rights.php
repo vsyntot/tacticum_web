@@ -2,6 +2,7 @@
 namespace Bitrix\Landing;
 
 use \Bitrix\Landing\Internals\RightsTable;
+use \Bitrix\Main\Config\Option;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\UserAccessTable;
 use Bitrix\Crm\Service\Container;
@@ -867,7 +868,20 @@ class Rights
 			}
 
 			// set new rights in option
-			Manager::setOption('access_codes_' . $code, $right ? serialize($right) : '');
+			$groupRights = [
+				self::ADDITIONAL_RIGHTS['group_create'],
+				self::ADDITIONAL_RIGHTS['group_admin'],
+				self::ADDITIONAL_RIGHTS['group_menu24'],
+				self::ADDITIONAL_RIGHTS['group_unexportable'],
+			];
+			if (empty($right) && in_array($code, $groupRights, true))
+			{
+				Option::delete('landing', ['name' => 'access_codes_' . $code]);
+			}
+			else
+			{
+				Manager::setOption('access_codes_' . $code, $right ? serialize($right) : '');
+			}
 
 			// clear menu cache
 			if (Manager::isB24())
@@ -1046,7 +1060,7 @@ class Rights
 		{
 			$type = mb_strtolower($type);
 			//todo: need fix it: remove if() and add 'mainpage_admin', 'mainpage_menu24' in ADDITIONAL_RIGHTS and check preview.bitrix24.site
-			if ($type == mb_strtolower(Site\Type::SCOPE_CODE_MAINPAGE))
+			if ($type == mb_strtolower(Site\Type::SCOPE_CODE_VIBE))
 			{
 				return true;
 			}
@@ -1075,16 +1089,29 @@ class Rights
 			}
 
 			$accessCodes = [];
-			if (!isset($options[$code]))
+
+			static $optionsRaw = [];
+			if (!array_key_exists($code, $options))
 			{
-				$options[$code] = Manager::getOption('access_codes_' . $code, '');
-				$options[$code] = unserialize($options[$code], ['allowed_classes' => false]);
+				$optionsRaw[$code] = Manager::getOption('access_codes_' . $code);
+				if ($optionsRaw[$code] === null)
+				{
+					$options[$code] = null;
+				}
+				else if ($optionsRaw[$code] === '')
+				{
+					$options[$code] = [];
+				}
+				else
+				{
+					$options[$code] = unserialize($optionsRaw[$code], ['allowed_classes' => false]);
+				}
 			}
 			$option = $options[$code];
 
-			if (!is_array($option) && !$strict)
+			if (!is_array($option))
 			{
-				return true;
+				return $optionsRaw[$code] === null && !$strict;
 			}
 
 			if (empty($option))

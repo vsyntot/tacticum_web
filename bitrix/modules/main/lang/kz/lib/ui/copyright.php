@@ -1,10 +1,10 @@
 <?php
-$MESS["EPILOG_ADMIN_COPY_1c_bitrix"] = "&copy; Битрикс, 2002-2024";
+$MESS["EPILOG_ADMIN_COPY_1c_bitrix"] = "&copy; Битрикс, 2002-#YEAR#";
 $MESS["EPILOG_ADMIN_COPY_1c_bitrix_eduportal"] = "&copy; 2009 1С-Битрикс";
 $MESS["EPILOG_ADMIN_COPY_1c_bitrix_gosportal"] = "&copy; 2009 1С-Битрикс";
 $MESS["EPILOG_ADMIN_COPY_1c_bitrix_gossite"] = "&copy; 2009 1С-Битрикс";
-$MESS["EPILOG_ADMIN_COPY_1c_bitrix_portal"] = "&copy; Битрикс, 2002-2024";
-$MESS["EPILOG_ADMIN_COPY_bitrix_portal"] = "&copy; Битрикс, 2002-2024";
+$MESS["EPILOG_ADMIN_COPY_1c_bitrix_portal"] = "&copy; Битрикс, 2002-#YEAR#";
+$MESS["EPILOG_ADMIN_COPY_bitrix_portal"] = "&copy; Битрикс, 2002-#YEAR#";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix"] = "1С-Битрикс: Сайтты басқару";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix_eduportal"] = "1С-Битрикс: Оқу орнының ішкі порталы";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix_gosportal"] = "1С-Битрикс: Билік органының ішкі порталы";

@@ -1,10 +1,5 @@
 <?php
 
-if (!empty($_GET['ts']) && $_GET['ts'] === 'bxviewer')
-{
-	return;
-}
-
 if (!empty($_GET['_gen']))
 {
 	return;
@@ -15,6 +10,11 @@ if (empty($encryptedData))
 {
 	return;
 }
+$encryptedData = strtr(
+	string: $encryptedData,
+	from: '-_',
+	to: '+/',
+);
 
 if (str_starts_with($_SERVER['SCRIPT_NAME'], '/mobile/ajax.php'))
 {
@@ -23,8 +23,11 @@ if (str_starts_with($_SERVER['SCRIPT_NAME'], '/mobile/ajax.php'))
 
 function readConfig(): ?array
 {
-	/** @see \Bitrix\Main\Config\Configuration::CONFIGURATION_FILE_PATH */
-	/** @see \Bitrix\Main\Config\Configuration::CONFIGURATION_FILE_EXTRA */
+	return readJsonConfig() ?? readPhpConfig();
+}
+
+function readPhpConfig(): ?array
+{
 	$settingsPath = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/.settings.php';
 	$settingsExtraPath = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/.settings_extra.php';
 
@@ -46,8 +49,8 @@ function readConfig(): ?array
 		}
 	}
 
-	/** @see \Bitrix\Disk\QuickAccess\Configuration::CONFIG_SECTION */
-	/** @see \Bitrix\Disk\QuickAccess\Configuration::CONFIG_STORAGE */
+	/** @see \Bitrix\Disk\QuickAccess\Config\ConfigInterface::CONFIG_KEY*/
+	/** @see \Bitrix\Disk\QuickAccess\Config\ConfigInterface::CONFIG_STORAGE */
 	if (empty($settings['main.token_service']['value']['storage']))
 	{
 		return null;
@@ -64,6 +67,52 @@ function readConfig(): ?array
 	}
 
 	return $settings['main.token_service']['value'];
+}
+
+function readJsonConfig(): ?array
+{
+	/** @see \Bitrix\Disk\QuickAccess\Config\JsonConfig::PATH_TO_CONFIG */
+	$filePath = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/quick-access-config.php';
+
+	if (!file_exists($filePath))
+	{
+		return null;
+	}
+
+	$fileContent = file_get_contents($filePath);
+
+	if ($fileContent === false)
+	{
+		return null;
+	}
+
+	try
+	{
+		$config = json_decode($fileContent, true, 3, JSON_THROW_ON_ERROR);
+	}
+	catch (\JsonException)
+	{
+		return null;
+	}
+
+	/** @see \Bitrix\Disk\QuickAccess\Config\ConfigInterface::CONFIG_KEY*/
+	/** @see \Bitrix\Disk\QuickAccess\Config\ConfigInterface::CONFIG_STORAGE */
+	if (empty($config['storage']))
+	{
+		return null;
+	}
+
+	if (!is_array($config['storage']))
+	{
+		return null;
+	}
+
+	if (empty($config['key']))
+	{
+		return null;
+	}
+
+	return $config;
 }
 
 $config = readConfig();
@@ -307,6 +356,14 @@ catch (\JsonException $e)
 	return;
 }
 
+/** @see \Bitrix\Disk\Public\TypeFileMap */
+$typeFile = $storedData['typeFile'] ?? '';
+$isRequestFromBxViewer = !empty($_GET['ts']) && $_GET['ts'] === 'bxviewer';
+if ($isRequestFromBxViewer && $typeFile !== 'image')
+{
+	return;
+}
+
 $previewActions = [
 	'disk.api.file.showPreview',
 	'ui.fileuploader.preview',
@@ -380,13 +437,17 @@ if (
 	}
 }
 
+/** @see \Bitrix\Main\UI\Viewer\PreviewManager::GET_KEY_TO_SHOW_IMAGE */
+$useInlineDisposition = !empty($_GET['ibxShowImage']) && $_GET['ibxShowImage'] === '1';
+$contentDisposition = $useInlineDisposition ? "inline" : "attachment";
+
 header('X-Accel-Buffering: no');
 header('X-Accel-Redirect: ' . rawurlencode($accelRedirectPath));
 header('Content-Type: ' . $contentType);
 if ($attachmentName)
 {
 	$urlEncodedName = rawurlencode($attachmentName);
-	header("X-CD-Info: attachment; filename*=utf-8''{$urlEncodedName}");
+	header("X-CD-Info: {$contentDisposition}; filename*=utf-8''{$urlEncodedName}");
 }
 header('X-Gen-Src: ' . $_SERVER['REQUEST_URI'] . '&_gen=1');
 

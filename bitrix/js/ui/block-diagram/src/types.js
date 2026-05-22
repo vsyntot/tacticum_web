@@ -6,6 +6,7 @@ export type Point = {
 }
 
 export type DiagramNewConnection = {
+	id: string,
 	sourceBlockId: DiagramBlockId,
 	sourcePortId: DiagramPortId,
 	sourcePortPosition: DiagramPortPosition;
@@ -55,6 +56,20 @@ export type DiagramBlock = {
 	position: DigramBlockPosition;
 	dimensions: DiagramBlockDimensions;
 	ports: DiagramBlockPorts;
+};
+
+export type ShortcutHandler = (event: KeyboardEvent, mousePos: Point) => void;
+
+export type PreparedShortcut = {
+	id: string,
+	mainKey: string,
+	requiredModifiers: {
+		ctrl: boolean,
+		meta: boolean,
+		shift: boolean,
+		alt: boolean,
+	},
+	handler: ShortcutHandler,
 };
 
 export type GroupedBlocks = { [string]: Array<DiagramBlock> };
@@ -113,6 +128,16 @@ export type State = {
 	blocks: Array<DiagramBlock>;
 	connections: Array<DiagramConnection>;
 
+	waitAllBlocksMounted: Promise<void>;
+	waitedBlockIds: Set<DiagramBlockId>;
+
+	waitAllPortsMounted: Promise<void>;
+	waitedBlockPortsIds: Set<string>;
+
+	connectionOffset: number;
+	connectionBendOffset: number;
+	connectionBorderRadius: number,
+
 	portsElMap: Map<DiagramBlockId, Map<DiagramPortId, HTMLElement>>;
 	portsRectMap: { [DiagramBlockId]: { [DiagramPortId]: DiagramPortRect } };
 
@@ -152,9 +177,15 @@ export type State = {
 	revertHandler: RevertHandler;
 
 	highlitedBlockIds: Array<DiagramBlockId>;
+	isSelectionActive: boolean;
+	selectionWorldRect: { x: number, y: number, width: number, height: number } | null;
 
 	animationQueue: Generator<AnimationItem | undefined> | null;
 	currentAnimationItem: AnimationItem | null;
 	isPauseAnimation: boolean;
 	isStopAnimation: boolean;
+
+	shortcuts: Array<PreparedShortcut>;
+	mousePosition: Point;
+	isKeyboardInitialized: boolean;
 };

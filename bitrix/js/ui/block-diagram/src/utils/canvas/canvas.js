@@ -169,11 +169,24 @@ export class Canvas
 		this.#setCameraZoom(zoomStep * -1);
 	}
 
+	setZoom(zoom: number): void
+	{
+		this.#camera.applyLandmark(
+			this.#camera.createLandmark({
+				x: this.#camera.x,
+				y: this.#camera.y,
+				viewportX: this.#camera.width / 2,
+				viewportY: this.#camera.height / 2,
+				zoom,
+			}),
+		);
+	}
+
 	setCameraZoomByWheel(event: MouseEvent, zoomChange: number = 0): void
 	{
 		const newZoom = Math.max(
 			this.#minZoom,
-			Math.min(this.#maxZoom, (this.#camera.zoom + zoomChange) * 2 ** (event.deltaY * -0.01)),
+			Math.min(this.#maxZoom, (this.#camera.zoom + zoomChange)),
 		);
 
 		const viewport = this.clientToViewport({
@@ -192,6 +205,14 @@ export class Canvas
 
 	setCameraPositionByWheel(event: MouseEvent): void
 	{
+		if (event.shiftKey)
+		{
+			this.#camera.x += event.deltaY / this.#camera.zoom;
+			this.#camera.y += event.deltaX / this.#camera.zoom;
+
+			return;
+		}
+
 		this.#camera.x += event.deltaX / this.#camera.zoom;
 		this.#camera.y += event.deltaY / this.#camera.zoom;
 	}

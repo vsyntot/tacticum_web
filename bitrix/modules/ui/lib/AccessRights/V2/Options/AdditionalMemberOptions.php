@@ -11,6 +11,7 @@ class AdditionalMemberOptions implements JsonSerializable, Arrayable
 	private ?bool $addProjectsProviderTab = null;
 	private ?bool $addStructureTeamsProviderTab = null;
 	private ?bool $useStructureDepartmentsProviderTab = null;
+	private ?bool $addStructureRolesProviderTab = null;
 
 	public function getAddUserGroupsProviderTab(): ?bool
 	{
@@ -48,6 +49,18 @@ class AdditionalMemberOptions implements JsonSerializable, Arrayable
 		return $this;
 	}
 
+	public function getAddStructureRolesProviderTab(): ?bool
+	{
+		return $this->addStructureRolesProviderTab;
+	}
+
+	public function setAddStructureRolesProviderTab(?bool $addStructureRolesProviderTab): self
+	{
+		$this->addStructureRolesProviderTab = $addStructureRolesProviderTab;
+
+		return $this;
+	}
+
 	public function getUseStructureDepartmentsProviderTab(): ?bool
 	{
 		return $this->useStructureDepartmentsProviderTab;
@@ -67,11 +80,39 @@ class AdditionalMemberOptions implements JsonSerializable, Arrayable
 			'addProjectsProviderTab' => $this->getAddProjectsProviderTab(),
 			'addStructureTeamsProviderTab' => $this->getAddStructureTeamsProviderTab(),
 			'useStructureDepartmentsProviderTab' => $this->getUseStructureDepartmentsProviderTab(),
+			'addStructureRolesProviderTab' => $this->getAddStructureRolesProviderTab(),
 		];
 	}
 
 	public function jsonSerialize(): array
 	{
 		return $this->toArray();
+	}
+
+	public static function tryFromArray(array $data): ?self
+	{
+		$options = new self();
+
+		if (isset($data['addUserGroupsProviderTab']))
+		{
+			$options->setAddUserGroupsProviderTab((bool)$data['addUserGroupsProviderTab']);
+		}
+
+		if (isset($data['addProjectsProviderTab']))
+		{
+			$options->setAddProjectsProviderTab((bool)$data['addProjectsProviderTab']);
+		}
+
+		if (isset($data['addStructureTeamsProviderTab']))
+		{
+			$options->setAddStructureTeamsProviderTab((bool)$data['addStructureTeamsProviderTab']);
+		}
+
+		if (isset($data['useStructureDepartmentsProviderTab']))
+		{
+			$options->setUseStructureDepartmentsProviderTab((bool)$data['useStructureDepartmentsProviderTab']);
+		}
+
+		return $options;
 	}
 }

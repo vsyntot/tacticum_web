@@ -3,14 +3,12 @@
 namespace Bitrix\Main\DI;
 
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\DI\Exception\RegistrationException;
 use Bitrix\Main\DI\Exception\ServiceNotFoundException;
 use Bitrix\Main\DI\Exception\CircularDependencyException;
 use Bitrix\Main\ObjectNotFoundException;
-use Bitrix\Main\SystemException;
 use Closure;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
@@ -20,6 +18,8 @@ final class ServiceLocator implements ContainerInterface
 	/** @var string[][] */
 	private array $services = [];
 	private array $instantiated = [];
+	private array $nonSingletonServices = [];
+
 	private static ServiceLocator $instance;
 
 	private array $callStack = [];
@@ -42,6 +42,7 @@ final class ServiceLocator implements ContainerInterface
 
 	/**
 	 * Adds service to locator.
+	 *
 	 * @param string $code
 	 * @param mixed $service
 	 */
@@ -52,27 +53,40 @@ final class ServiceLocator implements ContainerInterface
 
 	/**
 	 * Adds service with lazy initialization.
+	 *
 	 * @param string $id
 	 * @param array $configuration
+	 *
 	 * @return void
-	 * @throws SystemException
+	 *
+	 * @throws RegistrationException
 	 */
 	public function addInstanceLazy(string $id, $configuration): void
 	{
 		if (!isset($configuration['className']) && !isset($configuration['constructor']))
 		{
-			throw $this->buildBadRegistrationExceptions($id);
+			throw new RegistrationException(
+				"Could not register service {{$id}}." .
+				"There is no {className} to find class or {constructor} to build instance."
+			);
 		}
 
 		$furtherClassMetadata = $configuration['className'] ?? $configuration['constructor'];
 
 		$this->services[$id] = [$furtherClassMetadata, $configuration['constructorParams'] ?? []];
+
+		if (isset($configuration['singleton']) && $configuration['singleton'] === false)
+		{
+			$this->nonSingletonServices[$id] = true;
+		}
 	}
 
 	/**
 	 * Registers services by module settings, which is stored in {moduleName}/.settings.php.
+	 *
 	 * @param string $moduleName
-	 * @throws SystemException
+	 *
+	 * @throws RegistrationException
 	 */
 	public function registerByModuleSettings(string $moduleName): void
 	{
@@ -93,7 +107,8 @@ final class ServiceLocator implements ContainerInterface
 
 	/**
 	 * Registers services by project settings, which is stored .settings.php.
-	 * @throws SystemException
+	 *
+	 * @throws RegistrationException
 	 */
 	public function registerByGlobalSettings(): void
 	{
@@ -107,7 +122,9 @@ final class ServiceLocator implements ContainerInterface
 
 	/**
 	 * Checks whether the service with code exists.
+	 *
 	 * @param string $id
+	 *
 	 * @return bool
 	 */
 	public function has(string $id): bool
@@ -118,10 +135,12 @@ final class ServiceLocator implements ContainerInterface
 	/**
 	 * Returns services by code.
 	 *
-	 * @param string $id
+	 * @template T
 	 *
-	 * @return mixed
-	 * @throws ObjectNotFoundException|NotFoundExceptionInterface|ServiceNotFoundException|CircularDependencyException
+	 * @param string|class-string<T> $id
+	 *
+	 * @return T|object|null
+	 * @throws ObjectNotFoundException|ServiceNotFoundException|CircularDependencyException
 	 */
 	public function get(string $id): mixed
 	{
@@ -143,28 +162,23 @@ final class ServiceLocator implements ContainerInterface
 			$object = $this->createItemByServiceName($id);
 		}
 
-		$this->instantiated[$id] = $object;
+		if (!isset($this->nonSingletonServices[$id]))
+		{
+			$this->instantiated[$id] = $object;
+		}
 
 		return $object;
 	}
 
-	private function buildNotFoundException(string $msg): ObjectNotFoundException|NotFoundExceptionInterface
-	{
-		return new class($msg) extends ObjectNotFoundException
-			implements NotFoundExceptionInterface {}
-		;
-	}
-
-	private function buildBadRegistrationExceptions(string $id): SystemException|ContainerExceptionInterface
-	{
-		$message =
-			"Could not register service {{$id}}." .
-			"There is no {className} to find class or {constructor} to build instance."
-		;
-
-		return new class($message) extends SystemException implements ContainerExceptionInterface {};
-	}
-
+	/**
+	 * @template T
+	 *
+	 * @param string|class-string<T> $id
+	 *
+	 * @return T|object
+	 *
+	 * @throws ServiceNotFoundException|CircularDependencyException|ObjectNotFoundException
+	 */
 	private function resolveInterfaceOrAbstractClass(string $id): object
 	{
 		[$classOrClosure, $args] = $this->services[$id];
@@ -176,15 +190,34 @@ final class ServiceLocator implements ContainerInterface
 		return $this->createItemByClassName($classOrClosure);
 	}
 
+	/**
+	 * @template T
+	 *
+	 * @param string|class-string<T> $id
+	 *
+	 * @return T|object
+	 *
+	 * @throws ServiceNotFoundException|CircularDependencyException|ObjectNotFoundException
+	 */
 	private function resolveClass(string $id): object
 	{
 		if (!class_exists($id))
 		{
-			throw $this->buildNotFoundException("Could not find service by code {$id}.");
+			throw new ServiceNotFoundException("Could not find service by code {$id}.");
 		}
+
 		return $this->createItemByClassName($id);
 	}
 
+	/**
+	 * @template T
+	 *
+	 * @param string|class-string<T> $className
+	 *
+	 * @return T|object
+	 *
+	 * @throws ServiceNotFoundException|CircularDependencyException|ObjectNotFoundException
+	 */
 	private function createItemByClassName(string $className): object
 	{
 		try
@@ -219,6 +252,9 @@ final class ServiceLocator implements ContainerInterface
 		return new $class(...array_values($args));
 	}
 
+	/**
+	 * @throws CircularDependencyException
+	 */
 	private function checkCircularDependency(string $className): void
 	{
 		if ($this->isCallStacked($className))
@@ -233,6 +269,9 @@ final class ServiceLocator implements ContainerInterface
 		$this->addCallStack($className);
 	}
 
+	/**
+	 * @throws ServiceNotFoundException
+	 */
 	private function getConstructorParams(ReflectionClass $class): array
 	{
 		$constructor = $class->getConstructor();
@@ -246,6 +285,9 @@ final class ServiceLocator implements ContainerInterface
 		return $constructor?->getParameters() ?? [];
 	}
 
+	/**
+	 * @throws CircularDependencyException|ObjectNotFoundException|ServiceNotFoundException
+	 */
 	private function resolveConstructorDependencies(array $params, string $className): array
 	{
 		if (empty($params))
@@ -284,6 +326,15 @@ final class ServiceLocator implements ContainerInterface
 		return $paramsForClass;
 	}
 
+	/**
+	 * @template T
+	 *
+	 * @param  ReflectionClass        $class
+	 * @param  array                  $paramsForClass
+	 * @param  string|class-string<T> $className
+	 *
+	 * @return T|object
+	 */
 	private function createInstance(ReflectionClass $class, array $paramsForClass, string $className): object
 	{
 		$object = $class->newInstanceArgs($paramsForClass);
@@ -297,6 +348,14 @@ final class ServiceLocator implements ContainerInterface
 		return $object;
 	}
 
+	/**
+	 * @template T
+	 * @param string|class-string<T> $className
+	 *
+	 * @return T|object
+	 *
+	 * @throws CircularDependencyException|ObjectNotFoundException|ReflectionException|ServiceNotFoundException
+	 */
 	private function createObjectWithFullConstruct(string $className): object
 	{
 		try

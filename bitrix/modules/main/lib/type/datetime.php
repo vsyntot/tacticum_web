@@ -17,7 +17,7 @@ class DateTime extends Date
 	 *
 	 * @throws Main\ObjectException
 	 */
-	public function __construct($time = null, $format = null, \DateTimeZone $timezone = null)
+	public function __construct($time = null, $format = null, ?\DateTimeZone $timezone = null)
 	{
 		if ($timezone === null)
 		{
@@ -83,7 +83,7 @@ class DateTime extends Date
 	 *
 	 * @return string
 	 */
-	public function toString(Context\Culture $culture = null)
+	public function toString(?Context\Culture $culture = null)
 	{
 		if ($this->userTimeEnabled && \CTimeZone::Enabled())
 		{
@@ -96,6 +96,16 @@ class DateTime extends Date
 		}
 
 		return parent::toString($culture);
+	}
+
+	/**
+	 * Returns timezone offset.
+	 *
+	 * @return int
+	 */
+	public function getOffset(): int
+	{
+		return $this->value->getOffset();
 	}
 
 	/**
@@ -158,7 +168,7 @@ class DateTime extends Date
 		$this->setDefaultTimeZone();
 
 		//second, adjust time according global timezone offset
-		$diff = \CTimeZone::GetOffset();
+		$diff = \CTimeZone::GetOffset(null, false, $this);
 		if ($diff <> 0)
 		{
 			$this->add(($diff < 0 ? "-" : "") . "PT" . abs($diff) . "S");
@@ -189,7 +199,7 @@ class DateTime extends Date
 
 		if (\CTimeZone::Enabled())
 		{
-			$diff = \CTimeZone::GetOffset();
+			$diff = \CTimeZone::GetOffset(null, false, $time);
 			if ($diff <> 0)
 			{
 				$time->add(($diff > 0 ? "-" : "") . "PT" . abs($diff) . "S");
@@ -205,7 +215,7 @@ class DateTime extends Date
 	 *
 	 * @return string
 	 */
-	protected static function getCultureFormat(Context\Culture $culture = null)
+	protected static function getCultureFormat(?Context\Culture $culture = null)
 	{
 		if ($culture)
 		{

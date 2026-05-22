@@ -5,7 +5,6 @@ import type {
 	BlockGroupNames,
 	GroupedConnections,
 	ConnectionGroupNames,
-	DiagramConnectionId,
 	Transform,
 } from '../types';
 
@@ -18,6 +17,7 @@ export type UseGetters = {
 	connectionGroupNames: ConnectionGroupNames;
 	isAnimate: boolean;
 	isDisabledBlockDiagram: boolean;
+	isMakeNewConnection: boolean;
 };
 
 export function useGetters(state): UseGetters
@@ -34,9 +34,22 @@ export function useGetters(state): UseGetters
 		return state.canvasRef?.canvasId ?? null;
 	});
 
+	const isMakeNewConnection = computed((): boolean => {
+		return state.newConnection !== null;
+	});
+
 	const groupedBlocks = computed((): GroupedBlocks => {
 		return state.blocks
 			.reduce((acc, block) => {
+				if (state.boxIntersection)
+				{
+					const intersectedBlocksIds = state.boxIntersection.intersectedBlocksIds;
+					if (!intersectedBlocksIds.value.has(block.id))
+					{
+						return acc;
+					}
+				}
+
 				const type = block?.type ?? BLOCK_GROUP_DEFAULT_NAME;
 
 				if (type in acc)
@@ -82,8 +95,33 @@ export function useGetters(state): UseGetters
 		return state.animationQueue !== null;
 	});
 
+	const isBoxIntersection = computed((): boolean => {
+		return state.boxIntersection !== null;
+	});
+
 	const isDisabledBlockDiagram = computed((): boolean => {
 		return state.isDisabled || toValue(isAnimate);
+	});
+
+	const connectionOffsets = computed(() => {
+		return state.connections.reduce((connectionsMap, connection) => {
+			const {
+				sourceBlockId,
+				sourcePortId,
+			} = connection;
+
+			const { height: blockHeight = 0, y: blockTop = 0 } = toValue(state.blocksRectMap)?.[sourceBlockId] ?? {};
+			const { y: portTop = 0 } = toValue(state.portsRectMap)?.[sourceBlockId]?.[sourcePortId] ?? {};
+
+			// state.blocksRectMap
+			// state.portsRectMap
+
+			connectionsMap[connection.id] = {
+				offsetDown: blockHeight - (Math.abs(portTop - blockTop) + 9),
+			};
+
+			return connectionsMap;
+		}, {});
 	});
 
 	return {
@@ -94,6 +132,9 @@ export function useGetters(state): UseGetters
 		groupedConnections,
 		connectionGroupNames,
 		isAnimate,
+		isBoxIntersection,
 		isDisabledBlockDiagram,
+		isMakeNewConnection,
+		connectionOffsets,
 	};
 }

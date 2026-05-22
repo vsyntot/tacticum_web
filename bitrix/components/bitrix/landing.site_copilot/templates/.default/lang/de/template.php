@@ -9,4 +9,4 @@ $MESS["LANDING_SITE_COPILOT_CREATED_7"] = "Blöcke werden ausgewählt";
 $MESS["LANDING_SITE_COPILOT_CREATED_8"] = "Schaltflächen werden erstellt";
 $MESS["LANDING_SITE_COPILOT_CREATED_9"] = "Fast fertig";
 $MESS["LANDING_SITE_COPILOT_CREATED_10"] = "Ihre Website ist bald fertig";
-$MESS["LANDING_SITE_PAGE_TITLE"] = "CoPilot Webdesigner";
+$MESS["LANDING_SITE_PAGE_TITLE_MSGVER_1"] = "Webdesigner #COPILOT_NAME#";

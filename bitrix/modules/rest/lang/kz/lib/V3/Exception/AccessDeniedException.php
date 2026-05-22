@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_V3_EXCEPTIONS_ACCESSDENIEDEXCEPTION"] = "Кіруге тыйым салынады";
+$MESS["REST_V3_EXCEPTION_ACCESSDENIEDEXCEPTION"] = "Кіруге тыйым салынады";

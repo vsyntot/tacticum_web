@@ -1,4 +1,6 @@
 <?php
+$MESS["LANDING_CMP_LMP_EMBED_ID"] = "Ендіру нүктесінің идентификаторы";
+$MESS["LANDING_CMP_LMP_MODULE_ID"] = "Ендіруге арналған модуль идентификаторы";
 $MESS["LANDING_CMP_PAR_DRAFT_MODE"] = "Әрқашан бастапқы үлгі режимінде жұмыс істеу";
 $MESS["LANDING_CMP_PAR_LANDING_TYPE"] = "Тек көрсетілген сайт түрлері";
 $MESS["LANDING_CMP_PAR_LID"] = "Парақша идентификаторы";

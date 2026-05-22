@@ -17,6 +17,7 @@ use Bitrix\Landing\TemplateRef;
 use Bitrix\Landing\Source\Selector;
 use Bitrix\Landing\PublicAction\Demos;
 use Bitrix\Landing\Metrika;
+use Bitrix\Landing\Vibe\Vibe;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
@@ -667,6 +668,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['allow_svg'] = Manager::getOption('allow_svg_content') === 'Y';
 				$options['ai_text_available'] = $arResult['AI_TEXT_AVAILABLE'];
 				$options['copilot_available'] = $arResult['COPILOT_AVAILABLE'];
+				$options['copilot_name'] = Copilot\Services\NameService::getCopilotName();
 				$options['ai_text_active'] = $arResult['AI_TEXT_ACTIVE'];
 				$options['ai_image_available'] = $arResult['AI_IMAGE_AVAILABLE'];
 				$options['ai_image_active'] = $arResult['AI_IMAGE_ACTIVE'];
@@ -1210,15 +1212,18 @@ class LandingViewComponent extends LandingBaseComponent
 			}
 
 			if (
-				Loader::includeModule('intranet')
-				&& $this->arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE
+				$this->arParams['TYPE'] === Site\Type::SCOPE_CODE_VIBE
+				&& Loader::includeModule('intranet')
 			)
 			{
-				$publisher = new Intranet\MainPage\Publisher();
-				$this->arResult['MAINPAGE_IS_PUBLIC'] =	$publisher->isPublished();
-				$this->arResult['AI_TEXT_AVAILABLE'] = false;
-				$this->arResult['COPILOT_AVAILABLE'] = false;
-				$this->arResult['AI_IMAGE_AVAILABLE'] = false;
+				$vibe = Vibe::createBySiteId((int)$this->arParams['SITE_ID']);
+				if ($vibe)
+				{
+					$this->arResult['VIBE'] = $vibe;
+					$this->arResult['AI_TEXT_AVAILABLE'] = false;
+					$this->arResult['COPILOT_AVAILABLE'] = false;
+					$this->arResult['AI_IMAGE_AVAILABLE'] = false;
+				}
 			}
 
 			if (
@@ -1378,7 +1383,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$urlAddStyle = $this->getUrlAdd(
 					false,
 					$urlAddParamsStyle,
-					Manager::getMarketCollectionId('form_minisite')
+					Manager::getMarketCollectionCode('form_minisite')
 				);
 				$this->arParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'] =
 					$metrikaStyle

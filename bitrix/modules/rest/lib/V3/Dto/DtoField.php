@@ -29,7 +29,7 @@ class DtoField implements Arrayable
 		private ?array $requiredGroups = null,
 		private bool $filterable = false,
 		private bool $sortable = false,
-		private bool $editable = false,
+		private ?array $editableGroups = null,
 		private bool $multiple = false,
 		private bool $nullable = false,
 		private ?string $elementType = null,
@@ -145,14 +145,9 @@ class DtoField implements Arrayable
 		return $this;
 	}
 
-	public function isEditable(): bool
+	public function setEditableGroups(?array $editableGroups = null): self
 	{
-		return $this->editable;
-	}
-
-	public function setEditable(bool $editable): self
-	{
-		$this->editable = $editable;
+		$this->editableGroups = $editableGroups;
 
 		return $this;
 	}
@@ -212,6 +207,11 @@ class DtoField implements Arrayable
 		return $this->requiredGroups;
 	}
 
+	public function getEditableGroups(): ?array
+	{
+		return $this->editableGroups;
+	}
+
 	public function isNullable(): bool
 	{
 		return $this->nullable;
@@ -244,8 +244,8 @@ class DtoField implements Arrayable
 			requiredGroups: $data['requiredGroups'] ?? null,
 			filterable: $data['filterable'] ?? false,
 			sortable: $data['sortable'] ?? false,
-			editable: $data['editable'] ?? false,
-			multiple: $data['isMultiple'] ?? false,
+			editableGroups: $data['editableGroups'] ?? null,
+			multiple: $data['multiple'] ?? false,
 			nullable: $data['nullable'] ?? false,
 			elementType: $data['elementType'] ?? null,
 			relation: $data['relation'] ?? null,
@@ -264,8 +264,8 @@ class DtoField implements Arrayable
 			'requiredGroups' => $this->requiredGroups,
 			'filterable' => $this->filterable,
 			'sortable' => $this->sortable,
-			'editable' => $this->editable,
-			'isMultiple' => $this->multiple,
+			'editableGroups' => $this->editableGroups,
+			'multiple' => $this->multiple,
 			'nullable' => $this->nullable,
 			'elementType' => $this->elementType,
 			'relation' => $this->relation?->toArray(),
