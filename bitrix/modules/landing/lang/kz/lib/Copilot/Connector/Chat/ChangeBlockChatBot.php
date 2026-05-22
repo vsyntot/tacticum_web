@@ -1,6 +1,6 @@
 <?php
 $MESS["LANDING_CHATBOT_BLOCKS_ERROR_B24"] = "Бірдеңе дұрыс болмады, сәл кейінірек қайталап көріңіз";
-$MESS["LANDING_CHATBOT_BLOCKS_ERROR_RESTRICTED_REQUEST"] = "CoPilot бұл сұрауды өңдей алмайды. Басқа тақырыпты көрсетуге тырысыңыз";
+$MESS["LANDING_CHATBOT_BLOCKS_ERROR_RESTRICTED_REQUEST_MSGVER_1"] = "#COPILOT_NAME# бұл сұрауды өңдей алмайды. Басқа тақырыпты көрсетуге тырысыңыз";
 $MESS["LANDING_CHATBOT_BLOCKS_ERROR_VENDOR"] = "Бірдеңе дұрыс болмады, сәл кейінірек қайталап көріңіз";
 $MESS["LANDING_CHATBOT_BLOCKS_GENERATION_FINISH"] = "Дайын! Бұл сіз қалаған нәрсе ме? Егер жақсарту керек болса, мен осындамын";
 $MESS["LANDING_CHATBOT_BLOCKS_GENERATION_RESTART"] = "Түсіндім, мен қазір бәрін жасаймын";

@@ -4,12 +4,14 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2026 Bitrix
  */
 
 use Bitrix\Main;
 use Bitrix\Main\Session\Legacy\HealerEarlySessionStart;
 use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Config\Option;
+use Dev\Main\Migrator\ModuleUpdater;
 
 require_once __DIR__ . "/start.php";
 
@@ -25,7 +27,7 @@ $application->initializeExtendedKernel([
 
 if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
 {
-	\Dev\Main\Migrator\ModuleUpdater::checkUpdates('main', __DIR__);
+	ModuleUpdater::checkUpdates('main', __DIR__);
 }
 
 if (!Main\ModuleManager::isModuleInstalled('bitrix24'))
@@ -103,9 +105,9 @@ $GLOBALS["ALL_LANG_FILES"] = [];
 IncludeModuleLangFile(__DIR__."/tools.php");
 IncludeModuleLangFile(__FILE__);
 
-error_reporting(COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
+error_reporting((int)Option::get("main", "error_reporting", E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
 
-if (!defined("BX_COMP_MANAGED_CACHE") && COption::GetOptionString("main", "component_managed_cache_on", "Y") != "N")
+if (!defined("BX_COMP_MANAGED_CACHE") && Option::get("main", "component_managed_cache_on", "Y") != "N")
 {
 	define("BX_COMP_MANAGED_CACHE", true);
 }
@@ -113,7 +115,7 @@ if (!defined("BX_COMP_MANAGED_CACHE") && COption::GetOptionString("main", "compo
 // global functions
 require_once __DIR__ . "/filter_tools.php";
 
-/*ZDUyZmZNTlkNmVhMWZjZDI2MTcyZjRlMmJhOWIzM2I4NTVjNjU=*/class CBXFeatures{ public static function IsFeatureEnabled($_1319195059){ return true;} public static function IsFeatureEditable($_1319195059){ return true;} public static function SetFeatureEnabled($_1319195059, $_1554939739= true){} public static function SaveFeaturesSettings($_285142567, $_1538938973){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_408198014){} public static function ModifyFeaturesSettings($_408198014, $_1713503018){} public static function IsFeatureInstalled($_1319195059){ return true;}}/**/			//Do not remove this
+/*ZDUyZmZZmU2MjQ0Mzg4OTExZjA1NzFlMmYwMThkNjc2NDBjYzM=*/class CBXFeatures{ public static function IsFeatureEnabled($_598352874){ return true;} public static function IsFeatureEditable($_598352874){ return true;} public static function SetFeatureEnabled($_598352874, $_875213613= true){} public static function SaveFeaturesSettings($_1224578661, $_1373721353){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_775478919){} public static function ModifyFeaturesSettings($_775478919, $_1474564803){} public static function IsFeatureInstalled($_598352874){ return true;}}/**/			//Do not remove this
 
 // Component 2.0 template engines
 $GLOBALS['arCustomTemplateEngines'] = [];
@@ -142,7 +144,7 @@ if (($_fname = getLocalPath("php_interface/" . SITE_ID . "/init.php", BX_PERSONA
 	include_once $_SERVER["DOCUMENT_ROOT"] . $_fname;
 }
 
-if ((!(defined("STATISTIC_ONLY") && STATISTIC_ONLY && !str_starts_with($GLOBALS["APPLICATION"]->GetCurPage(), BX_ROOT . "/admin/"))) && COption::GetOptionString("main", "include_charset", "Y") == "Y" && LANG_CHARSET != '')
+if ((!(defined("STATISTIC_ONLY") && STATISTIC_ONLY && !str_starts_with($GLOBALS["APPLICATION"]->GetCurPage(), BX_ROOT . "/admin/"))) && Option::get("main", "include_charset", "Y") == "Y" && LANG_CHARSET != '')
 {
 	header("Content-Type: text/html; charset=".LANG_CHARSET);
 }
@@ -150,19 +152,19 @@ if ((!(defined("STATISTIC_ONLY") && STATISTIC_ONLY && !str_starts_with($GLOBALS[
 $license = $application->getLicense();
 header("X-Powered-CMS: Bitrix Site Manager (" . ($license->isDemoKey() ? "DEMO" : $license->getPublicHashKey()) . ")");
 
-if (COption::GetOptionString("main", "update_devsrv", "") == "Y")
+if (Option::get("main", "update_devsrv") == "Y")
 {
 	header("X-DevSrv-CMS: Bitrix");
 }
 
 //agents
-if (COption::GetOptionString("main", "check_agents", "Y") == "Y")
+if (Option::get("main", "check_agents", "Y") == "Y")
 {
 	$application->addBackgroundJob(["CAgent", "CheckAgents"], [], Main\Application::JOB_PRIORITY_LOW);
 }
 
 //send email events
-if (COption::GetOptionString("main", "check_events", "Y") !== "N")
+if (Option::get("main", "check_events", "Y") !== "N")
 {
 	$application->addBackgroundJob(['\Bitrix\Main\Mail\EventManager', 'checkEvents'], [], Main\Application::JOB_PRIORITY_LOW - 1);
 }
@@ -240,8 +242,8 @@ if (!isset($kernelSession["BX_SESSION_SIGN"]))
 
 //session control from security module
 if (
-	(COption::GetOptionString("main", "use_session_id_ttl", "N") == "Y")
-	&& (COption::GetOptionInt("main", "session_id_ttl", 0) > 0)
+	(Option::get("main", "use_session_id_ttl", "N") == "Y")
+	&& ((int)Option::get("main", "session_id_ttl", 0) > 0)
 	&& !defined("BX_SESSION_ID_CHANGE")
 )
 {
@@ -249,7 +251,7 @@ if (
 	{
 		$kernelSession['SESS_ID_TIME'] = $currTime;
 	}
-	elseif (($kernelSession['SESS_ID_TIME'] + COption::GetOptionInt("main", "session_id_ttl")) < $kernelSession['SESS_TIME'])
+	elseif (($kernelSession['SESS_ID_TIME'] + (int)Option::get("main", "session_id_ttl")) < $kernelSession['SESS_TIME'])
 	{
 		$compositeSessionManager = $application->getCompositeSessionManager();
 		$compositeSessionManager->regenerateId();
@@ -266,6 +268,8 @@ if (isset($kernelSession['BX_ADMIN_LOAD_AUTH']))
 	unset($kernelSession['BX_ADMIN_LOAD_AUTH']);
 }
 
+$formType = null;
+$secureForms = false;
 $bRsaError = false;
 $USER_LID = false;
 
@@ -275,7 +279,7 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 
 	if ($doLogout && $GLOBALS["USER"]->IsAuthorized())
 	{
-		$secureLogout = (Main\Config\Option::get("main", "secure_logout", "N") == "Y");
+		$secureLogout = (Option::get("main", "secure_logout", "N") == "Y");
 
 		if (!$secureLogout || check_bitrix_sessid())
 		{
@@ -305,9 +309,9 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 
 	//Authorize user from authorization html form
 	//Only POST is accepted
-	if (isset($_POST["AUTH_FORM"]) && $_POST["AUTH_FORM"] != '')
+	if (!empty($_POST["AUTH_FORM"]))
 	{
-		if (COption::GetOptionString('main', 'use_encrypted_auth', 'N') == 'Y')
+		if (Option::get('main', 'use_encrypted_auth', 'N') == 'Y')
 		{
 			//possible encrypted user password
 			$sec = new CRsaSecurity();
@@ -338,62 +342,71 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 				$USER_LID = SITE_ID;
 			}
 
-			$_POST["TYPE"] = $_POST["TYPE"] ?? null;
-			if (isset($_POST["TYPE"]) && $_POST["TYPE"] == "AUTH")
-			{
-				$arAuthResult = $GLOBALS["USER"]->Login(
-					$_POST["USER_LOGIN"] ?? '',
-					$_POST["USER_PASSWORD"] ?? '',
-					$_POST["USER_REMEMBER"] ?? ''
-				);
-			}
-			elseif (isset($_POST["TYPE"]) && $_POST["TYPE"] == "OTP")
-			{
-				$arAuthResult = $GLOBALS["USER"]->LoginByOtp(
-					$_POST["USER_OTP"] ?? '',
-					$_POST["OTP_REMEMBER"] ?? '',
-					$_POST["captcha_word"] ?? '',
-					$_POST["captcha_sid"] ?? ''
-				);
-			}
-			elseif (isset($_POST["TYPE"]) && $_POST["TYPE"] == "SEND_PWD")
-			{
-				$arAuthResult = CUser::SendPassword(
-					$_POST["USER_LOGIN"] ?? '',
-					$_POST["USER_EMAIL"] ?? '',
-					$USER_LID,
-					$_POST["captcha_word"] ?? '',
-					$_POST["captcha_sid"] ?? '',
-					$_POST["USER_PHONE_NUMBER"] ?? ''
-				);
-			}
-			elseif (isset($_POST["TYPE"]) && $_POST["TYPE"] == "CHANGE_PWD")
-			{
-				$arAuthResult = $GLOBALS["USER"]->ChangePassword(
-					$_POST["USER_LOGIN"] ?? '',
-					$_POST["USER_CHECKWORD"] ?? '',
-					$_POST["USER_PASSWORD"] ?? '',
-					$_POST["USER_CONFIRM_PASSWORD"] ?? '',
-					$USER_LID,
-					$_POST["captcha_word"] ?? '',
-					$_POST["captcha_sid"] ?? '',
-					true,
-					$_POST["USER_PHONE_NUMBER"] ?? '',
-					$_POST["USER_CURRENT_PASSWORD"] ?? ''
-				);
-			}
+			$formType = $_POST["TYPE"] ?? null;
 
-			if ($_POST["TYPE"] == "AUTH" || $_POST["TYPE"] == "OTP")
+			if (!empty($formType))
 			{
-				//special login form in the control panel
-				if ($arAuthResult === true && defined('ADMIN_SECTION') && ADMIN_SECTION === true)
+				$secureForms = Option::get("main", "secure_auth_forms", "N") != "Y" || check_bitrix_sessid();
+
+				if ($secureForms)
 				{
-					//store cookies for next hit (see CMain::GetSpreadCookieHTML())
-					$GLOBALS["APPLICATION"]->StoreCookies();
-					$kernelSession['BX_ADMIN_LOAD_AUTH'] = true;
+					if ($formType == "AUTH")
+					{
+						$arAuthResult = $GLOBALS["USER"]->Login(
+							$_POST["USER_LOGIN"] ?? '',
+							$_POST["USER_PASSWORD"] ?? '',
+							$_POST["USER_REMEMBER"] ?? ''
+						);
+					}
+					elseif ($formType == "OTP")
+					{
+						$arAuthResult = $GLOBALS["USER"]->LoginByOtp(
+							$_POST["USER_OTP"] ?? '',
+							$_POST["OTP_REMEMBER"] ?? '',
+							$_POST["captcha_word"] ?? '',
+							$_POST["captcha_sid"] ?? ''
+						);
+					}
+					elseif ($formType == "SEND_PWD")
+					{
+						$arAuthResult = CUser::SendPassword(
+							$_POST["USER_LOGIN"] ?? '',
+							$_POST["USER_EMAIL"] ?? '',
+							$USER_LID,
+							$_POST["captcha_word"] ?? '',
+							$_POST["captcha_sid"] ?? '',
+							$_POST["USER_PHONE_NUMBER"] ?? ''
+						);
+					}
+					elseif ($formType == "CHANGE_PWD")
+					{
+						$arAuthResult = $GLOBALS["USER"]->ChangePassword(
+							$_POST["USER_LOGIN"] ?? '',
+							$_POST["USER_CHECKWORD"] ?? '',
+							$_POST["USER_PASSWORD"] ?? '',
+							$_POST["USER_CONFIRM_PASSWORD"] ?? '',
+							$USER_LID,
+							$_POST["captcha_word"] ?? '',
+							$_POST["captcha_sid"] ?? '',
+							true,
+							$_POST["USER_PHONE_NUMBER"] ?? '',
+							$_POST["USER_CURRENT_PASSWORD"] ?? ''
+						);
+					}
+				}
 
-					// die() follows
-					CMain::FinalActions('<script>window.onload=function(){(window.BX || window.parent.BX).AUTHAGENT.setAuthResult(false);};</script>');
+				if ($formType == "AUTH" || $formType == "OTP")
+				{
+					//special login form in the control panel
+					if ($arAuthResult === true && defined('ADMIN_SECTION') && ADMIN_SECTION === true)
+					{
+						//store cookies for next hit (see CMain::GetSpreadCookieHTML())
+						$GLOBALS["APPLICATION"]->StoreCookies();
+						$kernelSession['BX_ADMIN_LOAD_AUTH'] = true;
+
+						// die() follows
+						CMain::FinalActions('<script>window.onload=function(){(window.BX || window.parent.BX).AUTHAGENT.setAuthResult(false);};</script>');
+					}
 				}
 			}
 		}
@@ -512,7 +525,7 @@ if (!empty($_GET["bitrix_include_areas"]))
 //magic sound
 if ($GLOBALS["USER"]->IsAuthorized())
 {
-	$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
+	$cookie_prefix = Option::get('main', 'cookie_name', 'BITRIX_SM');
 	if (!isset($_COOKIE[$cookie_prefix.'_SOUND_LOGIN_PLAYED']))
 	{
 		$GLOBALS["APPLICATION"]->set_cookie('SOUND_LOGIN_PLAYED', 'Y', 0);
@@ -538,11 +551,11 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 {
 	//Register user from authorization html form
 	//Only POST is accepted
-	if (isset($_POST["AUTH_FORM"]) && $_POST["AUTH_FORM"] != '' && isset($_POST["TYPE"]) && $_POST["TYPE"] == "REGISTRATION")
+	if (!empty($_POST["AUTH_FORM"]) && $formType == "REGISTRATION")
 	{
-		if (!$bRsaError)
+		if (!$bRsaError && $secureForms)
 		{
-			if (COption::GetOptionString("main", "new_user_registration", "N") == "Y" && (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true))
+			if (Option::get("main", "new_user_registration", "N") == "Y" && (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true))
 			{
 				$arAuthResult = $GLOBALS["USER"]->Register(
 					$_POST["USER_LOGIN"] ?? '',
@@ -574,7 +587,7 @@ if ((!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true) && (!d
 		{
 			$arAuthResult = ["MESSAGE" => GetMessage("ACCESS_DENIED").' '.GetMessage("ACCESS_DENIED_FILE", ["#FILE#" => $real_path]), "TYPE" => "ERROR"];
 
-			if (COption::GetOptionString("main", "event_log_permissions_fail", "N") === "Y")
+			if (Option::get("main", "event_log_permissions_fail", "N") === "Y")
 			{
 				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "USER_PERMISSIONS_FAIL", "main", $GLOBALS["USER"]->GetID(), $real_path);
 			}

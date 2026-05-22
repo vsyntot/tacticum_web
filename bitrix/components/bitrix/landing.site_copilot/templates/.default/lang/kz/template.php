@@ -9,4 +9,4 @@ $MESS["LANDING_SITE_COPILOT_CREATED_7"] = "Блоктарды таңдау";
 $MESS["LANDING_SITE_COPILOT_CREATED_8"] = "Батырмаларды ойлап табамын";
 $MESS["LANDING_SITE_COPILOT_CREATED_9"] = "Дайын дерлік";
 $MESS["LANDING_SITE_COPILOT_CREATED_10"] = "Біраз қалды";
-$MESS["LANDING_SITE_PAGE_TITLE"] = "CoPilot бар cайт";
+$MESS["LANDING_SITE_PAGE_TITLE_MSGVER_1"] = "#COPILOT_NAME# бар сайт";

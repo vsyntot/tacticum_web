@@ -3187,7 +3187,12 @@ class CMain
 
 	public static function PrintHKGlobalUrlVar()
 	{
-		return CHotKeys::GetInstance()->PrintGlobalUrlVar();
+		if ($GLOBALS["APPLICATION"]->PanelShowed)
+		{
+			return CHotKeys::GetInstance()->PrintGlobalUrlVar();
+		}
+
+		return "";
 	}
 
 	/**

@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core_cache,main_core_zIndexManager,ui_system_skeleton,main_core,main_core_events,main_popup,main_pageobject) {
+(function (exports,main_core_cache,main_core_zIndexManager,ui_system_skeleton,main_core_events,main_popup,main_core) {
 	'use strict';
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -654,7 +654,7 @@ this.BX = this.BX || {};
 	        iconClass: 'side-panel-label-icon-copy-link ui-icon-set --o-link',
 	        iconTitle: main_core.Loc.getMessage('MAIN_SIDEPANEL_COPY_LINK')
 	      });
-	      BX.clipboard.bindCopyClick(this.copyLinkLabel.getIconBox(), {
+	      BX.clipboard.bindCopyClick(this.copyLinkLabel.getContainer(), {
 	        text: () => {
 	          const link = document.createElement('a');
 	          link.href = main_core.Type.isStringFilled(options.newWindowUrl) ? options.newWindowUrl : this.getUrl();
@@ -2712,7 +2712,7 @@ this.BX = this.BX || {};
 
 	let instance = null;
 	function getInstance() {
-	  const topWindow = main_pageobject.PageObject.getRootWindow();
+	  const topWindow = main_core.Page.getRootWindow();
 	  if (topWindow !== window) {
 	    return topWindow.BX.SidePanel.Instance;
 	  }
@@ -4448,17 +4448,20 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handleAnchorClick",
 	    value: function handleAnchorClick(event) {
-	      if (!this.isAnchorBinding()) {
+	      const link = this.extractLinkFromEvent(event);
+	      if (!link) {
 	        return;
 	      }
-	      const link = this.extractLinkFromEvent(event);
-	      if (!link || main_core.Dom.attr(link.anchor, 'data-slider-ignore-autobinding') !== null) {
+	      const rule = this.getUrlRule(link.url, link);
+	      if (!this.isAnchorBinding() && !(rule !== null && rule !== void 0 && rule.forceAnchorBinding)) {
+	        return;
+	      }
+	      if (main_core.Dom.attr(link.anchor, 'data-slider-ignore-autobinding') !== null) {
 	        return;
 	      }
 	      if (main_core.Dom.attr(event.target, 'data-slider-ignore-autobinding') !== null) {
 	        return;
 	      }
-	      const rule = this.getUrlRule(link.url, link);
 	      if (!this.isValidLink(rule, link)) {
 	        return;
 	      }
@@ -4857,5 +4860,5 @@ this.BX = this.BX || {};
 	exports.Label = Label;
 	exports.Dictionary = Dictionary;
 
-}((this.BX.SidePanel = this.BX.SidePanel || {}),BX.Cache,BX,BX.UI.System,BX,BX.Event,BX.Main,BX));
+}((this.BX.SidePanel = this.BX.SidePanel || {}),BX.Cache,BX,BX.UI.System,BX.Event,BX.Main,BX));
 //# sourceMappingURL=side-panel.bundle.js.map

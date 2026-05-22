@@ -203,7 +203,7 @@ BX.Helper =
 				className: 'helper-container'
 			},
 			children: [
-				this.getLoader(),
+				this.isNewHelpdesk ? this.getNewLoader() : this.getLoader(),
 				this.getFrame()
 			]
 		});
@@ -253,6 +253,23 @@ BX.Helper =
 		return this.popupLoader;
 	},
 
+	getNewLoader()
+	{
+		if (this.popupLoader)
+		{
+			return this.popupLoader;
+		}
+
+		const loader = new BX.Loader({
+			size: 100,
+		});
+
+		loader.show();
+		this.popupLoader = loader.data.container;
+
+		return this.popupLoader;
+	},
+
 	getSliderId: function()
 	{
 		return "main:helper";
@@ -294,6 +311,10 @@ BX.Helper =
 		if (!isNaN(parseFloat(num)) && isFinite(num) && num > 0)
 		{
 			this.showCounter(num);
+		}
+		else
+		{
+			this.counter?.destroy();
 		}
 
 		this.notifyNum = num;

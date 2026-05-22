@@ -1,2 +1,2 @@
 <?php
-$MESS["REST_V3_EXCEPTIONS_WRONGHTTPREQUESTMETHODEXCEPTION"] = "Тек POST сұрауларына рұқсат етіледі";
+$MESS["REST_V3_EXCEPTION_WRONGHTTPREQUESTMETHODEXCEPTION"] = "Тек POST сұрауларына рұқсат етіледі";

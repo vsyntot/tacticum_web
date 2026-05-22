@@ -30,6 +30,7 @@ $MESS["UI_MAIL_SMTP_SLIDER_SENDER_LIMIT_SETTINGS"] = "Бір күнге жібе
 $MESS["UI_MAIL_SMTP_SLIDER_SENDER_LIMIT_TITLE"] = "Бір күнге шектеу";
 $MESS["UI_MAIL_SMTP_SLIDER_SENDER_MAIN_SECTION_TITLE"] = "Жіберуші деректері";
 $MESS["UI_MAIL_SMTP_SLIDER_SENDER_NAME"] = "Жіберушінің аты";
+$MESS["UI_MAIL_SMTP_SLIDER_SENDER_USE_SENDER_NAME"] = "Осы жәшікке кіру мүмкіндігі бар барлық қызметкерлер үшін бір жіберуші атын пайдалану";
 $MESS["UI_MAIL_SMTP_SLIDER_SERVER"] = "Сервер";
 $MESS["UI_MAIL_SMTP_SLIDER_SMTP_SECTION_TITLE"] = "SMTP-сервердің деректері";
 $MESS["UI_MAIL_SMTP_SLIDER_SSL"] = "Қорғалған қосылымды қолдану";

@@ -2,11 +2,11 @@
 
 namespace Bitrix\Rest\V3\Exception;
 
-class InvalidJsonException extends RestException
+class InvalidJsonException extends RestException implements SkipWriteToLogException
 {
 	protected function getMessagePhraseCode(): string
 	{
-		return 'REST_V3_EXCEPTIONS_INVALIDJSONEXCEPTION';
+		return 'REST_V3_EXCEPTION_INVALIDJSONEXCEPTION';
 	}
 
 	protected function getClassWithPhrase(): string

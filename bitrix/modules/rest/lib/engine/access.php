@@ -380,6 +380,11 @@ class Access
 				return 'limit_subscription_market_bundle';
 			}
 
+			if ($isB24)
+			{
+				return 'limit_benefit_market';
+			}
+
 			return 'limit_subscription_market_trial_access';
 		}
 
@@ -542,13 +547,7 @@ class Access
 				}
 				elseif ($isMinLicense)
 				{
-					// choose license with subscription
-					$code = 'limit_subscription_market_tarifwithmarket';
-
-					if ($action === static::ACTION_OPEN)
-					{
-						$code = 'limit_subscription_market_bundle';
-					}
+					$code = 'limit_subscription_market_bundle';
 				}
 				else
 				{

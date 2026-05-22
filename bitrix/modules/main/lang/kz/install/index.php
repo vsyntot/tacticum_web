@@ -91,6 +91,7 @@ $MESS["MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN_DESC"] = "#USER_ID# - пайда
 #DEVICE# - Құрылғы
 #BROWSER# - Браузер
 #PLATFORM# - Платформа
+#DEVICE_INFO# - Құрылғы, браузер, платформа 
 #USER_AGENT# - User agent
 #IP# - IP-мекенжай
 #DATE# - Күні

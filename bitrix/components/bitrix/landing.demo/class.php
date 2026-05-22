@@ -70,7 +70,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		'PAGE' => 'page',
 		'STORE' => 'shop',
 		'KNOWLEDGE' => 'knowledgeBase',
-		'MAINPAGE' => 'mainpage',
+		'VIBE' => 'mainpage',
 	];
 
 	protected const FILTER_ID = 'LANDING_FLT_DEMO';
@@ -1367,9 +1367,18 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					{
 						if (isset($tplsXml[$layout['code']]))
 						{
-							Landing::update($landingId, [
+							$res = Landing::update($landingId, [
 								'TPL_ID' => $tplsXml[$layout['code']],
 							]);
+
+							if (!$res->isSuccess())
+							{
+								$this->setErrors($res->getErrors());
+								\Bitrix\Landing\Rights::setGlobalOn();
+
+								return false;
+							}
+
 							if (isset($layout['ref']))
 							{
 								$ref = [];
@@ -1434,9 +1443,18 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						{
 							if (isset($landings[$pageCode]))
 							{
-								Landing::update($landings[$pageCode], array(
+								$res = Landing::update($landings[$pageCode], array(
 									'FOLDER_ID' => $folderId,
 								));
+
+								if (!$res->isSuccess())
+								{
+									$this->setErrors($res->getErrors());
+									\Bitrix\Landing\Rights::setGlobalOn();
+
+									return false;
+								}
+
 								if ($folderIndexId == $landings[$pageCode])
 								{
 									\Bitrix\Landing\Folder::update($folderId, [
@@ -1878,7 +1896,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$marketIdDelimiter = '/';
 			$typesUseMarket = [
 				'PAGE',
-				'MAINPAGE',
+				'VIBE',
 			];
 			$useMarket =
 				($this->arParams['SKIP_REMOTE'] ?? 'N') !== 'Y'
@@ -1989,7 +2007,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						$itemData['type'] = $siteTypeDef;
 					}
 					$itemData['type'] = array_map('strtoupper', (array)$itemData['type']);
-					if (in_array($siteTypeCurr, $itemData['type']) && isset($itemData['name']))
+					if (
+						isset($itemData['name'])
+						&& in_array($siteTypeCurr, $itemData['type'], true)
+					)
 					{
 						if (!isset($itemData['fields']) || !is_array($itemData['fields']))
 						{

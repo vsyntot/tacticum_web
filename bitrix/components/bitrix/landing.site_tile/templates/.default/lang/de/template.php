@@ -1,6 +1,6 @@
 <?php
-$MESS["LANDING_SITE_TILE_COPILOT_GENERATED_TEXT"] = "CoPilot erstellt jetzt Ihre Website";
-$MESS["LANDING_SITE_TILE_COPILOT_LABEL"] = "Erstellt mit CoPilot";
+$MESS["LANDING_SITE_TILE_COPILOT_GENERATED_TEXT_MSGVER_1"] = "#COPILOT_NAME# erstellt jetzt Ihre Website";
+$MESS["LANDING_SITE_TILE_COPILOT_LABEL_MSGVER_1"] = "Erstellt mit #COPILOT_NAME#";
 $MESS["LANDING_SITE_TILE_CREATE_DOMAIN_NAME"] = "Definieren Sie eine griffige Website-Adresse";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_MESSAGE"] = "Möchten Sie das wirklich löschen?";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_TITLE"] = "Achtung!";
@@ -12,7 +12,7 @@ $MESS["LANDING_SITE_TILE_DEV_STORE_HELP"] = "Brauchen Sie Hilfe, um Ihren Online
 $MESS["LANDING_SITE_TILE_DEV_STORE_ORDER"] = "Wenden Sie sich an unsere Partner.";
 $MESS["LANDING_SITE_TILE_EMPTY_ADD_2"] = "Erstellen";
 $MESS["LANDING_SITE_TILE_EMPTY_ADD_NO_RIGHT"] = "Sie haben nicht genügend Rechte, um die Website zu erstellen";
-$MESS["LANDING_SITE_TILE_EMPTY_BALLOON_TEXT"] = "Jetzt mit CoPilot";
+$MESS["LANDING_SITE_TILE_EMPTY_BALLOON_TEXT_MSGVER_1"] = "Jetzt mit #COPILOT_NAME#";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT1_PAGE"] = "Mit einem einfachen Website-Builder können Sie Ihre eigene Website erstellen";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT1_STORE"] = "Schneller Launch, keine speziellen Kenntnisse erforderlich";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT2_PAGE"] = "Ihre Website wird mit integrierten Formularen für Rückruf, Feedback sowie mit einem integrierten Live-Chat ausgestattet ";
@@ -39,11 +39,9 @@ $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE"] = "Website anzeigen";
 $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE_STORE"] = "Onlineshop anzeigen";
 $MESS["LANDING_SITE_TILE_OPEN"] = "Öffnen";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_BUTTON"] = "Eine Website erstellen";
-$MESS["LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION"] = "Wenn erforderlich und nicht aktiv, wird die Testversion <br> aktiviert, wenn Sie auf die Schaltfläche <br> \"Eine Website erstellen\" klicken.";
-$MESS["LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION_2"] = "<p>Ist das Test-Abonnement für BitrixGPT+Market erforderlich und dabei noch nicht aktiv,<br>wird es aktiviert, wenn Sie auf die Schaltfläche \"Eine Website erstellen\" klicken.</p>";
-$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1"] = "Beschreiben Sie Ihre Anforderungen";
-$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2"] = "Die KI erstellt das Website-Design, erzeugt Bilder und Texte";
-$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3"] = "Ihre Website wird in einigen Minuten fertig sein";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1"] = "Sie beschreiben Ihre Anforderungen.";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2"] = "KI erstellt ein Design, sowie Bilder und Texte für Ihre Website.";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3"] = "Ihre Website ist in wenigen Minuten fertig.";
 $MESS["LANDING_SITE_TILE_POPUP_COPILOT_TITLE"] = "<div class=\"landing-site_title-popup-title-node\">Die KI erstellt Ihre Website</div> <div class=\"landing-site_title-popup-title-node-2\">in 3 einfachen Schritten:</div>";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK"] = "Link kopieren";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE"] = "Link kopiert.";

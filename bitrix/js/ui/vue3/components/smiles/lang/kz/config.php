@@ -7,3 +7,5 @@ $MESS["UI_VUE_SMILES_EMOJI_CATEGORY_OBJECTS"] = "Объектілер";
 $MESS["UI_VUE_SMILES_EMOJI_CATEGORY_PEOPLE"] = "Смайлдар және адамдар";
 $MESS["UI_VUE_SMILES_EMOJI_CATEGORY_SYMBOLS"] = "Символдар";
 $MESS["UI_VUE_SMILES_EMOJI_CATEGORY_TRAVEL"] = "Орындар мен саяхаттар";
+$MESS["UI_VUE_SMILES_SETS_EMOJI"] = "Эмодзи";
+$MESS["UI_VUE_SMILES_SETS_SMILES"] = "Смайлдар";
