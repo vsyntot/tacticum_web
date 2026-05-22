@@ -132,18 +132,17 @@ QA/Reviewer
 - Иконка: `ri-arrow-right-line`
 
 ### Задача для Frontend Dev
-Создать/изменить: `local/templates/tacticum/styles/XXX.css`
-Подключить в: `header.php` через `$obAsset->addCss(...)`
+Предпочтительно изменить Tailwind/source или компонентный CSS. Если нужен отдельный page CSS, указать explicit asset flag и обновление `docs/workflow/asset-layout-audit.md`.
 ```
 
 ---
 
 ## Правила работы с кодовой базой
 
-- Читаешь текущие стили в `local/templates/tacticum/styles/` перед предложением
+- Читаешь текущие стили в `local/templates/tacticum/assets/src/tailwind.css`, `tailwind.generated.css`, `template_styles.css` и approved page CSS перед предложением
 - Не предлагаешь удалять существующие Tailwind-классы без анализа их использования
-- Новый раздел → новый CSS-файл `styles/section.css` (не хардкодить в HTML `style=""`)
-- Не трогаешь `bundle.v3.4.16.js` — это компилированный бандл
+- Новый раздел → Tailwind/source или component CSS; новый `styles/section.css` только через explicit asset contract и audit update
+- Не предлагаешь возвращать browser Tailwind runtime `bundle.v3.4.16.js` / `js/init.js`
 
 ---
 

@@ -13,10 +13,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const pageUrl = window.location.href;
 
         const tgSelectors = [
-            'a[href^="https://t.me/"]',
-            'a[href^="http://t.me/"]',
-            'a[href^="https://telegram.me/"]',
-            'a[href^="http://telegram.me/"]',
+            'a[data-tacticum-tg-resolve][href^="https://t.me/"]',
+            'a[data-tacticum-tg-resolve][href^="http://t.me/"]',
+            'a[data-tacticum-tg-resolve][href^="https://telegram.me/"]',
+            'a[data-tacticum-tg-resolve][href^="http://telegram.me/"]',
         ];
         const allTgLinks = Array.from(document.querySelectorAll(tgSelectors.join(",")));
         if (allTgLinks.length === 0) return;
@@ -55,6 +55,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
         };
 
+        const openResolvedLink = (anchor, href, pendingWindow = null) => {
+            anchor.href = href;
+            if (pendingWindow && !pendingWindow.closed) {
+                pendingWindow.location.href = href;
+                return;
+            }
+            if (anchor.target === "_blank") {
+                const opened = window.open(href, "_blank");
+                if (opened) opened.opener = null;
+                return;
+            }
+            window.location.href = href;
+        };
+
         mapByHref.forEach((links, originalHref) => {
             const cached = getCached(originalHref);
             if (cached) {
@@ -64,58 +78,83 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const payload = {
-                url: pageUrl,
-                bot_name: originalHref,
-            };
-            if (window.BX && typeof BX.bitrix_sessid === "function") {
-                payload.sessid = BX.bitrix_sessid();
-            }
+            links.forEach((a) => {
+                a.addEventListener("click", (event) => {
+                    const currentCached = getCached(originalHref);
+                    if (currentCached) {
+                        a.href = currentCached;
+                        return;
+                    }
 
-            requestWithTimeout(ENDPOINT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        trackEvent("tacticum_tg_resolver_error", {
-                            status: response.status,
-                            code: "http_error",
+                    const sessid = window.BX && typeof BX.bitrix_sessid === "function" ? BX.bitrix_sessid() : "";
+                    if (!sessid) {
+                        trackEvent("tacticum_tg_resolver_skip", {
+                            status: "no_sessid",
+                            code: "csrf_unavailable",
                         });
-                        const error = new Error("Bad response: " + response.status);
-                        error.analyticsTracked = true;
-                        return Promise.reject(error);
+                        return;
                     }
-                    return response.json().then((data) => ({ data, status: response.status }));
-                })
-                .then(({ data, status }) => {
-                    const newLink = data && typeof data.link === "string" ? data.link.trim() : "";
-                    if (!newLink) return;
-                    setCached(originalHref, newLink);
-                    links.forEach((a) => {
-                        a.href = newLink;
-                    });
-                    trackEvent("tacticum_tg_resolver_success", {
-                        status,
-                        links_count: links.length,
-                    });
-                })
-                .catch((err) => {
-                    if (!err?.analyticsTracked) {
-                        trackEvent("tacticum_tg_resolver_error", {
-                            status: "network",
-                            code: "fetch_error",
+
+                    event.preventDefault();
+                    const pendingWindow = a.target === "_blank" ? window.open("about:blank", "_blank") : null;
+                    if (pendingWindow) pendingWindow.opener = null;
+
+                    const payload = {
+                        url: pageUrl,
+                        bot_name: originalHref,
+                        sessid,
+                    };
+
+                    requestWithTimeout(ENDPOINT_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    })
+                        .then((response) => {
+                            if (!response.ok) {
+                                trackEvent("tacticum_tg_resolver_error", {
+                                    status: response.status,
+                                    code: "http_error",
+                                });
+                                return null;
+                            }
+                            if (response.status === 204) {
+                                return null;
+                            }
+                            return response.json().then((data) => ({ data, status: response.status }));
+                        })
+                        .then((result) => {
+                            const data = result?.data || null;
+                            const status = result?.status || "empty";
+                            const newLink = data && typeof data.link === "string" ? data.link.trim() : "";
+                            if (!newLink) {
+                                openResolvedLink(a, originalHref, pendingWindow);
+                                return;
+                            }
+                            setCached(originalHref, newLink);
+                            links.forEach((link) => {
+                                link.href = newLink;
+                            });
+                            trackEvent("tacticum_tg_resolver_success", {
+                                status,
+                                links_count: links.length,
+                            });
+                            openResolvedLink(a, newLink, pendingWindow);
+                        })
+                        .catch(() => {
+                            trackEvent("tacticum_tg_resolver_error", {
+                                status: "network",
+                                code: "fetch_error",
+                            });
+                            openResolvedLink(a, originalHref, pendingWindow);
                         });
-                    }
-                    console.warn("[tg-link-resolver]", originalHref, "failed:", err?.message || err);
                 });
+            });
         });
     } catch (e) {
         trackEvent("tacticum_tg_resolver_error", {
             status: "init",
             code: "runtime_error",
         });
-        console.warn("[tg-link-resolver] init failed:", e);
     }
 });

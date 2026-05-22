@@ -126,6 +126,7 @@ QA подключается до разработки, если задача к�
 - `chat-offer-contract.md` — контракт AI chat, `group_id`, prefill и handoff в lead form.
 - `chat-api-contract.md` — низкоуровневый contract `/local/rest/tacticum_chat.php`.
 - `asset-layout-audit.md` — карта текущих CSS/JS assets, inline-долги и правила дальнейшей верстки.
+- `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
 - `sprints/` — snapshot-ы спринтов.
 
 ## Definition Of Ready

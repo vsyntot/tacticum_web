@@ -30,7 +30,7 @@
 2. Tooling:
    - добавить минимальный frontend package только для template assets;
    - выбрать Tailwind v4 CLI/PostCSS strategy;
-   - зафиксировать scripts: `css:build`, `css:watch`, `css:check`.
+   - зафиксировать scripts: `css:build`, `css:watch`, `css:check`, `visual:smoke`.
 
 3. Build Parity:
    - собрать CSS без изменения visual output;
@@ -61,11 +61,15 @@
 - Dead `styles/*.css` artifacts удалены; `styles/aiagents.css` оставлен как реально подключаемый на `/aiagents/`.
 - Legacy browser Tailwind JS artifacts `bundle.v3.4.16.js` и `init.js` удалены.
 - PR checks блокируют восстановление dead CSS/JS artifacts.
+- `npm run visual:smoke` запускает headless Chrome smoke для публичных страниц на desktop/mobile и сохраняет screenshots + `manifest.json`.
+- `TACTICUM_VISUAL_INJECT_CSS` позволяет проверить локальные CSS-файлы против staging/production HTML до deploy.
+- Visual smoke с локально внедрёнными `tailwind.generated.css`, `template_styles.css`, `styles/aiagents.css` прошёл для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`.
+- Найденные visual regressions закрыты: hidden off-canvas menu больше не создаёт horizontal overflow; step connectors ограничены контейнером; legacy `template_styles.css` получил parity block для responsive utilities, которые перебивались порядком подключения.
 
 ## Remaining
 
-- Снять screenshots desktop/mobile на staging/production после deploy.
-- Закрыть `TG-015` после visual smoke или зафиксировать найденные visual regressions отдельными задачами.
+- После deploy выполнить `npm run visual:smoke` против целевого staging/production URL без `TACTICUM_VISUAL_INJECT_CSS`.
+- Отдельно спланировать retirement/merge strategy для legacy `template_styles.css`.
 
 ## Do Not Do
 

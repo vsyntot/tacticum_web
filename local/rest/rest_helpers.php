@@ -157,6 +157,23 @@ function tacticum_rest_error(int $status, string $code, string $message, array $
     tacticum_rest_response(false, $code, $message, $extra, $status);
 }
 
+function tacticum_rest_require_method(string $method): void
+{
+    if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== strtoupper($method)) {
+        tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
+    }
+}
+
+function tacticum_rest_read_json_body(string $message = 'Некорректные данные формы.'): array
+{
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!is_array($data)) {
+        tacticum_rest_error(400, 'invalid_json', $message);
+    }
+
+    return $data;
+}
+
 function tacticum_rest_html_to_text(string $html): string
 {
     $html = trim($html);
@@ -667,22 +684,67 @@ function tacticum_rest_mask_phone(string $phone): string
     return $masked;
 }
 
+function tacticum_rest_mask_free_text(string $value): string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+
+    return '[masked:' . mb_strlen($value) . ']';
+}
+
+function tacticum_rest_is_sensitive_log_key(string $key): bool
+{
+    $key = strtolower($key);
+    if (in_array($key, [
+        'name',
+        'client_name',
+        'first_name',
+        'last_name',
+        'patronymic',
+        'company',
+        'message',
+        'task',
+        'description',
+        'project',
+        'summary',
+        'response',
+        'user_message',
+        'comment',
+        'comments',
+    ], true)) {
+        return true;
+    }
+
+    return (bool)preg_match('~(name|message|task|description|summary|comment|response|text)$~', $key);
+}
+
 function tacticum_rest_mask_pii(array $payload): array
 {
     $masked = [];
     foreach ($payload as $key => $value) {
+        $keyString = is_string($key) ? $key : (string)$key;
+
         if (is_array($value)) {
             $masked[$key] = tacticum_rest_mask_pii($value);
             continue;
         }
 
-        if ($key === 'email' && is_string($value)) {
+        if ($keyString === 'email' && is_string($value)) {
             $masked[$key] = tacticum_rest_mask_email($value);
             continue;
         }
 
-        if ($key === 'phone' && is_string($value)) {
+        if ($keyString === 'phone' && is_string($value)) {
             $masked[$key] = tacticum_rest_mask_phone($value);
+            continue;
+        }
+
+        if (is_string($value)) {
+            $masked[$key] = tacticum_rest_is_sensitive_log_key($keyString)
+                ? tacticum_rest_mask_free_text($value)
+                : tacticum_rest_mask_string($value);
             continue;
         }
 

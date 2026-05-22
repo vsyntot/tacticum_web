@@ -7,6 +7,7 @@
 - [ ] Production URL открывается.
 - [ ] Header/menu/footer отображаются.
 - [ ] Console без новых критичных JS errors.
+- [ ] `npm run visual:smoke` проходит для затронутых публичных страниц; для browser zero-error gate manifest не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors`.
 - [ ] Нет 500/502 на затронутых страницах.
 - [ ] Bitrix admin panel не сломана для авторизованного администратора.
 

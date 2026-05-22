@@ -1,6 +1,7 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
+Дата последнего обновления: 22.05.2026
 
 Статусы:
 
@@ -18,9 +19,19 @@
 
 ## Executive Summary
 
-Главный оставшийся gap после стабилизационных спринтов:
+На 22.05.2026 повторный challenge `/local` и публичной части выявил новый набор operational gaps, связанных с browser zero-error gate, action-smoke и остаточными frontend/backend ownership debt.
 
-1. Завершить `TG-015`: выполнить staging visual smoke static Tailwind bundle и только после этого классифицировать stale CSS / legacy Tailwind JS artifacts.
+Быстрые P1-правки уже внесены на уровне кода:
+
+1. `visual:smoke` расширен до browser runtime checks.
+2. Фоновый Telegram resolver переведён в lazy/on-click режим.
+3. POST endpoints приведены к единому method/body bootstrap.
+4. PII masking в логах стал консервативнее.
+
+Оставшийся обязательный gate после выкладки:
+
+1. Выполнить post-deploy `npm run visual:smoke` против целевого staging/production URL без `TACTICUM_VISUAL_INJECT_CSS`.
+2. Подтвердить initial-load browser errors = 0 по manifest.
 
 Закрытые, но требующие постоянного контроля области:
 
@@ -61,10 +72,17 @@
 | TG-012 | closed | P2 | Security / Integration | CI quality gates | Critical runtime checks стали blockers, public hardcoded iblocks остаются warning-level | `.github/workflows/pr-check.yml` | Нарушения REST/API conventions сложнее протащить в main | Поддерживать список checks при новых ADR |
 | TG-013 | closed | P2 | Full Feature | Config validation | Добавлен `tacticum_rest_validate_config()` и same-origin health endpoint без вывода secret values | `rest_helpers.php`, `local/rest/health_config.php`, `tacticum_config.example.php` | Ошибки config можно проверить до пользовательского runtime 500 | Post-deploy smoke: `GET /local/rest/health_config.php` с allowed host/origin |
 | TG-014 | closed | P2 | Fast Fix | Repository hygiene | `.DS_Store`/cache/backup/IDE files ignored; `tacticum_config.php` убран из Git index и остаётся локальным ignored config | `.gitignore`, `docs/workflow/repository-hygiene.md`, `git ls-files -c -i --exclude-standard` | Риск случайного commit local config/runtime мусора снижен | Поддерживать hygiene check перед PR |
-| TG-015 | in-progress | P1 | Full Feature | CSS architecture | Browser Tailwind runtime удалён; static Tailwind bundle собирается через npm; dead page CSS artifacts удалены; нужен staging visual smoke до закрытия | `package.json`, `package-lock.json`, `local/templates/tacticum/assets/src/tailwind.css`, `local/templates/tacticum/tailwind.generated.css`, `header.php`, `.github/workflows/pr-check.yml`, `asset-layout-audit.md` | FOUC/no-JS риск снижен, CSS utilities воспроизводимы локально и в CI; dead CSS/JS artifacts больше не размывают ownership; visual regression ещё не подтверждён на Bitrix runtime | Выполнить staging visual smoke desktop/mobile и закрыть gap либо оформить найденные visual regressions отдельными задачами |
+| TG-015 | closed | P1 | Full Feature | CSS architecture | Browser Tailwind runtime удалён; static Tailwind bundle собирается через npm; dead CSS/JS artifacts удалены; добавлен visual smoke и закрыты найденные overflow regressions | `package.json`, `tools/visual-smoke.mjs`, `local/templates/tacticum/assets/src/tailwind.css`, `local/templates/tacticum/tailwind.generated.css`, `template_styles.css`, `styles/aiagents.css`, `header.php`, `.github/workflows/pr-check.yml`, `asset-layout-audit.md` | FOUC/no-JS риск снижен, CSS utilities воспроизводимы локально и в CI; visual smoke с локально внедрённым CSS прошёл desktop/mobile для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/` | После deploy выполнить `npm run visual:smoke` без CSS injection как обычный post-deploy gate |
 | TG-016 | closed | P1 | Full Feature | Layout contracts | URL/text-based presentation и behavior убраны из затронутых мест | `faq/template.php`, `aiagents/index.php`, `modal.js`, `scroll.js`, `.github/workflows/pr-check.yml` | Компоненты меньше зависят от текущего URL и текста кнопок, риск случайного поведения ниже | Поддерживать explicit component params и data-* contracts в PR checks |
 | TG-017 | closed | P1 | Full Feature | JS-owned markup | Specialist modal markup перенесён из JS в Bitrix component template; repeated CTA sections вынесены в template includes | `news.list/price/template.php`, `news.list/price/script.js`, `modal.js`, `local/templates/tacticum/include/personal-offer-cta.php`, `local/templates/tacticum/include/project-discussion-cta.php`, public pages | Заказ специалистов и CTA sections стали ближе к Bitrix component/include pattern; JS больше не владеет крупным modal markup | Поддерживать component/include pattern для новых повторяемых layout blocks |
 | TG-018 | closed | P2 | Fast Fix | Inline markup cleanup | Убраны inline `onclick`, policy `<style>`/`style=`, progress inline widths и form UI inline style mutations; header logo получил `alt` | `about/index.php`, `services/index.php`, `policies/template.php`, `policies/style.css`, `index.php`, `forms.js`, `price/script.js`, `header.php` | HTML/JS стали семантичнее, меньше inline presentation/behavior | Поддерживать guard против inline `onclick`, policy inline styles и form inline style mutations |
+| TG-019 | in-progress | P1 | Incident / Full Feature | Browser zero-error gate | Initial-load browser errors найдены и частично устранены: `visual:smoke` ловит runtime/network errors, Telegram resolver больше не делает фоновые POST при загрузке | `tools/visual-smoke.mjs`, `tg-link-resolver.js`, `footer.php`, `aiagents/index.php`, `local-public-browser-error-challenge.md` | После deploy должен исчезнуть текущий first-party console/network шум от `/local/rest/resolve_telegram_link.php`; gate становится воспроизводимым | После deploy запустить `npm run visual:smoke` без injection и добиться manifest без `pageErrors`, `consoleErrors`, first-party `networkErrors` |
+| TG-020 | closed | P1 | Security / Integration | REST bootstrap / PII logs | POST endpoints приведены к `validate_origin -> rate_limit -> method -> parse JSON -> CSRF`; PII masking больше не логирует free text целиком | `rest_helpers.php`, `tacticum_form.php`, `tacticum_chat.php`, `tacticum_prefill.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_sale_staff.php`, `resolve_telegram_link.php` | Большие/битые тела не читаются до guard; логи меньше раскрывают пользовательский текст и контакты | Post-deploy REST smoke по chat/form/prefill/sale_staff |
+| TG-021 | open | P1 | Full Feature | Frontend data contracts | Light chat и price component ещё частично завязаны на presentation selectors / button text | `chat-agent.js`, `calculator/index.php`, `price/index.php`, `news.list/price/script.js` | Копирайтинг/CSS refactor может сломать поведение без явной ошибки сборки | Перевести quick replies, light chat и price filters/modal state на `data-*` контракты |
+| TG-022 | open | P2 | Security / Integration | Sale endpoint ownership | `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_form.php` пересекаются по sale flow и upstream `/chat_agent/sale` | `local/rest/tacticum_offer.php`, `local/rest/tacticum_sale.php`, `local/rest/tacticum_form.php` | Поведение и лог taxonomy могут расходиться при будущих правках | Спроектировать единый sale handler/adapters или deprecation plan |
+| TG-023 | open | P2 | Full Feature | Inline/vendor assets / CSP | Yandex Maps constructor и Metrika остаются inline/vendor exceptions | `contacts/index.php`, `header.php` | Будущая CSP/zero-console дисциплина будет хрупкой; vendor failures сложно классифицировать | Вынести Yandex Maps за explicit asset flag; описать CSP-ready strategy для Metrika |
+| TG-024 | open | P2 | Full Feature | Browser action smoke | `visual:smoke` покрывает initial load, но не клики, формы, чат, prefill и price modal | `tools/visual-smoke.mjs`, `package.json` | Ошибки обработчиков могут не попадать в deploy gate | Добавить action smoke режим или отдельный `browser:smoke` |
+| TG-025 | closed | P2 | Fast Fix | Agent instruction drift | Agent docs обновлены под static Tailwind и shared REST bootstrap | `.github/copilot-instructions.md`, `.github/agents/frontend-dev.md`, `.github/agents/backend-dev.md`, `.github/agents/designer.md`, `.github/agents/seo.md` | Новые агенты с меньшей вероятностью вернут удалённые CSS/JS artifacts или старый endpoint bootstrap | Поддерживать `.github/*` при изменении workflow docs |
 
 ## Recommended First Sprint
 
