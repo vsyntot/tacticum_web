@@ -8,6 +8,7 @@
 - [ ] Header/menu/footer отображаются.
 - [ ] Console без новых критичных JS errors.
 - [ ] `npm run visual:smoke` проходит для затронутых публичных страниц; для browser zero-error gate manifest не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors`.
+- [ ] `npm run browser:smoke` проходит для non-network UI actions: меню, модалки, пустая валидация форм, empty-send чатов, `/price/` filters/modal.
 - [ ] Нет 500/502 на затронутых страницах.
 - [ ] Bitrix admin panel не сломана для авторизованного администратора.
 
@@ -83,6 +84,7 @@
 
 - [ ] `/`, `/services/`, `/calculator/`, `/offer/`: `faq.js` подключается.
 - [ ] `/price/`: `faq.js` и `charts.js` подключаются.
+- [ ] `/contacts/`: `yandex-map.js` подключается, карта загружается без first-party JS errors.
 - [ ] `/aiagents/`: `faq.js` и `aiagents.css` подключаются.
 - [ ] `/about/`, `/contacts/`, `/policies/`: optional assets не подключаются без явной необходимости.
 

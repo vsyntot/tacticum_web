@@ -99,7 +99,7 @@
 }
 ```
 
-Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
+Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call, masked logs and retry policy. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
 
 `tacticum_sale_staff.php` возвращает тот же формат успешного ответа; детали выбранного специалиста передаются upstream внутри `task`, а rich staff payload остаётся в backend-логике и masked logs.
 

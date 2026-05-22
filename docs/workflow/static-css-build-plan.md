@@ -30,7 +30,7 @@
 2. Tooling:
    - добавить минимальный frontend package только для template assets;
    - выбрать Tailwind v4 CLI/PostCSS strategy;
-   - зафиксировать scripts: `css:build`, `css:watch`, `css:check`, `visual:smoke`.
+   - зафиксировать scripts: `css:build`, `css:watch`, `css:check`, `visual:smoke`, `browser:smoke`.
 
 3. Build Parity:
    - собрать CSS без изменения visual output;
@@ -63,12 +63,13 @@
 - PR checks блокируют восстановление dead CSS/JS artifacts.
 - `npm run visual:smoke` запускает headless Chrome smoke для публичных страниц на desktop/mobile и сохраняет screenshots + `manifest.json`.
 - `TACTICUM_VISUAL_INJECT_CSS` позволяет проверить локальные CSS-файлы против staging/production HTML до deploy.
+- `npm run browser:smoke` запускает тот же runner с `TACTICUM_VISUAL_ACTIONS=1` и добавляет non-network UI action checks.
 - Visual smoke с локально внедрёнными `tailwind.generated.css`, `template_styles.css`, `styles/aiagents.css` прошёл для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`.
 - Найденные visual regressions закрыты: hidden off-canvas menu больше не создаёт horizontal overflow; step connectors ограничены контейнером; legacy `template_styles.css` получил parity block для responsive utilities, которые перебивались порядком подключения.
 
 ## Remaining
 
-- После deploy выполнить `npm run visual:smoke` против целевого staging/production URL без `TACTICUM_VISUAL_INJECT_CSS`.
+- После deploy выполнить `npm run visual:smoke` и `npm run browser:smoke` против целевого staging/production URL без `TACTICUM_VISUAL_INJECT_CSS`.
 - Отдельно спланировать retirement/merge strategy для legacy `template_styles.css`.
 
 ## Do Not Do

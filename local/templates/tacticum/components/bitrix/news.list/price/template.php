@@ -1,6 +1,6 @@
 <?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();?>
 
-<section class="py-12">
+<section class="py-12" data-price-list>
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Ставки специалистов по категориям</h2>
@@ -9,13 +9,21 @@
             </p>
         </div>
         <!-- Filter Tabs -->
-        <div class="flex flex-wrap justify-center gap-4 mb-12">
-            <button data-category="all"
+        <div class="flex flex-wrap justify-center gap-4 mb-12" data-price-filter-tabs>
+            <button type="button"
+                    data-price-filter-tab
+                    data-category="all"
+                    data-active="true"
+                    aria-pressed="true"
                     class="filter-tab bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">
                 Все специалисты
             </button>
             <?php foreach ($arResult['GROUPED_SECTIONS'] as $section): ?>
-                <button data-category="<?= htmlspecialchars($section['NAME']) ?>"
+                <button type="button"
+                        data-price-filter-tab
+                        data-category="<?= htmlspecialchars($section['NAME']) ?>"
+                        data-active="false"
+                        aria-pressed="false"
                         class="filter-tab bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
                     <?= htmlspecialchars($section['NAME']) ?>
                 </button>
@@ -30,6 +38,7 @@
                 </div>
                 <input type="text" placeholder="Поиск по специальности..."
                        id="specialist-search"
+                       data-price-search
                        class="search-input w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-700">
             </div>
         </div>
@@ -47,74 +56,87 @@
         <?php foreach ($arResult['GROUPED_SECTIONS'] as $section): ?>
             <?php if (empty($section['GROUPED_ITEMS'])) continue; ?>
 
-            <h3 class="text-2xl font-bold text-secondary mb-6 section-title"><?= htmlspecialchars($section['NAME']) ?></h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-<?= (count($section['GROUPED_ITEMS']) > 3 ? 4 : 3) ?> gap-8 mb-16">
-                <?php foreach ($section['GROUPED_ITEMS'] as $item):
-                    $icon = $icons[$section['NAME']] ?? 'ri-user-line';
-                    $options = (array)($item['OPTIONS'] ?? []);
-                    $levels = $item['LEVELS'] ?? [];
-                    $levelKeys = array_keys($levels);
+            <div data-price-section data-category="<?= htmlspecialchars($section['NAME']) ?>">
+                <h3 class="text-2xl font-bold text-secondary mb-6 section-title" data-price-section-title><?= htmlspecialchars($section['NAME']) ?></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-<?= (count($section['GROUPED_ITEMS']) > 3 ? 4 : 3) ?> gap-8 mb-16" data-price-section-grid>
+                    <?php foreach ($section['GROUPED_ITEMS'] as $item):
+                        $icon = $icons[$section['NAME']] ?? 'ri-user-line';
+                        $options = (array)($item['OPTIONS'] ?? []);
+                        $levels = $item['LEVELS'] ?? [];
+                        $levelKeys = array_keys($levels);
 
-                    // По умолчанию Middle, если есть, иначе первый
-                    $defaultLevel = 'Middle';
-                    $selectedLevel = in_array($defaultLevel, $levelKeys) ? $defaultLevel : reset($levelKeys);
-                    $selectedPrice = $levels[$selectedLevel]['PRICE'] ?? null;
-                    $isPopular = ($item['POPULAR']['VALUE_XML_ID'] ?? '') === 'popular' || ($item['POPULAR']['VALUE'] ?? '') === 'Да';
-                    ?>
-                    <div class="pricing-card <?= $isPopular ? 'featured border-2' : 'border' ?> bg-white rounded-xl p-6 shadow-sm relative"
-                         data-name="<?= htmlspecialchars($item['NAME']) ?>"
-                         data-category="<?= htmlspecialchars($section['NAME']) ?>"
-                         data-popular="<?= $isPopular ? '1' : '0' ?>">
-                        <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                            <i class="<?= $icon ?> text-3xl text-primary"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-secondary mb-2"><?= htmlspecialchars($item['NAME']) ?></h3>
-                        <?php if (count($levels) > 1): ?>
-                            <div class="mb-4">
-                                <select class="level-select w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none">
-                                    <?php foreach ($levelKeys as $levelKey): ?>
-                                        <option value="<?= htmlspecialchars($levelKey) ?>"
-                                                data-price="<?= htmlspecialchars($levels[$levelKey]['PRICE']) ?>"
-                                            <?= $levelKey === $selectedLevel ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($levelKey) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                        // По умолчанию Middle, если есть, иначе первый
+                        $defaultLevel = 'Middle';
+                        $selectedLevel = in_array($defaultLevel, $levelKeys) ? $defaultLevel : reset($levelKeys);
+                        $selectedPrice = $levels[$selectedLevel]['PRICE'] ?? null;
+                        $selectedPriceNum = (float)str_replace(',', '.', str_replace(' ', '', (string)$selectedPrice));
+                        $selectedPriceFormatted = number_format($selectedPriceNum, 0, ',', ' ');
+                        $isPopular = ($item['POPULAR']['VALUE_XML_ID'] ?? '') === 'popular' || ($item['POPULAR']['VALUE'] ?? '') === 'Да';
+                        ?>
+                        <div class="pricing-card <?= $isPopular ? 'featured border-2' : 'border' ?> bg-white rounded-xl p-6 shadow-sm relative"
+                             data-price-card
+                             data-name="<?= htmlspecialchars($item['NAME']) ?>"
+                             data-category="<?= htmlspecialchars($section['NAME']) ?>"
+                             data-level="<?= htmlspecialchars((string)$selectedLevel) ?>"
+                             data-price="<?= htmlspecialchars((string)$selectedPriceNum) ?>"
+                             data-popular="<?= $isPopular ? '1' : '0' ?>">
+                            <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                                <i class="<?= $icon ?> text-3xl text-primary"></i>
                             </div>
-                        <?php endif; ?>
-                        <div class="text-2xl font-bold text-primary mb-4 price-value">
-                            от <?= number_format((float)str_replace(',', '.', str_replace(' ', '', $selectedPrice)), 0, ',', ' ') ?> ₽
-                            <span class="text-sm text-gray-500 font-normal">/час</span>
+                            <h3 class="text-xl font-bold text-secondary mb-2"><?= htmlspecialchars($item['NAME']) ?></h3>
+                            <?php if (count($levels) > 1): ?>
+                                <div class="mb-4">
+                                    <select class="level-select w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none"
+                                            data-price-level-select>
+                                        <?php foreach ($levelKeys as $levelKey): ?>
+                                            <option value="<?= htmlspecialchars($levelKey) ?>"
+                                                    data-price="<?= htmlspecialchars($levels[$levelKey]['PRICE']) ?>"
+                                                <?= $levelKey === $selectedLevel ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($levelKey) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                            <div class="text-2xl font-bold text-primary mb-4 price-value" data-price-value>
+                                от <?= $selectedPriceFormatted ?> ₽
+                                <span class="text-sm text-gray-500 font-normal">/час</span>
+                            </div>
+                            <?php if (!empty($options)): ?>
+                                <ul class="space-y-2 mb-6 text-gray-600">
+                                    <?php foreach ($options as $opt): ?>
+                                        <li class="flex items-start gap-2">
+                                            <i class="ri-checkbox-circle-line text-green-500 mt-1"></i>
+                                            <span><?= htmlspecialchars($opt) ?></span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <button type="button"
+                                    data-price-order
+                                    class="order-specialist-btn w-full <?= $isPopular ? 'bg-primary text-white' : 'bg-white border border-primary text-primary' ?> px-6 py-3 rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap">
+                                Заказать специалиста
+                            </button>
+                            <script type="application/json" class="level-prices-json" data-price-levels>
+                                <?= json_encode(array_map(fn($arr) => $arr['PRICE'], $levels), JSON_UNESCAPED_UNICODE) ?>
+                            </script>
                         </div>
-                        <?php if (!empty($options)): ?>
-                            <ul class="space-y-2 mb-6 text-gray-600">
-                                <?php foreach ($options as $opt): ?>
-                                    <li class="flex items-start gap-2">
-                                        <i class="ri-checkbox-circle-line text-green-500 mt-1"></i>
-                                        <span><?= htmlspecialchars($opt) ?></span>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
-                        <button class="order-specialist-btn w-full <?= $isPopular ? 'bg-primary text-white' : 'bg-white border border-primary text-primary' ?> px-6 py-3 rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap">
-                            Заказать специалиста
-                        </button>
-                        <script type="application/json" class="level-prices-json">
-                            <?= json_encode(array_map(fn($arr) => $arr['PRICE'], $levels), JSON_UNESCAPED_UNICODE) ?>
-                        </script>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>
 </section>
 
 <div id="specialistOrderModal"
+     data-price-order-modal
      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto"
+         data-price-order-modal-card>
         <div class="flex justify-between items-center mb-6 sticky top-0 bg-white z-10">
             <h3 class="text-2xl font-bold text-secondary">Заказать специалиста</h3>
             <button id="closeOrderModal" type="button"
+                    data-price-modal-close
                     class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
                     aria-label="Закрыть">
                 <i class="ri-close-line text-xl text-gray-500"></i>
@@ -123,6 +145,7 @@
 
         <form id="specialistOrderForm"
               class="space-y-6"
+              data-price-order-form
               data-tacticum-form
               data-form-id="price-specialist"
               data-endpoint="/local/rest/tacticum_sale_staff.php"
@@ -131,8 +154,8 @@
             <div class="relative mb-6">
                 <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
                     <p class="text-primary font-medium mb-2">Выбранный специалист:</p>
-                    <p id="selectedSpecialist" class="text-gray-700">Не выбран</p>
-                    <p id="selectedRate" class="text-sm text-gray-500 mt-1">Ставка: —</p>
+                    <p id="selectedSpecialist" class="text-gray-700" data-price-selected-specialist>Не выбран</p>
+                    <p id="selectedRate" class="text-sm text-gray-500 mt-1" data-price-selected-rate>Ставка: —</p>
                 </div>
             </div>
 
@@ -188,9 +211,9 @@
                 <label for="orderDescription" class="input-label">Описание задачи</label>
             </div>
 
-            <input type="hidden" id="orderSpecialist" name="specialist">
-            <input type="hidden" id="orderLevel" name="level">
-            <input type="hidden" id="orderRate" name="rate">
+            <input type="hidden" id="orderSpecialist" name="specialist" data-price-order-specialist>
+            <input type="hidden" id="orderLevel" name="level" data-price-order-level>
+            <input type="hidden" id="orderRate" name="rate" data-price-order-rate>
 
             <div class="flex items-start gap-3">
                 <input type="checkbox" id="orderAgreement" data-tacticum-consent required
@@ -207,6 +230,7 @@
                     Отправить заявку
                 </button>
                 <button type="button" id="cancelOrderModal"
+                        data-price-modal-cancel
                         class="w-full sm:flex-1 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
                     Отмена
                 </button>

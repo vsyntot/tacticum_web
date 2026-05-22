@@ -871,6 +871,46 @@ function tacticum_rest_post_json_retry_without_group_id(string $endpoint_url, ar
     return $retry_result;
 }
 
+function tacticum_rest_submit_chat_agent_sale(
+    array $payload,
+    string $context,
+    ?string $logPrefix = null,
+    string $curlErrorMessage = 'Ошибка соединения с внешним сервисом.'
+): array
+{
+    $logPrefix = $logPrefix ?: $context;
+    AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), $logPrefix . '_request');
+
+    $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
+    $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
+
+    $result = tacticum_rest_post_json_retry_without_group_id($endpoint_url, $payload, $context);
+    $response = $result['response'] ?? null;
+    $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
+    AddMessage2Log(serialize($masked_response), $logPrefix . '_response');
+
+    tacticum_rest_fail_on_curl_error($result, $context, $curlErrorMessage);
+
+    return $result;
+}
+
+function tacticum_rest_is_successful_upstream_response(array $result): bool
+{
+    $http_status = (int)($result['http_status'] ?? 0);
+    return $http_status >= 200 && $http_status < 300;
+}
+
+function tacticum_rest_fail_chat_agent_sale_upstream(
+    array $result,
+    string $context,
+    string $message = 'Ошибка отправки во внешний сервис.'
+): void
+{
+    $http_status = (int)($result['http_status'] ?? 0);
+    AddMessage2Log("Upstream error ({$context}): http_status={$http_status}", $context . '_error');
+    tacticum_rest_error(502, 'upstream_error', $message);
+}
+
 function tacticum_rest_fail_on_curl_error(array $result, string $context, string $message = 'Ошибка соединения с внешним сервисом.'): void
 {
     $curl_error_no = (int)($result['curl_error_no'] ?? 0);

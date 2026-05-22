@@ -486,16 +486,17 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const initLightCalculatorChats = () => {
-        document.querySelectorAll(".ai-chat-container").forEach((chatRoot) => {
+        document.querySelectorAll('[data-tacticum-chat="light"]').forEach((chatRoot) => {
             if (chatRoot.dataset.tacticumChatBound === "true") return;
 
-            const input = chatRoot.querySelector("input[type='text'], input:not([type])");
-            const sendButton = input?.parentElement?.querySelector("button");
-            const messages = chatRoot.querySelector(".p-6");
-            const quickReplies = chatRoot.querySelectorAll(".mt-3 button");
+            const input = chatRoot.querySelector("[data-chat-input]");
+            const sendButton = chatRoot.querySelector("[data-chat-send]");
+            const messages = chatRoot.querySelector("[data-chat-messages]");
+            const quickReplies = chatRoot.querySelectorAll("[data-chat-quick-reply][data-message]");
             if (!input || !sendButton || !messages) return;
 
             chatRoot.dataset.tacticumChatBound = "true";
+            const surface = chatRoot.dataset.chatSurface || "light_calculator";
             let groupId = null;
             let isSending = false;
 
@@ -512,12 +513,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 messages.scrollTop = messages.scrollHeight;
 
                 try {
-                    trackChat("tacticum_chat_send", "light_calculator");
+                    trackChat("tacticum_chat_send", surface);
                     const result = await sendChatMessage(message, groupId);
                     const res = result.data || {};
                     typing.remove();
                     if (result.ok && res.response) {
-                        trackChat("tacticum_chat_success", "light_calculator", {
+                        trackChat("tacticum_chat_success", surface, {
                             status: result.status,
                             has_group_id: Boolean(res.group_id || groupId),
                             has_offer_url: Boolean(res.bitrix_url),
@@ -527,7 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         });
                         if (res.group_id) groupId = res.group_id;
                     } else {
-                        trackChat("tacticum_chat_error", "light_calculator", {
+                        trackChat("tacticum_chat_error", surface, {
                             status: result.status,
                             code: getResultCode(result),
                         });
@@ -537,7 +538,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 } catch (error) {
                     typing.remove();
-                    trackChat("tacticum_chat_error", "light_calculator", {
+                    trackChat("tacticum_chat_error", surface, {
                         status: "network",
                         code: "fetch_error",
                     });
@@ -555,7 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (event.key === "Enter") send(input.value);
             });
             quickReplies.forEach((button) => {
-                button.addEventListener("click", () => send(button.textContent));
+                button.addEventListener("click", () => send(button.dataset.message || ""));
             });
         });
     };

@@ -53,7 +53,8 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 Оставшиеся известные inline assets:
 
 - Yandex.Metrika в `header.php` — допустимое vendor exception;
-- Yandex Maps constructor script в `contacts/index.php` — vendor embed exception;
+- Yandex Maps constructor на `/contacts/` подключается через explicit asset `js/yandex-map.js` и `data-yandex-constructor-map`;
+- Yandex.Metrika остаётся централизованной analytics exception в `header.php`; noscript pixel использует CSS class вместо inline `style=`;
 - JSON data islands в price component — допустимо как `application/json`;
 - generated font demo HTML в `local/templates/tacticum/fonts/` — не production page flow.
 
@@ -62,6 +63,7 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 - FAQ background больше не определяется через current URL; используется component param `SECTION_CLASS`;
 - policy detail styles перенесены в `local/templates/tacticum/components/bitrix/news.detail/policies/style.css`;
 - price specialist modal markup перенесён из JS в `news.list/price/template.php`;
+- price filters/cards/modal state и light chat quick replies переведены на явные `data-*` contracts;
 - `modal.js` и `scroll.js` очищены от path/text selector heuristics.
 - form/price UI state переведён с inline style mutations на CSS selectors/classes.
 
@@ -86,6 +88,7 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 - добавлен `npm run visual:smoke` (`tools/visual-smoke.mjs`) для desktop/mobile smoke публичных страниц через headless Chrome;
 - добавлен режим `TACTICUM_VISUAL_INJECT_CSS` для проверки локального CSS против production/staging HTML до deploy;
+- добавлен `npm run browser:smoke` (`TACTICUM_VISUAL_ACTIONS=1`) для non-network UI action smoke;
 - закрыты найденные horizontal overflow regressions: скрыто off-canvas меню в закрытом состоянии, ограничены step connectors на `/services/` и `/aiagents/`;
 - в `template_styles.css` добавлен compatibility-блок responsive Tailwind utilities, потому что legacy bundle подключается после `tailwind.generated.css` и может перебивать responsive classes базовыми utilities.
 
@@ -112,6 +115,6 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 Следующий cleanup:
 
-1. После deploy выполнить `npm run visual:smoke` против целевого URL без `TACTICUM_VISUAL_INJECT_CSS`.
+1. После deploy выполнить `npm run visual:smoke` и `npm run browser:smoke` против целевого URL без `TACTICUM_VISUAL_INJECT_CSS`.
 2. Отдельно спланировать merge/retirement strategy для legacy `template_styles.css`.
 3. Не расширять compatibility-блок responsive utilities без последующего visual smoke.

@@ -277,7 +277,27 @@ jobs:
             echo "✅ Policies component has no inline style block."
           fi
 
-          RESULT=$(grep -nE 'pathname\.includes|document\.querySelectorAll\("\.container button"\)|textContent\.trim\(\)|price-specialist-legacy|modalTemplate\.innerHTML' \
+          RESULT=$(grep -nE '<script' contacts/index.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: Contacts page must not embed inline scripts."
+            echo "$RESULT"
+            echo "Use explicit TACTICUM_PAGE_ASSETS and template JS assets."
+            FAIL=1
+          else
+            echo "✅ Contacts page has no inline script embeds."
+          fi
+
+          RESULT=$(grep -nE 'style=' local/templates/tacticum/header.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: header.php must not use inline style attributes."
+            echo "$RESULT"
+            FAIL=1
+          else
+            echo "✅ Header has no inline style attributes."
+          fi
+
+          RESULT=$(grep -nE "pathname\.includes|document\.querySelectorAll\(\"\.container button\"\)|textContent\.trim\(\)|price-specialist-legacy|modalTemplate\.innerHTML|\.ai-chat-container|\.mt-3 button|button\.textContent|filter-tab\.bg-primary|h3\.section-title \+ \.grid|innerText|querySelector(All)?\([\"']\.(filter-tab|pricing-card|level-select|price-value|level-prices-json)|closest\([\"']\.(order-specialist-btn|pricing-card)" \
+            local/templates/tacticum/js/chat-agent.js \
             local/templates/tacticum/js/modal.js \
             local/templates/tacticum/js/scroll.js \
             local/templates/tacticum/components/bitrix/news.list/price/script.js)

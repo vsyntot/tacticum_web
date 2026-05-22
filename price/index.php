@@ -66,7 +66,7 @@ tacticum_apply_seo_defaults('/price/');
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <i class="ri-scales-3-line text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-lg фонt-bold text-secondary mb-2">Возможность быстро масштабировать команду</h3>
+                <h3 class="text-lg font-bold text-secondary mb-2">Возможность быстро масштабировать команду</h3>
                 <p class="text-gray-600">
                     Легко увеличивайте или уменьшайте количество специалистов в зависимости от текущих потребностей.
                 </p>
@@ -151,7 +151,7 @@ $APPLICATION->IncludeComponent(
             <div class="flex flex-col md:flex-row items-center gap-12">
                 <!-- LIVE чат, как на /calculator/ -->
                 <div class="w-full md:w-1/2">
-                    <div class="ai-chat-container shadow-lg">
+                    <div class="ai-chat-container shadow-lg" data-tacticum-chat="light" data-chat-surface="price">
                         <!-- Chat Header -->
                         <div class="bg-white p-4 border-b border-gray-200">
                             <div class="flex items-center gap-3">
@@ -163,7 +163,7 @@ $APPLICATION->IncludeComponent(
                         </div>
 
                         <!-- Chat Body -->
-                        <div class="p-6 space-y-6">
+                        <div class="p-6 space-y-6" data-chat-messages>
                             <!-- Welcome Message -->
                             <div class="bg-primary/10 rounded-lg p-4">
                                 <p class="text-gray-700">
@@ -178,16 +178,20 @@ $APPLICATION->IncludeComponent(
                         <div class="bg-white p-4 border-t border-gray-200">
                             <div class="flex items-center gap-2">
                                 <input type="text" placeholder="Опишите вашу задачу..."
+                                       data-chat-input
                                        class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                <button class="bg-primary w-10 h-10 rounded-full flex items-center justify-center text-white">
+                                <button type="button"
+                                        data-chat-send
+                                        aria-label="Отправить сообщение"
+                                        class="bg-primary w-10 h-10 rounded-full flex items-center justify-center text-white">
                                     <i class="ri-send-plane-fill"></i>
                                 </button>
                             </div>
                             <div class="mt-3 flex flex-wrap gap-2">
-                                <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Чат-бот</button>
-                                <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Анализ данных</button>
-                                <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Интеграция ИИ-агентов</button>
-                                <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Мобильное приложение</button>
+                                <button type="button" data-chat-quick-reply data-message="Чат-бот" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Чат-бот</button>
+                                <button type="button" data-chat-quick-reply data-message="Анализ данных" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Анализ данных</button>
+                                <button type="button" data-chat-quick-reply data-message="Интеграция ИИ-агентов" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Интеграция ИИ-агентов</button>
+                                <button type="button" data-chat-quick-reply data-message="Мобильное приложение" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Мобильное приложение</button>
                             </div>
                         </div>
                     </div>
