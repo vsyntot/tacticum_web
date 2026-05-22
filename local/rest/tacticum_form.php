@@ -93,8 +93,6 @@ if ($form_id !== '') {
 }
 
 $is_specialist_order = !empty($data['specialist']) || !empty($data['rate']) || !empty($data['duration']);
-$base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
-
 if ($is_specialist_order) {
     $rate_raw = (string)($data['rate'] ?? '');
     $start_date = trim((string)($data['startDate'] ?? $data['start_date'] ?? ''));
@@ -127,21 +125,15 @@ if ($is_specialist_order) {
     $payload['task'] = implode("\n", $taskParts);
 }
 
-AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_form_request');
+$result = tacticum_rest_submit_chat_agent_sale(
+    $payload,
+    'tacticum_form_chat_agent',
+    'tacticum_form',
+    'Ошибка отправки во внешний сервис.'
+);
 
-$chat_agent_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
-$result = tacticum_rest_post_json_retry_without_group_id($chat_agent_url, $payload, 'tacticum_form_chat_agent');
-$response = $result['response'];
-$http_status = (int)$result['http_status'];
-
-$masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
-AddMessage2Log(serialize($masked_response), 'tacticum_form_response');
-
-tacticum_rest_fail_on_curl_error($result, 'tacticum_form_chat_agent', 'Ошибка отправки во внешний сервис.');
-
-if ($http_status >= 200 && $http_status < 300) {
+if (tacticum_rest_is_successful_upstream_response($result)) {
     tacticum_form_response(true, null, 'ok');
 }
 
-AddMessage2Log("Upstream error (tacticum_form_chat_agent): http_status={$http_status}", 'tacticum_form_chat_agent_error');
-tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');
+tacticum_rest_fail_chat_agent_sale_upstream($result, 'tacticum_form_chat_agent');

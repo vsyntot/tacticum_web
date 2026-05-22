@@ -1,4 +1,5 @@
 <?
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['yandex_map'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Контакты - Тактикум");
 $APPLICATION->SetPageProperty("description", "Контакты Tacticum: телефон, email, адрес офиса и форма заявки на консультацию по AI-проекту.");
@@ -133,10 +134,9 @@ include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/personal-offe
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
             <h2 class="text-3xl font-bold text-secondary mb-8 text-center">Как нас найти</h2>
-            <div class="rounded-2xl overflow-hidden shadow-md h-[450px] map-container">
-                <script type="text/javascript" charset="utf-8" async
-                        src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ab1c999cbf0d3fb4a40fc7947d626e2e8f0ea5dfd4bdf88ff616e51b72b494676&amp;width=100%25&amp;height=450&amp;lang=ru_RU&amp;scroll=true"></script>
-            </div>
+            <div class="rounded-2xl overflow-hidden shadow-md h-[450px] map-container"
+                 data-yandex-constructor-map
+                 data-yandex-constructor-src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ab1c999cbf0d3fb4a40fc7947d626e2e8f0ea5dfd4bdf88ff616e51b72b494676&amp;width=100%25&amp;height=450&amp;lang=ru_RU&amp;scroll=true"></div>
             <div class="bg-white p-6 rounded-b-2xl shadow-md -mt-2 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div class="md:basis-1/2">

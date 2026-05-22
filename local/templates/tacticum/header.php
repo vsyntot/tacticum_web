@@ -37,6 +37,9 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     if ($hasPageAsset('charts')) {
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/charts.js");
     }
+    if ($hasPageAsset('yandex_map')) {
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/yandex-map.js");
+    }
     $obAsset->addCss(SITE_TEMPLATE_PATH."/tailwind.generated.css");
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
     if ($hasPageAsset('aiagents_css')) {
@@ -58,7 +61,7 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
 	
 		ym(103471113, 'init', {ssr:true, webvisor:true, clickmap:true, accurateTrackBounce:true, trackLinks:true});
 	</script>
-	<noscript><div><img src="https://mc.yandex.ru/watch/103471113" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+	<noscript><div><img src="https://mc.yandex.ru/watch/103471113" class="tacticum-metrika-pixel" alt="" /></div></noscript>
 	<!-- /Yandex.Metrika counter -->
 
     <title><?$APPLICATION->ShowTitle(); ?></title>

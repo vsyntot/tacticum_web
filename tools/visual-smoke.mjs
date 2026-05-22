@@ -32,6 +32,7 @@ const injectedCssFiles = parseList(process.env.TACTICUM_VISUAL_INJECT_CSS, []);
 const injectedCss = injectedCssFiles.length > 0
   ? (await Promise.all(injectedCssFiles.map((file) => readCssForInjection(file)))).join('\n')
   : '';
+const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
 
 const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10);
 const minScreenshotBytes = Number.parseInt(process.env.TACTICUM_VISUAL_MIN_BYTES || '50000', 10);
@@ -73,14 +74,14 @@ try {
       const url = new URL(page, baseUrl).toString();
       const label = `${slugify(page || '/')}-${viewport.name}`;
       const screenshotPath = join(outputDir, `${label}.png`);
-      const result = await smokePage({ port, url, page, viewport, screenshotPath, injectedCss });
+      const result = await smokePage({ port, url, page, viewport, screenshotPath, injectedCss, runActions });
       results.push(result);
       console.log(formatResult(result));
     }
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, runActions, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -106,7 +107,7 @@ try {
   }
 }
 
-async function smokePage({ port, url, page, viewport, screenshotPath, injectedCss }) {
+async function smokePage({ port, url, page, viewport, screenshotPath, injectedCss, runActions }) {
   const target = await createTarget(port, url);
   const cdp = await connectCdp(target.webSocketDebuggerUrl);
   const errors = [];
@@ -126,6 +127,8 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
     consoleErrors: [],
     pageErrors: [],
     networkErrors: [],
+    actionErrors: [],
+    actions: [],
     screenshotPath,
     screenshotBytes: 0,
     errors,
@@ -227,6 +230,13 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
     }
     await sleep(waitMs);
 
+    if (runActions) {
+      const actionResult = await runActionSmoke(cdp);
+      result.actions = actionResult.actions || [];
+      result.actionErrors = actionResult.errors || [];
+      await sleep(300);
+    }
+
     const metrics = await cdp.send('Runtime.evaluate', {
       returnByValue: true,
       expression: `(() => {
@@ -302,6 +312,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
     if (result.networkErrors.length > 0) {
       errors.push(`network errors: ${formatNetworkErrors(result.networkErrors)}`);
     }
+    if (result.actionErrors.length > 0) {
+      errors.push(`action errors: ${result.actionErrors.slice(0, 3).join(' | ')}`);
+    }
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
   } finally {
@@ -310,6 +323,158 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
   }
 
   return result;
+}
+
+async function runActionSmoke(cdp) {
+  const evaluation = await cdp.send('Runtime.evaluate', {
+    awaitPromise: true,
+    returnByValue: true,
+    expression: `(() => {
+      const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const actions = [];
+      const errors = [];
+      const path = window.location.pathname;
+
+      const push = (label, status, detail = '') => {
+        actions.push({ label, status, detail });
+      };
+
+      const fail = (label, error) => {
+        const message = error && error.message ? error.message : String(error || 'failed');
+        actions.push({ label, status: 'error', detail: message });
+        errors.push(label + ': ' + message);
+      };
+
+      const find = (selector, scope = document) => scope.querySelector(selector);
+      const findAll = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
+      const activate = (element) => {
+        if (!element) return;
+        if (typeof element.click === 'function') {
+          element.click();
+          return;
+        }
+        element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      };
+
+      const run = async (label, fn, required = false) => {
+        try {
+          const detail = await fn();
+          if (detail === false || detail === null) {
+            if (required) {
+              fail(label, 'required target not found');
+            } else {
+              push(label, 'skipped', 'target not found');
+            }
+            return;
+          }
+          push(label, 'ok', typeof detail === 'string' ? detail : '');
+        } catch (error) {
+          fail(label, error);
+        }
+        await sleep(80);
+      };
+
+      return (async () => {
+        await run('scroll bottom/top', async () => {
+          window.scrollTo(0, document.documentElement.scrollHeight || document.body.scrollHeight || 0);
+          await sleep(40);
+          window.scrollTo(0, 0);
+          return 'scrolled';
+        }, true);
+
+        await run('mobile menu open/close', async () => {
+          const trigger = find('.ri-menu-line')?.closest('button,div,a');
+          const menu = find('#tacticum-mobile-menu');
+          if (!trigger || !menu) return false;
+          activate(trigger);
+          await sleep(40);
+          const close = find('.tacticum-mobile-menu-close', menu);
+          if (close) activate(close);
+          return 'menu toggled';
+        });
+
+        await run('contact modal open/close', async () => {
+          const trigger = find('#contactUsBtn');
+          const modal = find('#tacticum-modal');
+          if (!trigger || !modal) return false;
+          activate(trigger);
+          await sleep(40);
+          activate(find('#tacticum-modal-close'));
+          return 'modal toggled';
+        });
+
+        await run('empty form validation', async () => {
+          const forms = findAll('[data-tacticum-form]')
+            .filter((form) => !form.closest('#tacticum-modal.hidden'))
+            .slice(0, 4);
+          if (forms.length === 0) return false;
+          forms.forEach((form) => {
+            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+          });
+          return forms.length + ' forms';
+        });
+
+        await run('hero chat empty send', async () => {
+          const button = find('#aichat');
+          if (!button) return false;
+          activate(button);
+          return 'empty send';
+        }, path === '/');
+
+        await run('light chat empty send', async () => {
+          const chat = find('[data-tacticum-chat="light"]');
+          if (!chat) return false;
+          const input = find('[data-chat-input]', chat);
+          const button = find('[data-chat-send]', chat);
+          if (!input || !button) return false;
+          input.focus();
+          input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+          activate(button);
+          return chat.dataset.chatSurface || 'light';
+        }, path === '/calculator/' || path === '/price/');
+
+        await run('price filters/search/level', async () => {
+          const priceRoot = find('[data-price-list]');
+          if (!priceRoot) return false;
+          const tabs = findAll('[data-price-filter-tab]', priceRoot);
+          if (tabs[1]) activate(tabs[1]);
+          if (tabs[0]) activate(tabs[0]);
+          const search = find('[data-price-search]', priceRoot);
+          if (search) {
+            search.value = 'qa smoke';
+            search.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            search.value = '';
+            search.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+          }
+          const select = find('[data-price-level-select]', priceRoot);
+          if (select && select.options.length > 1) {
+            select.selectedIndex = select.selectedIndex === 0 ? 1 : 0;
+            select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          }
+          return 'price controls';
+        }, path === '/price/');
+
+        await run('price order modal empty submit', async () => {
+          const priceRoot = find('[data-price-list]');
+          const modal = find('[data-price-order-modal]');
+          const button = find('[data-price-order]', priceRoot || document);
+          if (!priceRoot || !modal || !button) return false;
+          activate(button);
+          await sleep(40);
+          const form = find('[data-price-order-form]', modal);
+          if (form) {
+            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+          }
+          activate(find('[data-price-modal-cancel]', modal) || find('[data-price-modal-close]', modal));
+          return 'specialist modal';
+        }, path === '/price/');
+
+        return { actions, errors };
+      })();
+    })()`,
+  });
+
+  return evaluation.result?.value || { actions: [], errors: ['action smoke did not return result'] };
 }
 
 async function createTarget(port, url) {
@@ -430,6 +595,10 @@ function parseList(value, fallback) {
   return value.split(',').map((item) => item.trim()).filter(Boolean);
 }
 
+function isTruthy(value) {
+  return ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
+}
+
 function slugify(page) {
   const cleaned = page.replace(/^https?:\/\/[^/]+/i, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
   return cleaned || 'home';
@@ -477,7 +646,10 @@ function formatResult(result) {
   const marker = result.errors.length > 0 ? 'FAIL' : 'OK';
   const status = result.status || 'n/a';
   const runtimeIssues = result.pageErrors.length + result.consoleErrors.length + result.networkErrors.length;
-  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}`;
+  const actionSummary = result.actions.length > 0
+    ? ` actions=${result.actions.filter((action) => action.status === 'ok').length}/${result.actions.length}`
+    : '';
+  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${actionSummary}`;
 }
 
 function addUnique(items, item) {

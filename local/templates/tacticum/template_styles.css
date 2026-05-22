@@ -2395,3 +2395,10 @@ textarea:not(:placeholder-shown)+label {
     background-size: cover;
     background-position: center;
 }
+
+.tacticum-metrika-pixel {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+}
