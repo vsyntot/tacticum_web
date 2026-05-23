@@ -18,12 +18,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM'))) ?>
                     <?php
-                    // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
-                    $sanitizer = new \CBXSanitizer();
-                    $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
-                    $agentName = htmlspecialcharsbx($arItem["NAME"]);
+                    // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
+                    $agentName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                     $agentImage = htmlspecialcharsbx($arItem["PREVIEW_PICTURE"]["SRC"]);
-                    $agentPreview = $sanitizer->SanitizeHtml((string)$arItem["PREVIEW_TEXT"]);
+                    $agentPreview = tacticum_sanitize_iblock_html((string)($arItem["~PREVIEW_TEXT"] ?? $arItem["PREVIEW_TEXT"] ?? ""));
                     $agentLink = htmlspecialcharsbx($arItem["PROPERTIES"]["LINK"]["VALUE"]);
                     ?>
                     <!-- Case Study 1 -->
@@ -34,7 +32,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                         <div class="p-6">
                             <div class="flex items-center gap-2 mb-4">
                                 <?foreach( $arItem["SECTIONS"] as $arItemSection ){?>
-                                    <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=htmlspecialcharsbx($arItemSection["NAME"])?></span>
+                                    <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=tacticum_escape_iblock_text((string)$arItemSection["NAME"])?></span>
                                 <?}?>
                             </div>
                             <h3 class="text-xl font-bold text-secondary mb-3"><?=$agentName?></h3>

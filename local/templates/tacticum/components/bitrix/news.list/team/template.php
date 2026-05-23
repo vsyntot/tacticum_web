@@ -22,14 +22,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 //            echo "<pre>"; print_r($arPhoto); echo "</pre>";
             ?>
             <?php
-            // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
-            $sanitizer = new \CBXSanitizer();
-            $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
+            // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
             $memberPhoto = htmlspecialcharsbx(CFile::GetPath($arItem["PROPERTIES"]["PHOTO"]["VALUE"]));
-            $memberName = htmlspecialcharsbx($arItem["NAME"]);
-            $memberPosition = htmlspecialcharsbx($arItem["PROPERTIES"]["POSITION"]["VALUE"]);
-            $memberPreview = $sanitizer->SanitizeHtml((string)$arItem["PREVIEW_TEXT"]);
-            $memberDetail = $sanitizer->SanitizeHtml((string)$arItem["DETAIL_TEXT"]);
+            $memberName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
+            $memberPosition = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["POSITION"]["VALUE"]);
+            $memberPreview = tacticum_sanitize_iblock_html((string)($arItem["~PREVIEW_TEXT"] ?? $arItem["PREVIEW_TEXT"] ?? ""));
+            $memberDetail = tacticum_sanitize_iblock_html((string)($arItem["~DETAIL_TEXT"] ?? $arItem["DETAIL_TEXT"] ?? ""));
             $memberLinkedIn = htmlspecialcharsbx($arItem["PROPERTIES"]["LINKEDIN"]["VALUE"]);
             $memberEmail = htmlspecialcharsbx($arItem["PROPERTIES"]["EMAIL"]["VALUE"]);
             ?>

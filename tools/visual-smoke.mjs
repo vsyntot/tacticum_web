@@ -32,6 +32,10 @@ const injectedCssFiles = parseList(process.env.TACTICUM_VISUAL_INJECT_CSS, []);
 const injectedCss = injectedCssFiles.length > 0
   ? (await Promise.all(injectedCssFiles.map((file) => readCssForInjection(file)))).join('\n')
   : '';
+const injectedJsFiles = parseList(process.env.TACTICUM_VISUAL_INJECT_JS, []);
+const injectedJs = injectedJsFiles.length > 0
+  ? (await Promise.all(injectedJsFiles.map((file) => readFile(file, 'utf8')))).join('\n;\n')
+  : '';
 const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
 
 const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10);
@@ -74,14 +78,14 @@ try {
       const url = new URL(page, baseUrl).toString();
       const label = `${slugify(page || '/')}-${viewport.name}`;
       const screenshotPath = join(outputDir, `${label}.png`);
-      const result = await smokePage({ port, url, page, viewport, screenshotPath, injectedCss, runActions });
+      const result = await smokePage({ port, url, page, viewport, screenshotPath, injectedCss, injectedJs, runActions });
       results.push(result);
       console.log(formatResult(result));
     }
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, runActions, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, injectedJsFiles, runActions, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -107,7 +111,7 @@ try {
   }
 }
 
-async function smokePage({ port, url, page, viewport, screenshotPath, injectedCss, runActions }) {
+async function smokePage({ port, url, page, viewport, screenshotPath, injectedCss, injectedJs, runActions }) {
   const target = await createTarget(port, url);
   const cdp = await connectCdp(target.webSocketDebuggerUrl);
   const errors = [];
@@ -225,6 +229,18 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
           style.setAttribute('data-tacticum-visual-smoke', 'true');
           style.textContent = ${JSON.stringify(injectedCss)};
           document.head.appendChild(style);
+        })()`,
+      });
+    }
+    if (injectedJs) {
+      await cdp.send('Runtime.evaluate', {
+        awaitPromise: true,
+        expression: `(() => {
+          const script = document.createElement('script');
+          script.setAttribute('data-tacticum-visual-smoke-js', 'true');
+          script.textContent = ${JSON.stringify(injectedJs)};
+          document.documentElement.appendChild(script);
+          script.remove();
         })()`,
       });
     }
@@ -347,6 +363,16 @@ async function runActionSmoke(cdp) {
 
       const find = (selector, scope = document) => scope.querySelector(selector);
       const findAll = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
+      const isVisible = (element) => {
+        if (!element) return false;
+        const style = window.getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== 'none'
+          && style.visibility !== 'hidden'
+          && !element.classList.contains('hidden')
+          && rect.width > 0
+          && rect.height > 0;
+      };
       const activate = (element) => {
         if (!element) return;
         if (typeof element.click === 'function') {
@@ -433,39 +459,167 @@ async function runActionSmoke(cdp) {
           return chat.dataset.chatSurface || 'light';
         }, path === '/calculator/' || path === '/price/');
 
+        await run('light chat scroll constraint', async () => {
+          const chat = find('[data-tacticum-chat="light"]');
+          if (!chat) return false;
+          const messages = find('[data-chat-messages]', chat);
+          if (!messages) return false;
+          for (let index = 0; index < 12; index += 1) {
+            const item = document.createElement('div');
+            item.className = 'bg-primary/10 rounded-lg p-4';
+            item.textContent = 'Smoke message ' + index + ' '.repeat(10) + 'проверяет внутреннюю прокрутку чата.';
+            messages.appendChild(item);
+          }
+          await sleep(80);
+          if (messages.scrollHeight <= messages.clientHeight + 20) {
+            throw new Error('light chat messages are not scrollable after overflow');
+          }
+          const chatHeight = Math.round(chat.getBoundingClientRect().height);
+          if (chatHeight > 680) {
+            throw new Error('light chat grew beyond constrained height: ' + chatHeight);
+          }
+          return 'height=' + chatHeight;
+        }, path === '/calculator/' || path === '/price/');
+
         await run('price filters/search/level', async () => {
-          const priceRoot = find('[data-price-list]');
+          const priceRoot = find('[data-price-list]') || find('.pricing-card')?.closest('section, main, body');
           if (!priceRoot) return false;
-          const tabs = findAll('[data-price-filter-tab]', priceRoot);
-          if (tabs[1]) activate(tabs[1]);
-          if (tabs[0]) activate(tabs[0]);
-          const search = find('[data-price-search]', priceRoot);
+          const cards = findAll('[data-price-card], .pricing-card', priceRoot);
+          const visibleCards = () => cards.filter(isVisible);
+          const initialVisible = visibleCards().length;
+          if (initialVisible === 0) {
+            throw new Error('no visible price cards');
+          }
+          const tabs = findAll('[data-price-filter-tab]', priceRoot).length
+            ? findAll('[data-price-filter-tab]', priceRoot)
+            : findAll('.filter-tab', priceRoot);
+          if (tabs[1]) {
+            const targetCategory = tabs[1].dataset.category || '';
+            activate(tabs[1]);
+            await sleep(80);
+            const wrongCategory = visibleCards().find((card) => targetCategory && targetCategory !== 'all' && card.dataset.category !== targetCategory);
+            if (wrongCategory) {
+              throw new Error('tab filter did not hide other categories');
+            }
+          }
+          if (tabs[0]) {
+            activate(tabs[0]);
+            await sleep(80);
+            if (visibleCards().length === 0) {
+              throw new Error('all tab did not restore cards');
+            }
+          }
+          const search = find('[data-price-search]', priceRoot) || find('#specialist-search', priceRoot);
           if (search) {
-            search.value = 'qa smoke';
+            search.value = 'qa smoke unmatched value';
             search.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            await sleep(80);
+            if (visibleCards().length !== 0) {
+              throw new Error('search did not hide unmatched cards');
+            }
+            const emptyState = find('[data-price-empty]', priceRoot);
+            if (emptyState && !isVisible(emptyState)) {
+              throw new Error('empty price search state did not become visible');
+            }
             search.value = '';
             search.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            await sleep(80);
+            if (visibleCards().length === 0) {
+              throw new Error('search clear did not restore cards');
+            }
           }
-          const select = find('[data-price-level-select]', priceRoot);
-          if (select && select.options.length > 1) {
-            select.selectedIndex = select.selectedIndex === 0 ? 1 : 0;
-            select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          const levelOptions = findAll('[data-price-level-option]', priceRoot);
+          const levelOption = levelOptions.find((option) => {
+            const card = option.closest('[data-price-card], .pricing-card');
+            const active = card?.querySelector('[data-price-level-option][data-active="true"]');
+            return active && option !== active && option.dataset.price !== active.dataset.price;
+          }) || levelOptions.find((option) => option.dataset.active !== 'true');
+          if (levelOption) {
+            const card = levelOption.closest('[data-price-card], .pricing-card');
+            const active = card?.querySelector('[data-price-level-option][data-active="true"]');
+            const priceBlock = card?.querySelector('[data-price-value], .price-value');
+            const previousText = priceBlock?.textContent || '';
+            const previousPrice = active?.dataset.price || '';
+            const nextPrice = levelOption.dataset.price || '';
+            activate(levelOption);
+            await sleep(80);
+            if (levelOption.dataset.active !== 'true' || levelOption.getAttribute('aria-pressed') !== 'true') {
+              throw new Error('level segmented control did not activate option');
+            }
+            if (previousPrice !== nextPrice && priceBlock && priceBlock.textContent === previousText) {
+              throw new Error('level segmented control did not update price');
+            }
+          } else {
+            const select = find('[data-price-level-select]', priceRoot) || find('.level-select', priceRoot);
+            if (select && select.options.length > 1) {
+              const card = select.closest('[data-price-card], .pricing-card');
+              const priceBlock = card?.querySelector('[data-price-value], .price-value');
+              const previousText = priceBlock?.textContent || '';
+              const previousPrice = select.selectedOptions?.[0]?.dataset.price || '';
+              select.selectedIndex = select.selectedIndex === 0 ? 1 : 0;
+              select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+              await sleep(80);
+              const nextPrice = select.selectedOptions?.[0]?.dataset.price || '';
+              if (previousPrice !== nextPrice && priceBlock && priceBlock.textContent === previousText) {
+                throw new Error('level select did not update price');
+              }
+            }
           }
           return 'price controls';
         }, path === '/price/');
 
         await run('price order modal empty submit', async () => {
-          const priceRoot = find('[data-price-list]');
-          const modal = find('[data-price-order-modal]');
-          const button = find('[data-price-order]', priceRoot || document);
+          const priceRoot = find('[data-price-list]') || find('.pricing-card')?.closest('section, main, body');
+          const modal = find('[data-price-order-modal]') || find('#specialistOrderModal');
+          const buttons = findAll('[data-price-order], .order-specialist-btn', priceRoot || document).filter(isVisible);
+          const button = buttons[0] || null;
           if (!priceRoot || !modal || !button) return false;
+          const card = button.closest('[data-price-card], .pricing-card');
+          const expectedSpecialist = card?.dataset.name || card?.querySelector('h3')?.textContent?.trim() || '';
           activate(button);
-          await sleep(40);
-          const form = find('[data-price-order-form]', modal);
+          await sleep(80);
+          if (modal.classList.contains('opacity-0') || modal.classList.contains('pointer-events-none')) {
+            throw new Error('modal did not open');
+          }
+          const selected = find('[data-price-selected-specialist]', modal) || find('#selectedSpecialist', modal);
+          if (selected && expectedSpecialist && !selected.textContent.includes(expectedSpecialist)) {
+            throw new Error('selected specialist was not populated');
+          }
+          const addMore = find('[data-price-order-add-more]', modal);
+          if (addMore && buttons[1]) {
+            activate(addMore);
+            await sleep(80);
+            activate(buttons[1]);
+            await sleep(80);
+            const count = find('[data-price-order-count]', modal);
+            const countText = count?.textContent || '';
+            if (count && !/2|3|4|5|6|7|8|9/.test(countText)) {
+              throw new Error('multi specialist order count did not update');
+            }
+          }
+          const duration = find('#orderDuration', modal);
+          const endDate = find('#orderEndDate', modal);
+          if (duration && endDate) {
+            duration.value = 'exact-date';
+            duration.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+            await sleep(80);
+            const endDateWrap = endDate.closest('[data-price-end-date-wrap]');
+            if (endDateWrap?.classList.contains('hidden') || !endDate.required) {
+              throw new Error('exact end date field did not become required');
+            }
+            endDate.value = '2026-06-30';
+            endDate.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            endDate.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          }
+          const form = find('[data-price-order-form]', modal) || find('#specialistOrderForm', modal);
           if (form) {
             form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
           }
-          activate(find('[data-price-modal-cancel]', modal) || find('[data-price-modal-close]', modal));
+          activate(find('[data-price-modal-cancel]', modal) || find('[data-price-modal-close]', modal) || find('#cancelOrderModal', modal) || find('#closeOrderModal', modal));
+          await sleep(80);
+          if (!modal.classList.contains('opacity-0') && !modal.classList.contains('pointer-events-none')) {
+            throw new Error('modal did not close');
+          }
           return 'specialist modal';
         }, path === '/price/');
 

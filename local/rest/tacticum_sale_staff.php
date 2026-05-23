@@ -19,7 +19,15 @@ $email = trim((string)($data['email'] ?? ''));
 $phone = trim((string)($data['phone'] ?? ''));
 $task = trim((string)($data['message'] ?? $data['description'] ?? $data['task'] ?? ''));
 $startDate = trim((string)($data['startDate'] ?? $data['start_date'] ?? ''));
-$duration = trim((string)($data['duration'] ?? ''));
+$endDate = trim((string)($data['endDate'] ?? $data['end_date'] ?? ''));
+$duration = trim((string)($data['duration'] ?? 'flexible'));
+if ($duration === '') {
+    $duration = 'flexible';
+}
+$workload = trim((string)($data['workload'] ?? 'flexible'));
+if ($workload === '') {
+    $workload = 'flexible';
+}
 $specialist = trim((string)($data['specialist'] ?? ''));
 $rate = trim((string)($data['rate'] ?? ''));
 $level = trim((string)($data['level'] ?? ''));
@@ -36,6 +44,80 @@ if ($cost_per_hour === '') {
 }
 
 $errors = [];
+$raw_workers = [];
+$workers_json = $data['workers_json'] ?? null;
+if (isset($data['workers']) && is_array($data['workers'])) {
+    $raw_workers = $data['workers'];
+} elseif (is_string($workers_json) && trim($workers_json) !== '') {
+    $decoded_workers = json_decode($workers_json, true);
+    if (is_array($decoded_workers)) {
+        $raw_workers = isset($decoded_workers['role']) || isset($decoded_workers['specialist'])
+            ? [$decoded_workers]
+            : $decoded_workers;
+    } else {
+        $errors[] = 'workers_json';
+    }
+}
+
+if (empty($raw_workers) && $specialist !== '') {
+    $raw_workers = [
+        [
+            'role' => $specialist,
+            'level' => $level,
+            'cost_per_hour' => $cost_per_hour,
+            'amount_of_workers' => $amount_of_workers,
+        ],
+    ];
+}
+
+if (count($raw_workers) > 20) {
+    $errors[] = 'workers';
+}
+
+$workers = [];
+$total_workers = 0;
+foreach ($raw_workers as $index => $worker) {
+    if (!is_array($worker)) {
+        $errors[] = 'workers';
+        continue;
+    }
+
+    $worker_role = trim((string)($worker['role'] ?? $worker['specialist'] ?? $worker['name'] ?? ''));
+    $worker_level = trim((string)($worker['level'] ?? ''));
+    $worker_rate = trim((string)($worker['cost_per_hour'] ?? $worker['rate'] ?? ''));
+    $worker_rate_clean = preg_replace('/[^\d.,]/', '', $worker_rate);
+    if ($worker_rate_clean !== '') {
+        $worker_rate = $worker_rate_clean;
+    }
+    $worker_amount_raw = $worker['amount_of_workers'] ?? $worker['amount'] ?? $worker['quantity'] ?? 1;
+    $worker_amount = is_numeric($worker_amount_raw) && (int)$worker_amount_raw > 0 ? (int)$worker_amount_raw : 1;
+
+    if ($worker_role === '') {
+        $errors[] = 'workers[' . $index . '].role';
+        continue;
+    }
+    if (mb_strlen($worker_role) > 200) {
+        $errors[] = 'workers[' . $index . '].role';
+    }
+    if ($worker_level !== '' && mb_strlen($worker_level) > 100) {
+        $errors[] = 'workers[' . $index . '].level';
+    }
+    if ($worker_rate !== '' && mb_strlen($worker_rate) > 50) {
+        $errors[] = 'workers[' . $index . '].cost_per_hour';
+    }
+    if ($worker_amount > 100) {
+        $errors[] = 'workers[' . $index . '].amount_of_workers';
+    }
+
+    $total_workers += $worker_amount;
+    $workers[] = [
+        'role' => $worker_role,
+        'level' => $worker_level,
+        'cost_per_hour' => $worker_rate,
+        'amount_of_workers' => $worker_amount,
+    ];
+}
+
 if ($client_name === '') {
     $errors[] = 'name';
 }
@@ -48,14 +130,8 @@ if ($phone === '' || !tacticum_rest_is_valid_phone($phone_normalized)) {
 if ($task === '') {
     $errors[] = 'message';
 }
-if ($specialist === '') {
-    $errors[] = 'specialist';
-}
-if ($startDate === '') {
-    $errors[] = 'startDate';
-}
-if ($duration === '') {
-    $errors[] = 'duration';
+if (empty($workers)) {
+    $errors[] = 'workers';
 }
 if ($client_name !== '' && mb_strlen($client_name) > 200) {
     $errors[] = 'name';
@@ -66,17 +142,20 @@ if ($company !== '' && mb_strlen($company) > 200) {
 if ($task !== '' && mb_strlen($task) > 2000) {
     $errors[] = 'message';
 }
-if ($specialist !== '' && mb_strlen($specialist) > 200) {
-    $errors[] = 'specialist';
-}
-if ($level !== '' && mb_strlen($level) > 100) {
-    $errors[] = 'level';
-}
 if ($startDate !== '' && mb_strlen($startDate) > 50) {
     $errors[] = 'startDate';
 }
+if ($endDate !== '' && mb_strlen($endDate) > 50) {
+    $errors[] = 'endDate';
+}
+if ($duration === 'exact-date' && $endDate === '') {
+    $errors[] = 'endDate';
+}
 if ($duration !== '' && mb_strlen($duration) > 50) {
     $errors[] = 'duration';
+}
+if ($workload !== '' && mb_strlen($workload) > 50) {
+    $errors[] = 'workload';
 }
 if ($page_url !== '' && mb_strlen($page_url) > 1000) {
     $errors[] = 'page_url';
@@ -90,16 +169,38 @@ if ($form_id !== '' && mb_strlen($form_id) > 100) {
 if ($amount_of_workers > 100) {
     $errors[] = 'amount_of_workers';
 }
+if ($total_workers > 100) {
+    $errors[] = 'workers';
+}
 if (!empty($errors)) {
     tacticum_rest_error(400, 'validation_error', 'Некорректные или обязательные поля: ' . implode(', ', array_unique($errors)) . '.');
 }
 
 $durationLabels = [
+    'flexible' => 'срок обсуждается',
+    '2-weeks' => 'короткий спринт: до 2 недель',
     '1-month' => '1 месяц',
-    '3-months' => '3 месяца',
-    '6-months' => '6 месяцев',
+    '2-3-months' => '2–3 месяца',
+    '3-6-months' => '3–6 месяцев',
+    '6-plus-months' => 'дольше 6 месяцев',
+    'exact-date' => 'до конкретной даты',
 ];
 $durationLabel = $durationLabels[$duration] ?? $duration;
+$workloadLabels = [
+    'flexible' => 'обсуждается',
+    'part-time' => 'part-time',
+    'full-time' => 'full-time',
+];
+$workloadLabel = $workloadLabels[$workload] ?? $workload;
+
+$specialist_summary = implode('; ', array_map(static function (array $worker): string {
+    $line = $worker['role'];
+    if ($worker['level'] !== '') {
+        $line .= ' (' . $worker['level'] . ')';
+    }
+    $line .= ' x' . $worker['amount_of_workers'];
+    return $line;
+}, $workers));
 
 $staffPayload = [
     'client_name' => $client_name,
@@ -108,15 +209,10 @@ $staffPayload = [
     'phone' => $phone_normalized,
     'task' => $task,
     'start_date' => $startDate,
+    'end_date' => $endDate,
     'worker_timeline' => $duration,
-    'workers' => [
-        [
-            'role' => $specialist,
-            'level' => $level,
-            'cost_per_hour' => $cost_per_hour,
-            'amount_of_workers' => $amount_of_workers,
-        ],
-    ],
+    'workload' => $workload,
+    'workers' => $workers,
 ];
 
 if ($group_id !== '') {
@@ -130,18 +226,38 @@ if ($form_id !== '') {
 }
 
 $taskParts = [
-    'Заявка на специалиста',
-    'Специалист: ' . $specialist . ($level !== '' ? ' (' . $level . ')' : ''),
-    'Количество: ' . $amount_of_workers,
+    count($workers) > 1 || $total_workers > 1 ? 'Заявка на команду специалистов' : 'Заявка на специалиста',
+    'Состав: ' . $specialist_summary,
+    'Общее количество: ' . $total_workers,
 ];
-if ($cost_per_hour !== '') {
-    $taskParts[] = 'Ставка: ' . $cost_per_hour . ' руб/час';
+$total_hourly_rate = 0;
+foreach ($workers as $worker) {
+    $numeric_rate = (float)str_replace(',', '.', (string)$worker['cost_per_hour']);
+    if ($numeric_rate > 0) {
+        $total_hourly_rate += $numeric_rate * (int)$worker['amount_of_workers'];
+    }
+}
+if ($total_hourly_rate > 0) {
+    $taskParts[] = 'Ориентировочная суммарная ставка: ' . number_format($total_hourly_rate, 0, ',', ' ') . ' руб/час';
+}
+foreach ($workers as $worker) {
+    $workerLine = '- ' . $worker['role'] . ($worker['level'] !== '' ? ' (' . $worker['level'] . ')' : '') . ': ' . $worker['amount_of_workers'] . ' чел.';
+    if ($worker['cost_per_hour'] !== '') {
+        $workerLine .= ', ' . $worker['cost_per_hour'] . ' руб/час';
+    }
+    $taskParts[] = $workerLine;
 }
 if ($startDate !== '') {
     $taskParts[] = 'Дата начала: ' . $startDate;
 }
 if ($durationLabel !== '') {
     $taskParts[] = 'Срок работы: ' . $durationLabel;
+}
+if ($endDate !== '') {
+    $taskParts[] = 'Дата окончания: ' . $endDate;
+}
+if ($workloadLabel !== '') {
+    $taskParts[] = 'Загрузка: ' . $workloadLabel;
 }
 $taskParts[] = 'Описание задачи: ' . $task;
 if ($page_url !== '') {

@@ -12,17 +12,21 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-$sanitizer = new \CBXSanitizer();
-$sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
-$summaryText = $sanitizer->SanitizeHtml((string)($arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"] ?? ""));
+$summaryText = tacticum_sanitize_iblock_html((string)($arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"] ?? ""));
 $summaryPlain = trim(strip_tags($summaryText));
-$goals = array_filter((array)($arResult["PROPERTIES"]["GOALS"]["VALUE"] ?? []), "strlen");
-$functionalRequirements = array_filter((array)($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []), "strlen");
-$nonfunctionalRequirements = array_filter((array)($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []), "strlen");
-$teamMembers = array_filter((array)($arResult["PROPERTIES"]["TEAM"]["VALUE"] ?? []), "strlen");
-$stackItems = array_filter((array)($arResult["PROPERTIES"]["STACK"]["VALUE"] ?? []), "strlen");
-$budget = htmlspecialcharsbx($arResult["PROPERTIES"]["BUDGET"]["VALUE"] ?? "");
-$timeline = htmlspecialcharsbx($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? "");
+$decodeList = static fn($items) => array_filter(
+    array_map(static fn($value) => tacticum_decode_iblock_text((string)$value), (array)$items),
+    "strlen"
+);
+$goals = $decodeList($arResult["PROPERTIES"]["GOALS"]["VALUE"] ?? []);
+$functionalRequirements = $decodeList($arResult["PROPERTIES"]["FUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []);
+$nonfunctionalRequirements = $decodeList($arResult["PROPERTIES"]["NONFUNCTIONAL_REQUIREMENTS"]["VALUE"] ?? []);
+$teamMembers = $decodeList($arResult["PROPERTIES"]["TEAM"]["VALUE"] ?? []);
+$stackItems = $decodeList($arResult["PROPERTIES"]["STACK"]["VALUE"] ?? []);
+$budgetRaw = tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["BUDGET"]["VALUE"] ?? ""));
+$timelineRaw = tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? ""));
+$budget = htmlspecialcharsbx($budgetRaw);
+$timeline = htmlspecialcharsbx($timelineRaw);
 $projectInfoLines = array_filter([
     $summaryPlain !== "" ? "Краткое описание: {$summaryPlain}" : "",
     !empty($goals) ? "Цели MVP: " . implode(", ", $goals) : "",
@@ -30,8 +34,8 @@ $projectInfoLines = array_filter([
     !empty($nonfunctionalRequirements) ? "Нефункциональные требования: " . implode(", ", $nonfunctionalRequirements) : "",
     !empty($teamMembers) ? "Команда: " . implode(", ", $teamMembers) : "",
     !empty($stackItems) ? "Стек: " . implode(", ", $stackItems) : "",
-    $budget !== "" ? "Бюджет: {$budget}" : "",
-    $timeline !== "" ? "Срок: {$timeline}" : "",
+    $budgetRaw !== "" ? "Бюджет: {$budgetRaw}" : "",
+    $timelineRaw !== "" ? "Срок: {$timelineRaw}" : "",
 ], "strlen");
 $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
 ?>
@@ -259,9 +263,9 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                             <li class="flex items-start gap-3">
                                 <i class="ri-close-circle-line text-red-500 mt-1"></i>
                                 <div>
-                                    <p class="font-medium mb-1"><?=htmlspecialcharsbx($sTechRisksItem)?></p>
+                                    <p class="font-medium mb-1"><?=tacticum_escape_iblock_text((string)$sTechRisksItem)?></p>
                                     <?if(isset($arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex]) && !empty($arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex])){?>
-                                        <p class="text-gray-600 text-sm"><?=htmlspecialcharsbx($arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex])?></p>
+                                        <p class="text-gray-600 text-sm"><?=tacticum_escape_iblock_text((string)$arResult["PROPERTIES"]["TECH_RISKS"]["DESCRIPTION"][$iTechRisksIndex])?></p>
                                     <?}?>
                                 </div>
                             </li>
@@ -282,9 +286,9 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                             <li class="flex items-start gap-3">
                                 <i class="ri-close-circle-line text-amber-500 mt-1"></i>
                                 <div>
-                                    <p class="font-medium mb-1"><?=htmlspecialcharsbx($sBusinessRisksItem)?></p>
+                                    <p class="font-medium mb-1"><?=tacticum_escape_iblock_text((string)$sBusinessRisksItem)?></p>
                                     <?if(isset($arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex]) && !empty($arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex])){?>
-                                        <p class="text-gray-600 text-sm"><?=htmlspecialcharsbx($arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex])?></p>
+                                        <p class="text-gray-600 text-sm"><?=tacticum_escape_iblock_text((string)$arResult["PROPERTIES"]["BUSINESS_RISKS"]["DESCRIPTION"][$iBusinessRisksIndex])?></p>
                                     <?}?>
                                 </div>
                             </li>

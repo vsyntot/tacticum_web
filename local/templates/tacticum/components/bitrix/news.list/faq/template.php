@@ -21,11 +21,10 @@ if ($sectionClass === "") {
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
                     ?>
                     <?php
-                    // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
-                    $sanitizer = new \CBXSanitizer();
-                    $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
-                    $faqTitle = htmlspecialcharsbx($arItem["NAME"]);
-                    $faqAnswer = $sanitizer->SanitizeHtml((string)$arItem["~DETAIL_TEXT"]);
+                    // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
+                    $faqTitle = tacticum_escape_iblock_text((string)$arItem["NAME"]);
+                    $faqAnswerRaw = (string)($arItem["~DETAIL_TEXT"] ?? $arItem["DETAIL_TEXT"] ?? "");
+                    $faqAnswer = tacticum_sanitize_iblock_html($faqAnswerRaw);
                     ?>
                     <div class="faq-item py-4">
                         <div class="faq-question flex items-center justify-between">
@@ -35,9 +34,9 @@ if ($sectionClass === "") {
                             </div>
                         </div>
                         <div class="faq-answer mt-2 text-gray-600">
-                            <p class="mt-2">
+                            <div class="mt-2">
                                 <?=$faqAnswer?>
-                            </p>
+                            </div>
                         </div>
                     </div>
                 <?}?>

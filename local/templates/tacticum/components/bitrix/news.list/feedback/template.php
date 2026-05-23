@@ -16,14 +16,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
             $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
             ?>
             <?php
-            // Экранируем пользовательские данные; HTML допускаем только через CBXSanitizer (Bitrix).
-            $sanitizer = new \CBXSanitizer();
-            $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
-            $reviewText = $sanitizer->SanitizeHtml((string)$arItem["DETAIL_TEXT"]);
-            $reviewName = htmlspecialcharsbx($arItem["PROPERTIES"]["NAME"]["VALUE"]);
-            $reviewPosition = htmlspecialcharsbx($arItem["PROPERTIES"]["POSITION"]["VALUE"]);
-            $reviewCompany = htmlspecialcharsbx($arItem["PROPERTIES"]["COMPANY"]["VALUE"]);
-            $reviewInitials = mb_strtoupper(implode('', array_map(fn($p) => mb_substr($p, 0, 1), array_slice(preg_split('/\s+/u', trim($arItem["PROPERTIES"]["NAME"]["VALUE"])), 0, 2))));
+            // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
+            $reviewText = tacticum_sanitize_iblock_html((string)($arItem["~DETAIL_TEXT"] ?? $arItem["DETAIL_TEXT"] ?? ""));
+            $reviewNameRaw = tacticum_decode_iblock_text((string)$arItem["PROPERTIES"]["NAME"]["VALUE"]);
+            $reviewName = htmlspecialcharsbx($reviewNameRaw);
+            $reviewPosition = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["POSITION"]["VALUE"]);
+            $reviewCompany = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["COMPANY"]["VALUE"]);
+            $reviewInitials = mb_strtoupper(implode('', array_map(fn($p) => mb_substr($p, 0, 1), array_slice(preg_split('/\s+/u', trim($reviewNameRaw)), 0, 2))));
             $reviewInitialsEsc = htmlspecialcharsbx($reviewInitials);
             ?>
             <div class="bg-white rounded-xl p-6 shadow-sm flex flex-col">
