@@ -44,8 +44,10 @@
 | `workers_json` | JSON string | Основной frontend payload для заказа нескольких специалистов; массив объектов `role`, `level`, `cost_per_hour`, `amount_of_workers` |
 | `workers` | array | Backend-compatible structured payload для API clients; тот же состав, что `workers_json` |
 | `workload` | string | Формат загрузки: `flexible`, `part-time`, `full-time` |
+| `team_preset` | string | Опциональный пресет команды на `/price/`: `mvp`, `discovery`, `support`, `qa-burst` |
+| `monthly_budget_estimate` | string/number | Ориентировочный месячный бюджет, рассчитанный на frontend по ставке, количеству и загрузке |
 
-Форма `price-specialist` на `/price/` должна использовать `data-endpoint="/local/rest/tacticum_sale_staff.php"`. Этот endpoint сохраняет доменную модель заказа сотрудников (`workers[]`, `start_date`, `end_date`, `worker_timeline`, `workload`, `cost_per_hour`, `amount_of_workers`) и временно адаптирует её в `HotSaleRequestDTO` для `/tacticum/v1/chat_agent/sale`. Отдельный `/tacticum/v1/sale/workers` в актуальном OpenAPI отсутствует.
+Форма `price-specialist` на `/price/` должна использовать `data-endpoint="/local/rest/tacticum_sale_staff.php"`. Этот endpoint сохраняет доменную модель заказа сотрудников (`workers[]`, `start_date`, `end_date`, `worker_timeline`, `workload`, `cost_per_hour`, `amount_of_workers`, `team_preset`, `monthly_budget_estimate`) и временно адаптирует её в `HotSaleRequestDTO` для `/tacticum/v1/chat_agent/sale`. Отдельный `/tacticum/v1/sale/workers` в актуальном OpenAPI отсутствует.
 
 ## Form ID Taxonomy
 
@@ -103,9 +105,9 @@
 }
 ```
 
-Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call, masked logs and retry policy. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
+Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call and retry policy. `tacticum_offer.php` and `tacticum_sale.php` are legacy aliases: they preserve response shape, but return `Deprecation`, `Sunset` and `Link: rel="successor-version"` headers pointing to `/local/rest/tacticum_form.php`. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
 
-`tacticum_sale_staff.php` возвращает тот же формат успешного ответа. Если передан `workers_json` / `workers`, endpoint валидирует до 20 позиций и суммарно до 100 специалистов; legacy-поля `specialist`, `level`, `rate`, `amount_of_workers` остаются fallback для одиночного заказа. Детали состава команды передаются upstream внутри `task`, а rich staff payload остаётся в backend-логике и masked logs.
+`tacticum_sale_staff.php` возвращает тот же формат успешного ответа. Если передан `workers_json` / `workers`, endpoint валидирует до 20 позиций и суммарно до 100 специалистов; legacy-поля `specialist`, `level`, `rate`, `amount_of_workers` остаются fallback для одиночного заказа. Детали состава команды, выбранный пресет и ориентировочный месячный бюджет передаются upstream внутри `task`; файловое runtime-логирование payload/response в кастомном коде отключено.
 
 ## Error Model
 
@@ -137,7 +139,9 @@ Frontend не должен показывать пользователю raw ups
 - Невалидный JSON: endpoint возвращает `400 invalid_json`.
 - Слишком длинные `name`, `company`, `message`, `page_url`, `group_id`: endpoint возвращает `400 validation_error`.
 - Prefilled chat form with a valid lead payload but upstream failure on `group_id`: endpoint retries without `group_id` and returns success if the plain lead is accepted.
-- Specialist order с `/price/`: форма отправляется в `/local/rest/tacticum_sale_staff.php`, rich staff payload содержит `workers[]`, adapter отправляет заявку в `/tacticum/v1/chat_agent/sale`, PII в логах маскируется.
+- Specialist order с `/price/`: форма отправляется в `/local/rest/tacticum_sale_staff.php`, `workers[]` валидируется backend-ом, adapter отправляет заявку в `/tacticum/v1/chat_agent/sale`, файловое runtime-логирование payload/response отключено.
 - Multi-staff order с `/price/`: пользователь добавляет несколько ролей/уровней, меняет количество, frontend отправляет `workers_json`, backend формирует `workers[]` и текстовое резюме команды в `task`.
 - Exact deadline order с `/price/`: при выборе `duration=exact-date` frontend раскрывает календарь `endDate`, блокирует отправку без даты, backend также возвращает `validation_error`, если дата не передана.
+- Team preset order с `/price/`: пользователь выбирает `MVP`, `Discovery`, `Support` или `QA burst`, frontend подбирает доступные роли из текущих карточек, показывает persistent summary, отправляет `team_preset` и `workers_json`.
+- Monthly budget estimate с `/price/`: при выбранной загрузке `part-time` или `full-time` frontend считает ориентировочный бюджет, отправляет `monthly_budget_estimate`, backend добавляет его в `task`.
 - Upstream недоступен: endpoint возвращает `502`, пользователь видит общий error state без технических деталей.

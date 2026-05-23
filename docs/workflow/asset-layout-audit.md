@@ -8,6 +8,7 @@ Global JS подключается в `local/templates/tacticum/header.php` че
 
 - `js/menu.js`;
 - `js/analytics.js`;
+- `js/metrika.js`;
 - `js/forms.js`;
 - `js/chat-agent.js`;
 - `js/modal.js`;
@@ -52,9 +53,8 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 Оставшиеся известные inline assets:
 
-- Yandex.Metrika в `header.php` — допустимое vendor exception;
 - Yandex Maps constructor на `/contacts/` подключается через explicit asset `js/yandex-map.js` и `data-yandex-constructor-map`;
-- Yandex.Metrika остаётся централизованной analytics exception в `header.php`; noscript pixel использует CSS class вместо inline `style=`;
+- Yandex.Metrika подключается через centralized template asset `js/metrika.js`; noscript pixel использует CSS class вместо inline `style=`;
 - JSON data islands в price component — допустимо как `application/json`;
 - generated font demo HTML в `local/templates/tacticum/fonts/` — не production page flow.
 
@@ -100,6 +100,7 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 - `template_styles.css` остаётся общим местом для unrelated page rules.
 - Если `tailwind.generated.css` потеряет декларацию порядка cascade layers, reset из legacy `template_styles.css` может обнулить spacing/border utilities.
 - Repeated CTA markup больше не живёт копиями в public page PHP; новые варианты нужно добавлять через includes/components.
+- Metrika больше не требует inline-script exception, но будущий CSP должен явно разрешить vendor domain `https://mc.yandex.ru`.
 
 ## Rules Going Forward
 
@@ -115,6 +116,6 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 Следующий cleanup:
 
-1. После deploy выполнить `npm run visual:smoke` и `npm run browser:smoke` против целевого URL без `TACTICUM_VISUAL_INJECT_CSS`.
-2. Отдельно спланировать merge/retirement strategy для legacy `template_styles.css`.
+1. Deploy workflow уже выполняет `npm run visual:smoke` и `npm run browser:smoke` против production URL без `TACTICUM_VISUAL_INJECT_CSS`; при локальной выкладке запускать те же команды вручную.
+2. Следовать `docs/workflow/template-styles-retirement-plan.md` для merge/retirement strategy legacy `template_styles.css`.
 3. Не расширять compatibility-блок responsive utilities без последующего visual smoke.

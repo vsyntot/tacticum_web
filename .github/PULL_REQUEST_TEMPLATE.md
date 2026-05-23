@@ -45,7 +45,7 @@ Closes #<!-- номер issue -->
 - [ ] `tacticum_rest_validate_origin()` вызывается первым
 - [ ] `tacticum_rest_rate_limit('action')` вызывается вторым
 - [ ] `tacticum_rest_check_csrf($data)` вызывается для POST
-- [ ] PII в логах маскируется через `tacticum_rest_mask_pii()` / `mask_string()`
+- [ ] Нет файлового/debug runtime-логирования payload/response в `/local` и публичных скриптах
 - [ ] Нет хардкода ID инфоблоков — используется `tacticum_rest_get_iblock_id('key')`
 - [ ] Нет хардкода URL AI-сервиса — используется `tacticum_rest_get_ai_setting('...')`
 - [ ] Внешние curl-запросы только по HTTPS

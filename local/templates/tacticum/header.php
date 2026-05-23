@@ -26,6 +26,7 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     <?
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/menu.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/analytics.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/metrika.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-agent.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
@@ -50,24 +51,12 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <?$APPLICATION->ShowHead(); ?>
 
-	<!-- Yandex.Metrika counter -->
-	<script type="text/javascript">
-		(function(m,e,t,r,i,k,a){
-			m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-			m[i].l=1*new Date();
-			for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-			k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-		})(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103471113', 'ym');
-	
-		ym(103471113, 'init', {ssr:true, webvisor:true, clickmap:true, accurateTrackBounce:true, trackLinks:true});
-	</script>
-	<noscript><div><img src="https://mc.yandex.ru/watch/103471113" class="tacticum-metrika-pixel" alt="" /></div></noscript>
-	<!-- /Yandex.Metrika counter -->
-
     <title><?$APPLICATION->ShowTitle(); ?></title>
 </head>
 <body class="<?=htmlspecialchars($bodyClass, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')?>">
 <?$APPLICATION->ShowPanel(); ?>
+<!-- Yandex.Metrika noscript pixel -->
+<noscript><div><img src="https://mc.yandex.ru/watch/103471113" class="tacticum-metrika-pixel" alt="" /></div></noscript>
 <!-- Header -->
 <div id="header">
     <header class="fixed w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">

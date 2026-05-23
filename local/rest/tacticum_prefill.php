@@ -38,12 +38,6 @@ $res = CIBlockElement::GetList([], $arFilter, false, false, $arSelect);
 if ($ob = $res->Fetch()) {
     $summary = (string)($ob['PROPERTY_SUMMARY_VALUE']['TEXT'] ?? '');
     $clientName = (string)($ob['PROPERTY_CLIENT_NAME_VALUE'] ?? '');
-    AddMessage2Log(serialize(tacticum_rest_mask_pii([
-        'id' => $ob['ID'] ?? null,
-        'group_id' => $ob['PROPERTY_GROUP_ID_VALUE'] ?? '',
-        'summary_length' => mb_strlen($summary),
-        'client_name' => $clientName,
-    ])), "tacticum_prefill_result");
 
     echo json_encode([
         'success' => true,

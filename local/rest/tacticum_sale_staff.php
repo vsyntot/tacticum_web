@@ -28,6 +28,12 @@ $workload = trim((string)($data['workload'] ?? 'flexible'));
 if ($workload === '') {
     $workload = 'flexible';
 }
+$teamPreset = trim((string)($data['team_preset'] ?? ''));
+$monthlyBudgetEstimate = trim((string)($data['monthly_budget_estimate'] ?? ''));
+$monthlyBudgetEstimateClean = preg_replace('/[^\d.,]/', '', $monthlyBudgetEstimate);
+if ($monthlyBudgetEstimateClean !== '') {
+    $monthlyBudgetEstimate = $monthlyBudgetEstimateClean;
+}
 $specialist = trim((string)($data['specialist'] ?? ''));
 $rate = trim((string)($data['rate'] ?? ''));
 $level = trim((string)($data['level'] ?? ''));
@@ -157,6 +163,12 @@ if ($duration !== '' && mb_strlen($duration) > 50) {
 if ($workload !== '' && mb_strlen($workload) > 50) {
     $errors[] = 'workload';
 }
+if ($teamPreset !== '' && mb_strlen($teamPreset) > 100) {
+    $errors[] = 'team_preset';
+}
+if ($monthlyBudgetEstimate !== '' && mb_strlen($monthlyBudgetEstimate) > 50) {
+    $errors[] = 'monthly_budget_estimate';
+}
 if ($page_url !== '' && mb_strlen($page_url) > 1000) {
     $errors[] = 'page_url';
 }
@@ -192,6 +204,13 @@ $workloadLabels = [
     'full-time' => 'full-time',
 ];
 $workloadLabel = $workloadLabels[$workload] ?? $workload;
+$teamPresetLabels = [
+    'mvp' => 'MVP',
+    'discovery' => 'Discovery',
+    'support' => 'Support',
+    'qa-burst' => 'QA burst',
+];
+$teamPresetLabel = $teamPresetLabels[$teamPreset] ?? $teamPreset;
 
 $specialist_summary = implode('; ', array_map(static function (array $worker): string {
     $line = $worker['role'];
@@ -202,34 +221,14 @@ $specialist_summary = implode('; ', array_map(static function (array $worker): s
     return $line;
 }, $workers));
 
-$staffPayload = [
-    'client_name' => $client_name,
-    'company' => $company,
-    'email' => $email,
-    'phone' => $phone_normalized,
-    'task' => $task,
-    'start_date' => $startDate,
-    'end_date' => $endDate,
-    'worker_timeline' => $duration,
-    'workload' => $workload,
-    'workers' => $workers,
-];
-
-if ($group_id !== '') {
-    $staffPayload['group_id'] = $group_id;
-}
-if ($page_url !== '') {
-    $staffPayload['page_url'] = $page_url;
-}
-if ($form_id !== '') {
-    $staffPayload['form_id'] = $form_id;
-}
-
 $taskParts = [
     count($workers) > 1 || $total_workers > 1 ? 'Заявка на команду специалистов' : 'Заявка на специалиста',
     'Состав: ' . $specialist_summary,
     'Общее количество: ' . $total_workers,
 ];
+if ($teamPresetLabel !== '') {
+    $taskParts[] = 'Пресет команды: ' . $teamPresetLabel;
+}
 $total_hourly_rate = 0;
 foreach ($workers as $worker) {
     $numeric_rate = (float)str_replace(',', '.', (string)$worker['cost_per_hour']);
@@ -239,6 +238,10 @@ foreach ($workers as $worker) {
 }
 if ($total_hourly_rate > 0) {
     $taskParts[] = 'Ориентировочная суммарная ставка: ' . number_format($total_hourly_rate, 0, ',', ' ') . ' руб/час';
+}
+$numeric_monthly_budget = (float)str_replace(',', '.', $monthlyBudgetEstimate);
+if ($numeric_monthly_budget > 0) {
+    $taskParts[] = 'Ориентировочный бюджет: ' . number_format($numeric_monthly_budget, 0, ',', ' ') . ' руб/мес';
 }
 foreach ($workers as $worker) {
     $workerLine = '- ' . $worker['role'] . ($worker['level'] !== '' ? ' (' . $worker['level'] . ')' : '') . ': ' . $worker['amount_of_workers'] . ' чел.';
@@ -282,25 +285,15 @@ if ($page_url !== '') {
     $hotSalePayload['page_url'] = $page_url;
 }
 
-AddMessage2Log(serialize(tacticum_rest_mask_pii($data)), 'tacticum_sale_staff_data');
-AddMessage2Log(serialize(tacticum_rest_mask_pii($staffPayload)), 'tacticum_sale_staff_staff_payload');
-AddMessage2Log(serialize(tacticum_rest_mask_pii($hotSalePayload)), 'tacticum_sale_staff_hot_sale_payload');
-
 $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
 
 $result = tacticum_rest_post_json_retry_without_group_id($endpoint_url, $hotSalePayload, 'tacticum_sale_staff_hot_sale');
-$response = $result['response'];
 $http_status = (int)$result['http_status'];
-
-$masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
-AddMessage2Log(serialize($masked_response), 'tacticum_sale_staff_response');
 
 tacticum_rest_fail_on_curl_error($result, 'tacticum_sale_staff_hot_sale', 'Ошибка отправки во внешний сервис.');
 
 if ($http_status < 200 || $http_status >= 300) {
-    $error_text = is_string($response) && $response ? tacticum_rest_mask_string($response) : 'AI endpoint error';
-    AddMessage2Log($error_text, 'tacticum_sale_staff_upstream_error');
     tacticum_rest_error(502, 'upstream_error', 'Ошибка отправки во внешний сервис.');
 }
 

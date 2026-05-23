@@ -69,8 +69,8 @@
 
 ## Remaining
 
-- После deploy выполнить `npm run visual:smoke` и `npm run browser:smoke` против целевого staging/production URL без `TACTICUM_VISUAL_INJECT_CSS`.
-- Отдельно спланировать retirement/merge strategy для legacy `template_styles.css`.
+- Deploy workflow выполняет `npm run visual:smoke` и `npm run browser:smoke` против `https://tacticum.ru` без `TACTICUM_VISUAL_INJECT_CSS`; для локальной/ручной выкладки запускать `npm run visual:smoke:prod`, `npm run browser:smoke:prod` и при изменениях `/price/` `npm run browser:smoke:price`.
+- Retirement/merge strategy для legacy `template_styles.css` зафиксирована в `docs/workflow/template-styles-retirement-plan.md`; сам вывод файла выполнять отдельными малыми партиями после production visual baseline.
 
 ## Do Not Do
 

@@ -64,7 +64,7 @@
 Проверки:
 1. PHP 8.4 синтаксис всех файлов в `local/`
 2. Хардкод ID инфоблоков в `local/rest/` и `local/api/`
-3. Незамаскированный PII в `AddMessage2Log()`
+3. Файловое/debug runtime-логирование в `/local` и публичных скриптах
 4. HTTP вместо HTTPS в curl
 5. Отсутствие `validate_origin` / `rate_limit` в новых REST-файлах
 6. **Блокирующая проверка:** изменения в `bitrix/` — exit code 1

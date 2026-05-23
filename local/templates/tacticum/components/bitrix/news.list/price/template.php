@@ -60,6 +60,75 @@
             </button>
         </div>
 
+        <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 md:p-6 mb-8" data-price-team-presets>
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                <div class="max-w-2xl">
+                    <h3 class="text-xl font-bold text-secondary">Быстрые пресеты команды</h3>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Подберите стартовый состав под тип задачи, а затем уточните уровни и количество специалистов.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:min-w-[640px]">
+                    <button type="button"
+                            data-price-team-preset="mvp"
+                            class="text-left rounded-lg border border-gray-200 bg-white p-4 hover:border-primary hover:shadow-sm transition-all">
+                        <span class="block font-semibold text-secondary">MVP</span>
+                        <span class="block text-sm text-gray-500 mt-1">Аналитика, дизайн, разработка, QA</span>
+                    </button>
+                    <button type="button"
+                            data-price-team-preset="discovery"
+                            class="text-left rounded-lg border border-gray-200 bg-white p-4 hover:border-primary hover:shadow-sm transition-all">
+                        <span class="block font-semibold text-secondary">Discovery</span>
+                        <span class="block text-sm text-gray-500 mt-1">Аналитик, архитектор, UX/UI</span>
+                    </button>
+                    <button type="button"
+                            data-price-team-preset="support"
+                            class="text-left rounded-lg border border-gray-200 bg-white p-4 hover:border-primary hover:shadow-sm transition-all">
+                        <span class="block font-semibold text-secondary">Support</span>
+                        <span class="block text-sm text-gray-500 mt-1">Backend, DevOps, QA</span>
+                    </button>
+                    <button type="button"
+                            data-price-team-preset="qa-burst"
+                            class="text-left rounded-lg border border-gray-200 bg-white p-4 hover:border-primary hover:shadow-sm transition-all">
+                        <span class="block font-semibold text-secondary">QA burst</span>
+                        <span class="block text-sm text-gray-500 mt-1">Усиление тестирования перед релизом</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden sticky top-24 z-20 rounded-xl border border-primary/20 bg-white p-4 md:p-5 mb-8 shadow-lg shadow-primary/10" data-price-team-summary aria-live="polite">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="min-w-0">
+                    <p class="text-sm font-medium text-primary">Состав заявки</p>
+                    <p class="text-base font-semibold text-secondary mt-1" data-price-team-summary-text>Состав не выбран</p>
+                    <p class="text-sm text-gray-500 mt-1" data-price-team-summary-preset></p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:min-w-[360px]">
+                    <div class="rounded-lg bg-gray-50 px-4 py-3">
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Ставка</p>
+                        <p class="font-semibold text-secondary mt-1" data-price-team-summary-rate>—</p>
+                    </div>
+                    <div class="rounded-lg bg-gray-50 px-4 py-3">
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Оценка в месяц</p>
+                        <p class="font-semibold text-secondary mt-1" data-price-team-summary-budget>Зависит от загрузки</p>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 lg:shrink-0">
+                    <button type="button"
+                            data-price-team-summary-open
+                            class="inline-flex items-center justify-center rounded-button bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
+                        Открыть заявку
+                    </button>
+                    <button type="button"
+                            data-price-team-summary-clear
+                            class="inline-flex items-center justify-center rounded-button border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 hover:border-red-200 hover:text-red-600 transition-colors">
+                        Очистить
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <?php
         $icons = [
             'Аналитика' => 'ri-file-chart-line',
@@ -196,7 +265,10 @@
                     </div>
                     <div class="space-y-3 mt-4" data-price-order-list></div>
                     <div class="mt-4 pt-4 border-t border-primary/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <p id="selectedRate" class="text-sm font-medium text-secondary" data-price-selected-rate>Суммарная ставка: —</p>
+                        <div>
+                            <p id="selectedRate" class="text-sm font-medium text-secondary" data-price-selected-rate>Суммарная ставка: —</p>
+                            <p class="text-xs text-gray-500 mt-1" data-price-monthly-budget>Оценка месячного бюджета появится после выбора загрузки.</p>
+                        </div>
                         <button type="button"
                                 data-price-order-clear
                                 class="text-sm text-gray-500 hover:text-red-600 transition-colors">
@@ -281,6 +353,8 @@
                 <input type="hidden" id="orderRate" name="rate" data-price-order-rate>
                 <input type="hidden" id="orderAmount" name="amount_of_workers" data-price-order-amount>
                 <input type="hidden" id="orderWorkersJson" name="workers_json" data-price-order-workers>
+                <input type="hidden" id="orderTeamPreset" name="team_preset" data-price-order-team-preset>
+                <input type="hidden" id="orderMonthlyBudget" name="monthly_budget_estimate" data-price-order-monthly-budget>
 
                 <div class="flex items-start gap-3">
                     <input type="checkbox" id="orderAgreement" data-tacticum-consent required

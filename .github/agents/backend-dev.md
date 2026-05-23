@@ -73,11 +73,9 @@ $baseUrl = tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL');
 $ch = curl_init(tacticum_rest_build_url($baseUrl, '/tacticum/v1/endpoint'));
 tacticum_rest_apply_curl_defaults($ch);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
-tacticum_rest_log_tls_error($ch, 'context_name');
 
-// ✅ Логирование с маскировкой PII
-AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), 'tacticum_action_request');
-AddMessage2Log(tacticum_rest_mask_string($errorMsg), 'tacticum_action_error');
+// ✅ Runtime не пишет payload/response в файловые логи
+// Не добавлять AddMessage2Log/error_log/file_put_contents/Debug::writeToFile для пользовательских данных.
 
 // ✅ Ответы
 tacticum_rest_response(true, 'ok', null, ['data' => $result]);
@@ -96,7 +94,7 @@ Loader::includeModule('iblock');
 // ❌ Хардкод URL
 curl_init('https://ai.example.com/...')
 
-// ❌ PII в логах без маскировки
+// ❌ Файловое runtime-логирование payload/response
 AddMessage2Log(serialize($data), 'log')
 
 // ❌ Прямой доступ к суперглобальным

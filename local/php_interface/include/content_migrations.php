@@ -56,19 +56,11 @@ function tacticum_content_migration_fix_policy_contacts(): void
     );
 
     if (!is_string($updatedText)) {
-        AddMessage2Log(
-            'Policy content migration failed: preg_replace returned non-string result.',
-            'tacticum_content_migration_error'
-        );
         return;
     }
 
     if ($updatedText === $detailText) {
         if (preg_match('~\[указать|info@tacticum\.ru~iu', $detailText) === 1) {
-            AddMessage2Log(
-                'Policy content migration did not match unresolved placeholders.',
-                'tacticum_content_migration_error'
-            );
             return;
         }
 
@@ -83,10 +75,6 @@ function tacticum_content_migration_fix_policy_contacts(): void
     ]);
 
     if (!$updated) {
-        AddMessage2Log(
-            'Policy content migration failed: ' . (string)$elementApi->LAST_ERROR,
-            'tacticum_content_migration_error'
-        );
         return;
     }
 
@@ -95,10 +83,6 @@ function tacticum_content_migration_fix_policy_contacts(): void
     }
 
     Option::set('tacticum', $optionName, 'Y');
-    AddMessage2Log(
-        'Policy content migration applied: element_id=' . (int)$element['ID'],
-        'tacticum_content_migration'
-    );
 }
 
 tacticum_content_migration_fix_policy_contacts();

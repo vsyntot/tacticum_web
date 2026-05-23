@@ -24,7 +24,7 @@ tacticum_apply_seo_defaults('/about/');
 </section>
 
 <!-- Who We Are Section -->
-<section class="py-20">
+<section id="about-company" class="tacticum-anchor-target py-20">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Кто мы?</h2>
@@ -208,7 +208,8 @@ tacticum_apply_seo_defaults('/about/');
 </section>
 
 <!-- Team Section -->
-<section id="team-section" class="py-20">
+<section id="team-section" class="tacticum-anchor-target py-20">
+    <span id="team" class="tacticum-anchor-alias" aria-hidden="true"></span>
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Наша команда</h2>
@@ -276,7 +277,7 @@ tacticum_apply_seo_defaults('/about/');
         );
         ?>
 
-        <div id="partners" class="bg-gray-50 rounded-2xl p-8 md:p-12">
+        <div id="partners" class="tacticum-anchor-target bg-gray-50 rounded-2xl p-8 md:p-12">
             <h3 class="text-2xl font-bold text-secondary mb-8 text-center">Партнерства и сертификации</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center">
@@ -394,7 +395,8 @@ include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/project-discu
 ?>
 
 <!-- Careers Section -->
-<section id="career-section" class="py-20">
+<section id="career-section" class="tacticum-anchor-target py-20">
+    <span id="careers" class="tacticum-anchor-alias" aria-hidden="true"></span>
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Карьера в Tacticum</h2>

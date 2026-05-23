@@ -51,7 +51,7 @@ Smoke-check не заменяет полный review, если задача п�
   - `tacticum_rest_validate_origin()` — **первым**
   - `tacticum_rest_rate_limit('action')` — **вторым**
   - `tacticum_rest_check_csrf($data)` — после парсинга JSON
-- [ ] PII (email, phone) в `AddMessage2Log()` маскируется через `mask_pii()` / `mask_string()`
+- [ ] Нет файлового/debug runtime-логирования payload/response в `/local` и публичных скриптах
 - [ ] Нет хардкода URL AI-сервиса и HTTP fallback
 - [ ] Внешние curl-запросы только по HTTPS (проверить scheme)
 - [ ] Файлы в `bitrix/` не тронуты
@@ -98,7 +98,7 @@ See: docs/adr/ADR-003-iblock-ids.md
 
 ### Одобрение
 ```
-✅ LGTM. Security checks in place, PII masked, no hardcoded IDs.
+✅ LGTM. Security checks in place, runtime file logging absent, no hardcoded IDs.
 ```
 
 ---
