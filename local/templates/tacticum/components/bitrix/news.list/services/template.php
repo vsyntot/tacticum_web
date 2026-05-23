@@ -34,10 +34,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     }?>
                     <?php
                     // Экранируем пользовательские данные; не удалять при правках шаблона.
-                    $serviceName = htmlspecialcharsbx($arItem["NAME"]);
+                    $serviceName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                     $serviceIconClass = htmlspecialcharsbx($class);
                     $serviceLink = htmlspecialcharsbx($link);
-                    $serviceLinkText = htmlspecialcharsbx($linktext);
+                    $serviceLinkText = tacticum_escape_iblock_text((string)$linktext);
                     ?>
 
                     <div class="service-card bg-white rounded-xl p-8 shadow-sm">
@@ -52,7 +52,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                                     <div class="w-6 h-6 flex-shrink-0 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
                                         <i class="ri-check-line text-primary"></i>
                                     </div>
-                                    <span class="text-gray-600"><?=htmlspecialcharsbx($sOption)?></span>
+                                    <span class="text-gray-600"><?=tacticum_escape_iblock_text((string)$sOption)?></span>
                                 </li>
                             <?}?>
                             </ul>

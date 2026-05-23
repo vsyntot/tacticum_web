@@ -12,14 +12,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                 $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));?>
                 <?php
-                // Экранируем пользовательские данные; разрешенный HTML чистим через CBXSanitizer (Bitrix).
-                $sanitizer = new \CBXSanitizer();
-                $sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
-                $vacancyName = htmlspecialcharsbx($arItem["NAME"]);
-                $vacancyLocation = htmlspecialcharsbx($arItem["PROPERTIES"]["LOCATION"]["VALUE"]);
-                $vacancyType = htmlspecialcharsbx($arItem["PROPERTIES"]["TYPE"]["VALUE"]);
-                $vacancyTime = htmlspecialcharsbx($arItem["PROPERTIES"]["TIME"]["VALUE"]);
-                $vacancyPreview = $sanitizer->SanitizeHtml((string)$arItem["PREVIEW_TEXT"]);
+                // Экранируем пользовательские данные; разрешенный HTML чистим через общий sanitizer.
+                $vacancyName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
+                $vacancyLocation = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["LOCATION"]["VALUE"]);
+                $vacancyType = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["TYPE"]["VALUE"]);
+                $vacancyTime = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["TIME"]["VALUE"]);
+                $vacancyPreview = tacticum_sanitize_iblock_html((string)($arItem["~PREVIEW_TEXT"] ?? $arItem["PREVIEW_TEXT"] ?? ""));
                 ?>
 
                 <div class="bg-white rounded-xl p-6 shadow-sm">

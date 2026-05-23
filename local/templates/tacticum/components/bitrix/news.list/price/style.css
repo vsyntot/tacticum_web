@@ -25,3 +25,24 @@
     background-repeat: no-repeat;
     background-size: 70%;
 }
+
+.filter-tab[data-active="true"],
+.filter-tab[data-active="true"]:hover,
+.filter-tab[data-active="true"]:focus {
+    background-color: #0066CC !important;
+    border-color: #0066CC !important;
+    color: #fff !important;
+}
+
+.price-level-option[data-active="true"],
+.price-level-option[data-active="true"]:hover,
+.price-level-option[data-active="true"]:focus {
+    background-color: #0066CC;
+    border-color: #0066CC;
+    color: #fff;
+}
+
+#specialistOrderForm button[type="submit"]:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}

@@ -1,6 +1,6 @@
 # Local / Public Browser Error Challenge
 
-Дата: 22.05.2026
+Дата: 22.05.2026, обновлено 23.05.2026
 
 ## Scope
 
@@ -70,7 +70,21 @@ Manifest: `/private/tmp/tacticum-browser-errors-after-tool-fix/manifest.json`.
 
 | ID | Priority | Area | Gap | Next step |
 |---|---|---|---|---|
-| TG-019 | P1 | Browser zero-error gate | Подтвердить initial-load browser errors = 0 после deploy локальных JS/CSS/PHP правок | Запустить `npm run visual:smoke` без `TACTICUM_VISUAL_INJECT_CSS` после deploy |
+| TG-019 | P1 | Browser zero-error gate | Initial-load production smoke уже чистый; `/price/` regression был вызван mixed-rollout HTML/JS: legacy HTML без `data-price-*` + новый JS. `news.list/price/script.js` получил legacy selectors и fallback modal | Выкатить `news.list/price/script.js`, сбросить JS/component cache и повторить обычный `npm run browser:smoke` без JS injection |
+
+## Production Evidence 23.05.2026
+
+- `npm run visual:smoke` без CSS injection прошёл для `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/` в desktop/mobile.
+- Manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-22T21-13-19-948Z/manifest.json`.
+- До фикса `npm run browser:smoke` проходил все initial/runtime checks и non-network actions, кроме `price order modal empty submit` на `/price/` desktop/mobile.
+- Failed manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-22T21-17-26-147Z/manifest.json`.
+- `curl https://tacticum.ru/price/` подтвердил наличие legacy `.filter-tab`, `.pricing-card`, `.order-specialist-btn` и отсутствие `data-price-*`, `specialistOrderModal` / `specialistOrderForm`.
+- После фикса `TACTICUM_VISUAL_PAGES=/price/ TACTICUM_VISUAL_INJECT_JS=local/templates/tacticum/components/bitrix/news.list/price/script.js npm run browser:smoke` прошёл desktop/mobile поверх текущего production HTML: `price filters/search/level` и `price order modal empty submit` = `ok`.
+- Multi-staff regression smoke 23.05.2026 дополнительно проверяет, что поиск реально скрывает/возвращает карточки, empty state появляется при пустой выдаче, вкладка скрывает другие категории, segmented-выбор уровня обновляет ставку, light chat остаётся в ограниченной высоте с внутренней прокруткой, модалка открывается, добавление второго специалиста обновляет счётчик, а пресет `До конкретной даты` раскрывает обязательный календарь окончания работ.
+- Passed injected manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T07-30-34-738Z/manifest.json`.
+- Passed injected manifest после UX-доработки уровня/empty state: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T07-49-15-340Z/manifest.json`.
+- Passed injected manifest после фикса light chat height: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T08-15-34-227Z/manifest.json`.
+- `/calculator/` light chat smoke с тем же CSS-ограничителем также прошёл: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T08-26-38-332Z/manifest.json`.
 
 ## Acceptance For Zero Browser Errors
 

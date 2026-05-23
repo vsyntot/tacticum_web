@@ -1984,6 +1984,43 @@ textarea:not(:placeholder-shown)+label {
     overflow: hidden;
 }
 
+[data-tacticum-chat="light"] {
+    display: flex;
+    flex-direction: column;
+    max-height: min(620px, calc(100vh - 140px));
+    min-height: 0;
+}
+
+[data-tacticum-chat="light"] [data-chat-messages] {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 430px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: rgba(0, 102, 204, 0.35) transparent;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+}
+
+[data-tacticum-chat="light"] [data-chat-messages]::-webkit-scrollbar {
+    width: 6px;
+}
+
+[data-tacticum-chat="light"] [data-chat-messages]::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-tacticum-chat="light"] [data-chat-messages]::-webkit-scrollbar-thumb {
+    background: rgba(0, 102, 204, 0.28);
+    border-radius: 999px;
+}
+
+@media (max-width: 767px) {
+    [data-tacticum-chat="light"] [data-chat-messages] {
+        max-height: 360px;
+    }
+}
+
 .ai-message {
     max-height: 0;
     overflow: hidden;

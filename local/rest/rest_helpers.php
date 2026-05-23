@@ -184,7 +184,13 @@ function tacticum_rest_html_to_text(string $html): string
     $html = str_replace(["\\r\\n", "\\n", "\\r", "\\t"], ["\n", "\n", "\n", "\t"], $html);
     $html = preg_replace('~\R~u', "\n", $html);
 
-    $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    for ($i = 0; $i < 5; $i++) {
+        $decoded = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if ($decoded === $html) {
+            break;
+        }
+        $html = $decoded;
+    }
     $html = str_replace(
         ["\xC2\xA0", "\xE2\x80\xAF", "\xE2\x80\x89"],
         " ",

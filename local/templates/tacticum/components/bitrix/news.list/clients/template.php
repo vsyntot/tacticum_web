@@ -14,7 +14,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 ?>
                 <?php
                 // Экранируем пользовательские данные; не удалять при правках шаблона.
-                $clientName = htmlspecialcharsbx($arItem["NAME"]);
+                $clientName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                 ?>
                 <div class="client-logo w-32 h-16 flex items-center justify-center">
                     <div class="text-gray-400 font-bold text-xl"><?=$clientName?></div>
