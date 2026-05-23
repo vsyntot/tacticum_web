@@ -468,10 +468,6 @@ EventManager::getInstance()->addEventHandler('rest', 'OnRestServiceBuildDescript
                     }
                     $params = $validation['data'];
 
-                    if (function_exists('tacticum_rest_mask_pii')) {
-                        AddMessage2Log(serialize(tacticum_rest_mask_pii($params)), "debug");
-                    }
-
                     if (!Loader::includeModule('iblock')) {
                         return tacticum_calcrequests_build_error('iblock_missing', 'Модуль инфоблоков не установлен.');
                     }

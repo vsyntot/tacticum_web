@@ -68,9 +68,7 @@ Manifest: `/private/tmp/tacticum-browser-errors-after-tool-fix/manifest.json`.
 
 ## Remaining Gaps
 
-| ID | Priority | Area | Gap | Next step |
-|---|---|---|---|---|
-| TG-019 | P1 | Browser zero-error gate | Initial-load production smoke уже чистый; `/price/` regression был вызван mixed-rollout HTML/JS: legacy HTML без `data-price-*` + новый JS. `news.list/price/script.js` получил legacy selectors и fallback modal | Выкатить `news.list/price/script.js`, сбросить JS/component cache и повторить обычный `npm run browser:smoke` без JS injection |
+Открытых gaps по browser zero-error gate нет. TG-019 закрыт 23.05.2026 после обычного `npm run browser:smoke` без CSS/JS injection.
 
 ## Production Evidence 23.05.2026
 
@@ -85,6 +83,7 @@ Manifest: `/private/tmp/tacticum-browser-errors-after-tool-fix/manifest.json`.
 - Passed injected manifest после UX-доработки уровня/empty state: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T07-49-15-340Z/manifest.json`.
 - Passed injected manifest после фикса light chat height: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T08-15-34-227Z/manifest.json`.
 - `/calculator/` light chat smoke с тем же CSS-ограничителем также прошёл: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T08-26-38-332Z/manifest.json`.
+- Обычный `npm run browser:smoke` без CSS/JS injection прошёл по 18 desktop/mobile проверкам: `bad=0`, runtime/network blockers отсутствуют. Manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T13-54-52-683Z/manifest.json`.
 
 ## Acceptance For Zero Browser Errors
 

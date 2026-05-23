@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { dirname, join, relative } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -23,7 +24,7 @@ const DEFAULT_VIEWPORTS = [
   { name: 'mobile', width: 390, height: 1200, deviceScaleFactor: 2, mobile: true },
 ];
 
-const chromePath = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const chromePath = await resolveChromePath();
 const baseUrl = normalizeBaseUrl(process.env.TACTICUM_VISUAL_BASE_URL || 'https://tacticum.ru');
 const outputDir = process.env.TACTICUM_VISUAL_OUTPUT || join(tmpdir(), `tacticum-visual-smoke-${timestamp()}`);
 const pages = parseList(process.env.TACTICUM_VISUAL_PAGES, DEFAULT_PAGES);
@@ -37,6 +38,7 @@ const injectedJs = injectedJsFiles.length > 0
   ? (await Promise.all(injectedJsFiles.map((file) => readFile(file, 'utf8')))).join('\n;\n')
   : '';
 const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
+const expectPriceTeamPresets = isTruthy(process.env.TACTICUM_EXPECT_PRICE_TEAM_PRESETS);
 
 const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10);
 const minScreenshotBytes = Number.parseInt(process.env.TACTICUM_VISUAL_MIN_BYTES || '50000', 10);
@@ -85,7 +87,7 @@ try {
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, injectedJsFiles, runActions, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, injectedJsFiles, runActions, expectPriceTeamPresets, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -350,6 +352,7 @@ async function runActionSmoke(cdp) {
       const actions = [];
       const errors = [];
       const path = window.location.pathname;
+      const expectPriceTeamPresets = ${expectPriceTeamPresets ? 'true' : 'false'};
 
       const push = (label, status, detail = '') => {
         actions.push({ label, status, detail });
@@ -568,6 +571,61 @@ async function runActionSmoke(cdp) {
           return 'price controls';
         }, path === '/price/');
 
+        await run('price team presets/summary', async () => {
+          const priceRoot = find('[data-price-list]');
+          if (!priceRoot) return false;
+          const preset = find('[data-price-team-preset]', priceRoot);
+          const summary = find('[data-price-team-summary]', priceRoot);
+          const modal = find('[data-price-order-modal]') || find('#specialistOrderModal');
+          if (!preset || !summary || !modal) {
+            if (expectPriceTeamPresets) {
+              throw new Error('team preset controls are missing');
+            }
+            return false;
+          }
+
+          activate(preset);
+          await sleep(120);
+          if (summary.classList.contains('hidden') || !isVisible(summary)) {
+            throw new Error('team preset did not show persistent summary');
+          }
+          const summaryText = find('[data-price-team-summary-text]', summary)?.textContent || '';
+          if (!/специалист/.test(summaryText)) {
+            throw new Error('team summary does not contain selected specialists');
+          }
+
+          const open = find('[data-price-team-summary-open]', summary);
+          if (open) {
+            activate(open);
+            await sleep(80);
+            if (modal.classList.contains('opacity-0') || modal.classList.contains('pointer-events-none')) {
+              throw new Error('summary open action did not open modal');
+            }
+          }
+
+          const workload = find('#orderWorkload', modal);
+          const budget = find('[data-price-team-summary-budget]', summary);
+          if (workload && budget) {
+            workload.value = 'full-time';
+            workload.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+            await sleep(80);
+            if (!/₽\\/мес/.test(budget.textContent || '')) {
+              throw new Error('monthly budget estimate did not update');
+            }
+          }
+
+          const workersJson = find('[data-price-order-workers]', modal) || find('#orderWorkersJson', modal);
+          if (workersJson) {
+            const workers = JSON.parse(workersJson.value || '[]');
+            if (!Array.isArray(workers) || workers.length === 0) {
+              throw new Error('preset did not populate workers_json');
+            }
+          }
+
+          activate(find('[data-price-modal-cancel]', modal) || find('[data-price-modal-close]', modal) || find('#cancelOrderModal', modal) || find('#closeOrderModal', modal));
+          return 'team preset summary';
+        }, path === '/price/' && expectPriceTeamPresets);
+
         await run('price order modal empty submit', async () => {
           const priceRoot = find('[data-price-list]') || find('.pricing-card')?.closest('section, main, body');
           const modal = find('[data-price-order-modal]') || find('#specialistOrderModal');
@@ -751,6 +809,37 @@ function parseList(value, fallback) {
 
 function isTruthy(value) {
   return ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
+}
+
+async function resolveChromePath() {
+  const candidates = [
+    process.env.CHROME_PATH,
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/snap/bin/chromium',
+    '/opt/google/chrome/chrome',
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (await isExecutable(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error(`Chrome executable not found. Set CHROME_PATH or install Chrome/Chromium. Tried: ${candidates.join(', ')}`);
+}
+
+async function isExecutable(file) {
+  try {
+    await access(file, constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function slugify(page) {

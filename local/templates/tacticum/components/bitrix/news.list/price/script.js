@@ -15,7 +15,7 @@
         const root = document.querySelector('[data-price-list]')
             || legacyCard?.closest('section')
             || document.getElementById('specialist-search')?.closest('section');
-        const scriptVersion = 'multi-staff-v2';
+        const scriptVersion = 'multi-staff-v3';
         if (!root || root.dataset.priceInitialized === scriptVersion) return;
         root.dataset.priceInitialized = scriptVersion;
 
@@ -35,7 +35,57 @@
         const emptyState = root.querySelector('[data-price-empty]');
         const resetButtons = Array.from(root.querySelectorAll('[data-price-reset]'));
         const priceCards = Array.from(root.querySelectorAll(cardSelector));
+        const presetButtons = Array.from(root.querySelectorAll('[data-price-team-preset]'));
+        const teamSummary = root.querySelector('[data-price-team-summary]');
+        const teamSummaryText = root.querySelector('[data-price-team-summary-text]');
+        const teamSummaryPreset = root.querySelector('[data-price-team-summary-preset]');
+        const teamSummaryRate = root.querySelector('[data-price-team-summary-rate]');
+        const teamSummaryBudget = root.querySelector('[data-price-team-summary-budget]');
+        const teamSummaryOpen = root.querySelector('[data-price-team-summary-open]');
+        const teamSummaryClear = root.querySelector('[data-price-team-summary-clear]');
         let orderItems = [];
+        let activeTeamPreset = '';
+
+        const workloadMonthlyHours = {
+            'part-time': 80,
+            'full-time': 160,
+        };
+
+        const teamPresets = {
+            mvp: {
+                label: 'MVP',
+                roles: [
+                    { keywords: ['бизнес-аналит', 'аналитик'] },
+                    { keywords: ['ux', 'ui', 'дизайн', 'designer'] },
+                    { keywords: ['frontend', 'front-end', 'фронтенд'] },
+                    { keywords: ['backend', 'back-end', 'python', 'php', 'java', 'node', 'разработчик', 'developer'] },
+                    { keywords: ['qa', 'quality', 'тест', 'тестирование'] },
+                ],
+            },
+            discovery: {
+                label: 'Discovery',
+                roles: [
+                    { keywords: ['бизнес-аналит', 'аналитик'] },
+                    { keywords: ['архитектор', 'architect', 'tech lead', 'lead'] },
+                    { keywords: ['ux', 'ui', 'дизайн', 'designer'] },
+                ],
+            },
+            support: {
+                label: 'Support',
+                roles: [
+                    { keywords: ['backend', 'back-end', 'python', 'php', 'java', 'node', 'разработчик', 'developer'] },
+                    { keywords: ['devops', 'инфраструктура', 'sre'] },
+                    { keywords: ['qa', 'quality', 'тест', 'тестирование'] },
+                ],
+            },
+            'qa-burst': {
+                label: 'QA burst',
+                roles: [
+                    { keywords: ['qa', 'quality', 'тест', 'тестирование'], quantity: 2 },
+                    { keywords: ['автоматиз', 'automation', 'автотест'] },
+                ],
+            },
+        };
 
         const parsePriceNumber = (value) => {
             const normalized = String(value || '')
@@ -61,6 +111,8 @@
         };
 
         const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+
+        const normalizeText = (value) => String(value || '').toLowerCase().replace(/ё/g, 'е');
 
         const readPriceMap = (card) => {
             const priceMapJson = card.querySelector(priceLevelsSelector);
@@ -129,6 +181,31 @@
             syncLevelOptions(card, card.dataset.level);
             renderPrice(priceBlock, card.dataset.price);
         };
+
+        const setPreferredLevel = (card, preferredLevels = []) => {
+            const levelOptions = Array.from(card.querySelectorAll(levelOptionSelector));
+            const select = card.querySelector(selectSelector);
+            const prices = readPriceMap(card);
+            const preferredLevel = preferredLevels.find((level) => hasOwn(prices, level));
+
+            if (!preferredLevel) return;
+
+            if (select && Array.from(select.options).some((option) => option.value === preferredLevel)) {
+                select.value = preferredLevel;
+            }
+            const option = levelOptions.find((item) => item.dataset.level === preferredLevel);
+            updateCardPrice(card, preferredLevel, getPriceForLevel(prices, preferredLevel, select, option?.dataset.price || ''));
+        };
+
+        const cardMatchesKeywords = (card, keywords) => {
+            const haystack = normalizeText(`${card.dataset.name || ''} ${card.dataset.category || ''}`);
+            return keywords.some((keyword) => haystack.includes(normalizeText(keyword)));
+        };
+
+        const findPresetCard = (role, usedCards) => priceCards.find((card) => (
+            !usedCards.has(card)
+            && cardMatchesKeywords(card, role.keywords || [])
+        ));
 
         const inferSectionTitle = (card) => {
             const dataSection = card.closest('[data-price-section]');
@@ -311,6 +388,16 @@
             });
         });
 
+        presetButtons.forEach((button) => {
+            if (button.tagName === 'BUTTON' && !button.getAttribute('type')) {
+                button.setAttribute('type', 'button');
+            }
+            button.setAttribute('aria-pressed', 'false');
+            button.addEventListener('click', () => {
+                applyTeamPreset(button.dataset.priceTeamPreset || '');
+            });
+        });
+
         const createFallbackOrderModal = () => {
             const modal = document.createElement('div');
             modal.id = 'specialistOrderModal';
@@ -339,7 +426,10 @@
                                 </div>
                                 <div class="space-y-3 mt-4" data-price-order-list></div>
                                 <div class="mt-4 pt-4 border-t border-primary/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <p id="selectedRate" class="text-sm font-medium text-secondary" data-price-selected-rate>Суммарная ставка: —</p>
+                                    <div>
+                                        <p id="selectedRate" class="text-sm font-medium text-secondary" data-price-selected-rate>Суммарная ставка: —</p>
+                                        <p class="text-xs text-gray-500 mt-1" data-price-monthly-budget>Оценка месячного бюджета появится после выбора загрузки.</p>
+                                    </div>
                                     <button type="button" data-price-order-clear class="text-sm text-gray-500 hover:text-red-600 transition-colors">Очистить состав</button>
                                 </div>
                                 <p id="selectedSpecialist" class="sr-only" data-price-selected-specialist>Не выбран</p>
@@ -368,6 +458,8 @@
                             <input type="hidden" id="orderRate" name="rate" data-price-order-rate>
                             <input type="hidden" id="orderAmount" name="amount_of_workers" data-price-order-amount>
                             <input type="hidden" id="orderWorkersJson" name="workers_json" data-price-order-workers>
+                            <input type="hidden" id="orderTeamPreset" name="team_preset" data-price-order-team-preset>
+                            <input type="hidden" id="orderMonthlyBudget" name="monthly_budget_estimate" data-price-order-monthly-budget>
                             <div class="flex items-start gap-3">
                                 <input type="checkbox" id="orderAgreement" data-tacticum-consent required class="appearance-none mt-1 w-5 h-5 border border-gray-300 rounded bg-white checked:bg-primary checked:border-0 relative">
                                 <label for="orderAgreement" class="text-sm text-gray-600 leading-5 pt-0.5">Я согласен на обработку персональных данных и принимаю условия <a href="/policies/" target="_blank" rel="noopener" class="text-primary hover:underline">политики конфиденциальности</a></label>
@@ -403,8 +495,12 @@
         const hiddenRate = orderForm?.querySelector('[data-price-order-rate], #orderRate');
         const hiddenAmount = orderForm?.querySelector('[data-price-order-amount], #orderAmount');
         const hiddenWorkers = orderForm?.querySelector('[data-price-order-workers], #orderWorkersJson');
+        const hiddenTeamPreset = orderForm?.querySelector('[data-price-order-team-preset], #orderTeamPreset');
+        const hiddenMonthlyBudget = orderForm?.querySelector('[data-price-order-monthly-budget], #orderMonthlyBudget');
+        const monthlyBudgetText = orderForm?.querySelector('[data-price-monthly-budget]');
         const submitButton = orderForm?.querySelector('button[type="submit"]');
         const durationSelect = orderForm?.querySelector('#orderDuration');
+        const workloadSelect = orderForm?.querySelector('#orderWorkload');
         const endDateWrap = orderForm?.querySelector('[data-price-end-date-wrap]');
         const endDateInput = orderForm?.querySelector('[data-price-end-date], #orderEndDate');
 
@@ -425,6 +521,23 @@
             return rate > 0 ? total + (rate * item.quantity) : total;
         }, 0);
 
+        const getMonthlyBudgetEstimate = () => {
+            const hours = workloadMonthlyHours[workloadSelect?.value || ''] || 0;
+            const hourlyTotal = getOrderHourlyTotal();
+            return hours > 0 && hourlyTotal > 0 ? hourlyTotal * hours : 0;
+        };
+
+        const getMonthlyBudgetLabel = () => {
+            const monthlyBudget = getMonthlyBudgetEstimate();
+            if (monthlyBudget > 0) {
+                return `от ${formatPrice(monthlyBudget)} ₽/мес`;
+            }
+            if (getOrderHourlyTotal() > 0) {
+                return 'выберите Part-time или Full-time';
+            }
+            return 'ставки уточняются';
+        };
+
         const buildWorkerPayload = () => orderItems.map((item) => ({
             role: item.specialist,
             level: item.level,
@@ -432,18 +545,72 @@
             amount_of_workers: item.quantity,
         }));
 
+        const setActiveTeamPreset = (presetKey) => {
+            activeTeamPreset = presetKey || '';
+            presetButtons.forEach((button) => {
+                const isActive = button.dataset.priceTeamPreset === activeTeamPreset;
+                button.dataset.active = isActive ? 'true' : 'false';
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                button.classList.toggle('border-primary', isActive);
+                button.classList.toggle('bg-primary/5', isActive);
+            });
+        };
+
         const updateHiddenFields = () => {
             const workers = buildWorkerPayload();
             const totalQuantity = getOrderTotalQuantity();
             const first = orderItems[0] || null;
+            const monthlyBudget = getMonthlyBudgetEstimate();
 
             if (hiddenWorkers) hiddenWorkers.value = JSON.stringify(workers);
             if (hiddenAmount) hiddenAmount.value = String(totalQuantity || 0);
+            if (hiddenTeamPreset) hiddenTeamPreset.value = activeTeamPreset;
+            if (hiddenMonthlyBudget) hiddenMonthlyBudget.value = monthlyBudget > 0 ? String(monthlyBudget) : '';
             if (hiddenSpecialist) {
                 hiddenSpecialist.value = orderItems.map((item) => `${item.specialist}${item.level ? ` (${item.level})` : ''} x${item.quantity}`).join('; ');
             }
             if (hiddenLevel) hiddenLevel.value = orderItems.length === 1 ? first?.level || '' : '';
             if (hiddenRate) hiddenRate.value = orderItems.length === 1 ? first?.rate || '' : String(getOrderHourlyTotal() || '');
+        };
+
+        const renderTeamSummary = () => {
+            const totalQuantity = getOrderTotalQuantity();
+            const totalRate = getOrderHourlyTotal();
+            const hasItems = totalQuantity > 0;
+
+            teamSummary?.classList.toggle('hidden', !hasItems);
+            if (!hasItems) {
+                if (teamSummaryText) teamSummaryText.textContent = 'Состав не выбран';
+                if (teamSummaryPreset) teamSummaryPreset.textContent = '';
+                if (teamSummaryRate) teamSummaryRate.textContent = '—';
+                if (teamSummaryBudget) teamSummaryBudget.textContent = 'Зависит от загрузки';
+                if (monthlyBudgetText) monthlyBudgetText.textContent = 'Оценка месячного бюджета появится после выбора загрузки.';
+                return;
+            }
+
+            const visibleItems = orderItems.slice(0, 3).map((item) => (
+                `${item.specialist}${item.level ? ` (${item.level})` : ''} x${item.quantity}`
+            ));
+            const hiddenCount = orderItems.length - visibleItems.length;
+            const itemsText = visibleItems.join('; ') + (hiddenCount > 0 ? `; ещё ${hiddenCount}` : '');
+            const presetLabel = activeTeamPreset && teamPresets[activeTeamPreset]
+                ? `Основа: ${teamPresets[activeTeamPreset].label}`
+                : 'Собрано вручную';
+            const budgetLabel = getMonthlyBudgetLabel();
+
+            if (teamSummaryText) {
+                teamSummaryText.textContent = `${totalQuantity} ${pluralizeSpecialist(totalQuantity)}: ${itemsText}`;
+            }
+            if (teamSummaryPreset) teamSummaryPreset.textContent = presetLabel;
+            if (teamSummaryRate) {
+                teamSummaryRate.textContent = totalRate > 0
+                    ? `от ${formatPrice(totalRate)} ₽/час`
+                    : 'Ставка уточняется';
+            }
+            if (teamSummaryBudget) teamSummaryBudget.textContent = budgetLabel;
+            if (monthlyBudgetText) {
+                monthlyBudgetText.textContent = `Ориентировочный бюджет: ${budgetLabel}.`;
+            }
         };
 
         const renderOrderItems = () => {
@@ -498,29 +665,69 @@
             if (submitButton) {
                 submitButton.disabled = orderItems.length === 0;
             }
+            renderTeamSummary();
             updateHiddenFields();
         };
 
-        const addOrderItemFromCard = (card) => {
+        const addOrderItemFromCard = (card, quantity = 1, shouldRender = true, source = 'manual') => {
             const specialist = card.dataset.name || '';
             const { level, price } = getCardSelection(card);
             const normalizedRate = parsePriceNumber(price);
             const rateValue = normalizedRate > 0 ? String(normalizedRate) : String(price || '');
             const key = [specialist, level, rateValue].join('|');
             const existing = orderItems.find((item) => item.key === key);
+            const amount = Math.max(1, Math.min(parseInt(quantity, 10) || 1, 99));
+
+            if (source === 'manual') {
+                setActiveTeamPreset('');
+            }
 
             if (existing) {
-                existing.quantity = Math.min(existing.quantity + 1, 99);
+                existing.quantity = Math.min(existing.quantity + amount, 99);
             } else {
                 orderItems.push({
                     key,
                     specialist,
                     level,
                     rate: rateValue,
-                    quantity: 1,
+                    quantity: amount,
                 });
             }
+            if (shouldRender) renderOrderItems();
+        };
+
+        const applyTeamPreset = (presetKey) => {
+            const preset = teamPresets[presetKey];
+            if (!preset) return;
+
+            const usedCards = new Set();
+            const additions = [];
+            preset.roles.forEach((role) => {
+                const card = findPresetCard(role, usedCards);
+                if (!card) return;
+
+                usedCards.add(card);
+                setPreferredLevel(card, role.preferredLevels || ['Middle', 'Senior', 'Junior', 'Lead']);
+                additions.push({ card, quantity: role.quantity || 1 });
+            });
+
+            if (additions.length === 0) return;
+
+            orderItems = [];
+            setActiveTeamPreset(presetKey);
+            additions.forEach(({ card, quantity }) => {
+                addOrderItemFromCard(card, quantity, false, 'preset');
+            });
             renderOrderItems();
+            teamSummary?.scrollIntoView({ block: 'nearest' });
+        };
+
+        const showModal = () => {
+            if (orderItems.length === 0) return;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalCard?.classList.remove('scale-95');
+            document.body.classList.add('overflow-hidden');
         };
 
         const closeModal = () => {
@@ -556,9 +763,7 @@
 
         const openModal = (card) => {
             addOrderItemFromCard(card);
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            modalCard?.classList.remove('scale-95');
-            document.body.classList.add('overflow-hidden');
+            showModal();
         };
 
         document.body.addEventListener('click', function (event) {
@@ -577,6 +782,7 @@
             const item = orderItems.find((entry) => entry.key === key);
             if (!item) return;
 
+            setActiveTeamPreset('');
             if (control.dataset.priceWorkerAction === 'increment') {
                 item.quantity = Math.min(item.quantity + 1, 99);
             } else if (control.dataset.priceWorkerAction === 'decrement') {
@@ -596,6 +802,13 @@
         });
         clearButton?.addEventListener('click', () => {
             orderItems = [];
+            setActiveTeamPreset('');
+            renderOrderItems();
+        });
+        teamSummaryOpen?.addEventListener('click', showModal);
+        teamSummaryClear?.addEventListener('click', () => {
+            orderItems = [];
+            setActiveTeamPreset('');
             renderOrderItems();
         });
         closeButton?.addEventListener('click', closeModal);
@@ -605,6 +818,7 @@
         });
 
         durationSelect?.addEventListener('change', syncEndDateVisibility);
+        workloadSelect?.addEventListener('change', renderOrderItems);
         endDateInput?.addEventListener('input', () => {
             endDateInput.setCustomValidity('');
         });
@@ -620,11 +834,13 @@
         orderForm?.addEventListener('reset', () => {
             setTimeout(() => {
                 orderItems = [];
+                setActiveTeamPreset('');
                 syncEndDateVisibility();
                 renderOrderItems();
             }, 0);
         });
 
+        setActiveTeamPreset('');
         syncEndDateVisibility();
         renderOrderItems();
         filterCards();

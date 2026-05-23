@@ -6,7 +6,10 @@
     "css:watch": "tailwindcss -i ./local/templates/tacticum/assets/src/tailwind.css -o ./local/templates/tacticum/tailwind.generated.css --watch",
     "css:check": "tailwindcss -i ./local/templates/tacticum/assets/src/tailwind.css -o /tmp/tacticum-tailwind.generated.css && cmp -s /tmp/tacticum-tailwind.generated.css ./local/templates/tacticum/tailwind.generated.css && grep -q '@layer theme, base, components, utilities;' ./local/templates/tacticum/tailwind.generated.css",
     "visual:smoke": "node ./tools/visual-smoke.mjs",
-    "browser:smoke": "TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs"
+    "visual:smoke:prod": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru node ./tools/visual-smoke.mjs",
+    "browser:smoke": "TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs",
+    "browser:smoke:prod": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs",
+    "browser:smoke:price": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_PAGES=/price/ TACTICUM_VISUAL_ACTIONS=1 TACTICUM_EXPECT_PRICE_TEAM_PRESETS=1 node ./tools/visual-smoke.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.1.8",

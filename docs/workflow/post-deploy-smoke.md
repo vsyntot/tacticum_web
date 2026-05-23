@@ -2,6 +2,8 @@
 
 Использовать после deploy в production или staging. PM не закрывает Issue, пока релевантные пункты не подтверждены.
 
+`deploy.yml` автоматически выполняет `health_config`, `npm run visual:smoke` и `npm run browser:smoke` против `https://tacticum.ru` после очистки Bitrix cache. Этот чеклист остаётся ручной матрицей для staging, локальных выкладок и реальных success-flow, которые нельзя безопасно автоматизировать в production без создания лидов.
+
 ## Общие Проверки
 
 - [ ] Production URL открывается.
@@ -9,6 +11,7 @@
 - [ ] Console без новых критичных JS errors.
 - [ ] `npm run visual:smoke` проходит для затронутых публичных страниц; для browser zero-error gate manifest не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors`.
 - [ ] `npm run browser:smoke` проходит для non-network UI actions: меню, модалки, пустая валидация форм, empty-send чатов, `/price/` filters/modal.
+- [ ] `/price/` action smoke подтверждает team presets, persistent summary и расчёт месячного бюджета: `npm run browser:smoke:price`.
 - [ ] Нет 500/502 на затронутых страницах.
 - [ ] Bitrix admin panel не сломана для авторизованного администратора.
 
@@ -25,7 +28,7 @@
 - [ ] POST возвращает JSON `{ success: true }` или документированную ошибку.
 - [ ] Пользователь видит success/error state.
 - [ ] Срабатывают analytics events `tacticum_form_submit` и success/error без PII.
-- [ ] В логах нет PII без маскировки.
+- [ ] Кастомный runtime-код `/local` и публичных скриптов не пишет payload/response в файловые логи.
 
 Формы:
 
@@ -36,6 +39,7 @@
 - [ ] `/calculator/` CTA
 - [ ] `/price/` CTA
 - [ ] Specialist order modal
+- [ ] `/price/` team presets + persistent summary
 - [ ] `/offer/` CTA
 - [ ] `/aiagents/` inline
 
@@ -94,7 +98,7 @@ DevOps/PM фиксирует в Issue:
 
 - commit / PR;
 - время deploy;
-- результат автоматического `Smoke config health` из deploy workflow;
+- результат автоматического `Smoke config health`, `Post-deploy visual smoke` и `Post-deploy browser action smoke` из deploy workflow;
 - затронутые URL/API;
 - кто выполнил smoke-check;
 - найденные follow-up gaps.

@@ -30,9 +30,6 @@ $payload = [
     'bot_name' => $bot_name,
 ];
 
-AddMessage2Log('resolve_tg_link input: ' . serialize(tacticum_rest_mask_pii($data)), 'tacticum_resolve_tg');
-AddMessage2Log('resolve_tg_link payload: ' . tacticum_rest_mask_string(serialize($payload)), 'tacticum_resolve_tg');
-
 // Запрос к внешнему сервису
 $resolver_base = tacticum_rest_get_required_https_ai_url('TELEGRAM_RESOLVER_URL', 'сервиса Telegram resolver');
 $endpoint_url = tacticum_rest_build_url($resolver_base, '/tacticum/v1/chat_agent/get_bot_link');
@@ -40,9 +37,6 @@ $endpoint_url = tacticum_rest_build_url($resolver_base, '/tacticum/v1/chat_agent
 $result = tacticum_rest_post_json($endpoint_url, $payload, 'resolve_telegram_link');
 $response = $result['response'];
 $http_status = (int)$result['http_status'];
-$curl_err = (string)$result['curl_error'];
-
-AddMessage2Log("resolve_tg_link http_status: {$http_status}; resp: " . serialize(tacticum_rest_mask_string((string)$response)) . "; err: " . $curl_err, 'tacticum_resolve_tg');
 
 tacticum_rest_fail_on_curl_error($result, 'resolve_telegram_link');
 

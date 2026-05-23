@@ -45,32 +45,31 @@ $aMenuLinks = Array(
     ),
 	Array(
         "О нас",
-        "about/",
+        "/about/#about-company",
         Array(),
         Array(),
         ""
     ),
 	Array(
         "Команда",
-        "about/#team",
+        "/about/#team",
         Array(),
         Array(),
         ""
     ),
 	Array(
         "Карьера",
-        "about/#team",
+        "/about/#careers",
         Array(),
         Array(),
         ""
     ),
 	Array(
         "Партнеры",
-        "about/#partners",
+        "/about/#partners",
         Array(),
         Array(),
         ""
     )
 );
 ?>
-

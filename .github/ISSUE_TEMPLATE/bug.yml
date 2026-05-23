@@ -75,6 +75,6 @@ body:
     attributes:
       label: "Логи / скриншоты (опционально)"
       placeholder: |
-        Логи Bitrix: AddMessage2Log с тегом tacticum_*
+        Логи инфраструктуры без payload/PII
         Браузер: DevTools → Network / Console
         Сервер: /var/log/...

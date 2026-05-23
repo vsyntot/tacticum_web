@@ -113,9 +113,9 @@ Frontend maps technical upstream failures to safe user copy and must not expose 
 
 ## Logging
 
-- Request and response logs must use `tacticum_rest_mask_pii()` / `tacticum_rest_mask_string()`.
-- Logs may include lengths, status codes, timing and allowed non-PII control fields.
-- Logs must not include raw phone, email, full message text with contacts, or config values.
+- Custom runtime code in `/local` and public scripts must not write chat request/response payloads to file logs.
+- Do not add `AddMessage2Log`, `error_log`, `file_put_contents`, `Debug::writeToFile`, `console.log/error/warn` for chat payload debugging.
+- If temporary incident diagnostics are required, use a separate time-boxed task with explicit PII policy and remove diagnostics before closing the incident.
 
 ## Smoke Cases
 
@@ -126,4 +126,3 @@ Frontend maps technical upstream failures to safe user copy and must not expose 
 - Overlong `group_id` returns `400 validation_error`.
 - Missing/invalid `sessid` returns `403 invalid_csrf`.
 - Simulated upstream timeout returns `502 upstream_timeout`.
-

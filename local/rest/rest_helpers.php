@@ -837,7 +837,6 @@ function tacticum_rest_post_json(string $endpoint_url, array $payload, string $c
         'start_transfer_time' => curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME),
     ];
 
-    tacticum_rest_log_tls_error($ch, $context);
     curl_close($ch);
 
     return $result;
@@ -860,13 +859,6 @@ function tacticum_rest_post_json_retry_without_group_id(string $endpoint_url, ar
         return $result;
     }
 
-    $response = $result['response'] ?? '';
-    $response_length = is_string($response) ? strlen($response) : 0;
-    AddMessage2Log(
-        "Retry without group_id ({$context}): initial_http_status={$http_status}; response_length={$response_length}",
-        $context . '_group_retry'
-    );
-
     $retry_payload = $payload;
     unset($retry_payload['group_id']);
 
@@ -884,16 +876,10 @@ function tacticum_rest_submit_chat_agent_sale(
     string $curlErrorMessage = 'Ошибка соединения с внешним сервисом.'
 ): array
 {
-    $logPrefix = $logPrefix ?: $context;
-    AddMessage2Log(serialize(tacticum_rest_mask_pii($payload)), $logPrefix . '_request');
-
     $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
     $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
 
     $result = tacticum_rest_post_json_retry_without_group_id($endpoint_url, $payload, $context);
-    $response = $result['response'] ?? null;
-    $masked_response = is_string($response) ? tacticum_rest_mask_string($response) : $response;
-    AddMessage2Log(serialize($masked_response), $logPrefix . '_response');
 
     tacticum_rest_fail_on_curl_error($result, $context, $curlErrorMessage);
 
@@ -912,8 +898,6 @@ function tacticum_rest_fail_chat_agent_sale_upstream(
     string $message = 'Ошибка отправки во внешний сервис.'
 ): void
 {
-    $http_status = (int)($result['http_status'] ?? 0);
-    AddMessage2Log("Upstream error ({$context}): http_status={$http_status}", $context . '_error');
     tacticum_rest_error(502, 'upstream_error', $message);
 }
 
@@ -924,48 +908,12 @@ function tacticum_rest_fail_on_curl_error(array $result, string $context, string
         return;
     }
 
-    $curl_error = (string)($result['curl_error'] ?? '');
     $total_time = (float)($result['total_time'] ?? 0);
-    $start_transfer_time = (float)($result['start_transfer_time'] ?? 0);
     $http_status = (int)($result['http_status'] ?? 0);
 
-    AddMessage2Log("Curl error ({$context}): errno={$curl_error_no}; error={$curl_error}; total_time={$total_time}; start_transfer_time={$start_transfer_time}", $context . '_error');
     $code = ($curl_error_no === CURLE_OPERATION_TIMEOUTED) ? 'upstream_timeout' : 'curl_error';
     tacticum_rest_error(502, $code, $message, [
         'upstream_status' => $http_status,
         'upstream_time' => $total_time,
     ]);
-}
-
-function tacticum_rest_log_tls_error($ch, string $context): void
-{
-    $error_no = curl_errno($ch);
-    if ($error_no === 0) {
-        return;
-    }
-
-    $tls_errors = [
-        CURLE_SSL_CONNECT_ERROR,
-        CURLE_SSL_CERTPROBLEM,
-        CURLE_SSL_CACERT,
-//        CURLE_PEER_FAILED_VERIFICATION,
-        CURLE_SSL_CACERT_BADFILE,
-//        CURLE_SSL_ISSUER_ERROR,
-    ];
-
-    if (!in_array($error_no, $tls_errors, true)) {
-        return;
-    }
-
-    $info = curl_getinfo($ch);
-    $url = $info['url'] ?? '';
-    $message = sprintf(
-        'TLS error (%s): errno=%d; error=%s; url=%s',
-        $context,
-        $error_no,
-        curl_error($ch),
-        $url
-    );
-
-    AddMessage2Log($message, 'tacticum_tls');
 }

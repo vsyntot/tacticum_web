@@ -118,15 +118,15 @@ $url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
 $iblockId = tacticum_rest_get_iblock_id('offer');
 ```
 
-### Логирование — обязательная маскировка PII
+### Runtime-логирование
 ```php
 // ❌ Нельзя
 AddMessage2Log(serialize($data), 'my_action');
-
-// ✅ Правильно
-AddMessage2Log(serialize(tacticum_rest_mask_pii($data)), 'my_action');
-AddMessage2Log(tacticum_rest_mask_string($errorMessage), 'my_action_error');
+error_log($errorMessage);
+file_put_contents('/tmp/debug.log', serialize($payload));
 ```
+
+Кастомный runtime-код в `/local` и публичной части не должен писать payload/response в файловые логи. Временная диагностика допустима только отдельной incident-задачей с явным сроком удаления.
 
 ### Внешние HTTP-запросы
 ```php
@@ -134,7 +134,6 @@ $url = tacticum_rest_build_url($base_url, '/tacticum/v1/endpoint');
 $ch = curl_init($url);
 tacticum_rest_apply_curl_defaults($ch); // таймауты, SSL, JSON headers
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
-tacticum_rest_log_tls_error($ch, 'context_name');
 ```
 
 ---
@@ -146,7 +145,7 @@ tacticum_rest_log_tls_error($ch, 'context_name');
 | CORS/Referer проверка | `tacticum_rest_validate_origin()` |
 | Rate limiting (IP + сессия) | `tacticum_rest_rate_limit('action')` |
 | CSRF для POST-форм | `tacticum_rest_check_csrf($data)` |
-| Маскировка PII в логах | `tacticum_rest_mask_pii()` / `tacticum_rest_mask_string()` |
+| Запрет файлового runtime-логирования payload/response | PR-check scan по `/local` и публичным скриптам |
 | Только HTTPS для внешних запросов | проверка scheme в `tacticum_form.php` |
 | IP allowlist | `rest.allowed_ips` в `tacticum_config.php` |
 | Разрешённые origins | `tacticum.ru`, `*.tacticum.ru` |
@@ -172,7 +171,7 @@ tacticum_rest_log_tls_error($ch, 'context_name');
 - ❌ Не хардкодить ID инфоблоков — только `tacticum_rest_get_iblock_id('key')`
 - ❌ Не хардкодить URL AI-сервиса — только `tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL')`
 - ❌ Не дублировать логику из `rest_helpers.php`
-- ❌ Не логировать PII без маскировки
+- ❌ Не добавлять файловое/debug runtime-логирование payload/response
 - ❌ Не использовать `$_GET`/`$_POST` напрямую — только Bitrix Context или `php://input`
 - ❌ Не использовать `http://` для внешних curl-запросов в production
 - ❌ Не создавать глобальные функции без префикса `tacticum_`

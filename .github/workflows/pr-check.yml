@@ -103,17 +103,6 @@ jobs:
             echo "✅ No plain HTTP curl_init() calls."
           fi
 
-          RESULT=$(grep -nE 'AddMessage2Log[[:space:]]*\(.*(\$_?(POST|GET|REQUEST)|\$[A-Za-z_]*(email|phone|name|client|contact|message|payload|data|request|response|summary)[A-Za-z_]*|serialize[[:space:]]*\()' $RUNTIME_FILES)
-          MASKED_RESULT=$(printf "%s\n" "$RESULT" | grep -vE "tacticum_rest_mask_(pii|string)[[:space:]]*\(|masked_[A-Za-z_]*")
-          if [ -n "$MASKED_RESULT" ]; then
-            echo "❌ ERROR: Possible raw PII logged via AddMessage2Log()."
-            echo "$MASKED_RESULT"
-            echo "Use tacticum_rest_mask_pii() or tacticum_rest_mask_string() before AddMessage2Log."
-            FAIL=1
-          else
-            echo "✅ PII logging checks passed."
-          fi
-
           NEW_ENDPOINTS=$(git diff origin/main...HEAD --name-status -- 'local/rest/*.php' 'local/api/*.php' \
             | awk '$1 == "A" { print $2 }' \
             | grep -v '^local/rest/rest_helpers.php$')
@@ -157,6 +146,42 @@ jobs:
           else
             echo "✅ Runtime blocker checks passed."
           fi
+
+      - name: Blockers — no file/debug logging in local and public scripts
+        shell: bash
+        run: |
+          set +e
+          FAIL=0
+          SCRIPT_FILES=$(git diff origin/main...HEAD --name-only -- \
+            'local/**/*.php' \
+            'local/**/*.js' \
+            '*.php' \
+            'about/**/*.php' \
+            'aiagents/**/*.php' \
+            'calculator/**/*.php' \
+            'contacts/**/*.php' \
+            'offer/**/*.php' \
+            'policies/**/*.php' \
+            'price/**/*.php' \
+            'services/**/*.php' \
+            | while read -r f; do [ -f "$f" ] && printf '%s\n' "$f"; done)
+
+          if [ -z "$SCRIPT_FILES" ]; then
+            echo "✅ No changed local/public PHP or JS scripts."
+            exit 0
+          fi
+
+          RESULT=$(grep -nE 'AddMessage2Log|file_put_contents|error_log|fopen[[:space:]]*\(|fwrite[[:space:]]*\(|syslog[[:space:]]*\(|openlog[[:space:]]*\(|Debug::writeToFile|dumpToFile|writeToFile|CEventLog::|console\.(log|error|warn)' $SCRIPT_FILES)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: File/debug logging is not allowed in /local or public scripts."
+            echo "$RESULT"
+            echo "Remove runtime log writes; do not log payloads/responses from custom site code."
+            FAIL=1
+          else
+            echo "✅ No file/debug logging in changed local/public scripts."
+          fi
+
+          exit $FAIL
 
       - name: Warnings — public page hardcoded iblock IDs
         shell: bash
@@ -285,6 +310,19 @@ jobs:
             FAIL=1
           else
             echo "✅ Contacts page has no inline script embeds."
+          fi
+
+          RESULT=$(grep -nE '<script' local/templates/tacticum/header.php)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: header.php must not embed inline scripts."
+            echo "$RESULT"
+            echo "Use Bitrix Asset::addJs/addCss and documented vendor assets."
+            FAIL=1
+          elif ! grep -q 'js/metrika.js' local/templates/tacticum/header.php; then
+            echo "❌ ERROR: header.php must load Yandex.Metrika through js/metrika.js."
+            FAIL=1
+          else
+            echo "✅ Header has no inline script embeds and loads metrika.js."
           fi
 
           RESULT=$(grep -nE 'style=' local/templates/tacticum/header.php)

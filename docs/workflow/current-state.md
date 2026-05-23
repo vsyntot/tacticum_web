@@ -20,7 +20,7 @@
 
 Основные риски:
 
-- остаются frontend-debts: legacy `template_styles.css`, centralized Metrika CSP strategy и staging/manual upstream success smoke; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md`;
+- остаются frontend-debts: legacy `template_styles.css` retirement и staging/manual upstream success smoke; безопасный план миграции зафиксирован в `docs/workflow/static-css-build-plan.md` и `docs/workflow/template-styles-retirement-plan.md`;
 - repeated CTA/form sections на `/`, `/calculator/`, `/price/`, `/contacts/`, `/about/`, `/services/` вынесены в template includes с явными page-specific form config;
 - production REST требует HTTPS URL внешних AI-сервисов; production health-check `GET /local/rest/health_config.php` подтверждён 21.05.2026, deploy health smoke остаётся обязательным guard;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях;
@@ -96,14 +96,16 @@ Endpoints:
 
 | Endpoint | Назначение | Состояние |
 |---|---|---|
-| `tacticum_form.php` | Default endpoint публичных лид-форм | HTTPS URL через shared outbound helper, validation, PII masking |
-| `tacticum_chat.php` | AI chat | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper, унифицированные log tags |
-| `tacticum_offer.php` | Legacy sale alias | Origin/rate/явный CSRF, preserved response shape; upstream call/logging/retry через shared `tacticum_rest_submit_chat_agent_sale(...)` |
-| `tacticum_sale.php` | Legacy sale alias | Origin/rate/явный CSRF, preserved response shape; upstream call/logging/retry через shared `tacticum_rest_submit_chat_agent_sale(...)` |
+| `tacticum_form.php` | Default endpoint публичных лид-форм | HTTPS URL через shared outbound helper, validation, без файлового runtime-логирования |
+| `tacticum_chat.php` | AI chat | Origin/rate/явный CSRF, HTTPS URL через shared outbound helper, без файлового runtime-логирования |
+| `tacticum_offer.php` | Legacy sale alias | Origin/rate/явный CSRF, preserved response shape; upstream call/retry через shared `tacticum_rest_submit_chat_agent_sale(...)`; `Deprecation`/`Sunset` headers указывают на `/local/rest/tacticum_form.php` |
+| `tacticum_sale.php` | Legacy sale alias | Origin/rate/явный CSRF, preserved response shape; upstream call/retry через shared `tacticum_rest_submit_chat_agent_sale(...)`; `Deprecation`/`Sunset` headers указывают на `/local/rest/tacticum_form.php` |
 | `tacticum_sale_staff.php` | Заказ специалистов | Доменный staff endpoint для `/price/`: rich `workers[]` payload + adapter в `/tacticum/v1/chat_agent/sale`; outbound через shared helper |
-| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | POST JSON + явный `sessid`; GET не поддерживается; `Loader::includeModule`, masked summary log |
-| `resolve_telegram_link.php` | Telegram link resolver | Origin/rate/явный CSRF, HTTPS URL через shared helper; logging taxonomy ещё можно улучшить |
+| `tacticum_prefill.php` | Предзаполнение формы по `group_id` | POST JSON + явный `sessid`; GET не поддерживается; `Loader::includeModule`; без файлового runtime-логирования |
+| `resolve_telegram_link.php` | Telegram link resolver | Origin/rate/явный CSRF, HTTPS URL через shared helper; без файлового runtime-логирования |
 | `health_config.php` | Проверка обязательной конфигурации | GET, origin/rate; возвращает только keys/codes ошибок, без значений secret/config |
+
+Файловое runtime-логирование из `/local` и публичных PHP/JS-скриптов отключено: POST endpoints сохраняют прежние response contracts, но больше не вызывают `AddMessage2Log`, `error_log`, `file_put_contents` или console debug output.
 
 ## Frontend State
 
@@ -113,6 +115,7 @@ Endpoints:
 
 - `menu.js`;
 - `analytics.js`;
+- `metrika.js`;
 - `forms.js`;
 - `chat-agent.js`;
 - `modal.js`;
@@ -124,11 +127,11 @@ Endpoints:
 - `fonts/remixicon.min.css`;
 - `styles/aiagents.css` условно через `TACTICUM_PAGE_ASSETS`.
 
-Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`. Для визуальной проверки добавлен `npm run visual:smoke`; перед deploy можно использовать `TACTICUM_VISUAL_INJECT_CSS`, после deploy smoke запускается против целевого URL без injection. Для проверки обработчиков без создания лидов добавлен `npm run browser:smoke` (`TACTICUM_VISUAL_ACTIONS=1`).
+Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`. Для визуальной проверки добавлен `npm run visual:smoke`; перед deploy можно использовать `TACTICUM_VISUAL_INJECT_CSS`, после deploy workflow запускает smoke против production URL без injection. Для проверки обработчиков без создания лидов добавлен `npm run browser:smoke` (`TACTICUM_VISUAL_ACTIONS=1`).
 
-После browser-error challenge 22.05.2026 `visual:smoke` также фиксирует `console.error`, page exceptions и network/resource errors. Фоновый Telegram resolver больше не должен вызывать `/local/rest/resolve_telegram_link.php` при initial page load; resolver включается только для ссылок с `data-tacticum-tg-resolve` и доступным `BX.bitrix_sessid()`. Production initial-load smoke 23.05.2026 прошёл без browser errors. `/price/` mixed-rollout regression устранён в `news.list/price/script.js`: скрипт поддерживает legacy/new selectors и fallback modal; injected smoke исправленного JS поверх текущего production HTML проходит.
+После browser-error challenge 22.05.2026 `visual:smoke` также фиксирует `console.error`, page exceptions и network/resource errors. Фоновый Telegram resolver больше не должен вызывать `/local/rest/resolve_telegram_link.php` при initial page load; resolver включается только для ссылок с `data-tacticum-tg-resolve` и доступным `BX.bitrix_sessid()`. Production initial-load smoke 23.05.2026 прошёл без browser errors. `/price/` mixed-rollout regression устранён в `news.list/price/script.js`: скрипт поддерживает legacy/new selectors и fallback modal; обычный `npm run browser:smoke` без injection прошёл 23.05.2026.
 
-Yandex Maps constructor на `/contacts/` загружается через explicit asset `js/yandex-map.js` и контейнер `data-yandex-constructor-map`, а не через inline script в public page. Metrika остаётся централизованной analytics exception в `header.php`; для будущего CSP нужен nonce/hash или локальный loader strategy.
+Yandex Maps constructor на `/contacts/` загружается через explicit asset `js/yandex-map.js` и контейнер `data-yandex-constructor-map`, а не через inline script в public page. Yandex.Metrika вынесена из inline script в centralized template asset `js/metrika.js`; для будущего CSP остаётся разрешить `self` и vendor domains Метрики.
 
 Страницы объявляют page-specific assets до `require bitrix/header.php`, например:
 
@@ -145,7 +148,7 @@ FAQ presentation задаётся параметром компонента `SEC
 
 Light chat surfaces на `/calculator/` и `/price/` размечены явными `data-tacticum-chat`, `data-chat-*` contracts; quick replies передают payload через `data-message`, а не через текст кнопки. Сообщения имеют общий CSS-ограничитель высоты и внутреннюю прокрутку `[data-chat-messages]`, чтобы новые ответы не растягивали всю секцию.
 
-Specialist order modal для `/price/` находится в Bitrix component template `news.list/price/template.php`; component `script.js` управляет фильтрами, ценами, segmented-выбором уровня специалиста, счётчиком результатов, empty state, составом multi-staff заявки, пресетами срока и hidden fields через `data-price-*` contracts. Уровни сортируются в компонентном `result_modifier.php` в порядке `Junior -> Middle -> Senior -> Lead`. Frontend отправляет `workers_json`, `duration`, `endDate`, а `tacticum_sale_staff.php` сохраняет fallback по legacy `specialist/level/rate`.
+Specialist order modal для `/price/` находится в Bitrix component template `news.list/price/template.php`; component `script.js` управляет фильтрами, ценами, segmented-выбором уровня специалиста, счётчиком результатов, empty state, составом multi-staff заявки, пресетами срока, быстрыми пресетами команды, persistent summary, расчётом ориентировочного месячного бюджета и hidden fields через `data-price-*` contracts. Уровни сортируются в компонентном `result_modifier.php` в порядке `Junior -> Middle -> Senior -> Lead`. Frontend отправляет `workers_json`, `duration`, `endDate`, `team_preset`, `monthly_budget_estimate`, а `tacticum_sale_staff.php` сохраняет fallback по legacy `specialist/level/rate`.
 
 Публичные component templates для инфоблоков используют `tacticum_escape_iblock_text(...)` / `tacticum_sanitize_iblock_html(...)`: данные сначала декодируются от повторных HTML entities (`&nbsp;`, `&amp;nbsp;`), затем экранируются как plain text или проходят Bitrix sanitizer для разрешённого HTML. GET API `tacticum_rest_html_to_text(...)` также декодирует entities повторно.
 
@@ -162,7 +165,7 @@ Specialist order modal для `/price/` находится в Bitrix component t
 - offer CTA: `local/templates/tacticum/components/bitrix/news.detail/offer/template.php`;
 - aiagents inline: `aiagents/index.php`;
 - modal form: `footer.php`;
-- specialist order: `news.list/price/script.js`.
+- specialist order: `news.list/price/template.php` + `news.list/price/script.js`.
 
 Общий `forms.js`:
 
@@ -229,16 +232,18 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - rsync корневых файлов;
 - чистит `bitrix/managed_cache`, `bitrix/cache/tacticum` и CSS/JS asset cache активного шаблона.
 - проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
+- запускает `npm ci`, `npm run visual:smoke` и `npm run browser:smoke` против `https://tacticum.ru`; `/price/` team presets обязательны через `TACTICUM_EXPECT_PRICE_TEAM_PRESETS=1`.
 
 Production smoke 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.php` с `Origin: https://tacticum.ru` вернул `200` и `{"success":true,"code":"ok"}` по scopes `api`, `ai`, `telegram`, `offer`, `content`, `rest`.
 
 `pr-check.yml`:
 
 - PHP syntax по `local/`;
-- blocker при хардкоде iblock ID, HTTP fallback, raw PII logging и пропущенном bootstrap в изменённых runtime-файлах;
+- blocker при хардкоде iblock ID, HTTP fallback, файловом runtime-логировании и пропущенном bootstrap в изменённых runtime-файлах;
 - warning при hardcoded `IBLOCK_ID` в новом/legacy-коде вне разрешённых runtime исключений;
 - blocker при tracked ignored files, восстановлении legacy `chat.js`, восстановлении legacy Tailwind JS/dead page CSS artifacts, URL-substring asset routing в header, GET fallback в `tacticum_prefill.php`, direct curl вне `rest_helpers.php`;
 - blocker при URL/text-based layout behavior, inline `onclick`, policy inline styles и JS-generated specialist modal markup;
+- blocker при inline `<script>` в `header.php` и при удалении централизованного `js/metrika.js`;
 - blocker для изменений в `bitrix/`.
 
 Gap: новые hardcoded `IBLOCK_ID` не допускаются; публичные страницы переведены на config helper, дальнейший scan нужен только для legacy-кода вне затронутого scope.
@@ -250,9 +255,10 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 - ADR-001: REST endpoints как отдельные PHP-файлы.
 - ADR-002: config через `tacticum_config.php`.
 - ADR-003: ID инфоблоков через `tacticum_rest_get_iblock_id()`.
-- ADR-004: PII masking до логирования.
+- ADR-004: PII masking до логирования; текущее кастомное runtime-логирование payload/response отключено.
+- ADR-005: vendor analytics scripts подключаются как template/page/component assets; Yandex.Metrika вынесена в `js/metrika.js`.
 
-Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу. Основной CSS cleanup по static Tailwind bundle закрыт: stale CSS / legacy Tailwind JS artifacts классифицированы и удалены, добавлен visual smoke. После deploy CSS-изменений остаётся обязательный post-deploy visual smoke.
+Фактическое состояние runtime REST приведено ближе к ADR-003/ADR-004/HTTPS правилу, при этом файловое runtime-логирование из кастомного `/local` и публичного кода удалено. Основной CSS cleanup по static Tailwind bundle закрыт: stale CSS / legacy Tailwind JS artifacts классифицированы и удалены, добавлен visual smoke. После deploy CSS-изменений остаётся обязательный post-deploy visual smoke.
 
 ## Текущее Резюме Здоровья
 
@@ -261,7 +267,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
 | Config discipline | Хорошее: config validation есть, local config вынесен из Git index, production health подтверждён, deploy проверяет health endpoint | Низкий |
-| Frontend maintainability | Хорошее: chat/forms/assets, repeated CTA, light chat и price component contracts унифицированы; static Tailwind bundle, browser-error smoke и non-network action-smoke есть; legacy `template_styles.css`, Metrika CSP strategy и upstream success smoke остаются отдельными техдолгами | Средний |
+| Frontend maintainability | Хорошее: chat/forms/assets, repeated CTA, light chat и price component contracts унифицированы; static Tailwind bundle, browser-error smoke и non-network action-smoke есть; legacy `template_styles.css`, Metrika CSP strategy и upstream success smoke остаются отдельными техдолгами | Низкий/средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
 | CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; нужен регулярный post-deploy smoke | Низкий/средний |

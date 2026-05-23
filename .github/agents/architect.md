@@ -102,7 +102,7 @@ ADR не нужен для точечных багфиксов, текстовы
 | ID инфоблоков только через `tacticum_rest_get_iblock_id('key')` | Переносимость между окружениями |
 | URL AI-сервиса только через `tacticum_rest_get_ai_setting('...')` | Конфиг вне кода |
 | Внешние запросы только HTTPS | Безопасность |
-| PII в логах только через `mask_pii()` / `mask_string()` | 152-ФЗ |
+| Кастомный runtime не пишет payload/response в файловые логи | 152-ФЗ, снижение утечек PII |
 | Каждый POST-эндпоинт: validate_origin + rate_limit + check_csrf | Безопасность |
 
 ---

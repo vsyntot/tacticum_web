@@ -15,6 +15,7 @@
 | [ADR-002](ADR-002-config-file.md) | Конфигурация через tacticum_config.php | ✅ Принято | 2025 |
 | [ADR-003](ADR-003-iblock-ids.md) | ID инфоблоков только через get_iblock_id() | ✅ Принято | 2025 |
 | [ADR-004](ADR-004-pii-masking.md) | PII маскируется до записи в лог | ✅ Принято | 2025 |
+| [ADR-005](ADR-005-vendor-analytics-assets.md) | Vendor analytics assets и CSP readiness | ✅ Принято | 2026 |
 
 ## Статусы
 
@@ -31,4 +32,3 @@
 2. Заполнить по шаблону из `.github/agents/architect.md`
 3. Обновить таблицу в этом файле
 4. Коммит: `docs: add ADR-NNN <название>`
-

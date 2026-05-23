@@ -91,6 +91,27 @@ jobs:
             "https://tacticum.ru/local/rest/health_config.php"
           grep -q '"success":true' /tmp/tacticum-health-config.json
 
+      - name: Setup Node.js for post-deploy smoke
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install smoke tooling
+        run: npm ci
+
+      - name: Post-deploy visual smoke
+        env:
+          TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
+        run: npm run visual:smoke
+
+      - name: Post-deploy browser action smoke
+        env:
+          TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
+          TACTICUM_VISUAL_ACTIONS: "1"
+          TACTICUM_EXPECT_PRICE_TEAM_PRESETS: "1"
+        run: npm run browser:smoke
+
       - name: ✅ Deploy success
         if: success()
         run: echo "Deploy to tacticum.ru completed at $(date)"
