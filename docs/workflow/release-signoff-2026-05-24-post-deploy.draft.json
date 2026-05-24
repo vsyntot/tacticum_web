@@ -19,8 +19,8 @@
       "status": "passed",
       "owner": "SEO + QA",
       "evidence": {
-        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-21-37-564Z/manifest.json",
-        "note": "seoErrors=[] for all public URLs"
+        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-52-46-468Z/manifest.json",
+        "note": "seoErrors=[] for all public URLs; Sprint 10 SEO-009 revalidation passed"
       }
     },
     "price-team-presets": {
@@ -29,6 +29,18 @@
       "evidence": {
         "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-32-34-008Z/manifest.json",
         "note": "price team presets/summary ok for desktop/mobile after Bitrix component cache refresh"
+      }
+    },
+    "css-js-e2e-readiness": {
+      "status": "passed",
+      "owner": "Frontend + QA",
+      "evidence": {
+        "production_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-23-35-033Z/manifest.json",
+        "production_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-24-59-321Z/manifest.json",
+        "production_price_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-26-34-792Z/manifest.json",
+        "css_local_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-20-02-262Z/manifest.json",
+        "css_local_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-21-32-736Z/manifest.json",
+        "note": "e2e:css-js:prod and e2e:css-js:local passed after CDP navigation readiness fix"
       }
     },
     "manual-success-flow": {
@@ -76,7 +88,9 @@
       "owner": "Architect + Backend",
       "evidence": {
         "command": "npm run sale:sunset:check",
-        "result": "passed before 2026-09-30 sunset decision deadline"
+        "result": "passed before 2026-09-30 sunset decision deadline",
+        "inventory": "docs/workflow/legacy-sale-alias-consumer-inventory.md",
+        "repo_scan": "2026-05-24: no first-party callers found outside docs/tools; external access logs/CRM inventory remains due by 2026-06-30"
       }
     },
     "staff-sale-upstream": {

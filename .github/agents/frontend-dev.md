@@ -136,7 +136,7 @@ if ($hasPageAsset('new_section')) {
 - **Tailwind CSS** через static `tailwind.generated.css`; browser Tailwind runtime удалён и не должен возвращаться.
 - Source CSS менять в `local/templates/tacticum/assets/src/tailwind.css`, затем запускать `npm run css:build` и `npm run css:check`.
 - Active global/template CSS живёт в `local/templates/tacticum/styles/global.css`; page-specific правила в этом файле должны быть scoped body/page class, `template_styles.css` должен оставаться пустым/comment-only shim, проверять `npm run template-styles:check`.
-- После CSS/JS правок запускать `npm run visual:smoke` или Playwright smoke, чтобы проверить layout и browser console/page errors.
+- После CSS/JS правок запускать `npm run e2e:css-js:local` до deploy и `npm run e2e:css-js:prod` после deploy; точечные `visual:smoke:*` / `browser:smoke:*` использовать для локализации падения.
 - Кастомные CSS переменные: `--color-primary`, `--color-secondary`
 - Кнопки: `bg-primary text-white px-6 py-2 rounded-button hover:bg-primary/90`
 - Контейнер: `container mx-auto px-4`

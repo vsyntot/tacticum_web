@@ -161,7 +161,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICOD
 - Новый JS для страницы подключается в `header.php` через `$obAsset->addJs(...)` по explicit page asset flag.
 - Новый CSS предпочтительно добавлять через Tailwind source, scoped block в `styles/global.css` с body/page class или component `style.css`; новый template-level page CSS не добавлять без отдельного архитектурного решения и обновления `docs/workflow/asset-layout-audit.md`.
 - Форма: атрибут `data-tacticum-form` на `<form>` — автоматически подхватывается `forms.js`.
-- После CSS/JS правок запускать `npm run css:check` и `npm run template-styles:check`; для браузерных ошибок и layout smoke использовать `npm run visual:smoke`, а для CSS replacement/retirement — `npm run visual:smoke:css-local`.
+- После CSS/JS правок запускать `npm run e2e:css-js:local` до deploy и `npm run e2e:css-js:prod` после deploy, если PR затрагивает browser runtime/assets; точечные guards `css:check`, `template-styles:check`, `visual:smoke:*` и `browser:smoke:*` можно использовать для локализации падения.
 
 ---
 

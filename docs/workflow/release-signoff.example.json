@@ -31,6 +31,18 @@
         "note": "price team presets/summary ok for desktop/mobile"
       }
     },
+    "css-js-e2e-readiness": {
+      "status": "passed",
+      "owner": "Frontend + QA",
+      "evidence": {
+        "production_visual_manifest": "release-signoff-manifest.example.json",
+        "production_browser_manifest": "release-signoff-manifest.example.json",
+        "production_price_manifest": "release-signoff-manifest.example.json",
+        "css_local_visual_manifest": "release-signoff-manifest.example.json",
+        "css_local_browser_manifest": "release-signoff-manifest.example.json",
+        "note": "e2e:css-js:prod and e2e:css-js:local passed"
+      }
+    },
     "manual-success-flow": {
       "status": "passed",
       "owner": "QA + Backend/Frontend",

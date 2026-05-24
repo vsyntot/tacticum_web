@@ -13,6 +13,7 @@ PM не закрывает release issue, пока для затронутых �
 | `automated-deploy-smoke` | Любой production deploy | DevOps | Лог `health_config`, `visual:smoke`, `browser:smoke` из `deploy.yml`; ссылки на оба smoke manifest |
 | `seo-rendered-head` | Изменены публичные страницы, template head, SEO helper, sitemap/robots или assets, влияющие на rendered head | SEO + QA | `visual:smoke` manifest: для затронутых URL `seoErrors=[]`, `seoHead` содержит уникальные title/description/canonical/OpenGraph |
 | `price-team-presets` | Изменены `/price/`, price component JS/template/style или staff-order flow | QA + Frontend | `browser:smoke` manifest: action `price team presets/summary` = `ok` для desktop/mobile, detail содержит `workers` и budget |
+| `css-js-e2e-readiness` | Изменены CSS/JS, frontend assets, visual-smoke tooling или deploy/cache behavior | Frontend + QA | `e2e:css-js:prod` passed; при CSS PR также `e2e:css-js:local` passed; manifest не содержит browser/runtime/action blockers |
 | `manual-success-flow` | Изменены формы, чат, prefill, sale/staff-order или upstream adapter | QA + Backend/Frontend owner | Staging lead ID или controlled production lead с временем проверки |
 | `metrika-goals` | Изменены `analytics.js`, `metrika.js`, формы, чат или goal taxonomy | PM/Marketing + QA | Названия проверенных goals и время проверки в Yandex.Metrika |
 | `config-sync` | Добавлены/изменены config keys | DevOps | Подтверждение, что production/staging `tacticum_config.php` синхронизирован с `tacticum_config.example.php` |
@@ -39,10 +40,11 @@ PM не закрывает release issue, пока для затронутых �
 |---|---|---|
 | Rendered SEO head | `npm run seo:smoke` | В `manifest.json` у затронутых URL нет `seoErrors`; `seoHead` фиксирует один title, одну description, один HTTPS canonical и обязательные OpenGraph meta без дублей |
 | `/price/` team presets | `npm run browser:smoke:price` | Для `/price/` desktop/mobile action `price team presets/summary` имеет `status=ok`, а `detail` показывает количество `workers` и рассчитанный monthly budget |
+| CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; `/price/` team presets проходят |
 
 ## Sale / Staff Process Rules
 
-- До `30.09.2026` legacy aliases проходят по matrix из `docs/workflow/sprints/2026-05-23-sprint-09-sale-sunset-upstream.md`; release нельзя закрывать, если выбранный final mode не отражён в implementation, headers/checker и contract docs.
+- До `30.09.2026` legacy aliases проходят по matrix из `docs/workflow/sprints/2026-05-23-sprint-09-sale-sunset-upstream.md`; consumer inventory ведётся в `docs/workflow/legacy-sale-alias-consumer-inventory.md`; release нельзя закрывать, если выбранный final mode не отражён в implementation, headers/checker и contract docs.
 - `ai.endpoint_paths.staff_sale` меняется только при совместимом rich workers upstream contract. Если меняется request/response model, нужен новый Security / Integration scope с ADR-006 и Lead Form Contract update до deploy.
 
 ## PR / Issue Template Snippet
@@ -76,6 +78,7 @@ Draft-check не является release closure: перед закрытием
 - нет `errors`, `pageErrors`, `consoleErrors`, `networkErrors`, `actionErrors`;
 - для `seo-rendered-head` нет `seoErrors`, есть один title/description/canonical/H1 и обязательные OpenGraph meta;
 - для `price-team-presets` action `price team presets/summary` прошёл на desktop/mobile и содержит `workers` + `budget` в detail.
+- для `css-js-e2e-readiness` production visual/browser/price manifests проходят общие browser guards, а `/price/` manifest дополнительно проверяет team presets.
 - release metadata содержит `id`, `date`, `commit`; `date` имеет формат `YYYY-MM-DD`, `base_url` при наличии использует HTTPS, strict mode не принимает `working-tree` commit marker;
 - неизвестные gates запрещены: release JSON должен использовать только список из этого документа;
 - для manual gates в статусе `passed` evidence должен быть объектом с обязательными полями из runbook; checker дополнительно отсекает placeholder-ы, email/phone-like значения и ключи, похожие на raw payload, cookie/session/token/secret.
@@ -86,6 +89,7 @@ Draft-check не является release closure: перед закрытием
 - automated-deploy-smoke: pending / passed, link:
 - seo-rendered-head: not applicable / pending / passed, manifest:
 - price-team-presets: not applicable / pending / passed, manifest:
+- css-js-e2e-readiness: not applicable / pending / passed, manifests:
 - manual-success-flow: not applicable / pending / passed, evidence:
 - metrika-goals: not applicable / pending / passed, evidence:
 - config-sync: not applicable / pending / passed, owner:
