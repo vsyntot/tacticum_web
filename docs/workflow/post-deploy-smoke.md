@@ -19,6 +19,7 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] При CSS-правках проходит `npm run visual:smoke:css-local`; при изменении интерактивных CSS-состояний также `npm run browser:smoke:css-local`.
 - [ ] При CSS/JS PR до deploy проходит `npm run e2e:css-js:local`; для локальной JS-проверки конкретного компонента используется `TACTICUM_VISUAL_INJECT_JS=<path> npm run browser:smoke`.
 - [ ] `/price/` action smoke подтверждает team presets, persistent summary и расчёт месячного бюджета: `npm run browser:smoke:price`; в manifest action `price team presets/summary` имеет `status=ok` для desktop/mobile.
+- [ ] Валидная `/offer/<code>/?clear_cache=Y` не отдаёт 404; этот guard входит в `npm run seo:check:prod`.
 - [ ] Если `/price/` smoke падает с `team preset controls are missing`, проверить, что очищен component cache `bitrix/cache/s1/bitrix/news.list/*` и composite cache `bitrix/html_pages/*`, а rendered HTML содержит `data-price-team-preset`.
 - [ ] Release sign-off JSON заполнен по `docs/workflow/release-signoff.example.json`, ручные gates закрыты по `docs/workflow/manual-release-gates-runbook.md` и файл проходит `npm run release:signoff:check -- <file>`.
 - [ ] Нет 500/502 на затронутых страницах.

@@ -120,6 +120,7 @@
 | S10-009 | planned | Rich workers upstream decision | Contract отсутствует — фиксируем текущий adapter; появился contract — новый Security / Integration scope |
 | S10-010 | planned | CSP report-only baseline | Evidence по report-only violations, карте и Метрике; enforcing CSP только отдельным rollout |
 | S10-011 | done | SEO-009 revalidation | `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation, accepted risk не пересматривается без UX scope |
+| S10-012 | in progress | Offer detail clear-cache routing | Старое `urlrewrite.php` rule не матчило `/offer/<code>/?clear_cache=Y`; fix подготовлен, `seo:check:prod` теперь ловит этот сценарий и должен пройти после deploy |
 
 ## Product Gaps
 

@@ -40,6 +40,7 @@
 | S10-009 | Rich workers upstream decision | Architect + Backend + DevOps | P2 | planned | Подтверждено, что отдельного compatible upstream contract пока нет, или создан Security / Integration scope для переключения `ai.endpoint_paths.staff_sale` |
 | S10-010 | CSP report-only baseline | Architect + Frontend + QA | P2 | planned | Собран report-only baseline: нет first-party violations, карта `/contacts/` и Метрика работают; enforcing CSP не включается без отдельного rollout/rollback |
 | S10-011 | SEO-009 accepted-risk revalidation | SEO + QA | P3 | done | `npm run seo:check`/`seo:smoke` подтверждают, что `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation; решение не пересматривается без отдельного UX scope |
+| S10-012 | Offer detail clear-cache routing | Backend + SEO + QA | P1 | in progress | `/offer/<code>/?clear_cache=Y` не уходит в root `404.php`; `npm run seo:check:prod` проходит после deploy |
 
 ## Browser Error Challenge
 
@@ -158,6 +159,7 @@ TACTICUM_VISUAL_PAGES=/price/ TACTICUM_VISUAL_INJECT_JS=local/templates/tacticum
 - `npm run release:signoff:self-test` прошёл, включая negative case на missing CSS/JS e2e manifest.
 - Legacy alias inventory оформлен в `docs/workflow/legacy-sale-alias-consumer-inventory.md`: repo source scan не нашёл first-party callers вне docs/tools, access logs и CRM/upstream reports оставлены как external pending evidence до `30.06.2026`.
 - SEO-009 revalidation закрыт: `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; rendered smoke manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-52-46-468Z/manifest.json`.
+- S10-012 открыт как production regression: Bitrix `urlrewrite.php` матчится по `REQUEST_URI` вместе с query string, поэтому старое offer rule не пропускало `?clear_cache=Y`; локальный фикс подготовлен, production guard добавлен в `seo:check:prod` и сейчас падает до deploy фикса.
 
 ## Sprint Review
 
@@ -172,6 +174,7 @@ TACTICUM_VISUAL_PAGES=/price/ TACTICUM_VISUAL_INJECT_JS=local/templates/tacticum
 - S10-002, S10-003, S10-004 и S10-005 требуют внешних доступов или controlled production/staging success-flow: реальные лиды, Яндекс.Метрика, Bitrix admin и upstream/CRM.
 - S10-008 не закрыт полностью без access logs/CRM inventory; создан live artifact и зафиксирован repo scan.
 - S10-009 и S10-010 остаются planned до появления upstream workers contract и CSP report-only evidence.
+- S10-012 ожидает deploy и повторный `npm run seo:check:prod`.
 
 ### Follow-Up
 

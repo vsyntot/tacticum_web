@@ -90,7 +90,14 @@ if (!function_exists("tacticum_offer_find_element")) {
 }
 
 $offerId = (int)($_REQUEST["ID"] ?? 0);
-$offerCode = trim(rawurldecode((string)($_REQUEST["CODE"] ?? "")));
+$offerPathCode = "";
+$currentPath = parse_url((string)($_SERVER["REQUEST_URI"] ?? ""), PHP_URL_PATH) ?: "/";
+if (preg_match('#^/offer/([A-Za-z0-9_-]+)/?$#', $currentPath, $matches)) {
+    $offerPathCode = trim(rawurldecode((string)$matches[1]));
+}
+$offerCode = $offerPathCode !== ""
+    ? $offerPathCode
+    : trim(rawurldecode((string)($_REQUEST["CODE"] ?? "")));
 $isOfferDetailRequest = $offerId > 0 || $offerCode !== "";
 $offerElement = null;
 $offerNotFound = false;
@@ -102,7 +109,6 @@ if ($isOfferDetailRequest) {
 
     if ($offerElement !== null) {
         $offerCanonicalPath = tacticum_offer_detail_path((string)$offerElement["CODE"]);
-        $currentPath = parse_url((string)($_SERVER["REQUEST_URI"] ?? ""), PHP_URL_PATH) ?: "/";
         if ($offerId > 0 || $currentPath !== $offerCanonicalPath) {
             LocalRedirect($offerCanonicalPath, true, "301 Moved Permanently");
         }
