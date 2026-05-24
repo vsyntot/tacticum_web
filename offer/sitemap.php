@@ -53,6 +53,7 @@ if (\Bitrix\Main\Loader::includeModule('iblock')) {
             ]
         );
 
+        $seenUrls = [];
         while ($element = $result->Fetch()) {
             $code = trim((string)($element['CODE'] ?? ''));
             if ($code === '' || !preg_match('/^[A-Za-z0-9_-]{1,120}$/', $code)) {
@@ -60,6 +61,11 @@ if (\Bitrix\Main\Loader::includeModule('iblock')) {
             }
 
             $url = tacticum_public_url(tacticum_offer_detail_path($code));
+            if (isset($seenUrls[$url])) {
+                continue;
+            }
+            $seenUrls[$url] = true;
+
             $lastmod = tacticum_offer_sitemap_lastmod($element);
 
             echo "  <url>\n";

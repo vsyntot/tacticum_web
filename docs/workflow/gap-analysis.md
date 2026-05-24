@@ -59,18 +59,18 @@
 
 ## SEO Deep-Dive Gap Analysis — 24.05.2026
 
-Детальный SEO challenge вынесен в `docs/workflow/seo-gap-analysis.md`. Базовый rendered head smoke проходит, но открыты follow-up gaps по indexability и качеству SEO:
+Детальный SEO challenge вынесен в `docs/workflow/seo-gap-analysis.md`. Post-deploy `npm run seo:smoke` 24.05.2026 прошёл на 9 публичных URL в desktop/mobile; закрыты SEO-001..006 и SEO-008. Единственный оставшийся production follow-up — SEO-007 dynamic offer sitemap duplicate locs, локальный fix уже добавлен и ждёт redeploy.
 
 | ID | Status | Priority | Area | Summary |
 |---|---|---|---|---|
-| SEO-001 | in_progress | P1 | `/offer/` indexability | `/offer/?ID=*` переводится в legacy 301 на `/offer/<code>/`; валидные offer detail индексируемые и попадают в `/offer/sitemap.php`, invalid ID/code должны отдавать 404/noindex |
-| SEO-002 | in_progress | P1 | 404 | 404 переводится с `bitrix:main.map` на явный template: title `Страница не найдена - Тактикум`, один H1, meta/header noindex |
-| SEO-003 | in_progress | P2 | SEO helper | Helper получил robots/Twitter Card/OG dimensions/JSON-LD/page-specific schema options; нужен post-deploy rendered check |
-| SEO-004 | in_progress | P2 | Structured data | JSON-LD graph добавлен через helper: Organization/WebSite/BreadcrumbList + page-specific schema и FAQPage там, где FAQ рендерится |
-| SEO-005 | in_progress | P2 | Metadata quality | Уточнены title `/services/`, `/price/`, `/contacts/`; `/policies/` component больше не перезаписывает title/meta |
-| SEO-006 | in_progress | P2 | Social preview | Добавлены Twitter Card, OG image dimensions/type, page-specific OG images для ключевых pages и `og-default.jpg` 1200x630 как fallback; нужен post-deploy rendered check |
-| SEO-007 | in_progress | P2 | Sitemap governance | Добавлен `npm run seo:check`: сверяет sitemap/robots/canonical inventory/HTTPS/lastmod; `lastmod` обновлены до `2026-05-24`, checker включён в PR, sitemap workflow и deploy |
-| SEO-008 | in_progress | P2 | Service endpoint indexing | JSON endpoints `/local/api/*` и `/local/rest/*.php` получают `X-Robots-Tag: noindex, nofollow` через shared helper |
+| SEO-001 | closed | P1 | `/offer/` indexability | Валидный `/offer/<code>/` отдаёт 200/self-canonical/indexable head, invalid ID/code — 404/noindex; offer sitemap отдаёт активные ЧПУ |
+| SEO-002 | closed | P1 | 404 | Production 404 отдаёт HTTP 404, `X-Robots-Tag: noindex,nofollow`, корректный title/H1 |
+| SEO-003 | closed | P2 | SEO helper | Production rendered smoke подтвердил robots/Twitter Card/OG dimensions/JSON-LD/page-specific schema options |
+| SEO-004 | closed | P2 | Structured data | Production rendered smoke подтвердил JSON-LD graph на публичных URL |
+| SEO-005 | closed | P2 | Metadata quality | Production rendered smoke подтвердил title/description/canonical/H1 на 9 URL |
+| SEO-006 | closed | P2 | Social preview | Production rendered smoke подтвердил Twitter Card, OG image dimensions/type, page-specific images и `og-default.jpg` fallback |
+| SEO-007 | in_progress | P2 | Sitemap governance | Static sitemap governance закрыт; расширенный `seo:check:prod` выявил duplicate locs в `/offer/sitemap.php`, local dedupe fix и guard добавлены, нужен redeploy |
+| SEO-008 | closed | P2 | Service endpoint indexing | Production checks подтвердили `X-Robots-Tag: noindex, nofollow` на JSON endpoints |
 | SEO-009 | accepted | P3 | Internal linking | Money pages остаются дочерними пунктами `Услуги` через `services/.top.menu_ext.php`, чтобы не перегружать header; `npm run seo:check` контролирует `/price/`, `/calculator/`, `/aiagents/` в top menu structure |
 
 ## Follow-Up Gap Closure — Sprint 08

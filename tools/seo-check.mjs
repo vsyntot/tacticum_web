@@ -183,6 +183,26 @@ async function checkHttpRobots() {
   }
 }
 
+async function checkHttpOfferSitemap() {
+  const url = `${HTTP_BASE_URL}/offer/sitemap.php`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    fail(`/offer/sitemap.php returned HTTP ${response.status}`);
+    return;
+  }
+
+  const xml = await response.text();
+  const offerLocs = extractTags(xml, 'loc');
+  assertHttps(offerLocs, '/offer/sitemap.php loc');
+  assertUnique(offerLocs, '/offer/sitemap.php loc');
+
+  for (const loc of offerLocs) {
+    if (!loc.startsWith(`${SITE}/offer/`)) {
+      fail(`/offer/sitemap.php has non-offer loc: ${loc}`);
+    }
+  }
+}
+
 const sitemapIndex = read('sitemap.xml');
 const staticSitemap = read('sitemap-files.xml');
 const robots = read('robots.txt');
@@ -211,6 +231,7 @@ if (!robots.includes(`Sitemap: ${SITE}/sitemap.xml`)) {
 
 if (CHECK_HTTP) {
   await checkHttpRobots();
+  await checkHttpOfferSitemap();
 }
 
 if (errors.length > 0) {
