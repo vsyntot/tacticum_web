@@ -5,6 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 require_once($_SERVER["DOCUMENT_ROOT"]."/local/rest/rest_helpers.php");
 
 header('Content-Type: application/json; charset=UTF-8');
+tacticum_rest_send_noindex_header();
 
 $iblockId = tacticum_api_bootstrap('rates');
 

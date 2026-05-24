@@ -29,6 +29,7 @@ const baseUrl = normalizeBaseUrl(process.env.TACTICUM_VISUAL_BASE_URL || 'https:
 const outputDir = process.env.TACTICUM_VISUAL_OUTPUT || join(tmpdir(), `tacticum-visual-smoke-${timestamp()}`);
 const pages = parseList(process.env.TACTICUM_VISUAL_PAGES, DEFAULT_PAGES);
 const viewports = DEFAULT_VIEWPORTS;
+const removeCssPatterns = parseList(process.env.TACTICUM_VISUAL_REMOVE_CSS, []);
 const injectedCssFiles = parseList(process.env.TACTICUM_VISUAL_INJECT_CSS, []);
 const injectedCss = injectedCssFiles.length > 0
   ? (await Promise.all(injectedCssFiles.map((file) => readCssForInjection(file)))).join('\n')
@@ -38,6 +39,7 @@ const injectedJs = injectedJsFiles.length > 0
   ? (await Promise.all(injectedJsFiles.map((file) => readFile(file, 'utf8')))).join('\n;\n')
   : '';
 const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
+const expectSeoHead = isTruthy(process.env.TACTICUM_EXPECT_SEO_HEAD);
 const expectPriceTeamPresets = isTruthy(process.env.TACTICUM_EXPECT_PRICE_TEAM_PRESETS);
 
 const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10);
@@ -80,14 +82,14 @@ try {
       const url = new URL(page, baseUrl).toString();
       const label = `${slugify(page || '/')}-${viewport.name}`;
       const screenshotPath = join(outputDir, `${label}.png`);
-      const result = await smokePage({ port, url, page, viewport, screenshotPath, injectedCss, injectedJs, runActions });
+      const result = await smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions });
       results.push(result);
       console.log(formatResult(result));
     }
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), injectedCssFiles, injectedJsFiles, runActions, expectPriceTeamPresets, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectPriceTeamPresets, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -113,7 +115,7 @@ try {
   }
 }
 
-async function smokePage({ port, url, page, viewport, screenshotPath, injectedCss, injectedJs, runActions }) {
+async function smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions }) {
   const target = await createTarget(port, url);
   const cdp = await connectCdp(target.webSocketDebuggerUrl);
   const errors = [];
@@ -135,6 +137,8 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
     networkErrors: [],
     actionErrors: [],
     actions: [],
+    seoHead: null,
+    seoErrors: [],
     screenshotPath,
     screenshotBytes: 0,
     errors,
@@ -224,6 +228,22 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
     await cdp.send('Page.navigate', { url });
     loaded = Promise.race([loadEvent, domReady]);
     await loaded;
+    if (removeCssPatterns.length > 0) {
+      await cdp.send('Runtime.evaluate', {
+        awaitPromise: true,
+        expression: `(() => {
+          const patterns = ${JSON.stringify(removeCssPatterns)};
+          const matches = (href) => patterns.some((pattern) => href.includes(pattern));
+          document
+            .querySelectorAll('link[rel~="stylesheet"][href]')
+            .forEach((link) => {
+              if (matches(link.href || link.getAttribute('href') || '')) {
+                link.remove();
+              }
+            });
+        })()`,
+      });
+    }
     if (injectedCss) {
       await cdp.send('Runtime.evaluate', {
         expression: `(() => {
@@ -261,6 +281,184 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
         const doc = document.documentElement;
         const body = document.body;
         const viewportWidth = Math.max(doc.clientWidth, window.innerWidth || 0);
+        const expectSeoHead = ${expectSeoHead ? 'true' : 'false'};
+        const normalizePath = (value) => {
+          const normalized = value || '/';
+          if (normalized === '/') return '/';
+          return normalized.replace(/\\/+$/, '');
+        };
+        const absoluteUrl = (value) => {
+          try {
+            return new URL(value, window.location.href);
+          } catch {
+            return null;
+          }
+        };
+        const head = document.head || document.documentElement;
+        const titleElements = Array.from(head.querySelectorAll('title'));
+        const descriptions = Array.from(head.querySelectorAll('meta[name]'))
+          .filter((meta) => (meta.getAttribute('name') || '').trim().toLowerCase() === 'description')
+          .map((meta) => (meta.getAttribute('content') || '').trim());
+        const canonicals = Array.from(head.querySelectorAll('link[rel]'))
+          .filter((link) => /(^|\\s)canonical(\\s|$)/i.test(link.getAttribute('rel') || ''))
+          .map((link) => link.href || link.getAttribute('href') || '')
+          .filter(Boolean);
+        const ogEntries = Array.from(head.querySelectorAll('meta[property]'))
+          .map((meta) => ({
+            property: (meta.getAttribute('property') || '').trim().toLowerCase(),
+            content: (meta.getAttribute('content') || '').trim()
+          }))
+          .filter((entry) => entry.property.startsWith('og:'));
+        const og = {};
+        for (const entry of ogEntries) {
+          if (!og[entry.property]) {
+            og[entry.property] = [];
+          }
+          og[entry.property].push(entry.content);
+        }
+        const duplicateOpenGraphProperties = Object.entries(og)
+          .filter(([, values]) => values.length > 1)
+          .map(([property]) => property);
+        const twitterEntries = Array.from(head.querySelectorAll('meta[name]'))
+          .map((meta) => ({
+            name: (meta.getAttribute('name') || '').trim().toLowerCase(),
+            content: (meta.getAttribute('content') || '').trim()
+          }))
+          .filter((entry) => entry.name.startsWith('twitter:'));
+        const twitter = {};
+        for (const entry of twitterEntries) {
+          if (!twitter[entry.name]) {
+            twitter[entry.name] = [];
+          }
+          twitter[entry.name].push(entry.content);
+        }
+        const duplicateTwitterProperties = Object.entries(twitter)
+          .filter(([, values]) => values.length > 1)
+          .map(([name]) => name);
+        const jsonLdScripts = Array.from(head.querySelectorAll('script[type="application/ld+json"]'));
+        const jsonLd = jsonLdScripts.map((script) => {
+          try {
+            const parsed = JSON.parse(script.textContent || '{}');
+            const graph = Array.isArray(parsed?.['@graph']) ? parsed['@graph'] : [];
+            const types = graph
+              .map((item) => item?.['@type'])
+              .filter(Boolean)
+              .flat();
+            return {
+              valid: true,
+              types
+            };
+          } catch (error) {
+            return {
+              valid: false,
+              error: error instanceof Error ? error.message : String(error)
+            };
+          }
+        });
+        const navLinks = Array.from(document.querySelectorAll('header nav a[href], #tacticum-mobile-menu nav a[href]'))
+          .map((link) => absoluteUrl(link.href || link.getAttribute('href') || ''))
+          .filter(Boolean)
+          .map((url) => normalizePath(url.pathname))
+          .filter((path, index, paths) => path && paths.indexOf(path) === index);
+        const seoHead = {
+          title: document.title || '',
+          titleCount: titleElements.length,
+          descriptions,
+          canonicals,
+          openGraph: og,
+          duplicateOpenGraphProperties,
+          twitter,
+          duplicateTwitterProperties,
+          jsonLdCount: jsonLdScripts.length,
+          jsonLd,
+          navLinks,
+          h1Count: document.querySelectorAll('h1').length
+        };
+        const seoErrors = [];
+        const pushSeoError = (message) => {
+          if (expectSeoHead) {
+            seoErrors.push(message);
+          }
+        };
+        if (seoHead.titleCount !== 1) {
+          pushSeoError('expected exactly one title tag, got ' + seoHead.titleCount);
+        }
+        if (seoHead.title.trim().length < 5) {
+          pushSeoError('title is missing or too short');
+        }
+        if (descriptions.length !== 1) {
+          pushSeoError('expected exactly one meta description, got ' + descriptions.length);
+        } else if (descriptions[0].length < 20) {
+          pushSeoError('meta description is too short');
+        }
+        if (seoHead.h1Count !== 1) {
+          pushSeoError('expected exactly one h1, got ' + seoHead.h1Count);
+        }
+        if (canonicals.length !== 1) {
+          pushSeoError('expected exactly one canonical link, got ' + canonicals.length);
+        } else {
+          const canonicalUrl = absoluteUrl(canonicals[0]);
+          if (!canonicalUrl) {
+            pushSeoError('canonical href is invalid');
+          } else {
+            if (canonicalUrl.protocol !== 'https:') {
+              pushSeoError('canonical href is not HTTPS');
+            }
+            if (normalizePath(canonicalUrl.pathname) !== normalizePath(window.location.pathname)) {
+              pushSeoError('canonical path does not match rendered URL path');
+            }
+          }
+        }
+        const requiredOpenGraph = ['og:site_name', 'og:type', 'og:url', 'og:title', 'og:description', 'og:image', 'og:image:width', 'og:image:height', 'og:image:type'];
+        for (const property of requiredOpenGraph) {
+          const values = og[property] || [];
+          if (values.length !== 1) {
+            pushSeoError('expected exactly one ' + property + ', got ' + values.length);
+          } else if (!values[0]) {
+            pushSeoError(property + ' content is empty');
+          }
+        }
+        if (duplicateOpenGraphProperties.length > 0) {
+          pushSeoError('duplicate OpenGraph properties: ' + duplicateOpenGraphProperties.join(', '));
+        }
+        const requiredTwitter = ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image'];
+        for (const name of requiredTwitter) {
+          const values = twitter[name] || [];
+          if (values.length !== 1) {
+            pushSeoError('expected exactly one ' + name + ', got ' + values.length);
+          } else if (!values[0]) {
+            pushSeoError(name + ' content is empty');
+          }
+        }
+        if (duplicateTwitterProperties.length > 0) {
+          pushSeoError('duplicate Twitter properties: ' + duplicateTwitterProperties.join(', '));
+        }
+        if (jsonLdScripts.length < 1) {
+          pushSeoError('expected at least one JSON-LD script');
+        }
+        const invalidJsonLd = jsonLd.filter((item) => !item.valid);
+        if (invalidJsonLd.length > 0) {
+          pushSeoError('invalid JSON-LD: ' + invalidJsonLd.map((item) => item.error).join(', '));
+        }
+        const ogUrl = absoluteUrl((og['og:url'] || [])[0] || '');
+        if (ogUrl) {
+          if (ogUrl.protocol !== 'https:') {
+            pushSeoError('og:url is not HTTPS');
+          }
+          if (normalizePath(ogUrl.pathname) !== normalizePath(window.location.pathname)) {
+            pushSeoError('og:url path does not match rendered URL path');
+          }
+        }
+        const ogImage = absoluteUrl((og['og:image'] || [])[0] || '');
+        if (ogImage && ogImage.protocol !== 'https:') {
+          pushSeoError('og:image is not HTTPS');
+        }
+        const requiredNavigationPaths = ['/price/', '/calculator/', '/aiagents/'].map(normalizePath);
+        for (const path of requiredNavigationPaths) {
+          if (!navLinks.includes(path)) {
+            pushSeoError('top navigation is missing money page ' + path);
+          }
+        }
         return {
           title: document.title || '',
           textLength: (body?.innerText || '').trim().length,
@@ -288,7 +486,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
           brokenImages: Array.from(document.images)
             .filter((img) => img.complete && img.naturalWidth === 0)
             .map((img) => img.currentSrc || img.src || img.alt || '')
-            .slice(0, 20)
+            .slice(0, 20),
+          seoHead,
+          seoErrors
         };
       })()`,
     });
@@ -332,6 +532,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, injectedCs
     }
     if (result.actionErrors.length > 0) {
       errors.push(`action errors: ${result.actionErrors.slice(0, 3).join(' | ')}`);
+    }
+    if (result.seoErrors.length > 0) {
+      errors.push(`seo head errors: ${result.seoErrors.slice(0, 3).join(' | ')}`);
     }
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
@@ -605,25 +808,29 @@ async function runActionSmoke(cdp) {
 
           const workload = find('#orderWorkload', modal);
           const budget = find('[data-price-team-summary-budget]', summary);
+          let budgetText = budget?.textContent?.trim() || '';
           if (workload && budget) {
             workload.value = 'full-time';
             workload.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
             await sleep(80);
+            budgetText = budget.textContent?.trim() || '';
             if (!/₽\\/мес/.test(budget.textContent || '')) {
               throw new Error('monthly budget estimate did not update');
             }
           }
 
           const workersJson = find('[data-price-order-workers]', modal) || find('#orderWorkersJson', modal);
+          let workersCount = null;
           if (workersJson) {
             const workers = JSON.parse(workersJson.value || '[]');
             if (!Array.isArray(workers) || workers.length === 0) {
               throw new Error('preset did not populate workers_json');
             }
+            workersCount = workers.length;
           }
 
           activate(find('[data-price-modal-cancel]', modal) || find('[data-price-modal-close]', modal) || find('#cancelOrderModal', modal) || find('#closeOrderModal', modal));
-          return 'team preset summary';
+          return 'workers=' + (workersCount === null ? 'n/a' : workersCount) + (budgetText ? '; budget=' + budgetText : '');
         }, path === '/price/' && expectPriceTeamPresets);
 
         await run('price order modal empty submit', async () => {
@@ -889,10 +1096,11 @@ function formatResult(result) {
   const marker = result.errors.length > 0 ? 'FAIL' : 'OK';
   const status = result.status || 'n/a';
   const runtimeIssues = result.pageErrors.length + result.consoleErrors.length + result.networkErrors.length;
+  const seoSummary = result.seoHead ? ` seo=${result.seoErrors.length > 0 ? 'bad' : 'ok'}` : '';
   const actionSummary = result.actions.length > 0
     ? ` actions=${result.actions.filter((action) => action.status === 'ok').length}/${result.actions.length}`
     : '';
-  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${actionSummary}`;
+  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${seoSummary}${actionSummary}`;
 }
 
 function addUnique(items, item) {

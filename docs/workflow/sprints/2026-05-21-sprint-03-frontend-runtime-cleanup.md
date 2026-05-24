@@ -10,7 +10,7 @@
 
 | Item | Gap | Lane | Status | Acceptance Criteria |
 |---|---|---|---|---|
-| Explicit page asset flags | TG-011 | Fast Fix | done | `header.php` больше не использует URL substring для `faq.js`, `charts.js`, `aiagents.css`; страницы объявляют `TACTICUM_PAGE_ASSETS` до `require bitrix/header.php` |
+| Explicit page asset flags | TG-011 | Fast Fix | done | `header.php` больше не использует URL substring для optional assets; страницы объявляют `TACTICUM_PAGE_ASSETS` до `require bitrix/header.php` |
 | Legacy chat artifact cleanup | PG-001, TG-006 | Fast Fix | done | `local/templates/tacticum/js/chat.js` удалён; production chat обслуживает `chat-agent.js`; ссылок на `chat.js` в коде нет |
 | Prefill POST-only | TG-010 | Security / Integration | done | `tacticum_prefill.php` принимает только POST JSON, GET возвращает `405 method_not_allowed`; `chat-offer-contract.md` обновлён |
 | Chat API contract | PG-001 | Security / Integration | done | `/local/rest/tacticum_chat.php` POST-only, валидирует `group_id`, contract зафиксирован в `docs/workflow/chat-api-contract.md` |
@@ -21,7 +21,7 @@
 
 - `/`, `/services/`, `/calculator/`, `/offer/`: `faq.js` загружается там, где ожидается.
 - `/price/`: `faq.js` и `charts.js` загружаются, графики ставок не ломаются.
-- `/aiagents/`: `faq.js` и `aiagents.css` загружаются.
+- `/aiagents/`: `faq.js` загружается явно; former `aiagents.css` позже слит в scoped `styles/global.css`.
 - `/about/`, `/contacts/`, `/policies/`: optional assets не подключаются без явной необходимости.
 - Hero chat на `/` доходит до prefill через `POST /local/rest/tacticum_prefill.php`.
 - `GET /local/rest/tacticum_chat.php` возвращает controlled `405 method_not_allowed`.

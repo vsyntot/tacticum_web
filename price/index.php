@@ -1,9 +1,25 @@
 <?php
 $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq', 'charts'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Тарифы - Тактикум");
+$APPLICATION->SetTitle("Тарифы IT-специалистов и AI-команд - Тактикум");
 $APPLICATION->SetPageProperty("description", "Тарифы и ставки специалистов Tacticum для AI, ML, разработки, аналитики, дизайна и управления проектами.");
-tacticum_apply_seo_defaults('/price/');
+tacticum_apply_seo_defaults('/price/', [
+    'image' => SITE_TEMPLATE_PATH . '/images/price_hero_bg.jpg',
+    'image_width' => 1536,
+    'image_height' => 592,
+    'schema' => [
+        '@type' => 'Service',
+        '@id' => tacticum_public_url('/price/#staff-service'),
+        'name' => 'Подбор IT-специалистов и AI-команд',
+        'serviceType' => 'IT staff augmentation and AI delivery teams',
+        'provider' => [
+            '@id' => tacticum_public_url('/#organization'),
+        ],
+        'areaServed' => 'RU',
+        'url' => tacticum_public_url('/price/'),
+    ],
+    'faq_schema' => true,
+]);
 ?>
 
 <!-- Hero Section -->

@@ -15,7 +15,7 @@
         const root = document.querySelector('[data-price-list]')
             || legacyCard?.closest('section')
             || document.getElementById('specialist-search')?.closest('section');
-        const scriptVersion = 'multi-staff-v3';
+        const scriptVersion = 'multi-staff-v4';
         if (!root || root.dataset.priceInitialized === scriptVersion) return;
         root.dataset.priceInitialized = scriptVersion;
 
@@ -39,6 +39,7 @@
         const teamSummary = root.querySelector('[data-price-team-summary]');
         const teamSummaryText = root.querySelector('[data-price-team-summary-text]');
         const teamSummaryPreset = root.querySelector('[data-price-team-summary-preset]');
+        const teamSummaryList = root.querySelector('[data-price-team-summary-list]');
         const teamSummaryRate = root.querySelector('[data-price-team-summary-rate]');
         const teamSummaryBudget = root.querySelector('[data-price-team-summary-budget]');
         const teamSummaryOpen = root.querySelector('[data-price-team-summary-open]');
@@ -108,6 +109,35 @@
             if (last > 1 && last < 5) return 'специалиста';
             if (last === 1) return 'специалист';
             return 'специалистов';
+        };
+
+        const pluralizeRole = (count) => {
+            const abs = Math.abs(count) % 100;
+            const last = abs % 10;
+            if (abs > 10 && abs < 20) return 'ролей';
+            if (last === 1) return 'роль';
+            if (last > 1 && last < 5) return 'роли';
+            return 'ролей';
+        };
+
+        const pluralizeTechnology = (count) => {
+            const abs = Math.abs(count) % 100;
+            const last = abs % 10;
+            if (abs > 10 && abs < 20) return 'технологий';
+            if (last === 1) return 'технология';
+            if (last > 1 && last < 5) return 'технологии';
+            return 'технологий';
+        };
+
+        const splitSpecialistName = (value) => {
+            const full = String(value || '').trim();
+            const parts = full.split(';').map((part) => part.trim()).filter(Boolean);
+
+            return {
+                full,
+                primary: parts[0] || full || 'Специалист',
+                extrasCount: Math.max(0, parts.length - 1),
+            };
         };
 
         const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
@@ -582,26 +612,70 @@
             if (!hasItems) {
                 if (teamSummaryText) teamSummaryText.textContent = 'Состав не выбран';
                 if (teamSummaryPreset) teamSummaryPreset.textContent = '';
+                teamSummaryList?.replaceChildren();
                 if (teamSummaryRate) teamSummaryRate.textContent = '—';
                 if (teamSummaryBudget) teamSummaryBudget.textContent = 'Зависит от загрузки';
                 if (monthlyBudgetText) monthlyBudgetText.textContent = 'Оценка месячного бюджета появится после выбора загрузки.';
                 return;
             }
 
-            const visibleItems = orderItems.slice(0, 3).map((item) => (
-                `${item.specialist}${item.level ? ` (${item.level})` : ''} x${item.quantity}`
-            ));
-            const hiddenCount = orderItems.length - visibleItems.length;
-            const itemsText = visibleItems.join('; ') + (hiddenCount > 0 ? `; ещё ${hiddenCount}` : '');
             const presetLabel = activeTeamPreset && teamPresets[activeTeamPreset]
                 ? `Основа: ${teamPresets[activeTeamPreset].label}`
                 : 'Собрано вручную';
             const budgetLabel = getMonthlyBudgetLabel();
 
             if (teamSummaryText) {
-                teamSummaryText.textContent = `${totalQuantity} ${pluralizeSpecialist(totalQuantity)}: ${itemsText}`;
+                teamSummaryText.textContent = `${totalQuantity} ${pluralizeSpecialist(totalQuantity)} в составе`;
             }
             if (teamSummaryPreset) teamSummaryPreset.textContent = presetLabel;
+            if (teamSummaryList) {
+                const visibleItems = orderItems.slice(0, 4);
+                const hiddenCount = orderItems.length - visibleItems.length;
+
+                teamSummaryList.replaceChildren();
+                visibleItems.forEach((item) => {
+                    const name = splitSpecialistName(item.specialist);
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'tacticum-team-summary-item';
+                    itemElement.title = name.full;
+                    itemElement.setAttribute('role', 'listitem');
+
+                    const title = document.createElement('span');
+                    title.className = 'tacticum-team-summary-title';
+                    title.textContent = name.primary;
+
+                    const meta = document.createElement('span');
+                    meta.className = 'tacticum-team-summary-meta';
+                    meta.textContent = [item.level, `x${item.quantity}`].filter(Boolean).join(' · ');
+
+                    itemElement.append(title, meta);
+                    if (name.extrasCount > 0) {
+                        const extra = document.createElement('span');
+                        extra.className = 'tacticum-team-summary-extra';
+                        extra.textContent = `стек: +${name.extrasCount} ${pluralizeTechnology(name.extrasCount)}`;
+                        itemElement.append(extra);
+                    }
+
+                    teamSummaryList.append(itemElement);
+                });
+
+                if (hiddenCount > 0) {
+                    const hiddenElement = document.createElement('div');
+                    hiddenElement.className = 'tacticum-team-summary-item tacticum-team-summary-item--more';
+                    hiddenElement.setAttribute('role', 'listitem');
+
+                    const title = document.createElement('span');
+                    title.className = 'tacticum-team-summary-title';
+                    title.textContent = `ещё ${hiddenCount} ${pluralizeRole(hiddenCount)}`;
+
+                    const meta = document.createElement('span');
+                    meta.className = 'tacticum-team-summary-meta';
+                    meta.textContent = 'в форме заявки';
+
+                    hiddenElement.append(title, meta);
+                    teamSummaryList.append(hiddenElement);
+                }
+            }
             if (teamSummaryRate) {
                 teamSummaryRate.textContent = totalRate > 0
                     ? `от ${formatPrice(totalRate)} ₽/час`

@@ -1,9 +1,27 @@
 <?php
-$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq', 'aiagents_css'];
+$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
+$GLOBALS['TACTICUM_BODY_CLASS'] = 'bg-white font-sans tacticum-aiagents-page';
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Создание AI-бота в Telegram - Тактикум");
 $APPLICATION->SetPageProperty("description", "Создание AI-бота в Telegram для продаж и консультаций: демо-агенты, настройка и заявка в Tacticum.");
-tacticum_apply_seo_defaults('/aiagents/');
+tacticum_apply_seo_defaults('/aiagents/', [
+    'image' => SITE_TEMPLATE_PATH . '/images/aibot_hero_bg_big.png',
+    'image_width' => 1536,
+    'image_height' => 1024,
+    'image_type' => 'image/png',
+    'schema' => [
+        '@type' => 'Service',
+        '@id' => tacticum_public_url('/aiagents/#ai-bot-service'),
+        'name' => 'Создание AI-бота в Telegram',
+        'serviceType' => 'AI agents and Telegram bots',
+        'provider' => [
+            '@id' => tacticum_public_url('/#organization'),
+        ],
+        'areaServed' => 'RU',
+        'url' => tacticum_public_url('/aiagents/'),
+    ],
+    'faq_schema' => true,
+]);
 ?>
 
 <!-- Hero секция -->

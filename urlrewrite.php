@@ -1,6 +1,12 @@
 <?
 $arUrlRewrite = array(
     array(
+        'CONDITION' => '#^/offer/([A-Za-z0-9_-]+)/?$#',
+        'RULE' => 'CODE=$1',
+        'ID' => '',
+        'PATH' => '/offer/index.php',
+    ),
+    array(
         'CONDITION' => '#^/local/rest/#',
         'RULE' => '',
         'ID' => 'bitrix:rest.hook',

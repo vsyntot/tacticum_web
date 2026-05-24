@@ -3,7 +3,9 @@ $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Тактикум - Искусственный интеллект для вашего бизнеса");
 $APPLICATION->SetPageProperty("description", "Разработка программного обеспечения и AI-решений для бизнеса: автоматизация процессов, AI-консалтинг, внедрение ML и интеллектуальных ассистентов от Tacticum.");
-tacticum_apply_seo_defaults('/');
+tacticum_apply_seo_defaults('/', [
+    'faq_schema' => true,
+]);
 ?>
 
 <!-- Hero Section -->
@@ -82,7 +84,7 @@ tacticum_apply_seo_defaults('/');
             <!-- Feature 1 -->
             <div class="feature-card bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-                    <i class="ri-ai-generate-fill text-3xl text-primary"></i>
+                    <i class="ri-ai-generate text-3xl text-primary"></i>
                 </div>
                 <h3 class="text-xl font-bold text-secondary mb-3">Внедряем AI/ML-решения</h3>
                 <p class="text-gray-600">

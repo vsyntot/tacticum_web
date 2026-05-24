@@ -5,6 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
+tacticum_rest_send_noindex_header();
 header('Deprecation: true');
 header('Sunset: Wed, 30 Sep 2026 00:00:00 GMT');
 header('Link: </local/rest/tacticum_form.php>; rel="successor-version"');

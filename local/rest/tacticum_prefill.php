@@ -4,6 +4,7 @@ define('NOT_CHECK_PERMISSIONS', true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 require_once(__DIR__ . '/rest_helpers.php');
 header('Content-Type: application/json; charset=UTF-8');
+tacticum_rest_send_noindex_header();
 
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_prefill');

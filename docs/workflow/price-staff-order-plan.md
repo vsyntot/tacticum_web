@@ -52,4 +52,4 @@
 
 ## Next Product Iterations
 
-- Согласовать отдельный upstream endpoint для rich workers payload, если AI service начнёт принимать доменный заказ команды напрямую.
+- Согласовать отдельный upstream endpoint для rich workers payload, если AI service начнёт принимать доменный заказ команды напрямую. Сайт уже готов к переключению через `ai.endpoint_paths.staff_sale` без изменения frontend payload; до появления upstream contract значение остаётся `/tacticum/v1/chat_agent/sale`.

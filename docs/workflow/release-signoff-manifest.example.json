@@ -1,0 +1,86 @@
+{
+  "baseUrl": "https://tacticum.ru/",
+  "outputDir": "/tmp/tacticum-release-smoke-example",
+  "generatedAt": "2026-05-23T00:00:00.000Z",
+  "runActions": true,
+  "expectSeoHead": true,
+  "expectPriceTeamPresets": true,
+  "results": [
+    {
+      "page": "/price/",
+      "viewport": "desktop",
+      "url": "https://tacticum.ru/price/",
+      "title": "Тарифы - Тактикум",
+      "status": 200,
+      "textLength": 2000,
+      "screenshotBytes": 100000,
+      "pageErrors": [],
+      "consoleErrors": [],
+      "networkErrors": [],
+      "actionErrors": [],
+      "errors": [],
+      "actions": [
+        {
+          "label": "price team presets/summary",
+          "status": "ok",
+          "detail": "workers=3; budget=от 1 000 000 ₽/мес"
+        }
+      ],
+      "seoHead": {
+        "title": "Тарифы - Тактикум",
+        "titleCount": 1,
+        "descriptions": ["Тарифы Tacticum и команда специалистов для AI-проектов."],
+        "canonicals": ["https://tacticum.ru/price/"],
+        "openGraph": {
+          "og:site_name": ["Tacticum"],
+          "og:type": ["website"],
+          "og:url": ["https://tacticum.ru/price/"],
+          "og:title": ["Тарифы - Тактикум"],
+          "og:description": ["Тарифы Tacticum и команда специалистов для AI-проектов."],
+          "og:image": ["https://tacticum.ru/local/templates/tacticum/images/hero_bg.jpg"]
+        },
+        "duplicateOpenGraphProperties": [],
+        "h1Count": 1
+      },
+      "seoErrors": []
+    },
+    {
+      "page": "/price/",
+      "viewport": "mobile",
+      "url": "https://tacticum.ru/price/",
+      "title": "Тарифы - Тактикум",
+      "status": 200,
+      "textLength": 2000,
+      "screenshotBytes": 100000,
+      "pageErrors": [],
+      "consoleErrors": [],
+      "networkErrors": [],
+      "actionErrors": [],
+      "errors": [],
+      "actions": [
+        {
+          "label": "price team presets/summary",
+          "status": "ok",
+          "detail": "workers=3; budget=от 1 000 000 ₽/мес"
+        }
+      ],
+      "seoHead": {
+        "title": "Тарифы - Тактикум",
+        "titleCount": 1,
+        "descriptions": ["Тарифы Tacticum и команда специалистов для AI-проектов."],
+        "canonicals": ["https://tacticum.ru/price/"],
+        "openGraph": {
+          "og:site_name": ["Tacticum"],
+          "og:type": ["website"],
+          "og:url": ["https://tacticum.ru/price/"],
+          "og:title": ["Тарифы - Тактикум"],
+          "og:description": ["Тарифы Tacticum и команда специалистов для AI-проектов."],
+          "og:image": ["https://tacticum.ru/local/templates/tacticum/images/hero_bg.jpg"]
+        },
+        "duplicateOpenGraphProperties": [],
+        "h1Count": 1
+      },
+      "seoErrors": []
+    }
+  ]
+}

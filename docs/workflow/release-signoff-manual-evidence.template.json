@@ -1,0 +1,98 @@
+{
+  "manual_release_gates": {
+    "manual-success-flow": {
+      "status": "passed",
+      "owner": "QA + Backend/Frontend",
+      "evidence": {
+        "environment": "staging or controlled-production",
+        "checked_at": "2026-05-24T09:30:00+03:00",
+        "checked_by": "replace-with-owner",
+        "flows": [
+          {
+            "flow": "default-lead-form",
+            "url": "https://tacticum.ru/price/",
+            "form_id": "price-cta",
+            "result": "success=true and UI success state",
+            "lead_id": "replace-with-safe-lead-id"
+          },
+          {
+            "flow": "modal-form",
+            "url": "https://tacticum.ru/",
+            "form_id": "contact-modal",
+            "result": "success=true and modal success state",
+            "lead_id": "replace-with-safe-lead-id"
+          },
+          {
+            "flow": "ai-chat",
+            "url": "https://tacticum.ru/calculator/",
+            "result": "controlled response without raw stack or PII",
+            "masked_group_id": "replace-with-masked-group-id-or-not_applicable"
+          },
+          {
+            "flow": "prefill",
+            "url": "https://tacticum.ru/offer/",
+            "result": "expected prefill or controlled empty state",
+            "masked_group_id": "replace-with-masked-group-id-or-not_applicable"
+          },
+          {
+            "flow": "staff-order",
+            "url": "https://tacticum.ru/price/",
+            "form_id": "price-specialist",
+            "result": "workers_json accepted and upstream/CRM lead created",
+            "lead_id": "replace-with-safe-lead-id"
+          }
+        ]
+      }
+    },
+    "metrika-goals": {
+      "status": "passed",
+      "owner": "PM/Marketing + QA",
+      "evidence": {
+        "counter_id": "103471113",
+        "checked_at": "2026-05-24T09:45:00+03:00",
+        "checked_by": "replace-with-owner",
+        "goals": [
+          "tacticum_form_submit",
+          "tacticum_form_success",
+          "tacticum_chat_send",
+          "tacticum_chat_success",
+          "tacticum_prefill_submit",
+          "tacticum_prefill_success"
+        ],
+        "staff_order_goal_note": "price-specialist observed through tacticum_form_success",
+        "pii_check": "goal params contain no name, phone, email, message, raw payload or raw URL query",
+        "external_evidence": "replace-with-internal-ticket-or-screenshot-link"
+      }
+    },
+    "bitrix-admin": {
+      "status": "passed",
+      "owner": "QA/Admin",
+      "evidence": {
+        "checked_at": "2026-05-24T10:00:00+03:00",
+        "checked_by": "replace-with-owner",
+        "admin_url": "https://tacticum.ru/bitrix/admin/",
+        "role": "admin or content-admin",
+        "public_toolbar_url": "https://tacticum.ru/price/",
+        "result": "admin panel and public toolbar open without 500/white screen"
+      }
+    },
+    "staff-sale-upstream": {
+      "status": "passed",
+      "owner": "Architect + Backend + QA + DevOps",
+      "evidence": {
+        "environment": "staging or controlled-production",
+        "checked_at": "2026-05-24T10:15:00+03:00",
+        "checked_by": "replace-with-owner",
+        "health_config": "success=true; scopes include ai, rest, security",
+        "url": "https://tacticum.ru/price/",
+        "form_id": "price-specialist",
+        "team_preset": "mvp or discovery or support or qa-burst",
+        "workers_count": 3,
+        "monthly_budget_estimate_present": true,
+        "end_date_present": true,
+        "upstream_request_id": "replace-with-safe-upstream-id",
+        "result": "upstream/CRM received team summary and accepted the lead"
+      }
+    }
+  }
+}

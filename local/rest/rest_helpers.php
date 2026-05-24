@@ -22,6 +22,13 @@ function tacticum_rest_get_config(): array
     return $config;
 }
 
+function tacticum_rest_send_noindex_header(): void
+{
+    if (!headers_sent()) {
+        header('X-Robots-Tag: noindex, nofollow', true);
+    }
+}
+
 function tacticum_rest_get_config_section(string $section): array
 {
     $config = tacticum_rest_get_config();
@@ -73,6 +80,31 @@ function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram',
         }
     };
 
+    $checkEndpointPath = function (string $key) use ($addError): void {
+        $ai = tacticum_rest_get_config_section('ai');
+        $endpointPaths = $ai['endpoint_paths'] ?? [];
+        if (!is_array($endpointPaths) || !array_key_exists($key, $endpointPaths)) {
+            return;
+        }
+
+        $value = trim((string)$endpointPaths[$key]);
+        if ($value === '') {
+            $addError('ai.endpoint_paths.' . $key, 'missing');
+            return;
+        }
+        if (strpos($value, '://') !== false || strpos($value, '//') === 0) {
+            $addError('ai.endpoint_paths.' . $key, 'path_required');
+            return;
+        }
+        if ($value[0] !== '/') {
+            $addError('ai.endpoint_paths.' . $key, 'leading_slash_required');
+            return;
+        }
+        if (mb_strlen($value) > 200) {
+            $addError('ai.endpoint_paths.' . $key, 'too_long');
+        }
+    };
+
     if (in_array('api', $scopes, true)) {
         foreach (['cases', 'faq', 'rates', 'services'] as $key) {
             $checkIblock($key);
@@ -108,6 +140,16 @@ function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram',
 
     if (in_array('ai', $scopes, true)) {
         $checkHttpsUrl('AI_SERVICE_BASE_URL');
+        $checkEndpointPath('chat_agent_sale');
+        $checkEndpointPath('staff_sale');
+    }
+
+    if (in_array('security', $scopes, true)) {
+        $security = tacticum_rest_get_config_section('security');
+        $cspMode = $security['csp_mode'] ?? 'report-only';
+        if (!is_string($cspMode) || !in_array($cspMode, ['report-only', 'enforce'], true)) {
+            $addError('security.csp_mode', 'invalid_value');
+        }
     }
 
     if (in_array('telegram', $scopes, true)) {
@@ -135,6 +177,7 @@ function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram',
 function tacticum_rest_response(bool $success, string $code, ?string $message, array $extra = [], int $status = 200): void
 {
     http_response_code($status);
+    tacticum_rest_send_noindex_header();
     $payload = [
         'success' => $success,
         'code' => $code,
@@ -801,6 +844,28 @@ function tacticum_rest_get_required_https_ai_url(string $key, string $serviceLab
     return $url;
 }
 
+function tacticum_rest_get_ai_endpoint_path(string $key, string $default): string
+{
+    $ai = tacticum_rest_get_config_section('ai');
+    $endpointPaths = $ai['endpoint_paths'] ?? [];
+    $path = is_array($endpointPaths) && isset($endpointPaths[$key])
+        ? trim((string)$endpointPaths[$key])
+        : trim($default);
+
+    if ($path === '') {
+        return '/' . ltrim($default, '/');
+    }
+
+    if (strpos($path, '://') !== false || strpos($path, '//') === 0) {
+        tacticum_rest_error(500, 'config_error', 'AI endpoint path должен быть относительным путём без host.');
+    }
+    if ($path[0] !== '/') {
+        tacticum_rest_error(500, 'config_error', 'AI endpoint path должен начинаться с /.');
+    }
+
+    return $path;
+}
+
 function tacticum_rest_build_url(string $base_url, string $path): string
 {
     if ($base_url === '') {
@@ -877,7 +942,8 @@ function tacticum_rest_submit_chat_agent_sale(
 ): array
 {
     $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
-    $endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
+    $endpoint_path = tacticum_rest_get_ai_endpoint_path('chat_agent_sale', '/tacticum/v1/chat_agent/sale');
+    $endpoint_url = tacticum_rest_build_url($base_url, $endpoint_path);
 
     $result = tacticum_rest_post_json_retry_without_group_id($endpoint_url, $payload, $context);
 

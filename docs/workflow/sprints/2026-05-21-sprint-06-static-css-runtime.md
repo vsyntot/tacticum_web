@@ -26,7 +26,7 @@ Date: 21.05.2026
 
 - Не удалять `template_styles.css`.
 - Не сливать CSS bundles в рамках этого спринта.
-- Не удалять `styles/aiagents.css`, пока `/aiagents/` использует explicit page asset flag.
+- Исторически `styles/aiagents.css` не удалялся, пока `/aiagents/` использовал explicit page asset flag; 24.05.2026 он слит в scoped-блок `styles/global.css`.
 
 ## Scope
 
@@ -48,7 +48,7 @@ Date: 21.05.2026
 - `/price/`: filters, cards and specialist modal keep styling and interaction states.
 - `/calculator/`: chat input and CTA keep styling.
 - `/offer/`: generated offer page keeps primary buttons, gradients and form styling.
-- `/aiagents/`: inline form and agent cards keep styling with `styles/aiagents.css`.
+- `/aiagents/`: inline form and agent cards kept styling with then-active `styles/aiagents.css`; later CSS consolidation moved these rules into scoped `styles/global.css`.
 - `/policies/`: legal content remains readable after static CSS load.
 
 ## Verification
@@ -81,9 +81,9 @@ Date: 21.05.2026
 ### Verified Locally
 
 - `npm run css:check`
-- `npm run visual:smoke` with `TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/template_styles.css,local/templates/tacticum/styles/aiagents.css` against `https://tacticum.ru`
+- Historical `npm run visual:smoke` with injected `tailwind.generated.css`, `template_styles.css` and then-active `styles/aiagents.css` against `https://tacticum.ru`
 - Generated CSS starts with Tailwind cascade layer order declaration
-- Source/rendered asset inventory confirms only `styles/aiagents.css` is still approved under `local/templates/tacticum/styles/`
+- Source/rendered asset inventory originally confirmed only `styles/aiagents.css` under `local/templates/tacticum/styles/`; 24.05.2026 consolidation leaves only `styles/global.css`.
 - YAML parse for `.github/workflows/pr-check.yml`
 - `node --check` for touched/guarded frontend scripts
 - `git diff --check`

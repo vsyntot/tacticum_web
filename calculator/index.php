@@ -3,14 +3,30 @@ $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("AI-калькулятор - Тактикум");
 $APPLICATION->SetPageProperty("description", "AI-калькулятор Tacticum помогает предварительно оценить сроки, бюджет и команду для AI-проекта.");
-tacticum_apply_seo_defaults('/calculator/');
+tacticum_apply_seo_defaults('/calculator/', [
+    'image' => SITE_TEMPLATE_PATH . '/images/calculator_hero_bg.jpg',
+    'image_width' => 1536,
+    'image_height' => 592,
+    'schema' => [
+        '@type' => 'WebApplication',
+        '@id' => tacticum_public_url('/calculator/#ai-calculator'),
+        'name' => 'AI-калькулятор Tacticum',
+        'applicationCategory' => 'BusinessApplication',
+        'operatingSystem' => 'Web',
+        'url' => tacticum_public_url('/calculator/'),
+        'provider' => [
+            '@id' => tacticum_public_url('/#organization'),
+        ],
+    ],
+    'faq_schema' => true,
+]);
 ?>
 
 <!-- AI Calculator Section -->
 <section class="py-32 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">ИИ-калькулятор для оценки проекта</h2>
+            <h1 class="text-3xl md:text-4xl font-bold text-secondary mb-4">ИИ-калькулятор для оценки проекта</h1>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
                 Быстро оценим, сколько специалистов и времени потребуется под вашу задачу
             </p>

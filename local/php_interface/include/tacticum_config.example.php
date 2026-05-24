@@ -26,6 +26,15 @@ return [
             'services' => 300,
         ],
     ],
+    'ai' => [
+        'endpoint_paths' => [
+            'chat_agent_sale' => '/tacticum/v1/chat_agent/sale',
+            'staff_sale' => '/tacticum/v1/chat_agent/sale',
+        ],
+    ],
+    'security' => [
+        'csp_mode' => 'report-only',
+    ],
     'rest' => [
         'allow_no_origin' => false,
         'allowed_origins' => [

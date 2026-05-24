@@ -86,7 +86,7 @@ Expected successful shape:
 {
   "response": "AI answer",
   "group_id": "uuid-or-upstream-id",
-  "bitrix_url": "https://tacticum.ru/offer/?ID=123"
+  "bitrix_url": "https://tacticum.ru/offer/<element-code>/"
 }
 ```
 

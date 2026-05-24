@@ -5,6 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
+tacticum_rest_send_noindex_header();
 
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_sale_staff');
@@ -286,7 +287,8 @@ if ($page_url !== '') {
 }
 
 $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
-$endpoint_url = tacticum_rest_build_url($base_url, '/tacticum/v1/chat_agent/sale');
+$endpoint_path = tacticum_rest_get_ai_endpoint_path('staff_sale', '/tacticum/v1/chat_agent/sale');
+$endpoint_url = tacticum_rest_build_url($base_url, $endpoint_path);
 
 $result = tacticum_rest_post_json_retry_without_group_id($endpoint_url, $hotSalePayload, 'tacticum_sale_staff_hot_sale');
 $http_status = (int)$result['http_status'];

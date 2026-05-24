@@ -40,8 +40,27 @@ jobs:
       - name: Check generated Tailwind CSS
         run: npm run css:check
 
+      - name: Check template styles retirement
+        run: npm run template-styles:check
+
       - name: Check browser smoke tool syntax
-        run: node --check tools/visual-smoke.mjs
+        run: |
+          node --check tools/visual-smoke.mjs
+          node --check tools/seo-check.mjs
+
+      - name: Check config and lifecycle tooling
+        run: |
+          node --check tools/dev-env-preflight.mjs
+          node --check tools/template-styles-retirement-check.mjs
+          node --check tools/release-signoff-check.mjs
+          node --check tools/release-signoff-self-test.mjs
+          node --check tools/config-contract-check.mjs
+          node --check tools/legacy-sale-sunset-check.mjs
+          npm run config:check
+          npm run seo:check
+          npm run sale:sunset:check
+          npm run release:signoff:check -- docs/workflow/release-signoff.example.json
+          npm run release:signoff:self-test
 
   security-checks:
     name: 🛡️ Security & Convention Checks
@@ -240,14 +259,29 @@ jobs:
             echo "✅ Legacy browser Tailwind JS artifacts are absent."
           fi
 
-          RESULT=$(find local/templates/tacticum/styles -maxdepth 1 -type f ! -name 'aiagents.css' -print)
+          node tools/template-styles-retirement-check.mjs
+          if [ "$?" -ne 0 ]; then
+            FAIL=1
+          fi
+
+          RESULT=$(grep -nE 'tailwindcss v[0-9]|@layer[[:space:]]+(theme|base|utilities)' local/templates/tacticum/template_styles.css)
+          if [ -n "$RESULT" ]; then
+            echo "❌ ERROR: template_styles.css must not contain generated Tailwind layers."
+            echo "$RESULT"
+            echo "Use local/templates/tacticum/tailwind.generated.css for generated utilities."
+            FAIL=1
+          else
+            echo "✅ template_styles.css has no generated Tailwind layer block."
+          fi
+
+          RESULT=$(find local/templates/tacticum/styles -maxdepth 1 -type f ! -name 'global.css' -print)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: Unused generated page CSS artifacts must not be restored."
             echo "$RESULT"
-            echo "Use template/component CSS or document a new explicit Asset flag."
+            echo "Use styles/global.css for manual template CSS or component CSS for isolated Bitrix components."
             FAIL=1
           else
-            echo "✅ No stale generated page CSS artifacts."
+            echo "✅ No stale generated page CSS artifacts; styles/global.css is the only approved template styles file."
           fi
 
           RESULT=$(grep -nE 'bundle\.v3\.4\.16\.js|js/init\.js' local/templates/tacticum/header.php)
@@ -259,8 +293,11 @@ jobs:
           elif ! grep -q 'tailwind.generated.css' local/templates/tacticum/header.php; then
             echo "❌ ERROR: header.php must load static tailwind.generated.css."
             FAIL=1
+          elif ! grep -q 'styles/global.css' local/templates/tacticum/header.php; then
+            echo "❌ ERROR: header.php must load migrated global styles through styles/global.css."
+            FAIL=1
           else
-            echo "✅ Static Tailwind CSS is loaded without browser runtime."
+            echo "✅ Static Tailwind CSS and migrated global styles are loaded without browser runtime."
           fi
 
           RESULT=$(grep -nE 'substr_count[[:space:]]*\(|GetCurPage[[:space:]]*\(|addString[[:space:]]*\(' local/templates/tacticum/header.php)

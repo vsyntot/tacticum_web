@@ -10,6 +10,24 @@ $hasPageAsset = static function (string $asset) use ($pageAssets): bool {
     return in_array($asset, $pageAssets, true) || !empty($pageAssets[$asset]);
 };
 $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
+if (!headers_sent()) {
+    $securityConfig = function_exists('tacticum_rest_get_config_section')
+        ? tacticum_rest_get_config_section('security')
+        : [];
+    $cspMode = strtolower(trim((string)($securityConfig['csp_mode'] ?? 'report-only')));
+    $cspHeaderName = $cspMode === 'enforce'
+        ? 'Content-Security-Policy'
+        : 'Content-Security-Policy-Report-Only';
+    header(
+        $cspHeaderName . ": default-src 'self'; base-uri 'self'; object-src 'none'; " .
+        "script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://api-maps.yandex.ru https://*.yandex.ru https://*.yandex.net; " .
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
+        "img-src 'self' data: https://mc.yandex.ru https://*.yandex.ru https://*.yandex.net https://readdy.ai; " .
+        "font-src 'self' data: https://fonts.gstatic.com; " .
+        "connect-src 'self' https://mc.yandex.ru https://*.yandex.ru https://*.yandex.net; " .
+        "frame-src 'self' https://yandex.ru https://*.yandex.ru"
+    );
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -43,9 +61,7 @@ $bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
     }
     $obAsset->addCss(SITE_TEMPLATE_PATH."/tailwind.generated.css");
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
-    if ($hasPageAsset('aiagents_css')) {
-        $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/aiagents.css");
-    }
+    $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/global.css");
     ?>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

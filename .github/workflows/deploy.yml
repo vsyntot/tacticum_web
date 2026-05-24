@@ -79,6 +79,9 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/managed_cache/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/tacticum 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/news.list/* 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/news.detail/* 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/html_pages/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/css/s1/tacticum/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/js/s1/tacticum/* 2>/dev/null || true; \
              echo 'Cache cleared'"
@@ -100,9 +103,19 @@ jobs:
       - name: Install smoke tooling
         run: npm ci
 
+      - name: Check release lifecycle guard
+        run: |
+          npm run template-styles:check
+          npm run config:check
+          npm run seo:check
+          npm run sale:sunset:check
+          npm run release:signoff:check -- docs/workflow/release-signoff.example.json
+          npm run release:signoff:self-test
+
       - name: Post-deploy visual smoke
         env:
           TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
+          TACTICUM_EXPECT_SEO_HEAD: "1"
         run: npm run visual:smoke
 
       - name: Post-deploy browser action smoke
@@ -111,6 +124,12 @@ jobs:
           TACTICUM_VISUAL_ACTIONS: "1"
           TACTICUM_EXPECT_PRICE_TEAM_PRESETS: "1"
         run: npm run browser:smoke
+
+      - name: Post-deploy price team preset smoke
+        run: npm run browser:smoke:price
+
+      - name: Post-deploy SEO endpoint smoke
+        run: npm run seo:check:prod
 
       - name: ✅ Deploy success
         if: success()

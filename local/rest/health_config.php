@@ -5,6 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
+tacticum_rest_send_noindex_header();
 
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('health_config', 5, 60);
@@ -13,7 +14,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
 }
 
-$scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'rest'];
+$scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'rest', 'security'];
 $errors = tacticum_rest_validate_config($scopes);
 
 if (!empty($errors)) {

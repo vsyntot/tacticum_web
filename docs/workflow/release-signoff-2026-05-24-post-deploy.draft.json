@@ -1,0 +1,92 @@
+{
+  "release": {
+    "id": "2026-05-24-post-deploy",
+    "date": "2026-05-24",
+    "commit": "342ca8fe + working-tree sprint changes",
+    "base_url": "https://tacticum.ru"
+  },
+  "gates": {
+    "automated-deploy-smoke": {
+      "status": "passed",
+      "owner": "DevOps",
+      "evidence": {
+        "health_config": "2026-05-24: GET /local/rest/health_config.php returned success=true, scopes api, ai, telegram, offer, content, rest, security",
+        "visual_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-21-37-564Z/manifest.json",
+        "browser_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-33-05-900Z/manifest.json"
+      }
+    },
+    "seo-rendered-head": {
+      "status": "passed",
+      "owner": "SEO + QA",
+      "evidence": {
+        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-21-37-564Z/manifest.json",
+        "note": "seoErrors=[] for all public URLs"
+      }
+    },
+    "price-team-presets": {
+      "status": "passed",
+      "owner": "QA + Frontend",
+      "evidence": {
+        "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-32-34-008Z/manifest.json",
+        "note": "price team presets/summary ok for desktop/mobile after Bitrix component cache refresh"
+      }
+    },
+    "manual-success-flow": {
+      "status": "pending",
+      "owner": "QA + Backend/Frontend",
+      "reason": "Requires staging or controlled production lead for forms, AI chat, prefill and staff-order; not safe to automate without creating leads/upstream requests.",
+      "evidence": {
+        "safe_method_smoke": "2026-05-24: GET tacticum_chat, tacticum_prefill, tacticum_sale_staff, tacticum_form and resolve_telegram_link returned controlled 405 JSON without 500/HTML",
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    },
+    "metrika-goals": {
+      "status": "pending",
+      "owner": "PM/Marketing + QA",
+      "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy.",
+      "evidence": {
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    },
+    "config-sync": {
+      "status": "passed",
+      "owner": "DevOps",
+      "evidence": {
+        "health_config": "success=true, scopes include security",
+        "synced_keys": [
+          "ai.endpoint_paths.chat_agent_sale",
+          "ai.endpoint_paths.staff_sale",
+          "security.csp_mode"
+        ]
+      }
+    },
+    "bitrix-admin": {
+      "status": "pending",
+      "owner": "QA/Admin",
+      "reason": "Requires authenticated Bitrix admin panel smoke after deploy/cache refresh.",
+      "evidence": {
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-bitrix-admin",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    },
+    "legacy-sunset": {
+      "status": "passed",
+      "owner": "Architect + Backend",
+      "evidence": {
+        "command": "npm run sale:sunset:check",
+        "result": "passed before 2026-09-30 sunset decision deadline"
+      }
+    },
+    "staff-sale-upstream": {
+      "status": "pending",
+      "owner": "Architect + Backend + QA + DevOps",
+      "reason": "Requires staging staff-order success-flow evidence that workers_json, team_preset, monthly_budget_estimate and endDate reach upstream.",
+      "evidence": {
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-staff-sale-upstream",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    }
+  }
+}
