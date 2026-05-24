@@ -109,18 +109,18 @@
 
 | ID | Status | Area | Closure Target |
 |---|---|---|---|
-| S10-001 | in progress | Release sign-off closure | Strict-passing release sign-off JSON: automated smoke, manual gates, config/admin/upstream evidence |
-| S10-002 | planned | Manual success-flow | Staging или controlled production evidence для форм, modal, AI chat, prefill и staff-order без PII |
-| S10-003 | planned | Staff-sale upstream | Подтверждение rich staff payload в upstream/CRM или controlled fallback |
-| S10-004 | planned | Metrika goals | Подтверждение affected goals/events в Яндекс.Метрике без PII в параметрах |
-| S10-005 | planned | Bitrix admin smoke | Проверка `/bitrix/admin/` и public admin toolbar после deploy/cache refresh |
+| S10-001 | external handoff | Release sign-off closure | Draft-check/summary проходят; strict closure ждёт external gates из `sprint-10-external-gates-handoff-2026-05-24.md` |
+| S10-002 | external handoff | Manual success-flow | Staging или controlled production evidence для форм, modal, AI chat, prefill и staff-order без PII |
+| S10-003 | external handoff | Staff-sale upstream | Подтверждение rich staff payload в upstream/CRM или controlled fallback |
+| S10-004 | external handoff | Metrika goals | Подтверждение affected goals/events в Яндекс.Метрике без PII в параметрах |
+| S10-005 | external handoff | Bitrix admin smoke | Unauthenticated admin surface precheck прошёл; authenticated admin + toolbar smoke ждёт QA/Admin |
 | S10-006 | done | Browser zero-error challenge | `npm run e2e:css-js:prod` и `npm run e2e:css-js:local` прошли; CDP readiness race в `visual-smoke` исправлен |
 | S10-007 | done | CSS/JS E2E readiness | Добавлен `css-js-e2e-readiness` release gate; draft sign-off содержит passed evidence по production и CSS-local manifests |
-| S10-008 | in progress | Legacy sale aliases inventory | `legacy-sale-alias-consumer-inventory.md` создан; repo scan не нашёл first-party callers, external access logs/CRM inventory до `30.06.2026`, migration plan до `31.08.2026`, final mode runway до `30.09.2026` |
-| S10-009 | planned | Rich workers upstream decision | Contract отсутствует — фиксируем текущий adapter; появился contract — новый Security / Integration scope |
-| S10-010 | planned | CSP report-only baseline | Evidence по report-only violations, карте и Метрике; enforcing CSP только отдельным rollout |
+| S10-008 | external handoff | Legacy sale aliases inventory | `legacy-sale-alias-consumer-inventory.md` создан; repo scan не нашёл first-party callers, external access logs/CRM inventory до `30.06.2026`, migration plan до `31.08.2026`, final mode runway до `30.09.2026` |
+| S10-009 | done | Rich workers upstream decision | `rich-workers-upstream-readiness-2026-05-24.md` фиксирует: compatible upstream workers contract в repo/docs отсутствует, `staff_sale` остаётся `/tacticum/v1/chat_agent/sale`; будущий switch только через Security / Integration scope |
+| S10-010 | done | CSP report-only baseline | `csp-report-only-baseline-2026-05-24.md` зафиксировал report-only header, отсутствие enforcing CSP и чистый `/contacts/` rendered smoke; goal-level Метрика остаётся S10-004 |
 | S10-011 | done | SEO-009 revalidation | `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation, accepted risk не пересматривается без UX scope |
-| S10-012 | in progress | Offer detail clear-cache routing | Старое `urlrewrite.php` rule не матчило `/offer/<code>/?clear_cache=Y`; fix подготовлен, `seo:check:prod` теперь ловит этот сценарий и должен пройти после deploy |
+| S10-012 | done | Offer detail clear-cache routing | Старое `urlrewrite.php` rule не матчило `/offer/<code>/?clear_cache=Y`; после fix и deploy production URL отдаёт 200/self-canonical, `seo:check:prod` проходит |
 
 ## Product Gaps
 
