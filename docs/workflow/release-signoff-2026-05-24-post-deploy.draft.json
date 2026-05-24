@@ -2,7 +2,7 @@
   "release": {
     "id": "2026-05-24-post-deploy",
     "date": "2026-05-24",
-    "commit": "342ca8fe + working-tree sprint changes",
+    "commit": "9148d9d1",
     "base_url": "https://tacticum.ru"
   },
   "gates": {
@@ -11,23 +11,23 @@
       "owner": "DevOps",
       "evidence": {
         "health_config": "2026-05-24: GET /local/rest/health_config.php returned success=true, scopes api, ai, telegram, offer, content, rest, security",
-        "visual_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-21-37-564Z/manifest.json",
-        "browser_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-33-05-900Z/manifest.json"
+        "visual_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-23-47-499Z/manifest.json",
+        "browser_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-25-19-253Z/manifest.json"
       }
     },
     "seo-rendered-head": {
       "status": "passed",
       "owner": "SEO + QA",
       "evidence": {
-        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-52-46-468Z/manifest.json",
-        "note": "seoErrors=[] for all public URLs; Sprint 10 SEO-009 revalidation passed"
+        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-23-47-499Z/manifest.json",
+        "note": "seoErrors=[] for all public URLs; Sprint 10 SEO-009 revalidation and S10-012 offer clear-cache routing passed"
       }
     },
     "price-team-presets": {
       "status": "passed",
       "owner": "QA + Frontend",
       "evidence": {
-        "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T05-32-34-008Z/manifest.json",
+        "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-26-53-540Z/manifest.json",
         "note": "price team presets/summary ok for desktop/mobile after Bitrix component cache refresh"
       }
     },
@@ -35,12 +35,12 @@
       "status": "passed",
       "owner": "Frontend + QA",
       "evidence": {
-        "production_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-23-35-033Z/manifest.json",
-        "production_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-24-59-321Z/manifest.json",
-        "production_price_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-26-34-792Z/manifest.json",
+        "production_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-23-47-499Z/manifest.json",
+        "production_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-25-19-253Z/manifest.json",
+        "production_price_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-26-53-540Z/manifest.json",
         "css_local_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-20-02-262Z/manifest.json",
         "css_local_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-21-32-736Z/manifest.json",
-        "note": "e2e:css-js:prod and e2e:css-js:local passed after CDP navigation readiness fix"
+        "note": "post-deploy e2e:css-js:prod passed after offer clear-cache routing deploy; e2e:css-js:local passed after CDP navigation readiness fix"
       }
     },
     "manual-success-flow": {
@@ -49,6 +49,7 @@
       "reason": "Requires staging or controlled production lead for forms, AI chat, prefill and staff-order; not safe to automate without creating leads/upstream requests.",
       "evidence": {
         "safe_method_smoke": "2026-05-24: GET tacticum_chat, tacticum_prefill, tacticum_sale_staff, tacticum_form and resolve_telegram_link returned controlled 405 JSON without 500/HTML",
+        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
       }
@@ -58,6 +59,8 @@
       "owner": "PM/Marketing + QA",
       "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy.",
       "evidence": {
+        "public_precheck": "2026-05-24: metrika.js contains counter 103471113 and production HTML contains noscript pixel; goal visibility still requires Yandex.Metrika access",
+        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
       }
@@ -79,6 +82,8 @@
       "owner": "QA/Admin",
       "reason": "Requires authenticated Bitrix admin panel smoke after deploy/cache refresh.",
       "evidence": {
+        "public_precheck": "2026-05-24: unauthenticated GET /bitrix/admin/ returned HTTP 200 and x-bitrix-ajax-status=Authorize without 500/white screen",
+        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-bitrix-admin",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
       }
@@ -98,6 +103,8 @@
       "owner": "Architect + Backend + QA + DevOps",
       "reason": "Requires staging staff-order success-flow evidence that workers_json, team_preset, monthly_budget_estimate and endDate reach upstream.",
       "evidence": {
+        "readiness": "docs/workflow/rich-workers-upstream-readiness-2026-05-24.md",
+        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-staff-sale-upstream",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
       }

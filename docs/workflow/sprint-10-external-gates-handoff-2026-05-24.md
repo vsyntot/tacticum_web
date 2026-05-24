@@ -1,0 +1,39 @@
+# Sprint 10 External Gates Handoff — 24.05.2026
+
+Status: `external handoff`
+
+Этот artifact закрывает оставшийся Sprint 10 хвост как управляемый handoff. Кодовые, SEO, CSS/JS, CSP и routing gates закрыты. Ниже остались только проверки, которые нельзя честно выполнить из репозитория без авторизованного доступа к staging/CRM/upstream, Яндекс.Метрике и Bitrix admin или без создания controlled test lead.
+
+## Public Prechecks Completed
+
+| Area | Result | Evidence |
+|---|---|---|
+| Bitrix admin surface | passed as unauthenticated precheck | `curl -I https://tacticum.ru/bitrix/admin/` вернул `HTTP/2 200`, `x-bitrix-ajax-status: Authorize`, без 500/white screen |
+| REST safe method guard | passed | GET `/local/rest/tacticum_form.php`, `tacticum_chat.php`, `tacticum_prefill.php`, `tacticum_sale_staff.php` вернули controlled `405` |
+| Metrika asset wiring | passed as code/public precheck | `local/templates/tacticum/js/metrika.js` содержит counter `103471113`; production HTML содержит noscript pixel `https://mc.yandex.ru/watch/103471113` |
+| Production browser/CSS/JS | passed | `npm run e2e:css-js:prod` passed after deploy; manifests recorded in release sign-off draft |
+| Production SEO/offer clear-cache | passed | `/offer/marketingoviy-marketpleys-dlya-medikov-i-klinik/?clear_cache=Y` вернул `200`; `npm run seo:check:prod` passed |
+
+## External Gates
+
+| Sprint ID | Release Gate | Owner | Due | Required Evidence | Repository Status |
+|---|---|---|---|---|---|
+| S10-002 | `manual-success-flow` | QA + Backend/Frontend | before strict release closure | Staging или controlled production evidence для default form, modal form, AI chat, prefill, staff-order; no PII | follow-up |
+| S10-003 | `staff-sale-upstream` | Architect + Backend + QA + DevOps | before strict release closure | Upstream/CRM confirms `workers_json`, `team_preset`, `monthly_budget_estimate`, `endDate`; no raw payload | follow-up |
+| S10-004 | `metrika-goals` | PM/Marketing + QA | before strict release closure | Yandex.Metrika confirms affected form/chat/prefill/staff-order goals/events; params contain no PII | follow-up |
+| S10-005 | `bitrix-admin` | QA/Admin + DevOps | before strict release closure | Authenticated `/bitrix/admin/` opens; public admin toolbar works after deploy/cache refresh; no cookie/session evidence | follow-up |
+| S10-008 | `legacy-sunset` follow-up | PM + Backend | `30.06.2026` inventory, `31.08.2026` migration plan | `legacy-sale-alias-consumer-inventory.md` filled from access logs/CRM aggregate reports | follow-up |
+
+## Evidence Rules
+
+- Не хранить в репозитории имя, телефон, email, текст заявки, raw request/response payload, cookie, session, CSRF token, secret или полный screenshot с PII.
+- Использовать safe IDs: lead ID, upstream request ID, internal ticket/report ID, masked `group_id`, timestamp, owner, result.
+- После заполнения evidence обновить `docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json` и выполнить strict check:
+
+```bash
+npm run release:signoff:check -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json
+```
+
+## Closure Rule
+
+Sprint 10 считается code/repository complete. Release issue нельзя закрывать strict sign-off, пока `manual-success-flow`, `metrika-goals`, `bitrix-admin` и `staff-sale-upstream` остаются `pending`.

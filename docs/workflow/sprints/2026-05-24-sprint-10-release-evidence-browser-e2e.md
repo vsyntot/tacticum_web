@@ -29,18 +29,18 @@
 
 | ID | Gap / Tail | Owner | Priority | Status | Acceptance Criteria |
 |---|---|---|---|---|---|
-| S10-001 | Release sign-off closure | PM + QA + DevOps | P1 | in progress | `release-signoff-2026-05-24-post-deploy.draft.json` переведён из draft в strict-passing evidence или создан актуальный release sign-off JSON; `npm run release:signoff:check -- <file>` проходит |
-| S10-002 | Manual success-flow | QA + Backend + Frontend | P1 | planned | На staging или controlled production проверены default form, modal form, AI chat, prefill и staff-order; evidence заполнен без PII по runbook |
-| S10-003 | Staff-sale upstream evidence | Architect + Backend + QA + DevOps | P1 | planned | Подтверждено, что `workers_json`, `team_preset`, `monthly_budget_estimate`, `endDate` доходят до upstream/CRM или зафиксирован controlled fallback; gate `staff-sale-upstream` закрыт |
-| S10-004 | Metrika goals evidence | PM/Marketing + QA | P1 | planned | В Яндекс.Метрике подтверждены affected goals/events для form, chat, prefill и staff-order; параметры не содержат PII |
-| S10-005 | Bitrix admin smoke | QA/Admin + DevOps | P1 | planned | `/bitrix/admin/` открывается после deploy/cache refresh; публичная страница с admin toolbar не ломается; evidence сохранён без cookie/session |
+| S10-001 | Release sign-off closure | PM + QA + DevOps | P1 | external handoff | Draft sign-off проходит; strict closure заблокирован только внешними gates `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream` |
+| S10-002 | Manual success-flow | QA + Backend + Frontend | P1 | external handoff | На staging или controlled production проверены default form, modal form, AI chat, prefill и staff-order; evidence заполнен без PII по runbook |
+| S10-003 | Staff-sale upstream evidence | Architect + Backend + QA + DevOps | P1 | external handoff | Подтверждено, что `workers_json`, `team_preset`, `monthly_budget_estimate`, `endDate` доходят до upstream/CRM или зафиксирован controlled fallback; gate `staff-sale-upstream` закрыт |
+| S10-004 | Metrika goals evidence | PM/Marketing + QA | P1 | external handoff | В Яндекс.Метрике подтверждены affected goals/events для form, chat, prefill и staff-order; параметры не содержат PII |
+| S10-005 | Bitrix admin smoke | QA/Admin + DevOps | P1 | external handoff | `/bitrix/admin/` открывается после deploy/cache refresh; публичная страница с admin toolbar не ломается; evidence сохранён без cookie/session |
 | S10-006 | Browser zero-error challenge | QA + Frontend | P1 | done | Production/staging smoke не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors`, `actionErrors`, broken images и horizontal overflow; найденные ошибки исправлены или заведены как explicit blocker |
 | S10-007 | CSS/JS e2e readiness | Frontend + QA | P1 | done | `npm run e2e:css-js:prod` проходит после deploy; при CSS PR дополнительно проходит `npm run e2e:css-js:local`; manifest paths приложены к release evidence |
-| S10-008 | Legacy sale aliases inventory | PM + Backend | P1 | in progress | `docs/workflow/legacy-sale-alias-consumer-inventory.md` создан; до `30.06.2026` заполнен inventory consumers `tacticum_offer.php` / `tacticum_sale.php` из access logs/CRM; создан owner-backed plan миграции до `31.08.2026` |
-| S10-009 | Rich workers upstream decision | Architect + Backend + DevOps | P2 | planned | Подтверждено, что отдельного compatible upstream contract пока нет, или создан Security / Integration scope для переключения `ai.endpoint_paths.staff_sale` |
-| S10-010 | CSP report-only baseline | Architect + Frontend + QA | P2 | planned | Собран report-only baseline: нет first-party violations, карта `/contacts/` и Метрика работают; enforcing CSP не включается без отдельного rollout/rollback |
+| S10-008 | Legacy sale aliases inventory | PM + Backend | P1 | external handoff | `docs/workflow/legacy-sale-alias-consumer-inventory.md` создан; до `30.06.2026` заполнен inventory consumers `tacticum_offer.php` / `tacticum_sale.php` из access logs/CRM; создан owner-backed plan миграции до `31.08.2026` |
+| S10-009 | Rich workers upstream decision | Architect + Backend + DevOps | P2 | done | Подтверждено, что отдельного compatible upstream contract пока нет, или создан Security / Integration scope для переключения `ai.endpoint_paths.staff_sale` |
+| S10-010 | CSP report-only baseline | Architect + Frontend + QA | P2 | done | Собран report-only baseline: нет first-party violations, карта `/contacts/` и Метрика работают; enforcing CSP не включается без отдельного rollout/rollback |
 | S10-011 | SEO-009 accepted-risk revalidation | SEO + QA | P3 | done | `npm run seo:check`/`seo:smoke` подтверждают, что `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation; решение не пересматривается без отдельного UX scope |
-| S10-012 | Offer detail clear-cache routing | Backend + SEO + QA | P1 | in progress | `/offer/<code>/?clear_cache=Y` не уходит в root `404.php`; `npm run seo:check:prod` проходит после deploy |
+| S10-012 | Offer detail clear-cache routing | Backend + SEO + QA | P1 | done | `/offer/<code>/?clear_cache=Y` не уходит в root `404.php`; `npm run seo:check:prod` проходит после deploy |
 
 ## Browser Error Challenge
 
@@ -159,25 +159,32 @@ TACTICUM_VISUAL_PAGES=/price/ TACTICUM_VISUAL_INJECT_JS=local/templates/tacticum
 - `npm run release:signoff:self-test` прошёл, включая negative case на missing CSS/JS e2e manifest.
 - Legacy alias inventory оформлен в `docs/workflow/legacy-sale-alias-consumer-inventory.md`: repo source scan не нашёл first-party callers вне docs/tools, access logs и CRM/upstream reports оставлены как external pending evidence до `30.06.2026`.
 - SEO-009 revalidation закрыт: `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; rendered smoke manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-52-46-468Z/manifest.json`.
-- S10-012 открыт как production regression: Bitrix `urlrewrite.php` матчится по `REQUEST_URI` вместе с query string, поэтому старое offer rule не пропускало `?clear_cache=Y`; локальный фикс подготовлен, production guard добавлен в `seo:check:prod` и сейчас падает до deploy фикса.
+- S10-012 закрыт после deploy: `/offer/marketingoviy-marketpleys-dlya-medikov-i-klinik/?clear_cache=Y` отдаёт HTTP 200, self-canonical и offer form; `npm run seo:check:prod` прошёл.
+- S10-010 закрыт baseline artifact `docs/workflow/csp-report-only-baseline-2026-05-24.md`: `/contacts/` отдаёт `Content-Security-Policy-Report-Only`, enforcing CSP не включён, rendered smoke по `/contacts/` прошёл без browser/runtime/network errors.
+- S10-009 закрыт decision artifact `docs/workflow/rich-workers-upstream-readiness-2026-05-24.md`: отдельного compatible upstream workers contract в repo/docs нет, `staff_sale` остаётся текущим adapter path.
+- External gates handoff оформлен в `docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md`; публичные prechecks выполнены, strict release closure остаётся заблокирован только авторизованным external evidence.
 
 ## Sprint Review
 
 ### Done
 
+- S10-001 release sign-off переведён в explicit external handoff: draft-check/summary проходят, strict check ждёт ручные gates.
+- S10-002/S10-003/S10-004/S10-005 переведены в external handoff с owners, due и evidence rules.
 - S10-006 Browser zero-error challenge закрыт production/local e2e smoke и фиксом CDP readiness race.
 - S10-007 CSS/JS e2e readiness закреплён aggregate scripts, release gate и sign-off checker.
+- S10-008 legacy alias inventory переведён в external handoff с due `30.06.2026` и готовым inventory artifact.
+- S10-009 Rich workers upstream decision закрыт как config-switch readiness без production переключения.
+- S10-010 CSP report-only baseline закрыт отдельным artifact; enforcing CSP остаётся out of scope.
 - S10-011 SEO-009 accepted-risk revalidation закрыт `seo:check`, `seo:check:prod` и rendered `seo:smoke`.
+- S10-012 Offer detail clear-cache routing закрыт production `200` check, `seo:check:prod` и post-deploy `e2e:css-js:prod`.
 
 ### Not Done
 
-- S10-002, S10-003, S10-004 и S10-005 требуют внешних доступов или controlled production/staging success-flow: реальные лиды, Яндекс.Метрика, Bitrix admin и upstream/CRM.
-- S10-008 не закрыт полностью без access logs/CRM inventory; создан live artifact и зафиксирован repo scan.
-- S10-009 и S10-010 остаются planned до появления upstream workers contract и CSP report-only evidence.
-- S10-012 ожидает deploy и повторный `npm run seo:check:prod`.
+- Strict release sign-off не может пройти без внешнего evidence: `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream`.
+- Legacy alias traffic inventory не может быть заполнен без access logs/CRM reports и остаётся due `30.06.2026`.
 
 ### Follow-Up
 
-- PM/QA закрывают pending manual gates по `docs/workflow/manual-release-gates-runbook.md`.
+- PM/QA закрывают pending manual gates по `docs/workflow/manual-release-gates-runbook.md` и `docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md`.
 - PM + Backend заполняют `docs/workflow/legacy-sale-alias-consumer-inventory.md` до `30.06.2026`.
 - Architect + Backend возвращаются к rich workers upstream и CSP enforcing только отдельными Security / Integration scopes.
