@@ -12,6 +12,7 @@ const requiredGates = [
   'automated-deploy-smoke',
   'seo-rendered-head',
   'price-team-presets',
+  'css-js-e2e-readiness',
   'manual-success-flow',
   'metrika-goals',
   'config-sync',
@@ -254,6 +255,18 @@ async function validateGateEvidence(gateName, evidence) {
 
   if (gateName === 'price-team-presets') {
     await validateManifestEvidence(gateName, evidence.price_smoke_manifest, { requirePriceTeam: true });
+  }
+
+  if (gateName === 'css-js-e2e-readiness') {
+    await validateManifestEvidence(gateName, evidence.production_visual_manifest, {});
+    await validateManifestEvidence(gateName, evidence.production_browser_manifest, {});
+    await validateManifestEvidence(gateName, evidence.production_price_manifest, { requirePriceTeam: true });
+    if (hasMeaningfulEvidence(evidence.css_local_visual_manifest)) {
+      await validateManifestEvidence(gateName, evidence.css_local_visual_manifest, {});
+    }
+    if (hasMeaningfulEvidence(evidence.css_local_browser_manifest)) {
+      await validateManifestEvidence(gateName, evidence.css_local_browser_manifest, {});
+    }
   }
 
   if (manualEvidenceGates.has(gateName)) {

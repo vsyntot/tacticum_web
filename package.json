@@ -16,6 +16,8 @@
     "browser:smoke:prod": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs",
     "browser:smoke:price": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_PAGES=/price/ TACTICUM_VISUAL_ACTIONS=1 TACTICUM_EXPECT_PRICE_TEAM_PRESETS=1 node ./tools/visual-smoke.mjs",
     "release:smoke:prod": "npm run seo:smoke && npm run browser:smoke:prod && npm run browser:smoke:price",
+    "e2e:css-js:prod": "npm run css:check && npm run template-styles:check && npm run visual:smoke:prod && npm run browser:smoke:prod && npm run browser:smoke:price",
+    "e2e:css-js:local": "npm run css:check && npm run template-styles:check && npm run visual:smoke:css-local && npm run browser:smoke:css-local",
     "release:signoff:check": "node ./tools/release-signoff-check.mjs",
     "release:signoff:draft-check": "node ./tools/release-signoff-check.mjs --allow-pending",
     "release:signoff:summary": "node ./tools/release-signoff-check.mjs --allow-pending --summary",

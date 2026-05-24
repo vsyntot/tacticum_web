@@ -103,6 +103,24 @@
 | OGC-007 | closed as process decision | Legacy sale aliases sunset | Sale workstream фиксирует inventory до `30.06.2026`, migration до `31.08.2026`, final mode до `30.09.2026` |
 | OGC-008 | closed | Local PHP CLI gap | `npm run dev:preflight` запускает PHP lint при PHP 8.4+ или фиксирует degraded local state с GitHub `php-lint` fallback |
 
+## Sprint 10 — Release Evidence, Browser Errors And CSS/JS E2E
+
+На 24.05.2026 открытых code-level `open` / `in-progress` gaps нет. Оставшийся хвост упакован в Sprint 10: `docs/workflow/sprints/2026-05-24-sprint-10-release-evidence-browser-e2e.md`.
+
+| ID | Status | Area | Closure Target |
+|---|---|---|---|
+| S10-001 | in progress | Release sign-off closure | Strict-passing release sign-off JSON: automated smoke, manual gates, config/admin/upstream evidence |
+| S10-002 | planned | Manual success-flow | Staging или controlled production evidence для форм, modal, AI chat, prefill и staff-order без PII |
+| S10-003 | planned | Staff-sale upstream | Подтверждение rich staff payload в upstream/CRM или controlled fallback |
+| S10-004 | planned | Metrika goals | Подтверждение affected goals/events в Яндекс.Метрике без PII в параметрах |
+| S10-005 | planned | Bitrix admin smoke | Проверка `/bitrix/admin/` и public admin toolbar после deploy/cache refresh |
+| S10-006 | done | Browser zero-error challenge | `npm run e2e:css-js:prod` и `npm run e2e:css-js:local` прошли; CDP readiness race в `visual-smoke` исправлен |
+| S10-007 | done | CSS/JS E2E readiness | Добавлен `css-js-e2e-readiness` release gate; draft sign-off содержит passed evidence по production и CSS-local manifests |
+| S10-008 | in progress | Legacy sale aliases inventory | `legacy-sale-alias-consumer-inventory.md` создан; repo scan не нашёл first-party callers, external access logs/CRM inventory до `30.06.2026`, migration plan до `31.08.2026`, final mode runway до `30.09.2026` |
+| S10-009 | planned | Rich workers upstream decision | Contract отсутствует — фиксируем текущий adapter; появился contract — новый Security / Integration scope |
+| S10-010 | planned | CSP report-only baseline | Evidence по report-only violations, карте и Метрике; enforcing CSP только отдельным rollout |
+| S10-011 | done | SEO-009 revalidation | `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation, accepted risk не пересматривается без UX scope |
+
 ## Product Gaps
 
 | ID | Status | Priority | Lane | Area | Gap | Evidence | Impact | Suggested Next Step |

@@ -2,7 +2,7 @@
 
 Использовать после deploy в production или staging. PM не закрывает Issue, пока релевантные пункты не подтверждены.
 
-`deploy.yml` автоматически выполняет `health_config`, `npm run seo:check`, `npm run visual:smoke`, `npm run browser:smoke` и `npm run seo:check:prod` против `https://tacticum.ru` после очистки Bitrix cache. Очистка должна включать managed cache, component HTML cache для `news.list`/`news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона, иначе production может отдать новый JS/CSS поверх старого component HTML. В deploy `visual:smoke` запускается с `TACTICUM_EXPECT_SEO_HEAD=1`, сохраняет rendered SEO head в `manifest.json` и падает при отсутствующих/дублирующихся title, description, canonical, OpenGraph meta или выпадении money pages из top navigation. `browser:smoke` в deploy запускается с обязательной проверкой `/price/` team presets. `seo:check:prod` дополнительно проверяет production sitemap governance и `X-Robots-Tag` на JSON endpoints.
+`deploy.yml` автоматически выполняет `health_config`, `npm run css:check`, `npm run seo:check`, `npm run visual:smoke`, `npm run browser:smoke` и `npm run seo:check:prod` против `https://tacticum.ru` после очистки Bitrix cache. Очистка должна включать managed cache, component HTML cache для `news.list`/`news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона, иначе production может отдать новый JS/CSS поверх старого component HTML. В deploy `visual:smoke` запускается с `TACTICUM_EXPECT_SEO_HEAD=1`, сохраняет rendered SEO head в `manifest.json` и падает при отсутствующих/дублирующихся title, description, canonical, OpenGraph meta или выпадении money pages из top navigation. `browser:smoke` в deploy запускается с обязательной проверкой `/price/` team presets. `seo:check:prod` дополнительно проверяет production sitemap governance и `X-Robots-Tag` на JSON endpoints.
 
 Этот чеклист остаётся ручной матрицей для staging, локальных выкладок и real success-flow, которые нельзя безопасно автоматизировать в production без создания лидов.
 
@@ -15,7 +15,9 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] Console без новых критичных JS errors.
 - [ ] `npm run visual:smoke` проходит для затронутых публичных страниц; manifest не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors` и `seoErrors`.
 - [ ] `npm run browser:smoke` проходит для non-network UI actions: меню, модалки, пустая валидация форм, empty-send чатов, `/price/` filters/modal.
+- [ ] Для полной production CSS/JS e2e readiness проходит `npm run e2e:css-js:prod`; manifest не содержит runtime/action/browser blockers.
 - [ ] При CSS-правках проходит `npm run visual:smoke:css-local`; при изменении интерактивных CSS-состояний также `npm run browser:smoke:css-local`.
+- [ ] При CSS/JS PR до deploy проходит `npm run e2e:css-js:local`; для локальной JS-проверки конкретного компонента используется `TACTICUM_VISUAL_INJECT_JS=<path> npm run browser:smoke`.
 - [ ] `/price/` action smoke подтверждает team presets, persistent summary и расчёт месячного бюджета: `npm run browser:smoke:price`; в manifest action `price team presets/summary` имеет `status=ok` для desktop/mobile.
 - [ ] Если `/price/` smoke падает с `team preset controls are missing`, проверить, что очищен component cache `bitrix/cache/s1/bitrix/news.list/*` и composite cache `bitrix/html_pages/*`, а rendered HTML содержит `data-price-team-preset`.
 - [ ] Release sign-off JSON заполнен по `docs/workflow/release-signoff.example.json`, ручные gates закрыты по `docs/workflow/manual-release-gates-runbook.md` и файл проходит `npm run release:signoff:check -- <file>`.

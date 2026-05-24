@@ -104,6 +104,6 @@
 
 ### Follow-Up
 
-- До `30.06.2026` PM + Backend должны заполнить inventory consumers legacy aliases.
+- До `30.06.2026` PM + Backend должны заполнить `docs/workflow/legacy-sale-alias-consumer-inventory.md` по access logs / CRM reports.
 - До `31.08.2026` владельцы интеграций должны мигрировать на `/local/rest/tacticum_form.php`.
 - До `30.09.2026` Architect + Backend + DevOps должны выбрать и реализовать финальный режим aliases.

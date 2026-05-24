@@ -110,6 +110,7 @@ jobs:
 
       - name: Check release lifecycle guard
         run: |
+          npm run css:check
           npm run template-styles:check
           npm run config:check
           npm run seo:check

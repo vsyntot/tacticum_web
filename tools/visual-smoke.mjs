@@ -116,7 +116,7 @@ try {
 }
 
 async function smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions }) {
-  const target = await createTarget(port, url);
+  const target = await createTarget(port, 'about:blank');
   const cdp = await connectCdp(target.webSocketDebuggerUrl);
   const errors = [];
   const result = {
@@ -224,10 +224,19 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: viewport.mobile });
 
     const loadEvent = cdp.waitFor('Page.loadEventFired', 30000).catch(() => null);
-    const domReady = cdp.waitFor('Page.domContentEventFired', 15000);
+    const domReady = cdp.waitFor('Page.domContentEventFired', 15000).catch(() => null);
     await cdp.send('Page.navigate', { url });
     loaded = Promise.race([loadEvent, domReady]);
     await loaded;
+
+    let readyState = await getDocumentReadyState(cdp);
+    if (readyState !== 'interactive' && readyState !== 'complete') {
+      await loadEvent;
+      readyState = await getDocumentReadyState(cdp);
+    }
+    if (readyState !== 'interactive' && readyState !== 'complete') {
+      throw new Error(`Timed out waiting for document readiness: ${readyState || 'unknown'}`);
+    }
     if (removeCssPatterns.length > 0) {
       await cdp.send('Runtime.evaluate', {
         awaitPromise: true,
@@ -544,6 +553,15 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
   }
 
   return result;
+}
+
+async function getDocumentReadyState(cdp) {
+  const response = await cdp.send('Runtime.evaluate', {
+    expression: 'document.readyState',
+    returnByValue: true,
+  }).catch(() => null);
+
+  return response?.result?.value || '';
 }
 
 async function runActionSmoke(cdp) {

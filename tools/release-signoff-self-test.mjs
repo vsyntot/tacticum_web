@@ -55,6 +55,13 @@ const cases = [
     },
   },
   {
+    name: 'missing css js e2e manifest',
+    expected: /css-js-e2e-readiness: manifest evidence is missing/,
+    mutate(payload) {
+      delete payload.gates['css-js-e2e-readiness'].evidence.production_browser_manifest;
+    },
+  },
+  {
     name: 'unknown gate',
     expected: /unknown gate/,
     mutate(payload) {

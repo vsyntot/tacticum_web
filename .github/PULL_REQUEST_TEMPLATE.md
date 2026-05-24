@@ -61,7 +61,7 @@ Closes #<!-- номер issue -->
 - [ ] Новый CSS подключен через `$obAsset->addCss()` в `header.php`
 - [ ] Форма использует атрибут `data-tacticum-form`
 - [ ] `npm run template-styles:check` проходит; active CSS не возвращён в `template_styles.css`
-- [ ] При изменении CSS выполнен `npm run visual:smoke:css-local` или указан reason, почему не применимо
+- [ ] При изменении CSS/JS выполнен `npm run e2e:css-js:local` или указан reason, почему не применимо
 - [ ] Новые/изменённые global CSS-правила в `styles/global.css` имеют понятный owner или вынесены в component/page asset
 
 ### SEO / инфраструктура (если применимо)
