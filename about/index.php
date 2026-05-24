@@ -2,7 +2,20 @@
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("О компании - Тактикум");
 $APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт разработки программного обеспечения, внедрения AI-решений и автоматизации бизнеса.");
-tacticum_apply_seo_defaults('/about/');
+tacticum_apply_seo_defaults('/about/', [
+    'image' => SITE_TEMPLATE_PATH . '/images/about_hero_bg.jpg',
+    'image_width' => 1536,
+    'image_height' => 800,
+    'schema' => [
+        '@type' => 'AboutPage',
+        '@id' => tacticum_public_url('/about/#about-page'),
+        'name' => 'О компании Tacticum',
+        'url' => tacticum_public_url('/about/'),
+        'mainEntity' => [
+            '@id' => tacticum_public_url('/#organization'),
+        ],
+    ],
+]);
 ?>
 
 <!-- Hero Section -->
@@ -439,7 +452,7 @@ include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/project-discu
                     </li>
                     <li class="flex items-start gap-3">
                         <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                            <i class="ri-balance-fill text-primary"></i>
+                            <i class="ri-scales-fill text-primary"></i>
                         </div>
                         <div>
                             <h4 class="font-bold text-gray-700">Баланс работы и жизни</h4>

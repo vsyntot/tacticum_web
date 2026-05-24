@@ -98,13 +98,16 @@
         </div>
 
         <div class="hidden sticky top-24 z-20 rounded-xl border border-primary/20 bg-white p-4 md:p-5 mb-8 shadow-lg shadow-primary/10" data-price-team-summary aria-live="polite">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)_auto] gap-5 xl:items-center">
                 <div class="min-w-0">
-                    <p class="text-sm font-medium text-primary">Состав заявки</p>
-                    <p class="text-base font-semibold text-secondary mt-1" data-price-team-summary-text>Состав не выбран</p>
-                    <p class="text-sm text-gray-500 mt-1" data-price-team-summary-preset></p>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <p class="text-sm font-medium text-primary">Команда в заявке</p>
+                        <p class="inline-flex w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary" data-price-team-summary-text>Состав не выбран</p>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2" data-price-team-summary-preset></p>
+                    <div class="tacticum-team-summary-list mt-3" data-price-team-summary-list role="list"></div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:min-w-[360px]">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="rounded-lg bg-gray-50 px-4 py-3">
                         <p class="text-xs uppercase tracking-wide text-gray-500">Ставка</p>
                         <p class="font-semibold text-secondary mt-1" data-price-team-summary-rate>—</p>
@@ -114,16 +117,16 @@
                         <p class="font-semibold text-secondary mt-1" data-price-team-summary-budget>Зависит от загрузки</p>
                     </div>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3 lg:shrink-0">
+                <div class="flex flex-col sm:flex-row xl:flex-col gap-3 xl:shrink-0">
                     <button type="button"
                             data-price-team-summary-open
-                            class="inline-flex items-center justify-center rounded-button bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
-                        Открыть заявку
+                            class="inline-flex items-center justify-center rounded-button bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors whitespace-nowrap">
+                        Уточнить состав
                     </button>
                     <button type="button"
                             data-price-team-summary-clear
-                            class="inline-flex items-center justify-center rounded-button border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 hover:border-red-200 hover:text-red-600 transition-colors">
-                        Очистить
+                            class="inline-flex items-center justify-center rounded-button border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 hover:border-red-200 hover:text-red-600 transition-colors whitespace-nowrap">
+                        Сбросить
                     </button>
                 </div>
             </div>

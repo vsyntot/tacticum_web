@@ -2,7 +2,17 @@
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Политика конфиденциальности - Тактикум");
 $APPLICATION->SetPageProperty("description", "Политика конфиденциальности Tacticum: порядок обработки персональных данных и права пользователей.");
-tacticum_apply_seo_defaults('/policies/');
+tacticum_apply_seo_defaults('/policies/', [
+    'schema' => [
+        '@type' => 'WebPage',
+        '@id' => tacticum_public_url('/policies/#privacy-policy'),
+        'name' => 'Политика конфиденциальности Tacticum',
+        'url' => tacticum_public_url('/policies/'),
+        'isPartOf' => [
+            '@id' => tacticum_public_url('/#website'),
+        ],
+    ],
+]);
 ?>
 
 <?
@@ -36,14 +46,14 @@ $APPLICATION->IncludeComponent(
 		"CACHE_TYPE" => "A",
 		"CACHE_TIME" => "36000000",
 		"CACHE_GROUPS" => "Y",
-		"SET_TITLE" => "Y",
-		"SET_CANONICAL_URL" => "N",
-		"SET_BROWSER_TITLE" => "Y",
-		"BROWSER_TITLE" => "-",
-		"SET_META_KEYWORDS" => "Y",
-		"META_KEYWORDS" => "-",
-		"SET_META_DESCRIPTION" => "Y",
-		"META_DESCRIPTION" => "-",
+			"SET_TITLE" => "N",
+			"SET_CANONICAL_URL" => "N",
+			"SET_BROWSER_TITLE" => "N",
+			"BROWSER_TITLE" => "-",
+			"SET_META_KEYWORDS" => "N",
+			"META_KEYWORDS" => "-",
+			"SET_META_DESCRIPTION" => "N",
+			"META_DESCRIPTION" => "-",
 		"SET_LAST_MODIFIED" => "N",
 		"INCLUDE_IBLOCK_INTO_CHAIN" => "N",
 		"ADD_SECTIONS_CHAIN" => "N",

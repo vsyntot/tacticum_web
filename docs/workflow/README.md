@@ -112,8 +112,9 @@ QA подключается до разработки, если задача к�
 ### SEO
 
 - Каждая публичная страница должна иметь уникальный `SetTitle`, `description`, один H1.
-- Новые URL добавлять в `sitemap-files.xml`; `sitemap.xml` должен ссылаться на HTTPS sitemap.
+- Новые статические URL добавлять в `sitemap-files.xml`; динамические URL должны иметь свой HTTPS sitemap и ссылку из `sitemap.xml`.
 - `robots.txt` должен ссылаться на HTTPS sitemap.
+- После изменения публичных URL, canonical, sitemap или robots запускать `npm run seo:check`; после deploy запускать `npm run seo:check:prod`.
 
 ## Документы Workflow
 
@@ -126,7 +127,10 @@ QA подключается до разработки, если задача к�
 - `chat-offer-contract.md` — контракт AI chat, `group_id`, prefill и handoff в lead form.
 - `chat-api-contract.md` — низкоуровневый contract `/local/rest/tacticum_chat.php`.
 - `asset-layout-audit.md` — карта текущих CSS/JS assets, inline-долги и правила дальнейшей верстки.
+- `seo-gap-analysis.md` — детальный SEO gap analysis: indexability, 404, structured data, sitemap/robots и social preview.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
+- `release-signoff-gates.md` — ручные/staging sign-off gates для success-flow, Метрики, config sync и Bitrix admin.
+- `rest-response-contract-decision.md` — решение по сохранению доменных success/error response shapes.
 - `sprints/` — snapshot-ы спринтов.
 
 ## Definition Of Ready

@@ -1,9 +1,19 @@
 <?
 $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['yandex_map'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Контакты - Тактикум");
+$APPLICATION->SetTitle("Контакты Tacticum - AI-разработка и консалтинг");
 $APPLICATION->SetPageProperty("description", "Контакты Tacticum: телефон, email, адрес офиса и форма заявки на консультацию по AI-проекту.");
-tacticum_apply_seo_defaults('/contacts/');
+tacticum_apply_seo_defaults('/contacts/', [
+    'schema' => [
+        '@type' => 'ContactPage',
+        '@id' => tacticum_public_url('/contacts/#contact-page'),
+        'name' => 'Контакты Tacticum',
+        'url' => tacticum_public_url('/contacts/'),
+        'mainEntity' => [
+            '@id' => tacticum_public_url('/#organization'),
+        ],
+    ],
+]);
 ?>
 
 <!-- Page Title Section -->

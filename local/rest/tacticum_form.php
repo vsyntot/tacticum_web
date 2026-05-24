@@ -5,6 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.
 require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
+tacticum_rest_send_noindex_header();
 function tacticum_form_response(bool $success, ?string $error, string $code, array $extra = []): void
 {
     $payload = array_merge([

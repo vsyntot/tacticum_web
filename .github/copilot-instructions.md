@@ -36,8 +36,8 @@
 │       ├── footer.php              # Футер, попап "Связаться с нами", мобильное меню
 │       ├── assets/src/tailwind.css # Source entrypoint static Tailwind CSS
 │       ├── tailwind.generated.css  # Generated CSS, обновлять через npm run css:build
-│       ├── template_styles.css     # Legacy template CSS bundle
-│       ├── styles/aiagents.css     # Единственный approved page-specific CSS через explicit flag
+│       ├── template_styles.css     # Пустой Bitrix compatibility shim
+│       ├── styles/global.css       # Единственный manual runtime CSS через Asset
 │       ├── js/                     # analytics.js, forms.js, modal.js, chat-agent.js...
 │       └── components/bitrix/      # Компоненты Bitrix шаблона
 ├── local/api/cases.php             # ЭТАЛОН для новых GET-эндпоинтов
@@ -155,13 +155,13 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICOD
 ## Frontend (шаблон `local/templates/tacticum/`)
 
 - CSS: static Tailwind bundle собирается из `assets/src/tailwind.css` в `tailwind.generated.css`.
-- `template_styles.css` остаётся legacy bundle активного шаблона; менять точечно и проверять visual smoke.
-- `local/templates/tacticum/styles/` не расширять без явного asset contract; сейчас approved только `styles/aiagents.css`.
+- `styles/global.css` содержит migrated global/template CSS и scoped page blocks, подключается через `Asset`; `template_styles.css` должен оставаться пустым/comment-only Bitrix shim.
+- `local/templates/tacticum/styles/` не расширять без отдельного архитектурного решения; сейчас approved только `styles/global.css`.
 - Legacy browser Tailwind runtime `bundle.v3.4.16.js` и `js/init.js` удалены и не должны возвращаться.
 - Новый JS для страницы подключается в `header.php` через `$obAsset->addJs(...)` по explicit page asset flag.
-- Новый CSS предпочтительно добавлять через Tailwind source или component `style.css`; page-specific CSS только через explicit flag и обновление `docs/workflow/asset-layout-audit.md`.
+- Новый CSS предпочтительно добавлять через Tailwind source, scoped block в `styles/global.css` с body/page class или component `style.css`; новый template-level page CSS не добавлять без отдельного архитектурного решения и обновления `docs/workflow/asset-layout-audit.md`.
 - Форма: атрибут `data-tacticum-form` на `<form>` — автоматически подхватывается `forms.js`.
-- После CSS/JS правок запускать `npm run css:check`; для браузерных ошибок и layout smoke использовать `npm run visual:smoke`.
+- После CSS/JS правок запускать `npm run css:check` и `npm run template-styles:check`; для браузерных ошибок и layout smoke использовать `npm run visual:smoke`, а для CSS replacement/retirement — `npm run visual:smoke:css-local`.
 
 ---
 

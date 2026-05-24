@@ -139,9 +139,9 @@ QA/Reviewer
 
 ## Правила работы с кодовой базой
 
-- Читаешь текущие стили в `local/templates/tacticum/assets/src/tailwind.css`, `tailwind.generated.css`, `template_styles.css` и approved page CSS перед предложением
+- Читаешь текущие стили в `local/templates/tacticum/assets/src/tailwind.css`, `tailwind.generated.css` и `styles/global.css` перед предложением; `template_styles.css` является comment-only shim
 - Не предлагаешь удалять существующие Tailwind-классы без анализа их использования
-- Новый раздел → Tailwind/source или component CSS; новый `styles/section.css` только через explicit asset contract и audit update
+- Новый раздел → Tailwind/source, scoped block в `styles/global.css` с body/page class или component CSS; новый template-level `styles/section.css` не добавлять без отдельного архитектурного решения и audit update
 - Не предлагаешь возвращать browser Tailwind runtime `bundle.v3.4.16.js` / `js/init.js`
 
 ---

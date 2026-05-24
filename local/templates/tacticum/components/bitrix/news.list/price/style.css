@@ -42,7 +42,67 @@
     color: #fff;
 }
 
+.tacticum-team-summary-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: .5rem;
+}
+
+.tacticum-team-summary-item {
+    min-width: 0;
+    padding: .625rem .75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: .75rem;
+    background: #f8fafc;
+}
+
+.tacticum-team-summary-title,
+.tacticum-team-summary-meta,
+.tacticum-team-summary-extra {
+    display: block;
+    min-width: 0;
+}
+
+.tacticum-team-summary-title {
+    overflow: hidden;
+    color: #001F3F;
+    font-weight: 600;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tacticum-team-summary-meta {
+    margin-top: .125rem;
+    color: #6b7280;
+    font-size: .8125rem;
+    line-height: 1.35;
+}
+
+.tacticum-team-summary-extra {
+    width: fit-content;
+    margin-top: .4rem;
+    padding: .125rem .45rem;
+    border-radius: 999px;
+    background: rgba(0, 102, 204, .08);
+    color: #0066CC;
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.tacticum-team-summary-item--more {
+    border-style: dashed;
+    background: #fff;
+}
+
 #specialistOrderForm button[type="submit"]:disabled {
     cursor: not-allowed;
     opacity: .55;
+}
+
+@media (max-width: 639px) {
+    .tacticum-team-summary-list {
+        grid-template-columns: 1fr;
+    }
 }

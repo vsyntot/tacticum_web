@@ -46,8 +46,8 @@
   - `footer.php` — футер, попап «Связаться с нами», мобильное меню
   - `assets/src/tailwind.css` — source entrypoint static Tailwind CSS
   - `tailwind.generated.css` — generated CSS, обновлять только через `npm run css:build`
-  - `template_styles.css` — legacy template CSS bundle
-  - `styles/aiagents.css` — единственный approved page-specific CSS через explicit page asset flag
+  - `template_styles.css` — пустой Bitrix compatibility shim
+  - `styles/global.css` — единственный manual runtime CSS, подключён через `Asset`
   - `js/` — JS по функционалу: `forms.js`, `modal.js`, `chat-agent.js`, `faq.js`, `menu.js`, `scroll.js`, `tg-link-resolver.js`
   - `components/bitrix/` — шаблоны Bitrix-компонентов
 - Страницы сайта: `about/index.php`, `services/index.php`, `contacts/index.php`, и т.д.
@@ -62,7 +62,7 @@ local/templates/tacticum/
 ├── footer.php          # <footer>, попап формы, мобильное меню
 ├── assets/src/tailwind.css # Source static Tailwind CSS
 ├── tailwind.generated.css  # Generated Tailwind CSS
-├── template_styles.css     # Legacy template CSS bundle
+├── template_styles.css     # Empty Bitrix compatibility shim
 ├── fonts/              # RemixIcons (remixicon.min.css)
 ├── images/             # logo.png, logo2.png, favicon-*
 ├── js/
@@ -75,7 +75,7 @@ local/templates/tacticum/
 │   ├── scroll.js           # Scroll-эффекты
 │   └── tg-link-resolver.js # Telegram-ссылки
 └── styles/
-    └── aiagents.css        # Approved через explicit flag
+    └── global.css          # Global/template CSS и scoped page blocks через Asset
 ```
 
 ---
@@ -99,14 +99,8 @@ if ($hasPageAsset('new_section')) {
 // npm run css:build
 // npm run css:check
 
-// Если нужен отдельный page CSS, сначала обновить asset contract/audit.
-// На странице до require bitrix/header.php:
-$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['new_section_css'];
-
-// В header.php подключать по explicit flag:
-if ($hasPageAsset('new_section_css')) {
-    $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/new_section.css");
-}
+// Если нужен небольшой page-specific CSS, scope через body/page class в styles/global.css.
+// Для Bitrix-компонента использовать component style.css.
 ```
 
 ---
@@ -141,6 +135,7 @@ if ($hasPageAsset('new_section_css')) {
 
 - **Tailwind CSS** через static `tailwind.generated.css`; browser Tailwind runtime удалён и не должен возвращаться.
 - Source CSS менять в `local/templates/tacticum/assets/src/tailwind.css`, затем запускать `npm run css:build` и `npm run css:check`.
+- Active global/template CSS живёт в `local/templates/tacticum/styles/global.css`; page-specific правила в этом файле должны быть scoped body/page class, `template_styles.css` должен оставаться пустым/comment-only shim, проверять `npm run template-styles:check`.
 - После CSS/JS правок запускать `npm run visual:smoke` или Playwright smoke, чтобы проверить layout и browser console/page errors.
 - Кастомные CSS переменные: `--color-primary`, `--color-secondary`
 - Кнопки: `bg-primary text-white px-6 py-2 rounded-button hover:bg-primary/90`
@@ -154,6 +149,7 @@ if ($hasPageAsset('new_section_css')) {
 
 - ❌ Не возвращать `bundle.v3.4.16.js` / `js/init.js`
 - ❌ Не добавлять новые файлы в `styles/` без explicit asset flag и обновления `docs/workflow/asset-layout-audit.md`
+- ❌ Не возвращать активные CSS-правила в `template_styles.css`
 - ❌ Не добавлять `<script>` / `<link>` напрямую в HTML — только через `$obAsset`
 - ❌ Не писать inline-стили там, где можно использовать Tailwind-классы
 - ❌ Не редактировать файлы в `bitrix/`

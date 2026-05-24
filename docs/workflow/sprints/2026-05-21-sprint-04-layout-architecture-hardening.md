@@ -23,7 +23,7 @@ Date: 21.05.2026
 ### Non-Goals
 
 - Не удалять `bundle.v3.4.16.js` в Sprint 04; follow-up inventory/cleanup выполнен в Sprint 06.
-- Не удалять `styles/*.css` в Sprint 04; follow-up inventory/cleanup выполнен в Sprint 06, `styles/aiagents.css` оставлен как used.
+- Не удалять `styles/*.css` в Sprint 04; follow-up inventory/cleanup выполнен в Sprint 06, а 24.05.2026 бывший `styles/aiagents.css` слит в scoped `styles/global.css`.
 - Не переписывать все публичные страницы и повторяемые CTA blocks в одном спринте.
 
 ### Context Read

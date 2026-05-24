@@ -27,6 +27,13 @@ $budgetRaw = tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["BUDGE
 $timelineRaw = tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? ""));
 $budget = htmlspecialcharsbx($budgetRaw);
 $timeline = htmlspecialcharsbx($timelineRaw);
+$offerH1 = trim(tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["H1"]["VALUE"] ?? "")));
+if ($offerH1 === "") {
+    $offerH1 = trim(tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["TITLE"]["VALUE"] ?? "")));
+}
+if ($offerH1 === "") {
+    $offerH1 = "Предварительная оценка вашего проекта";
+}
 $projectInfoLines = array_filter([
     $summaryPlain !== "" ? "Краткое описание: {$summaryPlain}" : "",
     !empty($goals) ? "Цели MVP: " . implode(", ", $goals) : "",
@@ -43,9 +50,9 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
 <!-- Project Summary Section -->
 <section class="pt-20 py-12 md:py-32 bg-white">
     <div class="container mx-auto px-4">
-        <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">
-            Предварительная оценка вашего проекта
-        </h2>
+        <h1 class="text-2xl md:text-3xl font-bold text-center mb-12">
+            <?=htmlspecialcharsbx($offerH1)?>
+        </h1>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Project Description -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
@@ -67,7 +74,7 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
-                        <i class="ri-target-line text-primary ri-lg"></i>
+                        <i class="ri-crosshair-line text-primary ri-lg"></i>
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold mb-2">Основные цели MVP</h3>

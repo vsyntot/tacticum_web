@@ -19,6 +19,17 @@ Vendor analytics loader должен подключаться как явный 
 - `noscript` pixel допустим в `header.php`, но без inline style;
 - новые inline analytics scripts в public pages и template header не добавляются.
 
+После Sprint 08 template отправляет transitional `Content-Security-Policy-Report-Only` header. Sprint 09 добавляет config switch `security.csp_mode=report-only|enforce`; default остаётся `report-only`. Политика не блокирует пользователей в default mode, но фиксирует целевую модель источников: `self`, `https://mc.yandex.ru`, `https://api-maps.yandex.ru`, Yandex domains для конструктора карты, Google Fonts и текущий image CDN `https://readdy.ai`.
+
+## Runway До Enforcing CSP
+
+Перевод из report-only в enforcing делать отдельным hardening PR после deploy baseline:
+
+1. Собрать report-only evidence минимум с production/staging smoke: нет first-party inline script/style violations, карта `/contacts/` загружается, Yandex.Metrika goals подтверждены.
+2. Убрать лишние источники из политики и оставить только реально используемые vendor domains; `unsafe-inline` не расширять без отдельного security exception.
+3. Включать enforcing header только через `security.csp_mode=enforce` вместе с rollback path на прежний `report-only`.
+4. После deploy выполнить visual/browser smoke и ручное подтверждение Метрики/карты.
+
 ## Последствия
 
 Плюсы:
@@ -26,10 +37,11 @@ Vendor analytics loader должен подключаться как явный 
 - будущий CSP можно строить без nonce/hash для Metrika inline block;
 - analytics ownership находится в template assets;
 - browser smoke видит vendor loader как обычный JS asset.
+- CSP rollout начинается с report-only режима, без риска заблокировать карту или Метрику на production.
 
 Минусы:
 
-- при введении строгой CSP всё равно нужно явно разрешить vendor domain `https://mc.yandex.ru`;
+- при переводе CSP из report-only в enforcing режим нужно убрать лишние разрешения, по возможности отказаться от `unsafe-inline` и повторно проверить карту/Метрику;
 - после deploy нужно подтвердить работу целей в кабинете аналитики.
 
 ## Правило Для Нового Кода

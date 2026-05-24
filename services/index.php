@@ -1,9 +1,25 @@
 <?php
 $GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Услуги - Тактикум");
+$APPLICATION->SetTitle("AI-решения и разработка для бизнеса - Тактикум");
 $APPLICATION->SetPageProperty("description", "Услуги Tacticum: AI-консалтинг, внедрение искусственного интеллекта, разработка ML-решений, чат-ботов и автоматизация бизнеса.");
-tacticum_apply_seo_defaults('/services/');
+tacticum_apply_seo_defaults('/services/', [
+    'image' => SITE_TEMPLATE_PATH . '/images/services_hero_bg.jpg',
+    'image_width' => 1536,
+    'image_height' => 592,
+    'schema' => [
+        '@type' => 'Service',
+        '@id' => tacticum_public_url('/services/#service'),
+        'name' => 'AI-решения и разработка для бизнеса',
+        'serviceType' => 'AI consulting, ML development, chatbots and business automation',
+        'provider' => [
+            '@id' => tacticum_public_url('/#organization'),
+        ],
+        'areaServed' => 'RU',
+        'url' => tacticum_public_url('/services/'),
+    ],
+    'faq_schema' => true,
+]);
 ?>
 
 <!-- Hero Section -->

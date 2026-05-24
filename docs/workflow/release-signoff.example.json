@@ -1,0 +1,88 @@
+{
+  "release": {
+    "id": "example",
+    "date": "2026-05-23",
+    "commit": "0123456789abcdef",
+    "base_url": "https://tacticum.ru"
+  },
+  "gates": {
+    "automated-deploy-smoke": {
+      "status": "passed",
+      "owner": "DevOps",
+      "evidence": {
+        "health_config": "deploy job URL or log line",
+        "visual_smoke_manifest": "release-signoff-manifest.example.json",
+        "browser_smoke_manifest": "release-signoff-manifest.example.json"
+      }
+    },
+    "seo-rendered-head": {
+      "status": "passed",
+      "owner": "SEO + QA",
+      "evidence": {
+        "seo_smoke_manifest": "release-signoff-manifest.example.json",
+        "note": "seoErrors=[] for affected URLs"
+      }
+    },
+    "price-team-presets": {
+      "status": "passed",
+      "owner": "QA + Frontend",
+      "evidence": {
+        "price_smoke_manifest": "release-signoff-manifest.example.json",
+        "note": "price team presets/summary ok for desktop/mobile"
+      }
+    },
+    "manual-success-flow": {
+      "status": "passed",
+      "owner": "QA + Backend/Frontend",
+      "evidence": {
+        "environment": "staging",
+        "checked_at": "2026-05-23T00:00:00+03:00",
+        "checked_by": "QA Owner",
+        "flows": [
+          {
+            "flow": "default-lead-form",
+            "url": "https://staging.tacticum.ru/price/",
+            "form_id": "price-cta",
+            "result": "success=true and UI success state",
+            "lead_id": "stg-lead-1001"
+          }
+        ]
+      }
+    },
+    "metrika-goals": {
+      "status": "not_applicable",
+      "owner": "PM/Marketing + QA",
+      "reason": "No analytics or goal taxonomy changes in this release"
+    },
+    "config-sync": {
+      "status": "passed",
+      "owner": "DevOps",
+      "evidence": {
+        "health_config": "success=true, scopes include security",
+        "synced_keys": ["ai.endpoint_paths.chat_agent_sale", "ai.endpoint_paths.staff_sale", "security.csp_mode"]
+      }
+    },
+    "bitrix-admin": {
+      "status": "passed",
+      "owner": "QA/Admin",
+      "evidence": {
+        "checked_at": "2026-05-23T00:00:00+03:00",
+        "checked_by": "Admin Owner",
+        "admin_url": "https://tacticum.ru/bitrix/admin/",
+        "role": "content-admin",
+        "public_toolbar_url": "https://tacticum.ru/price/",
+        "result": "admin panel and public toolbar open without 500"
+      }
+    },
+    "legacy-sunset": {
+      "status": "not_applicable",
+      "owner": "Architect + Backend",
+      "reason": "No legacy alias runtime change and date is before 2026-09-30"
+    },
+    "staff-sale-upstream": {
+      "status": "not_applicable",
+      "owner": "Architect + Backend + QA + DevOps",
+      "reason": "No staff_sale path change and no new upstream workers contract"
+    }
+  }
+}

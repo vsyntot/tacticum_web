@@ -26,7 +26,7 @@
 Pre-deploy smoke с локально внедрёнными CSS:
 
 ```bash
-TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/template_styles.css,local/templates/tacticum/styles/aiagents.css npm run visual:smoke
+TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/styles/global.css npm run visual:smoke
 ```
 
 Manifest: `/private/tmp/tacticum-browser-errors-after-tool-fix/manifest.json`.
