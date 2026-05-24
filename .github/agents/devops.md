@@ -69,7 +69,7 @@
 5. Отсутствие `validate_origin` / `rate_limit` в новых REST-файлах
 6. **Блокирующая проверка:** изменения в `bitrix/` — exit code 1
 
-### `sitemap.yml` — запускается при изменении `sitemap.xml` / `sitemap-files.xml`
+### `sitemap.yml` — запускается при изменении `sitemap.xml` / SEO checks
 
 Проверка: `xmllint --noout`
 

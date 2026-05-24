@@ -34,6 +34,12 @@
 /bitrix/updates/
 /bitrix/modules/**/install/version.php
 
+# --- Generated SEO artifacts ---
+/sitemap-basic.xml
+/sitemap-basic-files.xml
+/sitemap-basic-iblock-*.xml
+/sitemap-files.xml
+
 # --- License / keys / sensitive ---
 /bitrix/license_key.php
 /.settings.php

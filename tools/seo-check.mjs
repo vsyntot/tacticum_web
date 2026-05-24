@@ -3,6 +3,11 @@
 import fs from 'node:fs';
 
 const SITE = 'https://tacticum.ru';
+const ROOT_SITEMAP_FILE = 'sitemap.xml';
+const STATIC_SITEMAP_FILE = 'sitemap-basic-files.xml';
+const ROOT_SITEMAP_URL = `${SITE}/sitemap.xml`;
+const STATIC_SITEMAP_URL = `${SITE}/sitemap-basic-files.xml`;
+const OFFER_SITEMAP_URL = `${SITE}/offer/sitemap.php`;
 const MIN_LASTMOD_DATE = process.env.TACTICUM_SEO_MIN_LASTMOD || '2026-05-24';
 const CHECK_HTTP = process.argv.includes('--http') || process.env.TACTICUM_SEO_CHECK_HTTP === '1';
 const HTTP_BASE_URL = (process.env.TACTICUM_SEO_CHECK_BASE_URL || SITE).replace(/\/+$/, '');
@@ -22,8 +27,13 @@ const expectedStaticPages = new Map([
 const expectedStaticUrls = Array.from(expectedStaticPages.values()).map((path) => SITE + path);
 
 const expectedSitemaps = [
+  STATIC_SITEMAP_URL,
+  OFFER_SITEMAP_URL
+];
+
+const forbiddenRootSitemaps = [
   `${SITE}/sitemap-files.xml`,
-  `${SITE}/offer/sitemap.php`
+  `${SITE}/sitemap-basic.xml`
 ];
 
 const serviceEndpoints = [
@@ -45,6 +55,14 @@ function fail(message) {
 }
 
 function read(path) {
+  return fs.readFileSync(path, 'utf8');
+}
+
+function readOptional(path) {
+  if (!fs.existsSync(path)) {
+    return null;
+  }
+
   return fs.readFileSync(path, 'utf8');
 }
 
@@ -83,6 +101,14 @@ function assertNoMissing(actual, expected, label) {
   }
 }
 
+function assertNoUnexpected(actual, unexpected, label) {
+  for (const value of unexpected) {
+    if (actual.includes(value)) {
+      fail(`${label} must not reference ${value}`);
+    }
+  }
+}
+
 function assertUnique(values, label) {
   const seen = new Set();
   for (const value of values) {
@@ -116,6 +142,53 @@ function assertFreshLastmod(values, label) {
       fail(`${label} has stale lastmod ${value}; expected >= ${MIN_LASTMOD_DATE}`);
     }
   }
+}
+
+function assertNoForbiddenSitemapLocs(values, label) {
+  for (const value of values) {
+    let pathname = '';
+    try {
+      pathname = new URL(value).pathname;
+    } catch {
+      fail(`${label} has invalid URL: ${value}`);
+      continue;
+    }
+
+    if (pathname === '/404.php') {
+      fail(`${label} must not include 404 page: ${value}`);
+    }
+    if (pathname.startsWith('/bitrix/')) {
+      fail(`${label} must not include Bitrix system path: ${value}`);
+    }
+    if (pathname.startsWith('/local/')) {
+      fail(`${label} must not include local service path: ${value}`);
+    }
+  }
+}
+
+function validateRootSitemap(xml, label) {
+  const locs = extractTags(xml, 'loc');
+  const lastmods = extractTags(xml, 'lastmod');
+
+  assertNoMissing(locs, expectedSitemaps, label);
+  assertNoUnexpected(locs, forbiddenRootSitemaps, label);
+  assertHttps(locs, `${label} loc`);
+  assertUnique(locs, `${label} loc`);
+  assertLastmodCoverage(locs, lastmods, label);
+  assertFreshLastmod(lastmods, label);
+  assertNoForbiddenSitemapLocs(locs, `${label} loc`);
+}
+
+function validateStaticSitemap(xml, label) {
+  const locs = extractTags(xml, 'loc');
+  const lastmods = extractTags(xml, 'lastmod');
+
+  assertHttps(locs, `${label} loc`);
+  assertNoMissing(locs, expectedStaticUrls, label);
+  assertUnique(locs, `${label} loc`);
+  assertLastmodCoverage(locs, lastmods, label);
+  assertFreshLastmod(lastmods, label);
+  assertNoForbiddenSitemapLocs(locs, `${label} loc`);
 }
 
 function assertCanonicalPaths() {
@@ -183,6 +256,33 @@ async function checkHttpRobots() {
   }
 }
 
+async function fetchHttpText(path, label) {
+  const response = await fetch(`${HTTP_BASE_URL}${path}`);
+  if (!response.ok) {
+    fail(`${label} returned HTTP ${response.status}`);
+    return '';
+  }
+
+  return response.text();
+}
+
+async function checkHttpSitemapGovernance() {
+  const robots = await fetchHttpText('/robots.txt', 'production robots.txt');
+  if (robots && !robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
+    fail(`production robots.txt must point to ${ROOT_SITEMAP_URL}`);
+  }
+
+  const rootSitemap = await fetchHttpText('/sitemap.xml', 'production sitemap.xml');
+  if (rootSitemap) {
+    validateRootSitemap(rootSitemap, 'production sitemap.xml');
+  }
+
+  const staticSitemap = await fetchHttpText('/sitemap-basic-files.xml', 'production sitemap-basic-files.xml');
+  if (staticSitemap) {
+    validateStaticSitemap(staticSitemap, 'production sitemap-basic-files.xml');
+  }
+}
+
 async function checkHttpOfferSitemap() {
   const url = `${HTTP_BASE_URL}/offer/sitemap.php`;
   const response = await fetch(url);
@@ -195,6 +295,7 @@ async function checkHttpOfferSitemap() {
   const offerLocs = extractTags(xml, 'loc');
   assertHttps(offerLocs, '/offer/sitemap.php loc');
   assertUnique(offerLocs, '/offer/sitemap.php loc');
+  assertNoForbiddenSitemapLocs(offerLocs, '/offer/sitemap.php loc');
 
   for (const loc of offerLocs) {
     if (!loc.startsWith(`${SITE}/offer/`)) {
@@ -203,33 +304,25 @@ async function checkHttpOfferSitemap() {
   }
 }
 
-const sitemapIndex = read('sitemap.xml');
-const staticSitemap = read('sitemap-files.xml');
+const sitemapIndex = read(ROOT_SITEMAP_FILE);
+const staticSitemap = readOptional(STATIC_SITEMAP_FILE);
 const robots = read('robots.txt');
 
-const sitemapLocs = extractTags(sitemapIndex, 'loc');
-const sitemapLastmods = extractTags(sitemapIndex, 'lastmod');
-const staticLocs = extractTags(staticSitemap, 'loc');
-const staticLastmods = extractTags(staticSitemap, 'lastmod');
+validateRootSitemap(sitemapIndex, ROOT_SITEMAP_FILE);
+if (staticSitemap !== null) {
+  validateStaticSitemap(staticSitemap, STATIC_SITEMAP_FILE);
+}
 
-assertNoMissing(sitemapLocs, expectedSitemaps, 'sitemap.xml');
-assertHttps(sitemapLocs, 'sitemap.xml loc');
-assertHttps(staticLocs, 'sitemap-files.xml loc');
-assertNoMissing(staticLocs, expectedStaticUrls, 'sitemap-files.xml');
-assertUnique(sitemapLocs, 'sitemap.xml loc');
-assertUnique(staticLocs, 'sitemap-files.xml loc');
-assertLastmodCoverage(sitemapLocs, sitemapLastmods, 'sitemap.xml');
-assertLastmodCoverage(staticLocs, staticLastmods, 'sitemap-files.xml');
-assertFreshLastmod([...sitemapLastmods, ...staticLastmods], 'sitemap');
 assertCanonicalPaths();
 assertTopMenuProminence();
 assertDefaultSocialPreview();
 
-if (!robots.includes(`Sitemap: ${SITE}/sitemap.xml`)) {
-  fail('robots.txt must point to HTTPS sitemap.xml');
+if (!robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
+  fail(`robots.txt must point to ${ROOT_SITEMAP_URL}`);
 }
 
 if (CHECK_HTTP) {
+  await checkHttpSitemapGovernance();
   await checkHttpRobots();
   await checkHttpOfferSitemap();
 }

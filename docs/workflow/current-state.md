@@ -198,9 +198,9 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 
 ## SEO State
 
-Текущий `sitemap.xml` — sitemap index, указывает на `https://tacticum.ru/sitemap-files.xml` и динамический `https://tacticum.ru/offer/sitemap.php`.
+Текущий `sitemap.xml` — repo-owned sitemap index, указывает на Bitrix-generated static sitemap `https://tacticum.ru/sitemap-basic-files.xml` и динамический custom sitemap `https://tacticum.ru/offer/sitemap.php`.
 
-`sitemap-files.xml` содержит:
+`sitemap-basic-files.xml` генерируется штатным механизмом Bitrix из файловой структуры и должен содержать публичные статические разделы:
 
 - `/`
 - `/about/`
@@ -212,9 +212,11 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - `/price/`
 - `/services/`
 
+Generated artifacts `sitemap-basic.xml`, `sitemap-basic-files.xml`, `sitemap-basic-iblock-*.xml` и legacy `sitemap-files.xml` не являются repo-owned файлами. В Git хранится только корневой `sitemap.xml`; `robots.txt` указывает именно на него. Bitrix-настройка sitemap должна оставлять выключенным автодобавление правила в `robots.txt` и не включать `/404.php` в файловую карту.
+
 `/offer/sitemap.php` генерирует URL активных offer detail элементов с валидным `CODE` внутри `/offer/<ELEMENT_CODE>/` и дедуплицирует одинаковые canonical URL, если в старом контенте есть несколько активных элементов с одинаковым `CODE`.
 
-`npm run seo:check` статически проверяет `sitemap.xml`, `sitemap-files.xml`, `robots.txt` и canonical paths публичных страниц: HTTPS `loc`, покрытие 9 статических URL, отсутствие дублей, один `lastmod` на каждый `loc`, freshness от `2026-05-24` и `Sitemap: https://tacticum.ru/sitemap.xml`. `npm run seo:check:prod` дополнительно проверяет production `X-Robots-Tag: noindex, nofollow` на JSON endpoints и отсутствие дублей в dynamic `/offer/sitemap.php`.
+`npm run seo:check` статически проверяет repo-owned `sitemap.xml`, `robots.txt` и canonical paths публичных страниц: HTTPS `loc`, отсутствие legacy `sitemap-files.xml` в root index, один `lastmod` на каждый `loc`, freshness от `2026-05-24` и `Sitemap: https://tacticum.ru/sitemap.xml`. Если локально есть generated `sitemap-basic-files.xml`, он тоже валидируется. `npm run seo:check:prod` дополнительно проверяет production `sitemap.xml`, `sitemap-basic-files.xml`, `X-Robots-Tag: noindex, nofollow` на JSON endpoints и отсутствие дублей в dynamic `/offer/sitemap.php`; production sitemap guard запрещает `/404.php`, `/bitrix/` и `/local/` в sitemap loc.
 
 SEO/navigation decision: `/price/`, `/calculator/` и `/aiagents/` остаются не отдельными top-level пунктами, а дочерними ссылками dropdown `Услуги` через `services/.top.menu_ext.php`; это сохраняет короткий header и оставляет коммерческие URL в sitewide menu structure. `npm run seo:check` блокирует выпадение этих ссылок из top menu structure.
 
@@ -241,9 +243,9 @@ FAQ JSON-LD включается только для страниц, где ре
 
 Root `404.php` больше не использует `bitrix:main.map`: страница задаёт status 404, title `Страница не найдена - Тактикум`, `meta robots` и `X-Robots-Tag: noindex,nofollow`, один H1 и ссылки на ключевые разделы.
 
-Post-deploy SEO smoke 24.05.2026: `npm run seo:smoke` прошёл по 9 публичным URL в desktop/mobile, все checks `seo=ok`, manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T08-28-30-284Z/manifest.json`. Production checks подтвердили 404/noindex, valid offer detail self-canonical, invalid offer 404/noindex и `X-Robots-Tag` на JSON endpoints. Post-deploy найден остаточный `SEO-007`: duplicate `<loc>` в dynamic `/offer/sitemap.php`; local dedupe fix добавлен и ждёт redeploy.
+Post-deploy SEO smoke 24.05.2026: `npm run seo:smoke` прошёл по 9 публичным URL в desktop/mobile, все checks `seo=ok`, manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T08-28-30-284Z/manifest.json`. Production checks подтвердили 404/noindex, valid offer detail self-canonical, invalid offer 404/noindex и `X-Robots-Tag` на JSON endpoints. Повторный `npm run seo:check:prod` после deploy dedupe fix прошёл; dynamic `/offer/sitemap.php` не содержит duplicate `<loc>`.
 
-Детальные follow-up gaps по SEO зафиксированы в `docs/workflow/seo-gap-analysis.md`: `SEO-001` - `SEO-006` и `SEO-008` закрыты production evidence, `SEO-007` ждёт redeploy dedupe fix, `SEO-009` принят как navigation decision.
+Детальные follow-up gaps по SEO зафиксированы в `docs/workflow/seo-gap-analysis.md`: `SEO-001` - `SEO-008` закрыты production evidence, `SEO-009` принят как navigation decision.
 
 ## CI/CD State
 
@@ -256,7 +258,7 @@ Post-deploy SEO smoke 24.05.2026: `npm run seo:smoke` прошёл по 9 пуб
 - чистит `bitrix/managed_cache`, проектный cache, component HTML cache `bitrix/cache/s1/bitrix/news.list|news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона.
 - проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
 - запускает `npm ci`, `npm run visual:smoke` и `npm run browser:smoke` против `https://tacticum.ru`; visual smoke в deploy включает `TACTICUM_EXPECT_SEO_HEAD=1` и проверяет title/description/canonical/OpenGraph/Twitter/JSON-LD/H1/top navigation money links, а `/price/` team presets обязательны через `TACTICUM_EXPECT_PRICE_TEAM_PRESETS=1`.
-- запускает `npm run seo:check` до smoke и `npm run seo:check:prod` после browser smoke, чтобы поймать рассинхрон sitemap/robots/canonical и отсутствие `X-Robots-Tag` у JSON endpoints.
+- запускает `npm run seo:check` до smoke и `npm run seo:check:prod` после browser smoke, чтобы поймать рассинхрон sitemap/robots/canonical, попадание `/404.php` в Bitrix-generated sitemap и отсутствие `X-Robots-Tag` у JSON endpoints.
 - legacy sale aliases контролируются `npm run sale:sunset:check`; Sprint 09 фиксирует action matrix с inventory до `30.06.2026`, migration до `31.08.2026` и final alias mode до `30.09.2026`.
 - release evidence можно закрывать machine-readable JSON по `docs/workflow/release-signoff.example.json`; проверка `npm run release:signoff:check -- <file>` блокирует pending/missing evidence, unknown gates, placeholder/working-tree metadata, валидирует структуру ручных gates и отсекает PII-like evidence; `npm run release:signoff:summary -- <file>` даёт PM/QA статус draft без чтения JSON; `npm run release:signoff:self-test` закрепляет негативные кейсы checker в PR/deploy lifecycle guard, а `docs/workflow/manual-release-gates-runbook.md` задаёт порядок закрытия ручных gates без PII.
 - локальный `npm run dev:preflight` не блокирует работу без PHP CLI 8.4+, но явно сообщает degraded state; authoritative PHP syntax fallback — GitHub job `php-lint`, который устанавливает PHP 8.4 через `shivammathur/setup-php`.

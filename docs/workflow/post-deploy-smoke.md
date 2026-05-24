@@ -2,7 +2,7 @@
 
 Использовать после deploy в production или staging. PM не закрывает Issue, пока релевантные пункты не подтверждены.
 
-`deploy.yml` автоматически выполняет `health_config`, `npm run seo:check`, `npm run visual:smoke`, `npm run browser:smoke` и `npm run seo:check:prod` против `https://tacticum.ru` после очистки Bitrix cache. Очистка должна включать managed cache, component HTML cache для `news.list`/`news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона, иначе production может отдать новый JS/CSS поверх старого component HTML. В deploy `visual:smoke` запускается с `TACTICUM_EXPECT_SEO_HEAD=1`, сохраняет rendered SEO head в `manifest.json` и падает при отсутствующих/дублирующихся title, description, canonical, OpenGraph meta или выпадении money pages из top navigation. `browser:smoke` в deploy запускается с обязательной проверкой `/price/` team presets. `seo:check:prod` дополнительно проверяет production `X-Robots-Tag` на JSON endpoints.
+`deploy.yml` автоматически выполняет `health_config`, `npm run seo:check`, `npm run visual:smoke`, `npm run browser:smoke` и `npm run seo:check:prod` против `https://tacticum.ru` после очистки Bitrix cache. Очистка должна включать managed cache, component HTML cache для `news.list`/`news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона, иначе production может отдать новый JS/CSS поверх старого component HTML. В deploy `visual:smoke` запускается с `TACTICUM_EXPECT_SEO_HEAD=1`, сохраняет rendered SEO head в `manifest.json` и падает при отсутствующих/дублирующихся title, description, canonical, OpenGraph meta или выпадении money pages из top navigation. `browser:smoke` в deploy запускается с обязательной проверкой `/price/` team presets. `seo:check:prod` дополнительно проверяет production sitemap governance и `X-Robots-Tag` на JSON endpoints.
 
 Этот чеклист остаётся ручной матрицей для staging, локальных выкладок и real success-flow, которые нельзя безопасно автоматизировать в production без создания лидов.
 
@@ -87,13 +87,15 @@ Release sign-off gates для ручных проверок зафиксиров
 ## SEO
 
 - [ ] `https://tacticum.ru/sitemap.xml` отдаёт XML.
-- [ ] `https://tacticum.ru/sitemap-files.xml` отдаёт XML.
+- [ ] `https://tacticum.ru/sitemap.xml` содержит `https://tacticum.ru/sitemap-basic-files.xml` и `https://tacticum.ru/offer/sitemap.php`.
+- [ ] `https://tacticum.ru/sitemap-basic-files.xml` отдаёт XML, сгенерированный штатным Bitrix sitemap.
+- [ ] `https://tacticum.ru/sitemap-basic-files.xml` не содержит `/404.php`, `/bitrix/` и `/local/`.
 - [ ] `https://tacticum.ru/offer/sitemap.php` отдаёт XML с активными canonical `/offer/<element-code>/`, если offer elements есть.
 - [ ] `/offer/sitemap.php` не содержит повторяющихся `<loc>` даже при старых offer elements с одинаковым `CODE`.
 - [ ] `npm run seo:check` проходит локально/в CI: sitemap, robots и canonical inventory синхронизированы.
-- [ ] `npm run seo:check:prod` проходит после deploy: production JSON endpoints отдают `X-Robots-Tag: noindex, nofollow`.
+- [ ] `npm run seo:check:prod` проходит после deploy: production sitemap/robots синхронизированы, static sitemap покрывает публичные URL, JSON endpoints отдают `X-Robots-Tag: noindex, nofollow`.
 - [ ] Sitemap loc используют HTTPS.
-- [ ] `/policies/` есть в `sitemap-files.xml`.
+- [ ] `/policies/` есть в `sitemap-basic-files.xml`.
 - [ ] `robots.txt` указывает HTTPS sitemap.
 - [ ] Новый публичный URL есть в sitemap.
 - [ ] В rendered верхней навигации/dropdown `Услуги` доступны `/price/`, `/calculator/`, `/aiagents/`.
