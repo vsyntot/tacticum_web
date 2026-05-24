@@ -112,7 +112,8 @@ QA подключается до разработки, если задача к�
 ### SEO
 
 - Каждая публичная страница должна иметь уникальный `SetTitle`, `description`, один H1.
-- Новые статические URL добавлять в `sitemap-files.xml`; динамические URL должны иметь свой HTTPS sitemap и ссылку из `sitemap.xml`.
+- Новые статические URL должны попадать в Bitrix-generated `sitemap-basic-files.xml` через штатную настройку sitemap; repo-owned `sitemap.xml` должен ссылаться на `sitemap-basic-files.xml` и отдельные dynamic sitemap, например `/offer/sitemap.php`.
+- Generated sitemap artifacts (`sitemap-basic.xml`, `sitemap-basic-files.xml`, `sitemap-basic-iblock-*.xml`, legacy `sitemap-files.xml`) не коммитить; root `sitemap.xml` и `robots.txt` остаются в Git.
 - `robots.txt` должен ссылаться на HTTPS sitemap.
 - После изменения публичных URL, canonical, sitemap или robots запускать `npm run seo:check`; после deploy запускать `npm run seo:check:prod`.
 

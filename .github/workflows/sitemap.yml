@@ -6,7 +6,6 @@ on:
       - 'package.json'
       - 'robots.txt'
       - 'sitemap.xml'
-      - 'sitemap-files.xml'
       - 'offer/sitemap.php'
       - 'tools/seo-check.mjs'
     branches:
@@ -29,9 +28,6 @@ jobs:
 
       - name: Validate sitemap.xml
         run: xmllint --noout sitemap.xml && echo "✅ sitemap.xml valid"
-
-      - name: Validate sitemap-files.xml
-        run: xmllint --noout sitemap-files.xml && echo "✅ sitemap-files.xml valid"
 
       - name: Validate SEO sitemap governance
         run: npm run seo:check

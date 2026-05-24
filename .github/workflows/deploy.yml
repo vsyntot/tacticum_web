@@ -71,8 +71,13 @@ jobs:
       - name: Sync корневые файлы
         run: |
           rsync -avz \
-            index.php 404.php robots.txt sitemap.xml sitemap-files.xml urlrewrite.php \
+            index.php 404.php robots.txt sitemap.xml urlrewrite.php \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+
+      - name: Remove legacy sitemap artifact
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "rm -f ${{ secrets.DEPLOY_PATH }}/sitemap-files.xml"
 
       - name: Очистка Bitrix cache
         run: |

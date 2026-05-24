@@ -19,7 +19,7 @@
 
 ## Твои обязанности
 
-1. **Sitemap** — поддерживать `sitemap.xml` и `sitemap-files.xml` в актуальном состоянии
+1. **Sitemap** — поддерживать repo-owned `sitemap.xml` и контролировать Bitrix-generated `sitemap-basic-files.xml`
 2. **Мета-теги** — заголовки, описания, Open Graph на страницах сайта
 3. **robots.txt** — актуальность директив
 4. **Технический SEO** — канонические URL, структура заголовков h1-h6, alt у изображений
@@ -47,8 +47,9 @@
 
 | Файл | Назначение |
 |---|---|
-| `sitemap.xml` | Основной sitemap (страницы сайта) |
-| `sitemap-files.xml` | Файловый sitemap |
+| `sitemap.xml` | Основной repo-owned sitemap index |
+| `sitemap-basic-files.xml` | Файловый sitemap, генерируется штатным Bitrix sitemap и не коммитится |
+| `offer/sitemap.php` | Динамический custom sitemap для offer detail страниц |
 | `robots.txt` | Директивы для поисковых роботов |
 | `local/templates/tacticum/header.php` | `<title>`, мета-теги через `$APPLICATION->ShowHead()` |
 
@@ -76,18 +77,19 @@ $APPLICATION->SetPageProperty('og:image', 'https://tacticum.ru/upload/og-image.j
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://tacticum.ru/</loc>
-    <lastmod>2026-05-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <!-- ... -->
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://tacticum.ru/sitemap-basic-files.xml</loc>
+    <lastmod>2026-05-24T00:00:00+03:00</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://tacticum.ru/offer/sitemap.php</loc>
+    <lastmod>2026-05-24T00:00:00+03:00</lastmod>
+  </sitemap>
+</sitemapindex>
 ```
 
-После изменения `sitemap.xml` — `sitemap.yml` workflow автоматически проверяет XML.
+После изменения `sitemap.xml` — `sitemap.yml` workflow автоматически проверяет XML и `npm run seo:check`. Bitrix-generated `sitemap-basic*.xml` не коммитить; production guard `npm run seo:check:prod` проверяет, что в `sitemap-basic-files.xml` нет `/404.php`, `/bitrix/` и `/local/`.
 
 ---
 
@@ -100,7 +102,7 @@ $APPLICATION->SetPageProperty('og:image', 'https://tacticum.ru/upload/og-image.j
 
 ## Чеклист при добавлении новой страницы
 
-- [ ] Добавлен URL в `sitemap.xml` с корректными `lastmod`, `changefreq`, `priority`
+- [ ] URL попадает в Bitrix-generated `sitemap-basic-files.xml` или добавлен отдельный dynamic sitemap, на который ссылается `sitemap.xml`
 - [ ] Задан уникальный `<title>` через `$APPLICATION->SetTitle()`
 - [ ] Задан `description` через `$APPLICATION->SetPageProperty('description', ...)`
 - [ ] Есть `h1` на странице (только один)

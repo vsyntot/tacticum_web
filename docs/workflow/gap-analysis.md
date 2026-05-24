@@ -59,7 +59,7 @@
 
 ## SEO Deep-Dive Gap Analysis — 24.05.2026
 
-Детальный SEO challenge вынесен в `docs/workflow/seo-gap-analysis.md`. Post-deploy `npm run seo:smoke` 24.05.2026 прошёл на 9 публичных URL в desktop/mobile; закрыты SEO-001..006 и SEO-008. Единственный оставшийся production follow-up — SEO-007 dynamic offer sitemap duplicate locs, локальный fix уже добавлен и ждёт redeploy.
+Детальный SEO challenge вынесен в `docs/workflow/seo-gap-analysis.md`. Post-deploy `npm run seo:smoke` 24.05.2026 прошёл на 9 публичных URL в desktop/mobile; повторный `npm run seo:check:prod` после deploy dedupe fix прошёл. `SEO-001` - `SEO-008` закрыты, `SEO-009` принят как UX/navigation decision.
 
 | ID | Status | Priority | Area | Summary |
 |---|---|---|---|---|
@@ -69,7 +69,7 @@
 | SEO-004 | closed | P2 | Structured data | Production rendered smoke подтвердил JSON-LD graph на публичных URL |
 | SEO-005 | closed | P2 | Metadata quality | Production rendered smoke подтвердил title/description/canonical/H1 на 9 URL |
 | SEO-006 | closed | P2 | Social preview | Production rendered smoke подтвердил Twitter Card, OG image dimensions/type, page-specific images и `og-default.jpg` fallback |
-| SEO-007 | in_progress | P2 | Sitemap governance | Static sitemap governance закрыт; расширенный `seo:check:prod` выявил duplicate locs в `/offer/sitemap.php`, local dedupe fix и guard добавлены, нужен redeploy |
+| SEO-007 | closed | P2 | Sitemap governance | Static и dynamic sitemap governance закрыты гибридной моделью: repo-owned root `sitemap.xml`, Bitrix-generated `sitemap-basic-files.xml`, custom `/offer/sitemap.php`; `seo:check:prod` проверяет sitemap/robots/canonical inventory/HTTPS/lastmod, forbidden locs, JSON endpoint noindex headers и unique locs в `/offer/sitemap.php` |
 | SEO-008 | closed | P2 | Service endpoint indexing | Production checks подтвердили `X-Robots-Tag: noindex, nofollow` на JSON endpoints |
 | SEO-009 | accepted | P3 | Internal linking | Money pages остаются дочерними пунктами `Услуги` через `services/.top.menu_ext.php`, чтобы не перегружать header; `npm run seo:check` контролирует `/price/`, `/calculator/`, `/aiagents/` в top menu structure |
 
@@ -128,7 +128,7 @@
 | TG-004 | closed | P1 | Security / Integration | CSRF | `tacticum_rest_check_csrf()` требует явный token; chat/prefill/resolver frontend передаёт `BX.bitrix_sessid()` | `rest_helpers.php`, `index.php`, `calculator/index.php`, `price/index.php`, `tg-link-resolver.js` | CSRF модель приведена к явному Bitrix token для state-changing POST | Поддерживать правило в Lead Form Contract и PR checks |
 | TG-005 | closed | P1 | Fast Fix | Logging/PII | Файловое runtime-логирование в `/local` и публичных скриптах удалено | `init.php`, `content_migrations.php`, `rest_helpers.php`, `tacticum_chat.php`, `tacticum_prefill.php`, `tacticum_sale_staff.php`, `resolve_telegram_link.php` | Payload/response/PII больше не попадают в файловые логи из кастомного runtime-кода | Поддерживать scan guard против `AddMessage2Log`, `error_log`, `file_put_contents`, `console.log/error/warn` в runtime-коде |
 | TG-006 | closed | P1 | Full Feature | Frontend maintainability | Chat inline scripts/styles вынесены; устаревший offer inline script удалён | `chat-agent.js`, `header.php`, `offer/template.php` | Основной chat/prefill flow теперь тестируемый и не дублируется в публичных страницах | Поддерживать правило: новый JS/CSS только через assets/components |
-| TG-007 | closed | P1 | Fast Fix | SEO/sitemap | Sitemap переведён на HTTPS и включает `/policies/` | `sitemap.xml`, `sitemap-files.xml` | SEO inconsistency устранена для sitemap | Поддерживать sitemap при новых публичных URL |
+| TG-007 | closed | P1 | Fast Fix | SEO/sitemap | Sitemap переведён на HTTPS, включает `/policies/` и систематизирован под Bitrix-generated static sitemap | `sitemap.xml`, `sitemap-basic-files.xml`, `/offer/sitemap.php` | SEO inconsistency устранена для sitemap; root index не зависит от перегенерации Bitrix | Поддерживать Bitrix sitemap settings и production `seo:check:prod` при новых публичных URL |
 | TG-008 | closed | P2 | Security / Integration | Bitrix D7 | В `local/` и публичных страницах scan не нашёл `CModule::IncludeModule()`; touched code использует `Loader::includeModule()` | `rest_helpers.php`, `init.php`, `tacticum_prefill.php`, public pages | Новый runtime-код ближе к D7 best practice | Поддерживать `Loader::includeModule()` как стандарт |
 | TG-009 | closed | P2 | Full Feature | API performance | GET API endpoints используют `Bitrix\Main\Data\Cache` через `tacticum_api_cached_payload(...)` | `local/api/*.php`, `rest_helpers.php`, `tacticum_config.example.php` | Повторные запросы к public API меньше нагружают инфоблоки; TTL управляется config | Post-deploy smoke: проверить first/second response и invalidate при изменении контента |
 | TG-010 | closed | P2 | Security / Integration | REST method policy | Production prefill flow работает только через POST JSON; legacy GET fallback удалён | `tacticum_prefill.php`, `chat-agent.js`, `docs/workflow/chat-offer-contract.md` | Семантика production REST flow выровнена с остальными `/local/rest` endpoints и меньше раскрывает данные через URL | Поддерживать POST-only prefill в smoke |
