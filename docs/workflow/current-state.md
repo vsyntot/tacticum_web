@@ -212,9 +212,9 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - `/price/`
 - `/services/`
 
-`/offer/sitemap.php` генерирует URL активных offer detail элементов с валидным `CODE` внутри `/offer/<ELEMENT_CODE>/`.
+`/offer/sitemap.php` генерирует URL активных offer detail элементов с валидным `CODE` внутри `/offer/<ELEMENT_CODE>/` и дедуплицирует одинаковые canonical URL, если в старом контенте есть несколько активных элементов с одинаковым `CODE`.
 
-`npm run seo:check` статически проверяет `sitemap.xml`, `sitemap-files.xml`, `robots.txt` и canonical paths публичных страниц: HTTPS `loc`, покрытие 9 статических URL, отсутствие дублей, один `lastmod` на каждый `loc`, freshness от `2026-05-24` и `Sitemap: https://tacticum.ru/sitemap.xml`. `npm run seo:check:prod` дополнительно проверяет production `X-Robots-Tag: noindex, nofollow` на JSON endpoints.
+`npm run seo:check` статически проверяет `sitemap.xml`, `sitemap-files.xml`, `robots.txt` и canonical paths публичных страниц: HTTPS `loc`, покрытие 9 статических URL, отсутствие дублей, один `lastmod` на каждый `loc`, freshness от `2026-05-24` и `Sitemap: https://tacticum.ru/sitemap.xml`. `npm run seo:check:prod` дополнительно проверяет production `X-Robots-Tag: noindex, nofollow` на JSON endpoints и отсутствие дублей в dynamic `/offer/sitemap.php`.
 
 SEO/navigation decision: `/price/`, `/calculator/` и `/aiagents/` остаются не отдельными top-level пунктами, а дочерними ссылками dropdown `Услуги` через `services/.top.menu_ext.php`; это сохраняет короткий header и оставляет коммерческие URL в sitewide menu structure. `npm run seo:check` блокирует выпадение этих ссылок из top menu structure.
 
@@ -241,7 +241,9 @@ FAQ JSON-LD включается только для страниц, где ре
 
 Root `404.php` больше не использует `bitrix:main.map`: страница задаёт status 404, title `Страница не найдена - Тактикум`, `meta robots` и `X-Robots-Tag: noindex,nofollow`, один H1 и ссылки на ключевые разделы.
 
-Детальные follow-up gaps по SEO зафиксированы в `docs/workflow/seo-gap-analysis.md`: offer detail ЧПУ/indexability, 404/noindex, structured data, social preview, sitemap governance и `X-Robots-Tag` для служебных JSON endpoints.
+Post-deploy SEO smoke 24.05.2026: `npm run seo:smoke` прошёл по 9 публичным URL в desktop/mobile, все checks `seo=ok`, manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T08-28-30-284Z/manifest.json`. Production checks подтвердили 404/noindex, valid offer detail self-canonical, invalid offer 404/noindex и `X-Robots-Tag` на JSON endpoints. Post-deploy найден остаточный `SEO-007`: duplicate `<loc>` в dynamic `/offer/sitemap.php`; local dedupe fix добавлен и ждёт redeploy.
+
+Детальные follow-up gaps по SEO зафиксированы в `docs/workflow/seo-gap-analysis.md`: `SEO-001` - `SEO-006` и `SEO-008` закрыты production evidence, `SEO-007` ждёт redeploy dedupe fix, `SEO-009` принят как navigation decision.
 
 ## CI/CD State
 

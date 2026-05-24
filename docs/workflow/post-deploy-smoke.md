@@ -89,6 +89,7 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] `https://tacticum.ru/sitemap.xml` отдаёт XML.
 - [ ] `https://tacticum.ru/sitemap-files.xml` отдаёт XML.
 - [ ] `https://tacticum.ru/offer/sitemap.php` отдаёт XML с активными canonical `/offer/<element-code>/`, если offer elements есть.
+- [ ] `/offer/sitemap.php` не содержит повторяющихся `<loc>` даже при старых offer elements с одинаковым `CODE`.
 - [ ] `npm run seo:check` проходит локально/в CI: sitemap, robots и canonical inventory синхронизированы.
 - [ ] `npm run seo:check:prod` проходит после deploy: production JSON endpoints отдают `X-Robots-Tag: noindex, nofollow`.
 - [ ] Sitemap loc используют HTTPS.
