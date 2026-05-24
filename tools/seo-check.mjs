@@ -302,6 +302,35 @@ async function checkHttpOfferSitemap() {
       fail(`/offer/sitemap.php has non-offer loc: ${loc}`);
     }
   }
+
+  if (offerLocs.length > 0) {
+    await checkHttpOfferDetailWithQuery(offerLocs[0]);
+  }
+}
+
+async function checkHttpOfferDetailWithQuery(offerLoc) {
+  let url;
+  try {
+    url = new URL(offerLoc);
+  } catch {
+    fail(`/offer/sitemap.php has invalid offer detail URL: ${offerLoc}`);
+    return;
+  }
+
+  url.searchParams.set('clear_cache', 'Y');
+  const response = await fetch(url);
+  if (response.status !== 200) {
+    fail(`valid offer detail with clear_cache query returned HTTP ${response.status}: ${url.href}`);
+    return;
+  }
+
+  const html = await response.text();
+  if (!html.includes('<link rel="canonical" href="' + offerLoc + '">')) {
+    fail(`valid offer detail with clear_cache query must keep self-canonical: ${url.href}`);
+  }
+  if (/Страница не найдена|Предложение не найдено/.test(html)) {
+    fail(`valid offer detail with clear_cache query rendered a 404 page: ${url.href}`);
+  }
 }
 
 const sitemapIndex = read(ROOT_SITEMAP_FILE);

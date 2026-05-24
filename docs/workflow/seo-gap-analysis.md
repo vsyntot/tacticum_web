@@ -59,7 +59,7 @@ Priority: P1
 
 Acceptance criteria:
 
-- `/offer/<valid-code>/` отдаёт 200, indexable head и self-canonical;
+- `/offer/<valid-code>/` и `/offer/<valid-code>/?clear_cache=Y` отдают 200, indexable head и self-canonical;
 - `/offer/?ID=<valid>` отдаёт 301 на `/offer/<valid-code>/`;
 - `/offer/?ID=<invalid>` и `/offer/<invalid-code>/` отдают 404 и `noindex`;
 - title, description, keywords и H1 валидного offer detail берутся из свойств элемента инфоблока;
@@ -106,7 +106,7 @@ Acceptance criteria:
 - checker сверяет sitemap URL, canonical URL, public URL inventory, HTTPS и `lastmod`;
 - checker проверяет `X-Robots-Tag` на JSON endpoints;
 - sitemap `lastmod` обновлён после релиза;
-- post-deploy smoke содержит valid offer canonical/legacy redirect, `/offer/?ID=<invalid>`, 404 и service endpoint noindex checks.
+- post-deploy smoke содержит valid offer canonical/legacy redirect, valid offer with `clear_cache=Y`, `/offer/?ID=<invalid>`, 404 и service endpoint noindex checks.
 
 ## Verification Commands
 
