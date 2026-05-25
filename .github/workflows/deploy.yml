@@ -114,7 +114,9 @@ jobs:
 
       - name: Check release lifecycle guard
         run: |
+          npm run js:check
           npm run css:check
+          npm run css:syntax
           npm run template-styles:check
           npm run config:check
           npm run seo:check
@@ -133,8 +135,9 @@ jobs:
         env:
           TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
           TACTICUM_VISUAL_ACTIONS: "1"
+          TACTICUM_VISUAL_FAIL_ON_WARNINGS: "1"
           TACTICUM_EXPECT_PRICE_TEAM_PRESETS: "1"
-        run: npm run browser:smoke
+        run: npm run browser:console
 
       - name: Post-deploy price team preset smoke
         run: npm run browser:smoke:price

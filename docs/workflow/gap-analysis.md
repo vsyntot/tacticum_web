@@ -275,7 +275,7 @@ External gates из Sprint 14 остаются отдельным хвостом
 
 Финальный challenge 25.05.2026 зафиксирован в `docs/workflow/final-stabilization-challenge-gap-analysis-2026-05-25.md`.
 
-Вывод challenge: сайт близок к целевому состоянию. Sprint 16 локально закрыл code/docs gaps по карте `/contacts/`, contrast offer detail, calculator/price chat-to-lead handoff, CTA image trust, proof matrix, SEO/CSP decisions и contact/legal hierarchy. Сайт всё ещё нельзя считать полностью стабилизированным до production deploy/cache smoke, real success-flow/staff upstream evidence и подтверждения Metrika goals.
+Вывод challenge: сайт близок к целевому состоянию. Sprint 16 локально закрыл code/docs gaps по карте `/contacts/`, contrast offer detail, calculator/price chat-to-lead handoff, CTA image trust, proof matrix, SEO/CSP decisions и contact/legal hierarchy. Production deploy/cache smoke 25.05.2026 прошёл по rendered/action/price gates, включая новую карту `Тактикум` на `/contacts/`. Сайт всё ещё нельзя считать полностью стабилизированным до восстановления upstream success-flow/staff-order, CRM/upstream evidence, подтверждения Metrika goals и authenticated Bitrix admin smoke.
 
 Новый спринт на команду: `docs/workflow/sprints/2026-05-25-sprint-16-final-stabilization-closure.md`.
 
@@ -283,8 +283,8 @@ External gates из Sprint 14 остаются отдельным хвостом
 |---|---|---|---|---|
 | FSC-001 | closed | P1 | `/contacts/` map correctness | Wrong placeholder/constructor state removed; Yandex map widget iframe points to `Тактикум` (`oid=243968538014`), `БЦ Victory Park` is a landmark, legal address is separate |
 | FSC-002 | closed | P1 | Offer detail estimate contrast | `/offer/<code>/` estimate block now has explicit gradient background and `text-white` |
-| FSC-003 | external handoff | P1 | Deploy/cache smoke | Deploy workflow hardened for `--delete`, menu cache clear and real draft sign-off; production deploy/cache smoke still required |
-| FSC-004 | external handoff | P1 | Real success-flow / staff upstream | Формы, чат, prefill и staff-order требуют staging/controlled evidence без PII |
+| FSC-003 | closed | P1 | Deploy/cache smoke | 25.05.2026 production `visual:smoke`, `browser:smoke`, focused `/price/` smoke and `seo:check:prod` passed; contacts map renders `Тактикум` |
+| FSC-004 | external blocker | P1 | Real success-flow / staff upstream | 25.05.2026 controlled production smoke attempted; default form, modal form, AI chat and staff-order returned upstream `502`; prefill controlled empty state returned expected `404` |
 | FSC-005 | closed | P1 | Calculator/price chat-to-lead handoff | Light chat surfaces передают safe summary/scoped `group_id` в целевую CTA form без PII analytics |
 | FSC-006 | external handoff | P1 | Metrika goals | Affected form/chat/staff-order goals требуют подтверждения в Яндекс.Метрике без PII params |
 | FSC-007 | closed | P2 | CTA image trust | Generic `specialoffer.jpg` suppressed by default; personal-offer CTA supports no-image form-only layout |

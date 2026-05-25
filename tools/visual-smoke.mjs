@@ -41,6 +41,7 @@ const injectedJs = injectedJsFiles.length > 0
 const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
 const expectSeoHead = isTruthy(process.env.TACTICUM_EXPECT_SEO_HEAD);
 const expectPriceTeamPresets = isTruthy(process.env.TACTICUM_EXPECT_PRICE_TEAM_PRESETS);
+const failOnWarnings = isTruthy(process.env.TACTICUM_VISUAL_FAIL_ON_WARNINGS);
 
 const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10);
 const minScreenshotBytes = Number.parseInt(process.env.TACTICUM_VISUAL_MIN_BYTES || '50000', 10);
@@ -89,7 +90,7 @@ try {
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectPriceTeamPresets, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectPriceTeamPresets, failOnWarnings, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -133,6 +134,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     brokenImages: [],
     overflowElements: [],
     consoleErrors: [],
+    consoleWarnings: [],
     pageErrors: [],
     networkErrors: [],
     actionErrors: [],
@@ -183,6 +185,15 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
       });
     });
     cdp.on('Runtime.consoleAPICalled', (params) => {
+      if (params.type === 'warning') {
+        addUnique(result.consoleWarnings, {
+          type: params.type,
+          text: formatConsoleArgs(params.args),
+          url: params.stackTrace?.callFrames?.[0]?.url || '',
+          line: params.stackTrace?.callFrames?.[0]?.lineNumber ?? null,
+        });
+        return;
+      }
       if (params.type !== 'error' && params.type !== 'assert') {
         return;
       }
@@ -204,6 +215,15 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     });
     cdp.on('Log.entryAdded', (params) => {
       const entry = params.entry || {};
+      if (entry.level === 'warning') {
+        addUnique(result.consoleWarnings, {
+          type: entry.source || 'log',
+          text: entry.text || 'Log warning',
+          url: entry.url || '',
+          line: entry.lineNumber ?? null,
+        });
+        return;
+      }
       if (entry.level !== 'error') {
         return;
       }
@@ -535,6 +555,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     }
     if (result.consoleErrors.length > 0) {
       errors.push(`console errors: ${formatIssueList(result.consoleErrors, 'text')}`);
+    }
+    if (failOnWarnings && result.consoleWarnings.length > 0) {
+      errors.push(`console warnings: ${formatIssueList(result.consoleWarnings, 'text')}`);
     }
     if (result.networkErrors.length > 0) {
       errors.push(`network errors: ${formatNetworkErrors(result.networkErrors)}`);
@@ -1114,11 +1137,12 @@ function formatResult(result) {
   const marker = result.errors.length > 0 ? 'FAIL' : 'OK';
   const status = result.status || 'n/a';
   const runtimeIssues = result.pageErrors.length + result.consoleErrors.length + result.networkErrors.length;
+  const warningSummary = result.consoleWarnings.length > 0 ? ` warnings=${result.consoleWarnings.length}` : '';
   const seoSummary = result.seoHead ? ` seo=${result.seoErrors.length > 0 ? 'bad' : 'ok'}` : '';
   const actionSummary = result.actions.length > 0
     ? ` actions=${result.actions.filter((action) => action.status === 'ok').length}/${result.actions.length}`
     : '';
-  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${seoSummary}${actionSummary}`;
+  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${warningSummary}${seoSummary}${actionSummary}`;
 }
 
 function addUnique(items, item) {

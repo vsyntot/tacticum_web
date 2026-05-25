@@ -10,10 +10,10 @@ PM не закрывает release issue, пока для затронутых �
 
 | Gate | Когда обязателен | Owner | Evidence |
 |---|---|---|---|
-| `automated-deploy-smoke` | Любой production deploy | DevOps | Лог `health_config`, `visual:smoke`, `browser:smoke` из `deploy.yml`; ссылки на оба smoke manifest |
+| `automated-deploy-smoke` | Любой production deploy | DevOps | Лог `health_config`, `visual:smoke`, warning-aware `browser:console` из `deploy.yml`; ссылки на оба smoke manifest |
 | `seo-rendered-head` | Изменены публичные страницы, template head, SEO helper, sitemap/robots или assets, влияющие на rendered head | SEO + QA | `visual:smoke` manifest: для затронутых URL `seoErrors=[]`, `seoHead` содержит уникальные title/description/canonical/OpenGraph |
 | `price-team-presets` | Изменены `/price/`, price component JS/template/style или staff-order flow | QA + Frontend | `browser:smoke` manifest: action `price team presets/summary` = `ok` для desktop/mobile, detail содержит `workers` и budget |
-| `css-js-e2e-readiness` | Изменены CSS/JS, frontend assets, visual-smoke tooling или deploy/cache behavior | Frontend + QA | `e2e:css-js:prod` passed; при CSS PR также `e2e:css-js:local` passed; manifest не содержит browser/runtime/action blockers |
+| `css-js-e2e-readiness` | Изменены CSS/JS, frontend assets, visual-smoke tooling или deploy/cache behavior | Frontend + QA | `e2e:css-js:prod` passed; при CSS PR также `e2e:css-js:local` passed; manifest не содержит browser/runtime/action blockers или `consoleWarnings` |
 | `manual-success-flow` | Изменены формы, чат, prefill, sale/staff-order или upstream adapter | QA + Backend/Frontend owner | Staging lead ID или controlled production lead с временем проверки |
 | `metrika-goals` | Изменены `analytics.js`, `metrika.js`, формы, чат или goal taxonomy | PM/Marketing + QA | Названия проверенных goals и время проверки в Yandex.Metrika |
 | `config-sync` | Добавлены/изменены config keys | DevOps | Подтверждение, что production/staging `tacticum_config.php` синхронизирован с `tacticum_config.example.php` |
@@ -40,7 +40,7 @@ PM не закрывает release issue, пока для затронутых �
 |---|---|---|
 | Rendered SEO head | `npm run seo:smoke` | В `manifest.json` у затронутых URL нет `seoErrors`; `seoHead` фиксирует один title, одну description, один HTTPS canonical и обязательные OpenGraph meta без дублей |
 | `/price/` team presets | `npm run browser:smoke:price` | Для `/price/` desktop/mobile action `price team presets/summary` имеет `status=ok`, а `detail` показывает количество `workers` и рассчитанный monthly budget |
-| CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; `/price/` team presets проходят |
+| CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, `consoleWarnings`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; `/price/` team presets проходят |
 
 ## Sale / Staff Process Rules
 

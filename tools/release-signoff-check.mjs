@@ -249,7 +249,7 @@ async function validateGateEvidence(gateName, evidence) {
 
   if (gateName === 'automated-deploy-smoke') {
     await validateManifestEvidence(gateName, evidence.visual_smoke_manifest, {});
-    await validateManifestEvidence(gateName, evidence.browser_smoke_manifest, {});
+    await validateManifestEvidence(gateName, evidence.browser_smoke_manifest, { requireWarningsGate: true });
   }
 
   if (gateName === 'seo-rendered-head') {
@@ -262,13 +262,13 @@ async function validateGateEvidence(gateName, evidence) {
 
   if (gateName === 'css-js-e2e-readiness') {
     await validateManifestEvidence(gateName, evidence.production_visual_manifest, {});
-    await validateManifestEvidence(gateName, evidence.production_browser_manifest, {});
+    await validateManifestEvidence(gateName, evidence.production_browser_manifest, { requireWarningsGate: true });
     await validateManifestEvidence(gateName, evidence.production_price_manifest, { requirePriceTeam: true });
     if (hasMeaningfulEvidence(evidence.css_local_visual_manifest)) {
       await validateManifestEvidence(gateName, evidence.css_local_visual_manifest, {});
     }
     if (hasMeaningfulEvidence(evidence.css_local_browser_manifest)) {
-      await validateManifestEvidence(gateName, evidence.css_local_browser_manifest, {});
+      await validateManifestEvidence(gateName, evidence.css_local_browser_manifest, { requireWarningsGate: true });
     }
   }
 
@@ -326,9 +326,13 @@ function validateVisualManifest(gateName, manifest, options = {}) {
     return;
   }
 
+  if (options.requireWarningsGate && manifest.failOnWarnings !== true) {
+    fail(`${gateName}: manifest must be generated with TACTICUM_VISUAL_FAIL_ON_WARNINGS=1`);
+  }
+
   for (const result of results) {
     const label = `${result.page || 'unknown'} ${result.viewport || 'unknown'}`;
-    for (const field of ['errors', 'pageErrors', 'consoleErrors', 'networkErrors', 'actionErrors']) {
+    for (const field of ['errors', 'pageErrors', 'consoleErrors', 'consoleWarnings', 'networkErrors', 'actionErrors']) {
       if (Array.isArray(result[field]) && result[field].length > 0) {
         fail(`${gateName}: ${label} has ${field}`);
       }
