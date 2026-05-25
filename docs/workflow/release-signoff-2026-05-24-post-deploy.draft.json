@@ -1,8 +1,8 @@
 {
   "release": {
-    "id": "2026-05-24-post-deploy",
-    "date": "2026-05-24",
-    "commit": "9148d9d1",
+    "id": "2026-05-25-post-deploy-closure",
+    "date": "2026-05-25",
+    "commit": "working-tree-2026-05-25",
     "base_url": "https://tacticum.ru"
   },
   "gates": {
@@ -10,46 +10,48 @@
       "status": "passed",
       "owner": "DevOps",
       "evidence": {
-        "health_config": "2026-05-24: GET /local/rest/health_config.php returned success=true, scopes api, ai, telegram, offer, content, rest, security",
-        "visual_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-23-47-499Z/manifest.json",
-        "browser_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-25-19-253Z/manifest.json"
+        "health_config": "2026-05-25: GET /local/rest/health_config.php with Origin https://tacticum.ru returned success=true, scopes api, ai, telegram, offer, content, rest, security",
+        "visual_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-44-51-696Z/manifest.json",
+        "browser_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T18-02-20-117Z/manifest.json",
+        "contacts_map_precheck": "2026-05-25: production /contacts/ rendered Yandex map widget oid=243968538014 for Тактикум, Victory Park landmark and legal address text"
       }
     },
     "seo-rendered-head": {
       "status": "passed",
       "owner": "SEO + QA",
       "evidence": {
-        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-23-47-499Z/manifest.json",
-        "note": "seoErrors=[] for all public URLs; Sprint 10 SEO-009 revalidation and S10-012 offer clear-cache routing passed"
+        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-39-02-361Z/manifest.json",
+        "note": "seoErrors=[] for 9 public URLs on desktop/mobile; npm run seo:check:prod passed on 2026-05-25"
       }
     },
     "price-team-presets": {
       "status": "passed",
       "owner": "QA + Frontend",
       "evidence": {
-        "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-26-53-540Z/manifest.json",
-        "note": "price team presets/summary ok for desktop/mobile after Bitrix component cache refresh"
+        "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-48-01-394Z/manifest.json",
+        "note": "price team presets/summary ok for desktop/mobile on 2026-05-25; detail contains workers=5 and monthly budget"
       }
     },
     "css-js-e2e-readiness": {
       "status": "passed",
       "owner": "Frontend + QA",
       "evidence": {
-        "production_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-23-47-499Z/manifest.json",
-        "production_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-25-19-253Z/manifest.json",
-        "production_price_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T11-26-53-540Z/manifest.json",
-        "css_local_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-20-02-262Z/manifest.json",
-        "css_local_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-21-32-736Z/manifest.json",
-        "note": "post-deploy e2e:css-js:prod passed after offer clear-cache routing deploy; e2e:css-js:local passed after CDP navigation readiness fix"
+        "production_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-44-51-696Z/manifest.json",
+        "production_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T18-02-20-117Z/manifest.json",
+        "production_price_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-48-01-394Z/manifest.json",
+        "css_local_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-44-51-708Z/manifest.json",
+        "css_local_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-46-19-917Z/manifest.json",
+        "note": "production and CSS-local rendered/action smoke passed on 2026-05-25; warning-aware browser manifests have failOnWarnings=true and consoleWarnings=0"
       }
     },
     "manual-success-flow": {
       "status": "pending",
       "owner": "QA + Backend/Frontend",
       "due": "before-strict-release-closure",
-      "reason": "Requires staging or controlled production lead for forms, AI chat, prefill and staff-order; not safe to automate without creating leads/upstream requests.",
+      "reason": "Controlled production smoke was attempted on 2026-05-25. Default form, modal form, AI chat and staff-order are blocked by upstream 502 responses; prefill controlled empty state returned expected 404.",
       "evidence": {
-        "safe_method_smoke": "2026-05-24: GET tacticum_chat, tacticum_prefill, tacticum_sale_staff, tacticum_form and resolve_telegram_link returned controlled 405 JSON without 500/HTML",
+        "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
+        "safe_summary": "default-lead-form=502 upstream_error; modal-form=502 upstream_error; ai-chat=502 upstream_http_error with upstream_status=502; prefill-controlled-empty=404 not_found; staff-order=502 upstream_error",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
@@ -59,9 +61,9 @@
       "status": "pending",
       "owner": "PM/Marketing + QA",
       "due": "before-strict-release-closure",
-      "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy.",
+      "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy; this environment has no Metrika connector/API credentials.",
       "evidence": {
-        "public_precheck": "2026-05-24: metrika.js contains counter 103471113 and production HTML contains noscript pixel; goal visibility still requires Yandex.Metrika access",
+        "public_precheck": "2026-05-25: metrika.js contains counter 103471113 and production HTML contains noscript pixel; goal visibility still requires Yandex.Metrika access",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
@@ -71,7 +73,7 @@
       "status": "passed",
       "owner": "DevOps",
       "evidence": {
-        "health_config": "success=true, scopes include security",
+        "health_config": "2026-05-25: success=true, scopes include security",
         "synced_keys": [
           "ai.endpoint_paths.chat_agent_sale",
           "ai.endpoint_paths.staff_sale",
@@ -83,9 +85,9 @@
       "status": "pending",
       "owner": "QA/Admin",
       "due": "before-strict-release-closure",
-      "reason": "Requires authenticated Bitrix admin panel smoke after deploy/cache refresh.",
+      "reason": "Requires authenticated Bitrix admin panel smoke after deploy/cache refresh; this environment has no Bitrix admin credentials.",
       "evidence": {
-        "public_precheck": "2026-05-24: unauthenticated GET /bitrix/admin/ returned HTTP 200 and x-bitrix-ajax-status=Authorize without 500/white screen",
+        "public_precheck": "2026-05-25: unauthenticated HEAD /bitrix/admin/ returned HTTP 200 and x-bitrix-ajax-status=Authorize without 500/white screen",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-bitrix-admin",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
@@ -98,15 +100,17 @@
         "command": "npm run sale:sunset:check",
         "result": "passed before 2026-09-30 sunset decision deadline",
         "inventory": "docs/workflow/legacy-sale-alias-consumer-inventory.md",
-        "repo_scan": "2026-05-24: no first-party callers found outside docs/tools; external access logs/CRM inventory remains due by 2026-06-30"
+        "repo_scan": "2026-05-25: no first-party callers found outside docs/tools; external access logs/CRM inventory remains due by 2026-06-30"
       }
     },
     "staff-sale-upstream": {
       "status": "pending",
       "owner": "Architect + Backend + QA + DevOps",
       "due": "before-strict-release-closure",
-      "reason": "Requires staging staff-order success-flow evidence that workers_json, team_preset, monthly_budget_estimate and endDate reach upstream.",
+      "reason": "Controlled production staff-order smoke was attempted on 2026-05-25 and returned 502 upstream_error; closing this gate requires upstream recovery plus CRM/upstream confirmation.",
       "evidence": {
+        "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
+        "safe_summary": "staff-order=502 upstream_error; workers_json/team_preset/monthly_budget_estimate/endDate were sent in controlled test payload but upstream did not accept the request",
         "readiness": "docs/workflow/rich-workers-upstream-readiness-2026-05-24.md",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-staff-sale-upstream",

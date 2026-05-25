@@ -1,2 +1,8 @@
-User-Agent: *
+User-agent: *
+Allow: /
+
+User-agent: Yandex
+Allow: /
+Clean-param: clear_cache&utm_source&utm_medium&utm_campaign&utm_content&utm_term&utm_referrer&yclid&ysclid&gclid&fbclid
+
 Sitemap: https://tacticum.ru/sitemap.xml

@@ -41,7 +41,10 @@ jobs:
         run: npm ci
 
       - name: Check generated Tailwind CSS
-        run: npm run css:check
+        run: |
+          npm run js:check
+          npm run css:check
+          npm run css:syntax
 
       - name: Check template styles retirement
         run: npm run template-styles:check
@@ -50,6 +53,8 @@ jobs:
         run: |
           node --check tools/visual-smoke.mjs
           node --check tools/seo-check.mjs
+          node --check tools/js-syntax-check.mjs
+          node --check tools/css-syntax-check.mjs
 
       - name: Check config and lifecycle tooling
         run: |

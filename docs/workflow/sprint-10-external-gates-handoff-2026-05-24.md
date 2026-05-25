@@ -21,7 +21,8 @@ Status: `external handoff`
 | Static repository guards | passed | `seo:check`, `css:check`, `template-styles:check`, `config:check`, `sale:sunset:check`, `release:signoff:draft-check`, `release:signoff:summary`, `release:signoff:self-test` |
 | Production-safe checks | passed | `seo:check:prod`; unauthenticated `/bitrix/admin/` returned authorize screen without 500; GET guards for form/chat/prefill/staff/resolver returned controlled `405` JSON |
 | Local PHP preflight | degraded | PHP CLI отсутствует локально; GitHub PHP 8.4 lint остаётся обязательным fallback |
-| Current working-tree post-deploy smoke | pending deploy/cache | `visual:smoke:prod` и `browser:smoke:prod` запускать после deploy и Bitrix menu/component cache refresh, потому что rendered navigation теперь должна содержать `/offer/` |
+| Current working-tree post-deploy smoke | passed | 25.05.2026: production `/contacts/` уже рендерит карту `Тактикум` (`oid=243968538014`); `visual:smoke` с `TACTICUM_EXPECT_SEO_HEAD=1` прошёл по 9 URL, `browser:smoke` прошёл по 9 URL, focused `/price/` smoke прошёл `price team presets/summary`; manifests лежат в `/tmp/tacticum-release-closure-2026-05-25/` |
+| Controlled production success-flow | blocked by upstream | 25.05.2026: default lead form, modal form, AI chat и staff-order вернули upstream `502`; prefill controlled empty state вернул ожидаемый `404 not_found`; sanitized evidence `/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json` |
 
 ## External Gates
 

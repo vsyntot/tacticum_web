@@ -23,7 +23,7 @@ Post-deploy закрыты `SEO-001` - `SEO-008`; `SEO-009` принят как 
 |---|---|---|
 | Rendered title/description/canonical/OG/Twitter/JSON-LD/H1 | ok | `npm run seo:smoke`, manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T08-28-30-284Z/manifest.json` |
 | Sitemap XML validity | ok with guard | `npm run seo:check` проверяет repo-owned root index; `npm run seo:check:prod` проверяет production `sitemap.xml`, Bitrix-generated `sitemap-basic-files.xml` и dynamic `/offer/sitemap.php` |
-| Robots sitemap pointer | ok | `robots.txt` содержит `Sitemap: https://tacticum.ru/sitemap.xml` |
+| Robots sitemap pointer | ok | `robots.txt` содержит `Sitemap: https://tacticum.ru/sitemap.xml`, явно разрешает crawl публичного сайта и использует Yandex `Clean-param` для tracking/cache-параметров |
 | Public URL coverage in sitemap | ok | sitemap содержит все 9 текущих публичных разделов |
 | Image alt baseline | ok | production scan по `/`, `/about/`, `/price/`: missing `alt=0` |
 
@@ -45,7 +45,7 @@ Post-deploy закрыты `SEO-001` - `SEO-008`; `SEO-009` принят как 
 
 - Базовые `description`, canonical и OpenGraph meta добавлены на публичные страницы.
 - На основных публичных URL rendered H1 count равен 1.
-- `robots.txt` указывает HTTPS sitemap.
+- `robots.txt` указывает HTTPS sitemap, не блокирует CSS/JS render resources и использует Yandex `Clean-param` для tracking/cache-параметров.
 - `sitemap-basic-files.xml` должен покрывать текущий набор публичных разделов и генерируется штатным Bitrix sitemap.
 - Динамический `/offer/sitemap.php` дедуплицирует offer canonical URL и проверяется `seo:check:prod`.
 - Alt baseline на проверенных production страницах не выявил пропущенных `alt`.
