@@ -39,7 +39,7 @@
 | S10-008 | Legacy sale aliases inventory | PM + Backend | P1 | external handoff | `docs/workflow/legacy-sale-alias-consumer-inventory.md` создан; до `30.06.2026` заполнен inventory consumers `tacticum_offer.php` / `tacticum_sale.php` из access logs/CRM; создан owner-backed plan миграции до `31.08.2026` |
 | S10-009 | Rich workers upstream decision | Architect + Backend + DevOps | P2 | done | Подтверждено, что отдельного compatible upstream contract пока нет, или создан Security / Integration scope для переключения `ai.endpoint_paths.staff_sale` |
 | S10-010 | CSP report-only baseline | Architect + Frontend + QA | P2 | done | Собран report-only baseline: нет first-party violations, карта `/contacts/` и Метрика работают; enforcing CSP не включается без отдельного rollout/rollback |
-| S10-011 | SEO-009 accepted-risk revalidation | SEO + QA | P3 | done | `npm run seo:check`/`seo:smoke` подтверждают, что `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation; решение не пересматривается без отдельного UX scope |
+| S10-011 | SEO-009 accepted-risk revalidation | SEO + QA | P3 | done | `npm run seo:check`/`seo:smoke` подтверждают, что `/price/`, `/offer/`, `/calculator/`, `/aiagents/` остаются в rendered navigation; решение не пересматривается без отдельного UX scope |
 | S10-012 | Offer detail clear-cache routing | Backend + SEO + QA | P1 | done | `/offer/<code>/?clear_cache=Y` не уходит в root `404.php`; `npm run seo:check:prod` проходит после deploy |
 
 ## Browser Error Challenge

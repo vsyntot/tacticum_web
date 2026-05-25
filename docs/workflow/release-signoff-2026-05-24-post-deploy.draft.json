@@ -46,6 +46,7 @@
     "manual-success-flow": {
       "status": "pending",
       "owner": "QA + Backend/Frontend",
+      "due": "before-strict-release-closure",
       "reason": "Requires staging or controlled production lead for forms, AI chat, prefill and staff-order; not safe to automate without creating leads/upstream requests.",
       "evidence": {
         "safe_method_smoke": "2026-05-24: GET tacticum_chat, tacticum_prefill, tacticum_sale_staff, tacticum_form and resolve_telegram_link returned controlled 405 JSON without 500/HTML",
@@ -57,6 +58,7 @@
     "metrika-goals": {
       "status": "pending",
       "owner": "PM/Marketing + QA",
+      "due": "before-strict-release-closure",
       "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy.",
       "evidence": {
         "public_precheck": "2026-05-24: metrika.js contains counter 103471113 and production HTML contains noscript pixel; goal visibility still requires Yandex.Metrika access",
@@ -80,6 +82,7 @@
     "bitrix-admin": {
       "status": "pending",
       "owner": "QA/Admin",
+      "due": "before-strict-release-closure",
       "reason": "Requires authenticated Bitrix admin panel smoke after deploy/cache refresh.",
       "evidence": {
         "public_precheck": "2026-05-24: unauthenticated GET /bitrix/admin/ returned HTTP 200 and x-bitrix-ajax-status=Authorize without 500/white screen",
@@ -101,6 +104,7 @@
     "staff-sale-upstream": {
       "status": "pending",
       "owner": "Architect + Backend + QA + DevOps",
+      "due": "before-strict-release-closure",
       "reason": "Requires staging staff-order success-flow evidence that workers_json, team_preset, monthly_budget_estimate and endDate reach upstream.",
       "evidence": {
         "readiness": "docs/workflow/rich-workers-upstream-readiness-2026-05-24.md",

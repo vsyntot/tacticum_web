@@ -6,11 +6,10 @@ $menuTree = $arResult['MENU_TREE'];
 ?>
 
 <?if (!empty($menuTree)){?>
-    <nav class="hidden md:flex items-center space-x-8">
+    <nav class="hidden lg:flex items-center space-x-8">
         <?foreach($menuTree as $arItem):?>
             <?if ($arItem["PERMISSION"] > "D"):?>
                 <?php
-                // Экранируем строки меню; не удалять при правках шаблона.
                 $itemLink = $arItem["LINK"];
                 $itemLinkEsc = htmlspecialcharsbx($itemLink);
                 $itemTextEsc = htmlspecialcharsbx($arItem["TEXT"]);
@@ -26,7 +25,7 @@ $menuTree = $arResult['MENU_TREE'];
                         <?endif;?>
                     </a>
                     <?if (!empty($arItem["CHILDREN"])):?>
-                        <div class="absolute left-0 top-full z-20 min-w-[180px] overflow-hidden rounded-xl bg-white shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200">
+                        <div class="absolute left-0 top-full z-20 min-w-[180px] overflow-hidden rounded-xl bg-white shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 invisible group-hover:visible group-focus-within:visible transition-all duration-200">
                             <?foreach($arItem["CHILDREN"] as $child):?>
                                 <?if ($child["PERMISSION"] > "D"):?>
                                     <?php

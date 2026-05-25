@@ -9,6 +9,7 @@
 - Подключение: `local/templates/tacticum/header.php` перед `forms.js`, `chat-agent.js`, `tg-link-resolver.js`.
 - В события нельзя передавать PII: имя, телефон, email, текст сообщения, summary, raw URL с query.
 - Допустимые параметры: `page_path`, `form_id`, `endpoint`, `surface`, `status`, `code`, boolean-флаги и счётчики.
+- Sprint 15 lead qualification fields (`lead_budget`, `lead_timeline`, `lead_offer_code`, `lead_offer_title`, `lead_industry`, `lead_scenario`) отправляются в lead payload only. Они не добавляются в analytics events, чтобы случайно не передать пользовательский контекст или offer summary в Метрику/tag manager.
 
 ## Event Taxonomy
 
@@ -24,6 +25,7 @@
 | `tacticum_prefill_submit` | `chat-agent.js` | `surface`, `page_path` |
 | `tacticum_prefill_success` | `chat-agent.js` | `surface`, `status`, `page_path` |
 | `tacticum_prefill_error` | `chat-agent.js` | `surface`, `status`, `code`, `page_path` |
+| `tacticum_chat_lead_handoff` | `chat-agent.js` | `surface`, `has_group_id`, `has_prefill_summary`, `page_path` |
 | `tacticum_tg_resolver_success` | `tg-link-resolver.js` | `status`, `links_count`, `page_path` |
 | `tacticum_tg_resolver_error` | `tg-link-resolver.js` | `status`, `code`, `page_path` |
 | `tacticum_tg_resolver_skip` | `tg-link-resolver.js` | `status`, `code`, `page_path` |

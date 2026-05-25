@@ -44,6 +44,7 @@ const serviceEndpoints = [
 
 const expectedTopMenuUrls = [
   '/price/',
+  '/offer/',
   '/calculator/',
   '/aiagents/'
 ];
@@ -195,7 +196,9 @@ function assertCanonicalPaths() {
   const canonicalPattern = /tacticum_apply_seo_defaults\s*\(\s*(['"])(\/[^'"]*)\1/s;
 
   for (const [file, expectedPath] of expectedStaticPages) {
-    const source = read(file);
+    const source = file === 'offer/index.php'
+      ? `${read(file)}\n${read('local/php_interface/include/offer_page.php')}`
+      : read(file);
     const match = source.match(canonicalPattern);
     if (!match) {
       fail(`${file} is missing static tacticum_apply_seo_defaults canonical path`);
@@ -212,12 +215,42 @@ function assertCanonicalPaths() {
 function assertTopMenuProminence() {
   const menuSource = [
     read('.top.menu.php'),
-    read('services/.top.menu_ext.php')
+    read('services/.left.menu.php')
   ].join('\n');
+  const bottomMenuSource = read('.bottom.menu.php');
+  const servicesTemplateSource = read('local/templates/tacticum/components/bitrix/news.list/services/template.php');
+  const headerSource = read('local/templates/tacticum/header.php');
+  const footerSource = read('local/templates/tacticum/footer.php');
+
+  if (fs.existsSync('services/.top.menu_ext.php')) {
+    fail('services/.top.menu_ext.php must stay removed; use services/.left.menu.php for service children');
+  }
+  for (const [file, source] of [
+    ['local/templates/tacticum/header.php', headerSource],
+    ['local/templates/tacticum/footer.php', footerSource]
+  ]) {
+    if (!source.includes('"CHILD_MENU_TYPE" => "left"')) {
+      fail(`${file} top/mobile menu must use left child menu type`);
+    }
+    if (!source.includes('"USE_EXT" => "N"')) {
+      fail(`${file} top/mobile menu must keep USE_EXT=N to avoid section .top.menu_ext.php replacing root menu`);
+    }
+  }
 
   for (const url of expectedTopMenuUrls) {
     if (!menuSource.includes(`"${url}"`) && !menuSource.includes(`'${url}'`)) {
       fail(`top menu structure is missing money page ${url}`);
+    }
+    if (!bottomMenuSource.includes(`"${url}"`) && !bottomMenuSource.includes(`'${url}'`)) {
+      fail(`bottom menu structure is missing money page ${url}`);
+    }
+  }
+  if (!servicesTemplateSource.includes('href="/offer/"') || !servicesTemplateSource.includes('Расчет проекта')) {
+    fail('services block must include /offer/ as Расчет проекта');
+  }
+  for (const relativeFooterUrl of ['"services/"', '"price/"', '"offer/"', '"calculator/"', '"aiagents/"']) {
+    if (bottomMenuSource.includes(relativeFooterUrl)) {
+      fail(`bottom menu must use absolute public URLs, found ${relativeFooterUrl}`);
     }
   }
 }
@@ -228,12 +261,310 @@ function assertDefaultSocialPreview() {
     fail(`${imagePath} is missing`);
   }
 
-  const initSource = read('local/php_interface/init.php');
-  if (!initSource.includes("/images/og-default.jpg")) {
+  const seoHelperSource = read('local/php_interface/include/seo_helpers.php');
+  if (!seoHelperSource.includes("/images/og-default.jpg")) {
     fail('SEO helper must use og-default.jpg as the default social preview image');
   }
-  if (!initSource.includes("?? 1200") || !initSource.includes("?? 630")) {
+  if (!seoHelperSource.includes("?? 1200") || !seoHelperSource.includes("?? 630")) {
     fail('SEO helper default social preview dimensions must be 1200x630');
+  }
+}
+
+function assertOfferCatalogRouting() {
+  const rewriteSource = read('urlrewrite.php');
+  const offerPageSource = read('offer/index.php');
+  const offerPageControllerSource = read('local/php_interface/include/offer_page.php');
+  const headerSource = read('local/templates/tacticum/header.php');
+  const offerCatalogSource = read('local/php_interface/include/offer_catalog.php');
+  const offerComponentSource = read('local/components/tacticum/offer/component.php');
+  const offerListTemplate = read('local/components/tacticum/offer/templates/.default/list.php');
+  const offerDetailTemplate = read('local/components/tacticum/offer/templates/.default/detail.php');
+  const offerCatalogComponentSource = read('local/components/tacticum/offer.catalog/component.php');
+
+  const catalogRuleIndex = rewriteSource.indexOf('#^/offer/catalog');
+  const detailRuleIndex = rewriteSource.indexOf('#^/offer/([A-Za-z0-9_-]+');
+  if (catalogRuleIndex === -1) {
+    fail('urlrewrite.php is missing reserved /offer/catalog route');
+  }
+  if (detailRuleIndex === -1) {
+    fail('urlrewrite.php is missing /offer/<code> detail route');
+  }
+  if (catalogRuleIndex !== -1 && detailRuleIndex !== -1 && catalogRuleIndex > detailRuleIndex) {
+    fail('/offer/catalog route must be defined before /offer/<code> detail route');
+  }
+  if (!offerPageSource.includes('"tacticum:offer"')) {
+    fail('offer/index.php must render section through tacticum:offer');
+  }
+  if (offerPageSource.includes('"tacticum:offer.catalog"') || offerPageSource.includes('"bitrix:news.detail"')) {
+    fail('offer/index.php must not render list/detail branches directly; use tacticum:offer');
+  }
+  if (
+    !offerPageSource.includes('offer_page.php')
+    || !offerPageSource.includes('tacticum_offer_page_resolve')
+    || !offerPageSource.includes('tacticum_offer_page_apply_redirects')
+    || !offerPageSource.includes('tacticum_offer_page_apply_seo')
+    || !offerPageSource.includes('tacticum_offer_page_apply_template')
+    || !offerPageSource.includes('tacticum_offer_page_component_params')
+  ) {
+    fail('offer/index.php must stay a thin front controller around offer_page.php and tacticum:offer');
+  }
+  if (offerPageSource.includes('LocalRedirect(') || offerPageSource.includes('CHTTP::SetStatus')) {
+    fail('offer/index.php must not own redirect/status logic; use offer_page.php');
+  }
+  if (!offerPageSource.includes('prolog_before.php') || !offerPageSource.includes('prolog_after.php')) {
+    fail('offer/index.php must use Bitrix split prolog: prolog_before -> offer_page -> prolog_after');
+  }
+  if (offerPageSource.includes('TACTICUM_PAGE_ASSETS') || offerPageSource.includes('TACTICUM_BODY_CLASS')) {
+    fail('offer/index.php must not set template globals; use offer_page.php page properties');
+  }
+  if (
+    !offerPageControllerSource.includes('clear_cache')
+    || !offerPageControllerSource.includes('tacticum_offer_catalog_path_filters')
+    || !offerPageControllerSource.includes('tacticum_offer_page_apply_seo')
+    || !offerPageControllerSource.includes('tacticum_offer_page_apply_template')
+    || !offerPageControllerSource.includes('tacticum_page_assets')
+    || !offerPageControllerSource.includes('tacticum_body_class')
+    || !offerPageControllerSource.includes('tacticum_offer_page_component_params')
+  ) {
+    fail('offer_page.php must preserve Bitrix service params, pretty catalog parsing, SEO/template setup and component params');
+  }
+  if (!headerSource.includes("GetPageProperty('tacticum_page_assets'") || !headerSource.includes("GetPageProperty('tacticum_body_class'")) {
+    fail('template header must support Bitrix page properties for page assets and body class');
+  }
+  if (headerSource.includes('TACTICUM_PAGE_ASSETS') || headerSource.includes('TACTICUM_BODY_CLASS')) {
+    fail('template header must not support legacy TACTICUM_* globals; use Bitrix page properties');
+  }
+  if (!offerComponentSource.includes('MODE') || !offerComponentSource.includes('IncludeComponentTemplate')) {
+    fail('tacticum:offer component must dispatch list/detail/not_found modes');
+  }
+  if (!offerListTemplate.includes('tacticum:offer.catalog')) {
+    fail('tacticum:offer list template must render tacticum:offer.catalog');
+  }
+  if (!offerDetailTemplate.includes('bitrix:news.detail')) {
+    fail('tacticum:offer detail template must render bitrix:news.detail');
+  }
+  if (!offerCatalogSource.includes('/offer/catalog/') || !offerCatalogSource.includes('tacticum_offer_catalog_url')) {
+    fail('offer catalog helper must generate /offer/catalog/... URLs');
+  }
+  if (
+    !offerCatalogSource.includes('final class TacticumOfferCatalogService')
+    || !offerCatalogSource.includes('public static function items')
+    || !offerCatalogSource.includes('public static function prepare')
+    || !offerCatalogSource.includes('return TacticumOfferCatalogService::items')
+    || !offerCatalogSource.includes('return TacticumOfferCatalogService::prepare')
+  ) {
+    fail('offer catalog helper must expose TacticumOfferCatalogService with compatibility wrappers');
+  }
+  if (!offerCatalogComponentSource.includes('tacticum_offer_catalog_prepare')) {
+    fail('tacticum:offer.catalog component must use offer catalog helper');
+  }
+}
+
+function assertPublicPageComponentization() {
+  const ctaPages = [
+    'index.php',
+    'calculator/index.php',
+    'price/index.php',
+    'contacts/index.php',
+    'about/index.php',
+    'services/index.php'
+  ];
+  const faqHosts = [
+    'index.php',
+    'calculator/index.php',
+    'price/index.php',
+    'services/index.php',
+    'local/components/tacticum/aiagents/templates/.default/template.php',
+    'local/templates/tacticum/components/bitrix/news.detail/offer/template.php'
+  ];
+  const chatPages = [
+    'index.php',
+    'calculator/index.php',
+    'price/index.php'
+  ];
+  const splitPrologAssetPages = [
+    'index.php',
+    'about/index.php',
+    'calculator/index.php',
+    'price/index.php',
+    'contacts/index.php',
+    'services/index.php',
+    'aiagents/index.php',
+    'offer/index.php',
+    'policies/index.php',
+    '404.php'
+  ];
+  const directContentListHosts = [
+    'index.php',
+    'about/index.php',
+    'services/index.php',
+    'price/index.php',
+    'local/components/tacticum/aiagents/templates/.default/template.php'
+  ];
+  const directContentDetailHosts = [
+    'policies/index.php'
+  ];
+  const publicComponentEntryPoints = [
+    'index.php',
+    'about/index.php',
+    'services/index.php',
+    'price/index.php',
+    'calculator/index.php',
+    'contacts/index.php',
+    'aiagents/index.php',
+    'offer/index.php',
+    'policies/index.php',
+    '404.php',
+    'local/components/tacticum/aiagents/templates/.default/template.php'
+  ];
+
+  assertLocalComponentMetadata();
+
+  for (const file of ctaPages) {
+    const source = read(file);
+    if (!source.includes('"tacticum:lead.cta"')) {
+      fail(`${file} must render repeated CTA through tacticum:lead.cta`);
+    }
+    if (/personal-offer-cta|project-discussion-cta|tacticumPersonalOfferCta|tacticumProjectDiscussionCta/.test(source)) {
+      fail(`${file} must not use legacy CTA include globals`);
+    }
+  }
+
+  for (const legacyInclude of [
+    'local/templates/tacticum/include/personal-offer-cta.php',
+    'local/templates/tacticum/include/project-discussion-cta.php'
+  ]) {
+    if (fs.existsSync(legacyInclude)) {
+      fail(`${legacyInclude} must stay removed; use tacticum:lead.cta`);
+    }
+  }
+
+  for (const file of faqHosts) {
+    const source = read(file);
+    if (!source.includes('"tacticum:faq.section"')) {
+      fail(`${file} must render FAQ through tacticum:faq.section`);
+    }
+    if (!source.includes('"SECTION_KEY"')) {
+      fail(`${file} must pass semantic SECTION_KEY to tacticum:faq.section`);
+    }
+    if (/"PARENT_SECTION"\s*=>\s*["']\d+["']/.test(source)) {
+      fail(`${file} must not pass numeric FAQ PARENT_SECTION; use semantic SECTION_KEY`);
+    }
+    if (/"bitrix:news\.list"\s*,\s*"faq"/s.test(source)) {
+      fail(`${file} must not render FAQ through direct bitrix:news.list call`);
+    }
+  }
+
+  for (const file of directContentListHosts) {
+    const source = read(file);
+    if (!source.includes('"tacticum:content.list"')) {
+      fail(`${file} must render repeated content lists through tacticum:content.list`);
+    }
+  }
+
+  for (const file of directContentDetailHosts) {
+    const source = read(file);
+    if (!source.includes('"tacticum:content.detail"')) {
+      fail(`${file} must render static iblock detail through tacticum:content.detail`);
+    }
+    if (/"ELEMENT_ID"\s*=>\s*["']\d+["']/.test(source)) {
+      fail(`${file} must not hardcode static detail ELEMENT_ID`);
+    }
+  }
+
+  for (const file of publicComponentEntryPoints) {
+    const source = read(file);
+    if (/"bitrix:news\.list"/.test(source)) {
+      fail(`${file} must not call bitrix:news.list directly; use tacticum local wrappers`);
+    }
+    if (/"bitrix:news\.detail"/.test(source)) {
+      fail(`${file} must not call bitrix:news.detail directly; use tacticum local wrappers`);
+    }
+    if (/INCLUDE_IBLOCK_INТО_CHAIN/.test(source)) {
+      fail(`${file} contains Cyrillic typo in INCLUDE_IBLOCK_INTO_CHAIN`);
+    }
+    if (/TACTICUM_PAGE_ASSETS|TACTICUM_BODY_CLASS/.test(source)) {
+      fail(`${file} must not use template globals; use Bitrix page properties or component params`);
+    }
+  }
+
+  for (const file of splitPrologAssetPages) {
+    const source = read(file);
+    if (!source.includes('prolog_before.php') || !source.includes('prolog_after.php')) {
+      fail(`${file} must use Bitrix split prolog for page properties before header`);
+    }
+  }
+
+  for (const file of chatPages) {
+    const source = read(file);
+    if (!source.includes('"tacticum:chat.surface"')) {
+      fail(`${file} must render hero/light chat surfaces through tacticum:chat.surface`);
+    }
+    if (!/SetPageProperty\s*\(\s*["']tacticum_page_assets["']\s*,\s*["'][^"']*\bchat\b/.test(source)) {
+      fail(`${file} must request chat-agent.js through tacticum_page_assets=chat`);
+    }
+  }
+  for (const file of ['calculator/index.php', 'price/index.php']) {
+    if (/data-tacticum-chat="light"/.test(read(file))) {
+      fail(`${file} must not keep inline light chat markup`);
+    }
+  }
+
+  const headerSource = read('local/templates/tacticum/header.php');
+  if (!headerSource.includes("if ($hasPageAsset('chat'))")) {
+    fail('template header must load chat-agent.js only through the chat page asset');
+  }
+  if (/fonts\.googleapis|fonts\.gstatic|readdy\.ai/.test(headerSource)) {
+    fail('template header must not keep unused Google Fonts/Readdy external origins');
+  }
+
+  const aiagentsPageSource = read('aiagents/index.php');
+  const aiagentsComponentSource = read('local/components/tacticum/aiagents/component.php');
+  const aiagentsTemplateSource = read('local/components/tacticum/aiagents/templates/.default/template.php');
+  const contentMigrationsSource = read('local/php_interface/include/content_migrations.php');
+
+  if (!aiagentsPageSource.includes('"tacticum:aiagents"')) {
+    fail('aiagents/index.php must render through tacticum:aiagents');
+  }
+  if (!aiagentsPageSource.includes('prolog_before.php') || !aiagentsPageSource.includes('prolog_after.php')) {
+    fail('aiagents/index.php must use Bitrix split prolog to set page properties before header');
+  }
+  if (!aiagentsPageSource.includes('tacticum_page_assets') || !aiagentsPageSource.includes('tacticum_body_class')) {
+    fail('aiagents/index.php must set template assets/body class through page properties');
+  }
+  if (/TACTICUM_PAGE_ASSETS|TACTICUM_BODY_CLASS/.test(aiagentsPageSource)) {
+    fail('aiagents/index.php must not use template globals');
+  }
+  if (!aiagentsComponentSource.includes('FAQ_IBLOCK_ID') || !aiagentsComponentSource.includes('FAQ_SECTION_KEY')) {
+    fail('tacticum:aiagents component must pass FAQ params to its template');
+  }
+  if (/"FAQ_PARENT_SECTION"\s*=>\s*['"]\d+['"]/.test(aiagentsPageSource + aiagentsComponentSource)) {
+    fail('tacticum:aiagents must not hardcode numeric FAQ section fallback');
+  }
+  if (!aiagentsTemplateSource.includes("$arResult['AIAGENTS_IBLOCK_ID']")) {
+    fail('tacticum:aiagents template must use component result for AI agents iblock id');
+  }
+  if (/bitrix\/header\.php|bitrix\/footer\.php|tacticum_apply_seo_defaults|TACTICUM_PAGE_ASSETS|TACTICUM_BODY_CLASS/.test(aiagentsTemplateSource)) {
+    fail('tacticum:aiagents template must not own header/footer/SEO/template globals');
+  }
+  if (/['"]ID['"]\s*=>\s*515/.test(contentMigrationsSource)) {
+    fail('content migrations must not hardcode policy element ID 515; resolve by iblock content');
+  }
+}
+
+function assertLocalComponentMetadata() {
+  const componentRoot = 'local/components/tacticum';
+  const componentDirs = fs.readdirSync(componentRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `${componentRoot}/${entry.name}`);
+
+  for (const componentDir of componentDirs) {
+    for (const file of ['.description.php', '.parameters.php', 'component.php']) {
+      const fullPath = `${componentDir}/${file}`;
+      if (!fs.existsSync(fullPath)) {
+        fail(`${fullPath} is missing`);
+      }
+    }
   }
 }
 
@@ -253,6 +584,37 @@ async function checkHttpRobots() {
     if (!robots.includes('noindex') || !robots.includes('nofollow')) {
       fail(`${endpoint} is missing X-Robots-Tag noindex, nofollow`);
     }
+  }
+}
+
+async function checkHttpOfferCatalogPrettyUrl() {
+  const legacyPath = '/offer/?scenario=ai-kopaylot&page=2&clear_cache=Y';
+  const expectedPrettyPath = '/offer/catalog/scenario/ai-kopaylot/page/2/?clear_cache=Y';
+  const legacyResponse = await fetch(`${HTTP_BASE_URL}${legacyPath}`, {
+    redirect: 'manual',
+  });
+
+  if (![301, 302, 303, 307, 308].includes(legacyResponse.status)) {
+    fail(`offer catalog legacy query URL must redirect to pretty URL; got HTTP ${legacyResponse.status}: ${legacyPath}`);
+  } else {
+    const location = legacyResponse.headers.get('location') || '';
+    if (!location.includes(expectedPrettyPath)) {
+      fail(`offer catalog legacy query redirect must preserve clear_cache in pretty URL; got ${location || '(empty)'}`);
+    }
+  }
+
+  const prettyResponse = await fetch(`${HTTP_BASE_URL}${expectedPrettyPath}`);
+  if (prettyResponse.status !== 200) {
+    fail(`offer catalog pretty URL returned HTTP ${prettyResponse.status}: ${expectedPrettyPath}`);
+    return;
+  }
+
+  const html = await prettyResponse.text();
+  if (!html.includes(`<link rel="canonical" href="${SITE}/offer/">`)) {
+    fail(`offer catalog pretty URL must keep canonical /offer/: ${expectedPrettyPath}`);
+  }
+  if (!/<meta name="robots" content="noindex,follow"/i.test(html)) {
+    fail(`offer catalog pretty URL must be noindex,follow: ${expectedPrettyPath}`);
   }
 }
 
@@ -345,6 +707,8 @@ if (staticSitemap !== null) {
 assertCanonicalPaths();
 assertTopMenuProminence();
 assertDefaultSocialPreview();
+assertOfferCatalogRouting();
+assertPublicPageComponentization();
 
 if (!robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
   fail(`robots.txt must point to ${ROOT_SITEMAP_URL}`);
@@ -354,6 +718,7 @@ if (CHECK_HTTP) {
   await checkHttpSitemapGovernance();
   await checkHttpRobots();
   await checkHttpOfferSitemap();
+  await checkHttpOfferCatalogPrettyUrl();
 }
 
 if (errors.length > 0) {

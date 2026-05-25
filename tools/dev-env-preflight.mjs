@@ -28,11 +28,22 @@ if (!phpVersion || phpVersion.major < 8 || (phpVersion.major === 8 && phpVersion
   process.exit(requirePhp ? 1 : 0);
 }
 
-const phpFiles = await collectPhpFiles('local');
+const phpFiles = await collectPhpFiles([
+  'local',
+  '.',
+  'about',
+  'services',
+  'contacts',
+  'calculator',
+  'price',
+  'offer',
+  'aiagents',
+  'policies',
+]);
 let failures = 0;
 
 for (const file of phpFiles) {
-  const result = spawnSync(php, ['-l', file], { encoding: 'utf8' });
+  const result = spawnSync(php, ['-d', 'short_open_tag=1', '-l', file], { encoding: 'utf8' });
   if (result.status !== 0) {
     failures += 1;
     process.stderr.write(result.stdout || '');
@@ -45,7 +56,7 @@ if (failures > 0) {
   process.exit(1);
 }
 
-console.log(`PHP syntax lint passed for ${phpFiles.length} file(s) under local/.`);
+console.log(`PHP syntax lint passed for ${phpFiles.length} local/public file(s).`);
 
 function findPhp() {
   const result = spawnSync('php', ['-v'], { encoding: 'utf8' });
@@ -64,13 +75,15 @@ function parsePhpVersion(line) {
   };
 }
 
-async function collectPhpFiles(root) {
+async function collectPhpFiles(roots) {
   const files = [];
-  await walk(root, files);
-  return files.sort();
+  for (const root of roots) {
+    await walk(root, files, root === '.');
+  }
+  return [...new Set(files)].sort();
 }
 
-async function walk(dir, files) {
+async function walk(dir, files, rootOnly = false) {
   let entries;
   try {
     entries = await readdir(dir, { withFileTypes: true });
@@ -84,6 +97,9 @@ async function walk(dir, files) {
   for (const entry of entries) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
+      if (rootOnly) {
+        continue;
+      }
       await walk(path, files);
     } else if (entry.isFile() && entry.name.endsWith('.php')) {
       files.push(path);

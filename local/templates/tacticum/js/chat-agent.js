@@ -68,6 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return block;
     };
 
+    const clampText = (text, maxLength = 1800) => {
+        const value = (text || "").replace(/\s+\n/g, "\n").trim();
+        return value.length > maxLength ? `${value.slice(0, maxLength - 3).trim()}...` : value;
+    };
+
+    const buildLeadHandoffSummary = (surface, userMessage, assistantResponse) => {
+        const title = surface === "price"
+            ? "Контекст из AI-калькулятора команды"
+            : "Контекст из AI-калькулятора проекта";
+        return clampText([
+            title,
+            userMessage ? `Запрос: ${userMessage}` : "",
+            assistantResponse ? `Ответ AI: ${assistantResponse}` : "",
+        ].filter(Boolean).join("\n\n"));
+    };
+
     const createTyping = (className, withLabel = false) => {
         const el = document.createElement("div");
         el.className = `${className} typing-indicator-container`;
@@ -196,6 +212,23 @@ document.addEventListener("DOMContentLoaded", () => {
             offer.textContent = "Оформить заявку";
             offerRow.appendChild(offer);
             div.appendChild(offerRow);
+        }
+
+        if (role !== "user" && options.showLeadHandoff && typeof options.onLeadHandoff === "function") {
+            const handoffRow = document.createElement("p");
+            handoffRow.className = "mt-3";
+            const handoffButton = document.createElement("button");
+            handoffButton.type = "button";
+            handoffButton.className = "inline-flex items-center gap-2 rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors";
+            handoffButton.setAttribute("data-chat-lead-handoff", "true");
+            handoffButton.innerHTML = '<i class="ri-arrow-down-line"></i><span></span>';
+            handoffButton.querySelector("span").textContent = options.handoffLabel || "Передать вводные в заявку";
+            handoffButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                options.onLeadHandoff();
+            });
+            handoffRow.appendChild(handoffButton);
+            div.appendChild(handoffRow);
         }
 
         container.appendChild(div);
@@ -497,8 +530,95 @@ document.addEventListener("DOMContentLoaded", () => {
 
             chatRoot.dataset.tacticumChatBound = "true";
             const surface = chatRoot.dataset.chatSurface || "light_calculator";
+            const showLeadHandoff = surface === "calculator" || surface === "price";
             let groupId = null;
             let isSending = false;
+
+            const findLeadForm = () => {
+                const contactSection = document.getElementById("contact-form");
+                const sectionForm = contactSection?.querySelector("[data-tacticum-form]");
+                if (sectionForm) return sectionForm;
+
+                const expectedFormId = surface === "price" ? "price-cta" : "calculator-cta";
+                return document.querySelector(`[data-tacticum-form][data-form-id="${expectedFormId}"]`);
+            };
+
+            const applyLeadHandoff = (summary, effectiveGroupId) => {
+                const form = findLeadForm();
+                const messageField = form?.querySelector('[name="message"]');
+                if (!form || !messageField) {
+                    trackChat("tacticum_prefill_error", surface, {
+                        code: "missing_target_form",
+                    });
+                    return false;
+                }
+
+                const value = (summary || "").trim();
+                if (value) {
+                    const existingValue = (messageField.value || "").trim();
+                    if (existingValue === "") {
+                        messageField.value = value;
+                    } else if (!existingValue.includes(value)) {
+                        messageField.value = `${existingValue}\n\n${value}`;
+                    }
+                    messageField.dispatchEvent(new Event("input", { bubbles: true }));
+                }
+
+                if (effectiveGroupId) {
+                    form.dataset.tacticumOfferGroupId = effectiveGroupId;
+                }
+
+                document.getElementById("contact-form")?.scrollIntoView({ behavior: "smooth" });
+                messageField.focus();
+                return true;
+            };
+
+            const handoffToLeadForm = async ({ userMessage, assistantResponse, groupId: handoffGroupId }) => {
+                let summary = buildLeadHandoffSummary(surface, userMessage, assistantResponse);
+                let effectiveGroupId = handoffGroupId || "";
+
+                if (effectiveGroupId) {
+                    const sessid = getSessid();
+                    const prefillPayload = { group_id: effectiveGroupId };
+                    if (sessid) {
+                        prefillPayload.sessid = sessid;
+                    }
+
+                    try {
+                        trackChat("tacticum_prefill_submit", surface);
+                        const response = await fetch(PREFILL_ENDPOINT, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(prefillPayload),
+                        });
+                        const result = await response.json().catch(() => null);
+                        if (response.ok && result?.success) {
+                            summary = result.summary || summary;
+                            effectiveGroupId = result.group_id || effectiveGroupId;
+                            trackChat("tacticum_prefill_success", surface, {
+                                status: response.status,
+                            });
+                        } else {
+                            trackChat("tacticum_prefill_error", surface, {
+                                status: response.status,
+                                code: result?.code || "unknown",
+                            });
+                        }
+                    } catch (error) {
+                        trackChat("tacticum_prefill_error", surface, {
+                            status: "network",
+                            code: "fetch_error",
+                        });
+                    }
+                }
+
+                if (applyLeadHandoff(summary, effectiveGroupId)) {
+                    trackChat("tacticum_chat_lead_handoff", surface, {
+                        has_group_id: Boolean(effectiveGroupId),
+                        has_prefill_summary: Boolean(summary),
+                    });
+                }
+            };
 
             const send = async (rawMessage) => {
                 const message = (rawMessage || "").trim();
@@ -523,8 +643,18 @@ document.addEventListener("DOMContentLoaded", () => {
                             has_group_id: Boolean(res.group_id || groupId),
                             has_offer_url: Boolean(res.bitrix_url),
                         });
+                        const nextGroupId = res.group_id || groupId;
                         appendLightCalculatorMessage(messages, "ai", res.response, {
                             bitrixUrl: res.bitrix_url || "",
+                            showLeadHandoff,
+                            handoffLabel: surface === "price"
+                                ? "Передать вводные в заявку на команду"
+                                : "Передать вводные в заявку",
+                            onLeadHandoff: () => handoffToLeadForm({
+                                userMessage: message,
+                                assistantResponse: res.response,
+                                groupId: nextGroupId,
+                            }),
                         });
                         if (res.group_id) groupId = res.group_id;
                     } else {

@@ -1,5 +1,6 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+<?php
+require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+
 $APPLICATION->SetTitle("О компании - Тактикум");
 $APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт разработки программного обеспечения, внедрения AI-решений и автоматизации бизнеса.");
 tacticum_apply_seo_defaults('/about/', [
@@ -16,9 +17,10 @@ tacticum_apply_seo_defaults('/about/', [
         ],
     ],
 ]);
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 ?>
 
-<!-- Hero Section -->
 <section class="about-hero-bg min-h-[500px] pt-24 flex items-center">
     <div class="container mx-auto px-4 py-20">
         <div class="max-w-3xl">
@@ -28,15 +30,12 @@ tacticum_apply_seo_defaults('/about/', [
                 ИИ и автоматизации, превращая технологические возможности в реальные бизнес-результаты.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
-                <!-- Исправлен якорь -->
                 <a href="/calculator/" class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">Познакомиться ближе</a>
-                <!-- <button class="bg-white text-primary border border-primary px-8 py-3 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">Связаться с командой</button> -->
             </div>
         </div>
     </div>
 </section>
 
-<!-- Who We Are Section -->
 <section id="about-company" class="tacticum-anchor-target py-20">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
@@ -54,16 +53,16 @@ tacticum_apply_seo_defaults('/about/', [
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div class="stat-card bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-                <div class="text-4xl font-bold text-primary mb-2">120+</div>
-                <p class="text-gray-600">Реализованных проектов</p>
+                <div class="text-4xl font-bold text-primary mb-2">AI/IT</div>
+                <p class="text-gray-600">Проектная разработка и внедрение</p>
             </div>
             <div class="stat-card bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-                <div class="text-4xl font-bold text-primary mb-2">18</div>
-                <p class="text-gray-600">Отраслей бизнеса</p>
+                <div class="text-4xl font-bold text-primary mb-2">B2B</div>
+                <p class="text-gray-600">Отраслевые сценарии и интеграции</p>
             </div>
             <div class="stat-card bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-                <div class="text-4xl font-bold text-primary mb-2">85%</div>
-                <p class="text-gray-600">Клиентов работают с нами более года</p>
+                <div class="text-4xl font-bold text-primary mb-2">Team</div>
+                <p class="text-gray-600">Подбор ролей под этап и задачу</p>
             </div>
         </div>
 
@@ -116,9 +115,10 @@ tacticum_apply_seo_defaults('/about/', [
                     </div>
                     <h4 class="text-xl font-bold text-secondary mb-2">Сегодня</h4>
                     <p class="text-gray-600">
-                        Сегодня Tacticum — это команда из более чем 50 специалистов, реализовавших свыше 120
-                        проектов в 18 отраслях бизнеса. Мы продолжаем расти и развиваться, помогая нашим клиентам
-                        достигать новых высот с помощью искусственного интеллекта и автоматизации.
+                        Сегодня Tacticum — это команда аналитиков, инженеров и разработчиков, которая помогает
+                        компаниям оценивать, проектировать и внедрять AI- и IT-решения под реальные бизнес-задачи.
+                        Мы продолжаем развивать экспертизу в автоматизации, интеграциях и прикладном искусственном
+                        интеллекте.
                     </p>
                 </div>
             </div>
@@ -126,11 +126,10 @@ tacticum_apply_seo_defaults('/about/', [
     </div>
 </section>
 
-<!-- Values Section -->
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
-            <h2 class="text-3л md:text-4xl font-bold text-secondary mb-6">Ценности и подход</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Ценности и подход</h2>
             <p class="text-lg text-gray-600">
                 Наши ценности определяют то, как мы работаем и взаимодействуем с клиентами. Мы не просто
                 консультируем — мы становимся частью вашей команды и вместе достигаем результатов.
@@ -213,14 +212,13 @@ tacticum_apply_seo_defaults('/about/', [
                     </ul>
                 </div>
                 <div class="w-full md:w-1/2">
-                    <img src="<?=SITE_TEMPLATE_PATH?>/images/about.jpg" alt="От консалтинга до результата" class="w-full h-auto rounded-xl shadow-md">
+                    <img src="<?=SITE_TEMPLATE_PATH?>/images/about.jpg" width="768" height="512" alt="От консалтинга до результата" loading="lazy" decoding="async" class="w-full h-auto rounded-xl shadow-md">
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Team Section -->
 <section id="team-section" class="tacticum-anchor-target py-20">
     <span id="team" class="tacticum-anchor-alias" aria-hidden="true"></span>
     <div class="container mx-auto px-4">
@@ -234,59 +232,20 @@ tacticum_apply_seo_defaults('/about/', [
 
         <?php
         $APPLICATION->IncludeComponent(
-                "bitrix:news.list",
-                "team",
-                [
-                        "COMPONENT_TEMPLATE" => "team",
-                        "IBLOCK_TYPE" => "company",
-                        "IBLOCK_ID" => tacticum_iblock_id('team'),
-                        "NEWS_COUNT" => "3",
-                        "SORT_BY1" => "SORT",
-                        "SORT_ORDER1" => "ASC",
-                        "SORT_BY2" => "ID",
-                        "SORT_ORDER2" => "DESC",
-                        "FILTER_NAME" => "",
-                        "FIELD_CODE" => ["ID","CODE","NAME","SORT","PREVIEW_TEXT","DETAIL_TEXT","IBLOCK_TYPE_ID","IBLOCK_ID"],
-                        "PROPERTY_CODE" => ["POSITION","EMAIL","LINKEDIN"],
-                        "CHECK_DATES" => "Y",
-                        "DETAIL_URL" => "",
-                        "AJAX_MODE" => "N",
-                        "AJAX_OPTION_JUMP" => "N",
-                        "AJAX_OPTION_STYLE" => "Y",
-                        "AJAX_OPTION_HISTORY" => "N",
-                        "AJAX_OPTION_ADDITIONAL" => "",
-                        "CACHE_TYPE" => "A",
-                        "CACHE_TIME" => "36000000",
-                        "CACHE_FILTER" => "N",
-                        "CACHE_GROUPS" => "Y",
-                        "PREVIEW_TRUNCATE_LEN" => "",
-                        "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                        "SET_TITLE" => "N",
-                        "SET_BROWSER_TITLE" => "N",
-                        "SET_META_KEYWORDS" => "N",
-                        "SET_META_DESCRIPTION" => "N",
-                        "SET_LAST_MODIFIED" => "N",
-                        "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                        "ADD_SECTIONS_CHAIN" => "N",
-                        "HIDE_LINK_WHEN_NO_DETAIL" => "N",
-                        "PARENT_SECTION" => "",
-                        "PARENT_SECTION_CODE" => "",
-                        "INCLUDE_SUBSECTIONS" => "N",
-                        "STRICT_SECTION_CHECK" => "N",
-                        "PAGER_TEMPLATE" => ".default",
-                        "DISPLAY_TOP_PAGER" => "N",
-                        "DISPLAY_BOTTOM_PAGER" => "N",
-                        "PAGER_TITLE" => "Новости",
-                        "PAGER_SHOW_ALWAYS" => "N",
-                        "PAGER_DESC_NUMBERING" => "N",
-                        "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                        "PAGER_SHOW_ALL" => "N",
-                        "PAGER_BASE_LINK_ENABLE" => "N",
-                        "SET_STATUS_404" => "N",
-                        "SHOW_404" => "N",
-                        "MESSAGE_404" => ""
-                ],
-                false
+            "tacticum:content.list",
+            "",
+            [
+                "NEWS_LIST_TEMPLATE" => "team",
+                "IBLOCK_KEY" => "team",
+                "IBLOCK_TYPE" => "company",
+                "NEWS_COUNT" => "3",
+                "SORT_BY1" => "SORT",
+                "SORT_ORDER1" => "ASC",
+                "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "PREVIEW_TEXT", "DETAIL_TEXT", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
+                "PROPERTY_CODE" => ["POSITION", "EMAIL", "LINKEDIN"],
+                "DISPLAY_BOTTOM_PAGER" => "N",
+            ],
+            false
         );
         ?>
 
@@ -326,7 +285,6 @@ tacticum_apply_seo_defaults('/about/', [
     </div>
 </section>
 
-<!-- Tech Stack Section -->
 <div id="stack">
     <section class="py-16">
         <div class="container mx-auto px-4">
@@ -399,15 +357,30 @@ tacticum_apply_seo_defaults('/about/', [
 </div>
 
 <?php
-$tacticumProjectDiscussionCta = [
-    "form_id" => "about-cta",
-    "form_html_id" => "about-cta-form",
-    "field_prefix" => "about",
-];
-include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/project-discussion-cta.php";
+$APPLICATION->IncludeComponent(
+    "tacticum:lead.cta",
+    "",
+    [
+        "TYPE" => "project-discussion",
+        "FORM_ID" => "about-cta",
+        "FORM_HTML_ID" => "about-cta-form",
+        "FIELD_PREFIX" => "about",
+        "TITLE" => "Обсудим задачу с командой Tacticum",
+        "TEXT" => "Расскажите, какой результат нужен бизнесу. Мы подскажем, что лучше начать первым: оценку, discovery, команду или прототип.",
+        "FORM_TITLE" => "Оставить заявку",
+        "BUTTON_TEXT" => "Обсудить задачу",
+        "LEAD_CONTEXT" => [
+            "lead_entry" => "about",
+            "lead_page_role" => "trust-entry",
+            "lead_intent" => "discuss-company-fit",
+            "lead_cta" => "about-cta",
+            "lead_next_step" => "qualification-call",
+        ],
+    ],
+    false
+);
 ?>
 
-<!-- Careers Section -->
 <section id="career-section" class="tacticum-anchor-target py-20">
     <span id="careers" class="tacticum-anchor-alias" aria-hidden="true"></span>
     <div class="container mx-auto px-4">
@@ -507,65 +480,25 @@ include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/project-discu
 
         <?php
         $APPLICATION->IncludeComponent(
-                "bitrix:news.list",
-                "vacancies",
-                [
-                        "COMPONENT_TEMPLATE" => "vacancies",
-                        "IBLOCK_TYPE" => "company",
-                        "IBLOCK_ID" => tacticum_iblock_id('vacancies'),
-                        "NEWS_COUNT" => "0",
-                        "SORT_BY1" => "SORT",
-                        "SORT_ORDER1" => "ASC",
-                        "SORT_BY2" => "ID",
-                        "SORT_ORDER2" => "DESC",
-                        "FILTER_NAME" => "",
-                        "FIELD_CODE" => ["ID","CODE","NAME","SORT","PREVIEW_TEXT","DETAIL_TEXT","IBLOCK_TYPE_ID","IBLOCK_ID"],
-                        "PROPERTY_CODE" => ["TIME","LOCATION","TYPE"],
-                        "CHECK_DATES" => "Y",
-                        "DETAIL_URL" => "",
-                        "AJAX_MODE" => "N",
-                        "AJAX_OPTION_JUMP" => "N",
-                        "AJAX_OPTION_STYLE" => "Y",
-                        "AJAX_OPTION_HISTORY" => "N",
-                        "AJAX_OPTION_ADDITIONAL" => "",
-                        "CACHE_TYPE" => "A",
-                        "CACHE_TIME" => "36000000",
-                        "CACHE_FILTER" => "N",
-                        "CACHE_GROUPS" => "Y",
-                        "PREVIEW_TRUNCATE_LEN" => "",
-                        "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                        "SET_TITLE" => "N",
-                        "SET_BROWSER_TITLE" => "N",
-                        "SET_META_KEYWORDS" => "N",
-                        "SET_META_DESCRIPTION" => "N",
-                        "SET_LAST_MODIFIED" => "N",
-                        "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                        "ADD_SECTIONS_CHAIN" => "N",
-                        "HIDE_LINK_WHЕН_NO_DETAIL" => "N",
-                        "PARENT_SECTION" => "",
-                        "PARENT_SECTION_CODE" => "",
-                        "INCLUDE_SUBSECTIONS" => "N",
-                        "STRICT_SECTION_CHECK" => "N",
-                        "PAGER_TEMPLATE" => ".default",
-                        "DISPLAY_TOP_PAGER" => "N",
-                        "DISPLAY_BOTTOM_PAGER" => "N",
-                        "PAGER_TITLE" => "Новости",
-                        "PAGER_SHOW_ALWAYS" => "N",
-                        "PAGER_DESC_NUMBERING" => "N",
-                        "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                        "PAGER_SHOW_ALL" => "N",
-                        "PAGER_BASE_LINK_ENABLE" => "N",
-                        "SET_STATUS_404" => "N",
-                        "SHOW_404" => "N",
-                        "MESSAGE_404" => ""
-                ],
-                false
+            "tacticum:content.list",
+            "",
+            [
+                "NEWS_LIST_TEMPLATE" => "vacancies",
+                "IBLOCK_KEY" => "vacancies",
+                "IBLOCK_TYPE" => "company",
+                "NEWS_COUNT" => "0",
+                "SORT_BY1" => "SORT",
+                "SORT_ORDER1" => "ASC",
+                "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "PREVIEW_TEXT", "DETAIL_TEXT", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
+                "PROPERTY_CODE" => ["TIME", "LOCATION", "TYPE"],
+                "DISPLAY_BOTTOM_PAGER" => "N",
+            ],
+            false
         );
         ?>
     </div>
 </section>
 
-<!-- CTA Section -->
 <section class="py-20 bg-gradient-to-r from-secondary to-primary text-white">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center">
@@ -590,4 +523,4 @@ include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/project-discu
     </div>
 </section>
 
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php"); ?>
+<?php require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>

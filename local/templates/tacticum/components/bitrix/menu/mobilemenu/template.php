@@ -6,11 +6,13 @@ $menuTree = $arResult['MENU_TREE'];
 ?>
 
 <?if (!empty($menuTree)){?>
-    <div id="tacticum-mobile-menu" class="fixed inset-0 bg-secondary/95 z-50 flex flex-col items-center justify-center transform translate-x-full transition-transform duration-300">
+    <div id="tacticum-mobile-menu"
+         class="fixed inset-0 min-h-dvh bg-secondary/95 z-50 flex flex-col items-center justify-start overflow-y-auto transform translate-x-full transition-transform duration-300 px-6 py-20"
+         aria-hidden="true">
         <button type="button" class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center cursor-pointer text-white tacticum-mobile-menu-close" aria-label="Закрыть меню">
             <i class="ri-close-line text-2xl"></i>
         </button>
-        <nav class="flex flex-col items-center space-y-6 text-xl">
+        <nav class="flex flex-col items-center gap-5 sm:gap-6 text-xl" aria-label="Мобильное меню">
             <?foreach($menuTree as $arItem):?>
                 <?if ($arItem["PERMISSION"] > "D"):?>
                     <?php
@@ -19,13 +21,13 @@ $menuTree = $arResult['MENU_TREE'];
                     $itemTextEsc = htmlspecialcharsbx($arItem["TEXT"]);
                     $isActive = ($curPage === $itemLink);
                     ?>
-                    <div class="flex flex-col items-center">
+                    <div class="flex flex-col items-center text-center">
                         <a href="<?=$itemLinkEsc?>"
                            class="<?=($isActive ? 'text-primary ' : 'text-white ')?>hover:text-primary transition-colors">
                             <?=$itemTextEsc?>
                         </a>
                         <?if (!empty($arItem["CHILDREN"])):?>
-                            <div class="mt-3 flex flex-col items-center space-y-3 text-base">
+                            <div class="mt-2 flex flex-col items-center gap-2.5 text-base">
                                 <?foreach($arItem["CHILDREN"] as $child):?>
                                     <?if ($child["PERMISSION"] > "D"):?>
                                         <?php
@@ -46,8 +48,8 @@ $menuTree = $arResult['MENU_TREE'];
                 <?endif;?>
             <?endforeach;?>
         </nav>
-        <div class="mt-12">
-            <button class="bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap tacticum-contact-btn">Связаться с нами</button>
+        <div class="mt-10 mb-4">
+            <button type="button" class="bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap tacticum-contact-btn">Связаться с нами</button>
         </div>
     </div>
 <?}?>

@@ -1,9 +1,8 @@
 <?
-$GLOBALS['TACTICUM_BODY_CLASS'] = 'bg-gray-50 font-sans';
-
 include_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/urlrewrite.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
 
+$APPLICATION->SetPageProperty('tacticum_body_class', 'bg-gray-50 font-sans');
 CHTTP::SetStatus('404 Not Found');
 @define('ERROR_404', 'Y');
 
@@ -13,9 +12,9 @@ if (!headers_sent()) {
 
 $APPLICATION->SetTitle('Страница не найдена - Тактикум');
 $APPLICATION->SetPageProperty('description', 'Запрошенная страница не найдена. Перейдите на главную страницу, к услугам, тарифам, AI-калькулятору или контактам Tacticum.');
-$APPLICATION->AddHeadString('<meta name="robots" content="noindex,nofollow">', true);
+tacticum_add_robots_meta('noindex,nofollow');
 
-require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/header.php');
+require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_after.php');
 ?>
 
 <main class="pt-24 bg-gray-50">

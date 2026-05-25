@@ -1,35 +1,35 @@
 <?php
 
-if (!function_exists('buildMenuTree')) {
-    function buildMenuTree(array $menu, array $mainMenuTitles): array
+if (!function_exists('tacticum_build_menu_tree')) {
+    function tacticum_build_menu_tree(array $menu): array
     {
         $tree = [];
-        $parents = [];
+        $stack = [];
 
-        foreach ($menu as $key => &$item) {
-            $item['CHILDREN'] = [];
-            $parents[$item['DEPTH_LEVEL']][$key] = &$item;
-
-            if ($item['DEPTH_LEVEL'] == 1) {
-                $tree[$key] = &$item;
-            } else {
-                $parentLevel = $item['DEPTH_LEVEL'] - 1;
-                end($parents[$parentLevel]);
-                $parentKey = key($parents[$parentLevel]);
-                if (isset($parents[$parentLevel][$parentKey])) {
-                    $parents[$parentLevel][$parentKey]['CHILDREN'][] = &$item;
-                }
+        foreach ($menu as $sourceItem) {
+            if (!is_array($sourceItem)) {
+                continue;
             }
-        }
 
-        foreach ($tree as &$node) {
-            if (!empty($node['CHILDREN'])) {
-                $node['CHILDREN'] = array_filter(
-                    $node['CHILDREN'],
-                    function ($child) use ($mainMenuTitles) {
-                        return !in_array($child['TEXT'], $mainMenuTitles);
-                    }
-                );
+            $level = max(1, (int)($sourceItem['DEPTH_LEVEL'] ?? 1));
+            $item = $sourceItem;
+            $item['CHILDREN'] = [];
+
+            if ($level === 1 || !isset($stack[$level - 1])) {
+                $tree[] = $item;
+                $lastKey = array_key_last($tree);
+                $stack = [1 => &$tree[$lastKey]];
+                continue;
+            }
+
+            $stack[$level - 1]['CHILDREN'][] = $item;
+            $lastChildKey = array_key_last($stack[$level - 1]['CHILDREN']);
+            $stack[$level] = &$stack[$level - 1]['CHILDREN'][$lastChildKey];
+
+            foreach (array_keys($stack) as $stackLevel) {
+                if ($stackLevel > $level) {
+                    unset($stack[$stackLevel]);
+                }
             }
         }
 

@@ -71,7 +71,7 @@
 | SEO-006 | closed | P2 | Social preview | Production rendered smoke подтвердил Twitter Card, OG image dimensions/type, page-specific images и `og-default.jpg` fallback |
 | SEO-007 | closed | P2 | Sitemap governance | Static и dynamic sitemap governance закрыты гибридной моделью: repo-owned root `sitemap.xml`, Bitrix-generated `sitemap-basic-files.xml`, custom `/offer/sitemap.php`; `seo:check:prod` проверяет sitemap/robots/canonical inventory/HTTPS/lastmod, forbidden locs, JSON endpoint noindex headers и unique locs в `/offer/sitemap.php` |
 | SEO-008 | closed | P2 | Service endpoint indexing | Production checks подтвердили `X-Robots-Tag: noindex, nofollow` на JSON endpoints |
-| SEO-009 | accepted | P3 | Internal linking | Money pages остаются дочерними пунктами `Услуги` через `services/.top.menu_ext.php`, чтобы не перегружать header; `npm run seo:check` контролирует `/price/`, `/calculator/`, `/aiagents/` в top menu structure |
+| SEO-009 | accepted | P3 | Internal linking | Money pages остаются дочерними пунктами `Услуги` через `services/.left.menu.php`, footer menu и блок `Наши услуги`, чтобы не перегружать header; `npm run seo:check` контролирует `/price/`, `/offer/`, `/calculator/`, `/aiagents/` в menu/content structures |
 
 ## Follow-Up Gap Closure — Sprint 08
 
@@ -119,8 +119,73 @@
 | S10-008 | external handoff | Legacy sale aliases inventory | `legacy-sale-alias-consumer-inventory.md` создан; repo scan не нашёл first-party callers, external access logs/CRM inventory до `30.06.2026`, migration plan до `31.08.2026`, final mode runway до `30.09.2026` |
 | S10-009 | done | Rich workers upstream decision | `rich-workers-upstream-readiness-2026-05-24.md` фиксирует: compatible upstream workers contract в repo/docs отсутствует, `staff_sale` остаётся `/tacticum/v1/chat_agent/sale`; будущий switch только через Security / Integration scope |
 | S10-010 | done | CSP report-only baseline | `csp-report-only-baseline-2026-05-24.md` зафиксировал report-only header, отсутствие enforcing CSP и чистый `/contacts/` rendered smoke; goal-level Метрика остаётся S10-004 |
-| S10-011 | done | SEO-009 revalidation | `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; `/price/`, `/calculator/`, `/aiagents/` остаются в rendered navigation, accepted risk не пересматривается без UX scope |
+| S10-011 | done | SEO-009 revalidation | `npm run seo:check`, `npm run seo:check:prod` и `npm run seo:smoke` прошли; `/price/`, `/offer/`, `/calculator/`, `/aiagents/` остаются в rendered navigation, accepted risk не пересматривается без UX scope |
 | S10-012 | done | Offer detail clear-cache routing | Старое `urlrewrite.php` rule не матчило `/offer/<code>/?clear_cache=Y`; после fix и deploy production URL отдаёт 200/self-canonical, `seo:check:prod` проходит |
+
+## Sprint 11 — Public Page Componentization
+
+На 24.05.2026 componentization backlog после challenge структуры сайта закрыт единым Sprint 11 artifact: `docs/workflow/sprints/2026-05-24-sprint-11-componentization.md`.
+
+| ID | Status | Area | Closure |
+|---|---|---|---|
+| S11-001 | done | CTA sections | `personal-offer` и `project-discussion` CTA для `/`, `/calculator/`, `/price/`, `/contacts/`, `/about/`, `/services/` переведены на `tacticum:lead.cta`; старые template includes удалены |
+| S11-002 | done | FAQ sections | Повторяемые FAQ-вызовы на публичных страницах и offer detail переведены на wrapper `tacticum:faq.section` поверх `bitrix:news.list` template `faq` |
+| S11-003 | done | Chat surfaces | Hero chat главной и light chat на `/calculator/`, `/price/` переведены на `tacticum:chat.surface` с сохранением `chat-agent.js` contracts |
+| S11-004 | done | `/aiagents/` | `/aiagents/index.php` стал тонкой split-prolog page entry; основной render flow живёт в `tacticum:aiagents`, assets/body class задаются через page properties |
+| S11-005 | done | Public page integration | Публичные страницы больше не держат повторяемую CTA/FAQ/light-chat разметку; page entries передают только параметры |
+| S11-006 | done | Docs and guards | `current-state`, `gap-analysis`, sprint artifact и static checks обновлены под локальные компоненты |
+
+## Sprint 11 Hardening — Bitrix Component Framework
+
+На 24.05.2026 follow-up challenge Sprint 11 закрыт отдельным hardening backlog: `docs/workflow/sprints/2026-05-24-sprint-11-bitrix-component-hardening.md`.
+
+| ID | Status | Area | Closure |
+|---|---|---|---|
+| S11H-001 | done | Component metadata | Все локальные компоненты `local/components/tacticum/*` имеют `.description.php`, `.parameters.php`, `component.php` |
+| S11H-002 | done | Public content lists | Повторяемые `bitrix:news.list` вызовы в public pages заменены wrapper-компонентом `tacticum:content.list` |
+| S11H-003 | done | Page properties | Public pages с page-specific assets используют split prolog + `SetPageProperty(...)`, а не `TACTICUM_*` globals |
+| S11H-004 | done | FAQ section model | FAQ-вызовы используют semantic `SECTION_KEY`; code-first lookup и numeric fallback централизованы внутри `tacticum:faq.section` |
+| S11H-005 | done | Bitrix param typo | Кириллическая опечатка `INCLUDE_IBLOCK_INТО_CHAIN` удалена и закреплена static guard |
+| S11H-006 | done | Offer catalog service boundary | High-level логика `/offer/` catalog вынесена в `TacticumOfferCatalogService`; старые функции оставлены wrappers |
+| S11H-007 | done | Guards and docs | `seo-check`, ADR-008, `current-state`, `gap-analysis` и sprint artifact обновлены |
+| S11H-008 | done | Static detail pages | `/about/`, `/policies/` и `404.php` переведены на split prolog; `/policies/` использует `tacticum:content.detail`, а policy migration больше не привязана к hardcoded `ELEMENT_ID=515` |
+
+## Sprint 12 — Final Site Hardening, UX And Release Closure
+
+На 24.05.2026 оставшийся external release handoff и новый финальный hardening scope упакованы в Sprint 12: `docs/workflow/sprints/2026-05-24-sprint-12-final-site-hardening.md`.
+
+| ID | Status | Area | Closure Target |
+|---|---|---|---|
+| S12-001 | external handoff | Release sign-off closure | Strict release sign-off после закрытия manual gates без PII evidence |
+| S12-002 | external handoff | Manual success-flow | Staging/controlled production проверка форм, modal, AI chat, prefill и staff-order |
+| S12-003 | external handoff | Staff-sale upstream | Подтверждение rich staff payload в upstream/CRM или controlled fallback |
+| S12-004 | external handoff | Metrika goals | Подтверждение affected goals/events в Яндекс.Метрике без PII |
+| S12-005 | external handoff | Bitrix admin smoke | Authenticated admin panel и public toolbar после deploy/cache refresh |
+| S12-006 | external handoff | Legacy sale aliases inventory | External access logs/CRM inventory до `30.06.2026`, migration plan до `31.08.2026`, runway до `30.09.2026` |
+| S12-007 | done | Top menu | `/services/` больше не подменяет root top menu: children живут в `services/.left.menu.php`, `/offer/` добавлен в dropdown/mobile/footer и блок `Наши услуги` как `Расчет проекта`, top/mobile menu используют `CHILD_MENU_TYPE=left`, `USE_EXT=N`, guard закреплён в `seo:check` |
+| S12-008 | done | Code comments | Бессодержательные comments, commented dead markup/code и временные cleanup notes удалены из production PHP/JS/CSS scope; оставлены docs, compatibility и vendor/license comments |
+| S12-009 | done | `/offer/` UX | `/offer/` list page получил больше воздуха, `bg-gray-50`, белые statistic/filter/cards, увеличенные gaps и mobile-safe метрики карточек |
+| S12-010 | done | Bitrix component framework | Финальный challenge закреплён static guards: thin public entries, local component metadata, no direct `bitrix:*` page calls, menu architecture, chat page assets |
+| S12-011 | done | JS/CSS optimization | `chat-agent.js` подключается только на chat pages через `tacticum_page_assets=chat`; CSS rebuild выполнен; неиспользуемые Google Fonts/Readdy origins удалены |
+| S12-012 | done | Mobile/adaptive | `/offer/` mobile layout доработан; header/menu breakpoint переведён на `lg`, mobile menu стал scroll-safe для landscape, footer grid расширяет длинные контакты до `xl`; browser/visual smoke остаётся post-deploy gate для всех публичных URL |
+| S12-013 | done | Page speed | Убраны внешние font/image origins, remote offer detail background, лишняя загрузка chat JS на non-chat pages; non-hero images получили lazy/async |
+
+Repository closure refresh 25.05.2026: дополнительных repo/code-level gaps не найдено. Повторно прошли `npm run seo:check`, `npm run css:check`, `npm run template-styles:check`, `npm run config:check`, `npm run sale:sunset:check`, `npm run seo:check:prod`, `npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json`, `npm run release:signoff:summary -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json` и `npm run release:signoff:self-test`. `npm run dev:preflight` зафиксировал локальное degraded-состояние без PHP CLI; GitHub PHP 8.4 lint остаётся fallback. Production `visual:smoke:prod` / `browser:smoke:prod` для текущего menu/component пакета остаются post-deploy/cache gate.
+
+## Sprint 13 — Bitrix Framework Hardening
+
+На 25.05.2026 gaps по результатам Bitrix framework challenge закрыты единым Sprint 13 artifact: `docs/workflow/sprints/2026-05-25-sprint-13-bitrix-framework-hardening.md`; архитектурный паттерн зафиксирован в `docs/adr/ADR-009-bitrix-framework-hardening.md`.
+
+| ID | Status | Area | Closure |
+|---|---|---|---|
+| S13-001 | done | `init.php` bootstrap | `init.php` стал тонким include/registration bootstrap; helpers вынесены в `site_helpers.php`, `seo_helpers.php`, `calcrequests_rest.php` |
+| S13-002 | done | `/offer/` cache/service | `/offer/` catalog получил лёгкий `offer_catalog_cache.php`, `TacticumOfferCatalogCache`, `TacticumOfferCatalogRepository`, managed tag/cache dir и очистку после add/update/delete/property-update offer events |
+| S13-003 | done | Component namespace | Локальные component.php больше не объявляют global helper functions; параметры нормализуются через `TacticumComponentParams` |
+| S13-004 | done | FAQ section fallback | Numeric fallback ID вынесены в config example `content.faq_section_fallback_ids`; code-first lookup остаётся основным |
+| S13-005 | done | SEO robots | 404/offer not-found используют общий `tacticum_add_robots_meta(...)` |
+| S13-006 | done | Footer modal | Footer contact modal вынесен в `tacticum:contact.modal` |
+| S13-007 | done | Vendor demos | Public Remixicon demo HTML удалены и закреплены `template-styles:check` |
+| S13-008 | done | Guards/docs | Добавлен `npm run bitrix:check`, подключён в PR/deploy workflow; docs обновлены |
 
 ## Product Gaps
 
@@ -133,7 +198,7 @@
 | PG-005 | closed | P2 | Fast Fix | Legal/consent | Consent-ссылки активных форм ведут на `/policies/` и открываются безопасно | `index.php`, `calculator/index.php`, `contacts/index.php`, `offer/template.php`, `footer.php`, `forms.js` | Legal UX consistency для публичных форм восстановлена | Поддерживать правило в Lead Form Contract и PR checks |
 | PG-006 | closed | P2 | Full Feature | Analytics | Добавлена taxonomy и client-side events для форм, AI chat, prefill, Telegram resolver | `analytics.js`, `forms.js`, `chat-agent.js`, `tg-link-resolver.js`, `docs/workflow/analytics-events.md` | Conversion funnel можно мерить без отправки PII в аналитику | Post-deploy smoke: подтвердить goals в Yandex.Metrika/tag manager |
 | PG-007 | closed | P2 | Full Feature | Content model | Ключи инфоблоков используются публичными страницами через config helper | `local/php_interface/include/tacticum_config.example.php`, `docs/adr/ADR-003-iblock-ids.md`, `tacticum_iblock_id()`, public `IncludeComponent` | Переносимость публичных страниц повышена, numeric public `IBLOCK_ID` устранены | Поддерживать правило в PR checks и не добавлять новые hardcoded IDs |
-| PG-008 | closed | P2 | Full Feature | Layout consistency | Повторяемые CTA/form секции вынесены из публичных страниц в template includes с явными вариантами | `local/templates/tacticum/include/personal-offer-cta.php`, `local/templates/tacticum/include/project-discussion-cta.php`, `index.php`, `calculator/index.php`, `price/index.php`, `contacts/index.php`, `about/index.php`, `services/index.php` | UX-правки повторяемых CTA теперь делаются в одном месте; страницы передают только form config | Поддерживать PR guards и не копировать CTA markup обратно в public pages |
+| PG-008 | closed | P2 | Full Feature | Layout consistency | Повторяемые CTA/form секции вынесены из публичных страниц в локальный компонент `tacticum:lead.cta` с явными вариантами | `local/components/tacticum/lead.cta/`, `index.php`, `calculator/index.php`, `price/index.php`, `contacts/index.php`, `about/index.php`, `services/index.php` | UX-правки повторяемых CTA теперь делаются в одном месте; страницы передают только form config | Поддерживать PR guards и не копировать CTA markup обратно в public pages |
 | PG-009 | closed | P1 | Full Feature | Price staff order | Заказ специалистов на `/price/` переведён из одиночной роли в состав multi-staff заявки с количеством по ролям, суммарной ставкой, persistent summary, быстрыми пресетами команды, segmented-выбором уровня, порядком уровней `Junior -> Middle -> Senior -> Lead`, фильтр-счётчиком, empty state, гибкими пресетами срока, календарём точной даты окончания работ и ориентировочным месячным бюджетом | `news.list/price/template.php`, `news.list/price/result_modifier.php`, `news.list/price/script.js`, `news.list/price/style.css`, `tacticum_sale_staff.php`, `lead-form-contract.md`, `price-staff-order-plan.md` | Пользователь может быстрее подобрать уровень/роль и собрать команду без повторных отдельных заявок; backend сохраняет rich `workers[]`, `team_preset`, `monthly_budget_estimate`, `end_date` и legacy fallback | Post-deploy `npm run browser:smoke`; отдельный ручной valid-submit smoke без боевого лида или на staging |
 | PG-010 | closed | P1 | Fast Fix | Price AI calculator | Light chat на `/price/` больше не растягивает страницу при новых сообщениях; сообщения прокручиваются внутри блока | `styles/global.css`, `tools/visual-smoke.mjs` | Пользователь сохраняет контекст секции, форма ввода остаётся доступной, страница не получает резкий вертикальный рост | Post-deploy `browser:smoke` по `/price/` и `/calculator/` |
 
@@ -157,18 +222,77 @@
 | TG-014 | closed | P2 | Fast Fix | Repository hygiene | `.DS_Store`/cache/backup/IDE files ignored; `tacticum_config.php` убран из Git index и остаётся локальным ignored config | `.gitignore`, `docs/workflow/repository-hygiene.md`, `git ls-files -c -i --exclude-standard` | Риск случайного commit local config/runtime мусора снижен | Поддерживать hygiene check перед PR |
 | TG-015 | closed | P1 | Full Feature | CSS architecture | Browser Tailwind runtime удалён; static Tailwind bundle собирается через npm; dead CSS/JS artifacts удалены; `aiagents.css` слит в scoped-блок `styles/global.css`; generic Remixicon fallback удалён и `ri-*` классы валидируются; добавлен visual smoke и закрыты найденные overflow regressions | `package.json`, `tools/visual-smoke.mjs`, `tools/template-styles-retirement-check.mjs`, `local/templates/tacticum/assets/src/tailwind.css`, `local/templates/tacticum/tailwind.generated.css`, `styles/global.css`, `template_styles.css`, `header.php`, `.github/workflows/pr-check.yml`, `asset-layout-audit.md` | FOUC/no-JS риск снижен, CSS utilities воспроизводимы локально и в CI; CSS-local smoke поддерживает единый manual runtime CSS file `styles/global.css`, icon classes больше не маскируются generic fallback | После deploy выполнить `npm run visual:smoke` без CSS injection как обычный post-deploy gate |
 | TG-016 | closed | P1 | Full Feature | Layout contracts | URL/text-based presentation и behavior убраны из затронутых мест | `faq/template.php`, `aiagents/index.php`, `modal.js`, `scroll.js`, `.github/workflows/pr-check.yml` | Компоненты меньше зависят от текущего URL и текста кнопок, риск случайного поведения ниже | Поддерживать explicit component params и data-* contracts в PR checks |
-| TG-017 | closed | P1 | Full Feature | JS-owned markup | Specialist modal markup перенесён из JS в Bitrix component template; repeated CTA sections вынесены в template includes | `news.list/price/template.php`, `news.list/price/script.js`, `modal.js`, `local/templates/tacticum/include/personal-offer-cta.php`, `local/templates/tacticum/include/project-discussion-cta.php`, public pages | Заказ специалистов и CTA sections стали ближе к Bitrix component/include pattern; JS больше не владеет крупным modal markup | Поддерживать component/include pattern для новых повторяемых layout blocks |
+| TG-017 | closed | P1 | Full Feature | JS-owned markup | Specialist modal markup перенесён из JS в Bitrix component template; repeated CTA sections вынесены в локальный component `tacticum:lead.cta` | `news.list/price/template.php`, `news.list/price/script.js`, `modal.js`, `local/components/tacticum/lead.cta/`, public pages | Заказ специалистов и CTA sections стали ближе к Bitrix component pattern; JS больше не владеет крупным modal markup | Поддерживать component pattern для новых повторяемых layout blocks |
 | TG-018 | closed | P2 | Fast Fix | Inline markup cleanup | Убраны inline `onclick`, policy `<style>`/`style=`, progress inline widths и form UI inline style mutations; header logo получил `alt` | `about/index.php`, `services/index.php`, `policies/template.php`, `policies/style.css`, `index.php`, `forms.js`, `price/script.js`, `header.php` | HTML/JS стали семантичнее, меньше inline presentation/behavior | Поддерживать guard против inline `onclick`, policy inline styles и form inline style mutations |
 | TG-019 | closed | P1 | Incident / Full Feature | Browser zero-error gate | Initial-load production smoke чистый; `/price/` regression подтверждён как mixed-rollout: legacy HTML без `data-price-*` + новый JS. Исправленный `news.list/price/script.js` поддерживает legacy/new selectors и fallback modal; обычный browser smoke без injection проходит | `tools/visual-smoke.mjs`, `news.list/price/template.php`, `news.list/price/script.js`, `local-public-browser-error-challenge.md`; manifests: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-22T21-13-19-948Z/manifest.json`, `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-23T13-54-52-683Z/manifest.json` | Initial-load browser errors = 0 подтверждён; фильтры/search/order modal на `/price/` проходят desktop/mobile action smoke | Поддерживать `npm run browser:smoke` как post-deploy gate; после новых `/price/` правок проверять team presets/summary |
 | TG-020 | closed | P1 | Security / Integration | REST bootstrap / PII logs | POST endpoints приведены к `validate_origin -> rate_limit -> method -> parse JSON -> CSRF`; файловое runtime-логирование удалено | `rest_helpers.php`, `tacticum_form.php`, `tacticum_chat.php`, `tacticum_prefill.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_sale_staff.php`, `resolve_telegram_link.php` | Большие/битые тела не читаются до guard; пользовательский текст и контакты не пишутся в кастомные файловые логи | Post-deploy REST smoke по chat/form/prefill/sale_staff |
 | TG-021 | closed | P1 | Full Feature | Frontend data contracts | Light chat и price component переведены на явные `data-*` contracts: quick replies используют `data-message`, filters/modal/price state не зависят от presentation selectors | `chat-agent.js`, `calculator/index.php`, `price/index.php`, `news.list/price/template.php`, `news.list/price/script.js`, `.github/workflows/pr-check.yml` | Копирайтинг/CSS refactor больше не должен ломать отправку quick replies, фильтры ставок и модалку заказа специалиста | Поддерживать guard в `pr-check.yml`; покрыть клики отдельным action-smoke в TG-024 |
 | TG-022 | closed | P2 | Security / Integration | Sale endpoint ownership | Upstream `/chat_agent/sale` call, group_id retry and upstream error handling centralized in shared sale adapter; `tacticum_offer.php` and `tacticum_sale.php` remain legacy aliases with preserved response shape, deprecation headers and Sprint 09 sunset matrix | `rest_helpers.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_form.php`, `lead-form-contract.md`, `current-state.md`, `sprints/2026-05-23-sprint-09-overall-gap-closure.md`, `sprints/2026-05-23-sprint-09-sale-sunset-upstream.md` | Будущие изменения sale upstream/retry делаются в одном helper; публичные формы продолжают использовать `tacticum_form.php`, staff-order — `tacticum_sale_staff.php`; внешние consumers видят lifecycle сигнал | Выполнить Sprint 09 matrix: inventory до `30.06.2026`, migration до `31.08.2026`, final alias mode до `30.09.2026` |
-| TG-023 | closed | P2 | Full Feature | Inline/vendor assets / CSP | Yandex Maps constructor вынесен в explicit `yandex_map` asset; Metrika вынесена из inline script в centralized template asset `js/metrika.js`; noscript pixel использует CSS class | `contacts/index.php`, `header.php`, `js/yandex-map.js`, `js/metrika.js`, `styles/global.css`, `asset-layout-audit.md` | Карта и Метрика больше не живут inline в public page/header script block; будущий CSP проще строить вокруг `self` и vendor domains | При введении CSP явно разрешить `https://mc.yandex.ru` и проверить цели Метрики после deploy |
+| TG-023 | closed | P2 | Full Feature | Inline/vendor assets / CSP | `/contacts/` использует Yandex map widget iframe без constructor script; Metrika вынесена из inline script в centralized template asset `js/metrika.js`; noscript pixel использует CSS class | `contacts/index.php`, `header.php`, `js/yandex-map.js`, `js/metrika.js`, `styles/global.css`, `asset-layout-audit.md` | Карта и Метрика больше не живут inline в public page/header script block; будущий CSP проще строить вокруг `self` и vendor domains | При введении CSP явно разрешить Yandex map widget/Метрику и проверить карту и цели Метрики после deploy |
 | TG-024 | closed | P2 | Full Feature | Browser action smoke | Добавлен `browser:smoke` поверх `visual:smoke`: non-network actions кликают меню, contact modal, empty form validation, empty chat send, price filters/search/empty-state/level и specialist modal | `tools/visual-smoke.mjs`, `package.json`, `post-deploy-smoke.md`, `local-public-browser-error-challenge.md` | Ошибки обработчиков теперь попадают в browser gate без создания лидов и содержательных AI-запросов | Deploy workflow запускает `browser:smoke`; реальные upstream success-flow по-прежнему проверять ручным/стейдж smoke |
 | TG-025 | closed | P2 | Fast Fix | Agent instruction drift | Agent docs обновлены под static Tailwind и shared REST bootstrap | `.github/copilot-instructions.md`, `.github/agents/frontend-dev.md`, `.github/agents/backend-dev.md`, `.github/agents/designer.md`, `.github/agents/seo.md` | Новые агенты с меньшей вероятностью вернут удалённые CSS/JS artifacts или старый endpoint bootstrap | Поддерживать `.github/*` при изменении workflow docs |
 | TG-026 | closed | P1 | Full Feature | Iblock content output | Публичные templates инфоблоков и GET API получили общий decode/sanitize path для повторно закодированных HTML entities | `content_helpers.php`, `init.php`, `rest_helpers.php`, `news.list/*/template.php`, `news.detail/*/template.php` | `&nbsp;`, `&amp;nbsp;` и похожие служебные последовательности больше не должны попадать в пользовательский интерфейс из контента инфоблоков | После deploy проверить FAQ/cases/services/offer/policies и выполнить visual smoke без injection |
 | TG-027 | closed | P1 | Security / Integration | Deploy smoke gate | Post-deploy visual/browser smoke встроен в `deploy.yml`; runner ищет Chrome/Chromium на macOS/Linux; добавлены production smoke npm aliases | `.github/workflows/deploy.yml`, `tools/visual-smoke.mjs`, `package.json`, `post-deploy-smoke.md` | Релиз с browser runtime errors, broken images, horizontal overflow или сломанными `/price/` actions не должен пройти deploy gate | Следить за длительностью deploy; если появится staging environment, параметризовать base URL |
 | TG-028 | closed | P2 | Full Feature | CSS retirement governance | Legacy `template_styles.css` выведен в comment-only shim: active CSS перенесён в `styles/global.css`, подключён через `Asset`, добавлен `template-styles:check` и CI/deploy guard; отдельные template-level CSS и generic icon fallbacks запрещены | `template-styles-retirement-plan.md`, `static-css-build-plan.md`, `asset-layout-audit.md`, `styles/global.css`, `template_styles.css`, `tools/template-styles-retirement-check.mjs`, `.github/workflows/pr-check.yml` | Active CSS больше не живёт в implicit Bitrix template file; generated utilities не дублируются; возврат правил в shim и маскировка битых иконок блокируются автоматикой | Дальнейший cleanup — component/page extraction из `styles/global.css` малыми партиями после чистого post-deploy smoke |
+| TG-029 | closed | P2 | Full Feature | Bitrix framework hardening | Sprint 13 закрыл residual Bitrix framework gaps: thin `init.php`, local component namespace cleanup, `/offer/` repository/cache invalidation, footer modal component, config-based FAQ fallback и architecture guard | `init.php`, `site_helpers.php`, `seo_helpers.php`, `component_helpers.php`, `calcrequests_rest.php`, `offer_catalog.php`, `offer_catalog_cache.php`, `local/components/tacticum/contact.modal/`, `tools/bitrix-architecture-check.mjs`, `.github/workflows/pr-check.yml`, `.github/workflows/deploy.yml` | Runtime стал ближе к Bitrix best practice: bootstrap не смешан с бизнес-логикой, повторяемая форма стала компонентом, offer catalog cache сбрасывается по событиям инфоблока и отдельным изменениям свойств, регрессии ловятся static guard | Поддерживать `npm run bitrix:check`; при следующем крупном `/offer/` scope можно дальше сокращать compatibility wrappers |
+| TG-030 | closed as operational guard | P1 | Full Feature | Known gap closure governance | Sprint 14 закрепил известный хвост как машинно проверяемый список: code-level open gaps = 0, external gates видны через `gaps:known`, pending gates требуют `due`, release checker self-test расширен | `tools/known-gaps-check.mjs`, `package.json`, `release-signoff-check.mjs`, `release-signoff-2026-05-24-post-deploy.draft.json`, `release-signoff-gates.md`, `sprints/2026-05-25-sprint-14-known-gap-operational-closure.md` | Нельзя потерять или устно "закрыть" external gates без owner/due/evidence; финальное закрытие проверяется strict release sign-off и `gaps:known:strict` | External gates всё ещё требуют внешних доступов: Метрика, Bitrix auth, CRM/upstream, access logs и post-deploy smoke после cache refresh |
+
+## Sprint 14 — Known Gap Operational Closure
+
+На 25.05.2026 известных code-level `open` / `in-progress` gaps нет. Известный хвост доработан как operational closure scope: `docs/workflow/sprints/2026-05-25-sprint-14-known-gap-operational-closure.md`.
+
+| ID | Status | Area | Closure |
+|---|---|---|---|
+| S14-001 | done | Known gaps visibility | Добавлен `npm run gaps:known`; команда показывает code-level gaps, pending release gates, legacy inventory pending rows и post-deploy/cache smoke хвост |
+| S14-002 | done | Pending gate discipline | `release:signoff:draft-check` требует `due` у `pending` gates; текущий draft release sign-off обновлён |
+| S14-003 | done | Checker regression | `release:signoff:self-test` расширен негативным кейсом на pending gate без `due` |
+| S14-004 | external handoff | External evidence | `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream`, legacy access logs/CRM inventory и post-deploy smoke остаются внешними gates с owner/due/evidence rules |
+
+Template asset hygiene refresh 25.05.2026: аудит `local/templates/tacticum/fonts`, `images`, `include` закрыт кодом и guard-ами. Пустой template `include/` удалён, Tailwind source scan очищен, неиспользуемый Pacifico и публичные RemixIcon source/archive artifacts удалены, dead image duplicates удалены, favicon/webmanifest PNG приведены к точным размерам, а `template-styles:check` блокирует возврат этих artifacts и регресс размеров favicon/apple/android PNG.
+
+## Sprint 15 — Product Marketing Architecture
+
+На 25.05.2026 product/marketing gaps `PMG-001` - `PMG-010` закрыты кодом и документацией в Sprint 15: `docs/workflow/sprints/2026-05-25-sprint-15-product-marketing-architecture.md`.
+Локальные automated checks прошли, включая SEO/static guards, CSS build/check, Bitrix architecture check, browser smoke, price smoke, CSS-local visual/action smoke и production SEO check. PHP CLI в локальном окружении отсутствует, поэтому PHP lint остаётся CI/deploy fallback.
+
+| ID | Status | Area | Closure |
+|---|---|---|---|
+| S15-001 | done | Positioning / home | Главная hero формулирует business outcome и ведёт в 4 входа: `/offer/`, `/services/`, `/price/`, `/aiagents/` |
+| S15-002 | done | Product ladder | Product ladder отражён в route cards, page intros, service cross-links и labels меню |
+| S15-003 | done | `/price/` | `/price/` продаёт управляемую команду под задачу, сохраняя ставки, filters, presets, modal и `data-price-*` contracts |
+| S15-004 | done | `/offer/` conversion | Catalog/detail объясняют, что пример не является финальной сметой, и ведут к персональной оценке с контекстом примера |
+| S15-005 | done | `/calculator/` | Страница показывает формат результата: бюджет, сроки, команда, риски и next step |
+| S15-006 | done | Proof system | Спорные claims `98%`, `15+ лет`, “гарантия результата” удалены или переписаны в безопасные формулировки |
+| S15-007 | done | `/aiagents/` | Страница приведена к B2B-service tone: демо Telegram-сценария, прототип, интеграции и связь с `/services/` |
+| S15-008 | done | CTA taxonomy | CTA получили page-specific promise, stable `form_id`, hidden `lead_*` context и next-step copy |
+| S15-009 | done | Segmentation | Industry/scenario входы реализованы через существующие `/offer/catalog/...` states, которые остаются `noindex,follow` и canonical `/offer/` |
+| S15-010 | done | Lead qualification | Shared CTA добавил optional `lead_budget` / `lead_timeline`; backend append-ит allowlisted context в существующий `task` без нового upstream contract |
+| S15-011 | automated checks passed | Smoke gates | Static/browser/SEO checks прошли; post-deploy smoke после deploy/cache refresh обязателен перед закрытием release evidence |
+
+External gates из Sprint 14 остаются отдельным хвостом: Метрика, Bitrix auth, CRM/upstream, access logs и post-deploy release sign-off evidence.
+
+## Sprint 16 — Final Stabilization Closure
+
+Финальный challenge 25.05.2026 зафиксирован в `docs/workflow/final-stabilization-challenge-gap-analysis-2026-05-25.md`.
+
+Вывод challenge: сайт близок к целевому состоянию. Sprint 16 локально закрыл code/docs gaps по карте `/contacts/`, contrast offer detail, calculator/price chat-to-lead handoff, CTA image trust, proof matrix, SEO/CSP decisions и contact/legal hierarchy. Сайт всё ещё нельзя считать полностью стабилизированным до production deploy/cache smoke, real success-flow/staff upstream evidence и подтверждения Metrika goals.
+
+Новый спринт на команду: `docs/workflow/sprints/2026-05-25-sprint-16-final-stabilization-closure.md`.
+
+| ID | Status | Priority | Area | Closure Target |
+|---|---|---|---|---|
+| FSC-001 | closed | P1 | `/contacts/` map correctness | Wrong placeholder/constructor state removed; Yandex map widget iframe points to `Тактикум` (`oid=243968538014`), `БЦ Victory Park` is a landmark, legal address is separate |
+| FSC-002 | closed | P1 | Offer detail estimate contrast | `/offer/<code>/` estimate block now has explicit gradient background and `text-white` |
+| FSC-003 | external handoff | P1 | Deploy/cache smoke | Deploy workflow hardened for `--delete`, menu cache clear and real draft sign-off; production deploy/cache smoke still required |
+| FSC-004 | external handoff | P1 | Real success-flow / staff upstream | Формы, чат, prefill и staff-order требуют staging/controlled evidence без PII |
+| FSC-005 | closed | P1 | Calculator/price chat-to-lead handoff | Light chat surfaces передают safe summary/scoped `group_id` в целевую CTA form без PII analytics |
+| FSC-006 | external handoff | P1 | Metrika goals | Affected form/chat/staff-order goals требуют подтверждения в Яндекс.Метрике без PII params |
+| FSC-007 | closed | P2 | CTA image trust | Generic `specialoffer.jpg` suppressed by default; personal-offer CTA supports no-image form-only layout |
+| FSC-008 | closed | P2 | Proof evidence matrix | `docs/workflow/proof-claims-matrix.md` фиксирует allowed proof, source rules и forbidden formulations; runtime numeric claims removed |
+| FSC-009 | accepted | P2 | Industry/scenario SEO decision | Accepted noindex strategy documented; indexable cluster pages are future SEO scope |
+| FSC-010 | accepted | P2 | CSP target-state decision | Report-only accepted as stabilization target; enforce remains future Security / Integration rollout |
+| FSC-011 | accepted | P3 | Local PHP CLI | Локальный PHP CLI отсутствует; GitHub PHP 8.4 lint остаётся authoritative fallback |
+| FSC-012 | closed | P2 | Contact/legal content hierarchy | `/contacts/` CTA moved before legal details; legal/trust copy remains available below |
 
 ## Recommended First Sprint
 

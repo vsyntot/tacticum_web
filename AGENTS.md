@@ -11,8 +11,8 @@
 
 - `local/api/` — публичные GET JSON endpoints по инфоблокам;
 - `local/rest/` — POST endpoints форм, чата, AI-интеграций;
-- `local/php_interface/init.php` — Bitrix REST методы `calcrequests.*`;
-- `local/php_interface/include/` — проектные include-файлы и конфиг;
+- `local/php_interface/init.php` — тонкий Bitrix bootstrap/registration;
+- `local/php_interface/include/` — проектные include-файлы, `calcrequests.*`, helpers и конфиг;
 - `local/templates/tacticum/` — активный шаблон, JS, CSS, компоненты;
 - публичные разделы: `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`.
 

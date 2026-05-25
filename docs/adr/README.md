@@ -17,6 +17,9 @@
 | [ADR-004](ADR-004-pii-masking.md) | PII маскируется до записи в лог | ✅ Принято | 2025 |
 | [ADR-005](ADR-005-vendor-analytics-assets.md) | Vendor analytics assets и CSP readiness | ✅ Принято | 2026 |
 | [ADR-006](ADR-006-ai-sale-endpoint-paths.md) | AI sale endpoint paths через config | ✅ Принято | 2026 |
+| [ADR-007](ADR-007-offer-section-component.md) | Offer section component pattern | ✅ Принято | 2026 |
+| [ADR-008](ADR-008-public-page-local-components.md) | Public page local components | ✅ Принято | 2026 |
+| [ADR-009](ADR-009-bitrix-framework-hardening.md) | Bitrix framework hardening pattern | ✅ Принято | 2026 |
 
 ## Статусы
 

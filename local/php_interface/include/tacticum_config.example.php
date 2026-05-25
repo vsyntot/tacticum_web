@@ -26,6 +26,17 @@ return [
             'services' => 300,
         ],
     ],
+    'content' => [
+        'faq_section_fallback_ids' => [
+            'home' => 17,
+            'main' => 17,
+            'aiagents' => 18,
+            'calculator' => 19,
+            'offer' => 19,
+            'services' => 20,
+            'price' => 21,
+        ],
+    ],
     'ai' => [
         'endpoint_paths' => [
             'chat_agent_sale' => '/tacticum/v1/chat_agent/sale',

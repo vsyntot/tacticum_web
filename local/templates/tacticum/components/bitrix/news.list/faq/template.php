@@ -21,7 +21,6 @@ if ($sectionClass === "") {
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
                     ?>
                     <?php
-                    // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
                     $faqTitle = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                     $faqAnswerRaw = (string)($arItem["~DETAIL_TEXT"] ?? $arItem["DETAIL_TEXT"] ?? "");
                     $faqAnswer = tacticum_sanitize_iblock_html($faqAnswerRaw);

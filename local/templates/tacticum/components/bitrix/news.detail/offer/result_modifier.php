@@ -16,5 +16,3 @@ if (!empty($arResult) && $arResult["IBLOCK_SECTION_ID"] > 0) {
         $arResult["~SECTION_NAME"] = $arSection["~NAME"];
     }
 }
-
-// $this->__component->arResultCacheKeys = array_merge($this->__component->arResultCacheKeys, array('ID', 'IBLOCK_SECTION_ID', 'PROPERTIES'));

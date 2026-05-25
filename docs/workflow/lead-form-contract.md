@@ -34,6 +34,18 @@
 | `company` | string | Опционально, не длиннее 200 символов |
 | `form_id` | string | Идентификатор формы для аналитики, маршрутизации и QA |
 | `group_id` | string | Контекст AI offer/prefill, не длиннее 64 символов |
+| `lead_entry` | enum/string | Safe source context: `home`, `services`, `price`, `calculator`, `offer-detail`, `aiagents`, `contacts`, etc. |
+| `lead_page_role` | enum/string | Роль страницы в funnel: router, implementation-entry, team-entry, estimate-entry, etc. |
+| `lead_intent` | enum/string | Неперсональный intent пользователя, например `build-managed-team` |
+| `lead_cta` | enum/string | CTA source, обычно совпадает с `form_id` |
+| `lead_next_step` | enum/string | Ожидаемый следующий шаг sales/PM |
+| `lead_product` | enum/string | Опциональный продуктовый вход, если нужен |
+| `lead_scenario` | enum/string | Сценарий/тип задачи, не пользовательский free text |
+| `lead_industry` | enum/string | Отрасль/sector из offer catalog или контролируемого списка |
+| `lead_budget` | enum/string | Мягкая квалификация бюджета: `up-to-1m`, `1-3m`, `3-7m`, `7m-plus` или safe label из offer |
+| `lead_timeline` | enum/string | Мягкая квалификация срока: `asap`, `1-2-months`, `3-6-months`, `6-plus-months` или safe label из offer |
+| `lead_offer_code` | string | Код offer detail, если форма отправляется с `/offer/<code>/` |
+| `lead_offer_title` | string | Заголовок offer example, если форма отправляется с detail page |
 | `specialist` | string | Заказ специалиста через `tacticum_sale_staff.php` |
 | `rate` | string | Заказ специалиста через `tacticum_sale_staff.php` |
 | `duration` | string | Заказ специалиста через `tacticum_sale_staff.php` |
@@ -46,6 +58,10 @@
 | `workload` | string | Формат загрузки: `flexible`, `part-time`, `full-time` |
 | `team_preset` | string | Опциональный пресет команды на `/price/`: `mvp`, `discovery`, `support`, `qa-burst` |
 | `monthly_budget_estimate` | string/number | Ориентировочный месячный бюджет, рассчитанный на frontend по ставке, количеству и загрузке |
+
+Обычные CTA формы могут содержать optional qualification controls `lead_budget` и `lead_timeline`. Они не обязательны и не должны называться `budget`, `timeline`, `duration`, `rate` или `specialist`, чтобы не конфликтовать с legacy/staff-order веткой. `/local/rest/tacticum_form.php` allowlist-ит `lead_*` context, ограничивает служебный блок и добавляет его внутрь существующего upstream поля `task`. Response shape и upstream endpoint path не меняются.
+
+Light chat handoff на `/calculator/` и `/price/` использует существующий `group_id` / prefill contract без новых upstream fields. После успешного AI-ответа пользователь может передать вводные в CTA: frontend пробует `POST /local/rest/tacticum_prefill.php` с `group_id + sessid`, заполняет только целевую CTA форму внутри `#contact-form`, сохраняет `group_id` в `form.dataset.tacticumOfferGroupId` и не пишет текст сообщения в analytics params. `forms.js` добавляет scoped `group_id` только для этой формы; глобальный `window.tacticum_offer_context` остаётся compatibility path для hero chat и не применяется к формам без `lead_*` context.
 
 Форма `price-specialist` на `/price/` должна использовать `data-endpoint="/local/rest/tacticum_sale_staff.php"`. Этот endpoint сохраняет доменную модель заказа сотрудников (`workers[]`, `start_date`, `end_date`, `worker_timeline`, `workload`, `cost_per_hour`, `amount_of_workers`, `team_preset`, `monthly_budget_estimate`) и временно адаптирует её в `HotSaleRequestDTO` для `/tacticum/v1/chat_agent/sale`. Отдельный `/tacticum/v1/sale/workers` в актуальном OpenAPI отсутствует.
 
@@ -71,11 +87,24 @@ AI sale path берётся из config `ai.endpoint_paths.*`: обычные л
 | `calculator-cta` | CTA форма на `/calculator/` |
 | `price-cta` | CTA форма на `/price/` |
 | `price-specialist` | Модалка заказа специалиста на `/price/` |
+| `contacts-cta` | CTA форма на `/contacts/` |
 | `offer-cta` | CTA форма на `/offer/` / detail offer template |
 | `aiagents-inline` | Inline форма на `/aiagents/` |
 | `contact-modal` | Общая модальная форма из footer |
 
 Правило для новых форм: `page-or-context-purpose`, например `contacts-cta` или `service-detail-cta`. Не переиспользовать один `form_id` для разных пользовательских сценариев.
+
+## Sprint 15 CTA Taxonomy
+
+| Page / context | `form_id` | Primary promise | Context |
+|---|---|---|---|
+| `/` | `home-cta` | Получить следующий шаг после выбора commercial entry | `lead_entry=home`, `lead_page_role=main-router` |
+| `/services/` | `services-cta` | Обсудить внедрение AI-решения | `lead_entry=services`, `lead_page_role=implementation-entry` |
+| `/price/` | `price-cta` | Подобрать команду под задачу | `lead_entry=price`, `lead_page_role=team-entry` |
+| `/calculator/` | `calculator-cta` | Уточнить предварительную оценку | `lead_entry=calculator`, `lead_page_role=estimate-entry` |
+| `/contacts/` | `contacts-cta` | Направить обращение к нужному следующему шагу | `lead_entry=contacts`, `lead_page_role=contact-entry` |
+| `/offer/<code>/` | `offer-cta` | Получить персональную оценку по похожей задаче | `lead_entry=offer-detail`, `lead_offer_code`, `lead_offer_title` |
+| `/aiagents/` | `aiagents-inline` | Запросить бот-прототип | `lead_entry=aiagents`, `lead_page_role=telegram-bot-entry` |
 
 ## Consent И CSRF
 
@@ -97,6 +126,11 @@ AI sale path берётся из config `ai.endpoint_paths.*`: обычные л
   "message": "Нужна консультация по внедрению AI.",
   "page_url": "https://tacticum.ru/calculator/",
   "form_id": "calculator-cta",
+  "lead_entry": "calculator",
+  "lead_page_role": "estimate-entry",
+  "lead_intent": "clarify-budget-timeline-team",
+  "lead_budget": "3-7m",
+  "lead_timeline": "3-6-months",
   "sessid": "bitrix-session-token"
 }
 ```
@@ -114,6 +148,8 @@ AI sale path берётся из config `ai.endpoint_paths.*`: обычные л
 ```
 
 Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call and retry policy. `tacticum_offer.php` and `tacticum_sale.php` are legacy aliases: they preserve response shape, but return `Deprecation`, `Sunset` target `30.09.2026` and `Link: rel="successor-version"` headers pointing to `/local/rest/tacticum_form.php`. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
+
+For default lead forms, allowlisted `lead_*` fields are appended to upstream `task` as a short `Контекст заявки` block. Unknown request fields are not forwarded. Contact data and free-form `message` remain subject to existing validation and masking/logging rules.
 
 `tacticum_sale_staff.php` возвращает тот же формат успешного ответа. Если передан `workers_json` / `workers`, endpoint валидирует до 20 позиций и суммарно до 100 специалистов; legacy-поля `specialist`, `level`, `rate`, `amount_of_workers` остаются fallback для одиночного заказа. Детали состава команды, выбранный пресет и ориентировочный месячный бюджет передаются upstream внутри `task`; файловое runtime-логирование payload/response в кастомном коде отключено.
 
@@ -146,6 +182,9 @@ Frontend не должен показывать пользователю raw ups
 - Отсутствующий или неправильный `sessid` без разрешённого browser source: endpoint возвращает `403 invalid_csrf`.
 - Невалидный JSON: endpoint возвращает `400 invalid_json`.
 - Слишком длинные `name`, `company`, `message`, `page_url`, `group_id`: endpoint возвращает `400 validation_error`.
+- Optional `lead_budget` / `lead_timeline` на shared CTA: форма отправляется без обязательности этих полей; backend добавляет человекочитаемый context в `task`, если значения выбраны.
+- Offer detail context: `offer-cta` отправляет `lead_offer_code`, `lead_offer_title`, safe industry/scenario/budget/timeline context; analytics events не содержат эти values.
+- Calculator/price light chat handoff: после AI-ответа кнопка handoff заполняет CTA message, скроллит к `#contact-form`, сохраняет scoped `group_id` на форме и отправляет analytics `tacticum_chat_lead_handoff` только с boolean flags.
 - Prefilled chat form with a valid lead payload but upstream failure on `group_id`: endpoint retries without `group_id` and returns success if the plain lead is accepted.
 - Specialist order с `/price/`: форма отправляется в `/local/rest/tacticum_sale_staff.php`, `workers[]` валидируется backend-ом, adapter отправляет заявку в config-driven `ai.endpoint_paths.staff_sale`, файловое runtime-логирование payload/response отключено.
 - Multi-staff order с `/price/`: пользователь добавляет несколько ролей/уровней, меняет количество, frontend отправляет `workers_json`, backend формирует `workers[]` и текстовое резюме команды в `task`.

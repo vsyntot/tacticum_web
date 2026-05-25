@@ -19,8 +19,11 @@ jobs:
           php-version: "8.4"
           coverage: none
 
-      - name: Проверка синтаксиса — local/
-        run: find local/ -name "*.php" -print0 | xargs -0 -n1 php -l
+      - name: Проверка синтаксиса — local/ и публичные PHP
+        run: |
+          find local/ -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+          find . -maxdepth 1 -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+          find about services contacts calculator price offer aiagents policies -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
 
   css-build:
     name: 🎨 Static CSS Build Check
@@ -56,8 +59,10 @@ jobs:
           node --check tools/release-signoff-self-test.mjs
           node --check tools/config-contract-check.mjs
           node --check tools/legacy-sale-sunset-check.mjs
+          node --check tools/bitrix-architecture-check.mjs
           npm run config:check
           npm run seo:check
+          npm run bitrix:check
           npm run sale:sunset:check
           npm run release:signoff:check -- docs/workflow/release-signoff.example.json
           npm run release:signoff:self-test
@@ -320,7 +325,7 @@ jobs:
             echo "✅ FAQ presentation is parameter-driven."
           fi
 
-          RESULT=$(grep -RInE --include='*.php' 'onclick=' index.php about services calculator contacts offer aiagents policies price local/templates/tacticum)
+          RESULT=$(grep -RInE --include='*.php' 'onclick=' index.php about services calculator contacts offer aiagents policies price local/components local/templates/tacticum)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: Inline onclick handlers are not allowed in public/template markup."
             echo "$RESULT"

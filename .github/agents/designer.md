@@ -106,7 +106,7 @@ QA/Reviewer
 
 ### Шрифты
 - Основной: системный `font-sans`
-- Google Fonts подключён в `header.php` (`preconnect`)
+- Декоративный Pacifico подключён локально через self-hosted font files; Google Fonts в runtime header не используется
 
 ---
 

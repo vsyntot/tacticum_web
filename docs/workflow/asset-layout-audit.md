@@ -1,6 +1,6 @@
 # Asset / Layout Audit
 
-Дата: 21.05.2026
+Дата: 25.05.2026
 
 ## Current Asset Loading
 
@@ -17,8 +17,9 @@ Global JS подключается в `local/templates/tacticum/header.php` че
 
 Conditional JS:
 
-- `js/faq.js` подключается через explicit page asset flag `TACTICUM_PAGE_ASSETS = ['faq']`;
-- `js/charts.js` подключается через explicit page asset flag `TACTICUM_PAGE_ASSETS = ['charts']`.
+- `js/faq.js` подключается через page property `tacticum_page_assets=faq`;
+- `js/charts.js` подключается через page property `tacticum_page_assets=charts`;
+- `js/yandex-map.js` остаётся conditional asset через page property `tacticum_page_assets=yandex_map`, но текущая `/contacts/` карта использует iframe без этого JS.
 
 Global CSS:
 
@@ -35,7 +36,7 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 | File | Lines | Current status |
 |---|---:|---|
-| `global.css` | ~1330 | единственный runtime manual CSS-файл шаблона; подключён через `header.php` |
+| `global.css` | ~1260 | единственный runtime manual CSS-файл шаблона; подключён через `header.php` |
 
 Удалены как dead artifacts после source scan и rendered asset inventory на `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`: `main.css`, `services.css`, `price.css`, `calculator.css`, `contacts.css`, `about.css`, `expertise.css`, `css2.css`.
 
@@ -55,10 +56,9 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 
 Оставшиеся известные inline assets:
 
-- Yandex Maps constructor на `/contacts/` подключается через explicit asset `js/yandex-map.js` и `data-yandex-constructor-map`;
+- `/contacts/` использует Yandex map widget iframe с координатами московского офиса; legacy constructor script не нужен для текущей страницы;
 - Yandex.Metrika подключается через centralized template asset `js/metrika.js`; noscript pixel использует CSS class вместо inline `style=`;
-- JSON data islands в price component — допустимо как `application/json`;
-- generated font demo HTML в `local/templates/tacticum/fonts/` — не production page flow.
+- JSON data islands в price component — допустимо как `application/json`.
 
 После Sprint 04 cleanup:
 
@@ -71,9 +71,9 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 
 После Sprint 05 cleanup:
 
-- основной personal-offer CTA для `/`, `/calculator/`, `/price/` и `/contacts/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`;
-- `/contacts/` использует явный `glass` variant внутри shared personal-offer CTA;
-- project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`;
+- основной personal-offer CTA для `/`, `/calculator/`, `/price/` и `/contacts/` затем переведён на локальный компонент `tacticum:lead.cta`;
+- `/contacts/` использует явный `glass` variant внутри shared CTA component;
+- project-discussion CTA для `/about/` и `/services/` затем переведён на локальный компонент `tacticum:lead.cta`;
 - public pages передают только page-specific `form_id`/HTML `id`/field prefix, а не копируют form markup.
 
 После Sprint 06 cleanup:
@@ -116,6 +116,23 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 - `local/templates/tacticum/styles/` теперь допускает только `global.css`;
 - generic Remixicon fallback удалён, битые `ri-*` классы заменены на классы из локального icon font и покрыты `template-styles:check`.
 
+После Sprint 12 hardening:
+
+- `chat-agent.js` подключается только на страницах с `tacticum:chat.surface` через explicit page asset `chat`;
+- `index.php`, `calculator/index.php`, `price/index.php` объявляют `tacticum_page_assets=...chat`;
+- неиспользуемые Google Fonts preconnect/CSP origins и Readdy image origin удалены из `header.php`;
+- remote Readdy background в offer detail заменён локальным CSS-слоем, чтобы не добавлять third-party image request;
+- non-hero images получили `loading="lazy"` / `decoding="async"`, а статические `about.jpg` и `ai.jpg` - явные dimensions.
+
+После template asset hygiene 25.05.2026:
+
+- пустой `local/templates/tacticum/include/` удалён, Tailwind source list больше не сканирует `../../include/**/*.php`;
+- неиспользуемые `Pacifico` `@font-face` и `fonts/pacifico/` удалены;
+- из публичного `fonts/` удалены архив/исходники RemixIcon (`zip`, `glyph.json`, `less`, `scss`, `styl`, `symbol.svg`); runtime-набор оставлен консервативно: `remixicon.min.css`, `remixicon.css` для guard и font binaries, на которые ссылается vendor CSS;
+- из `images/` удалены неиспользуемые старые/дублирующие картинки: `aibot_hero_bg.jpg`, `aibot_hero_bg_2.png`, `aibot_hero_bg_old.jpg`, `background.jpg`, `finance.jpg`, `logistics.jpg`, `retail.jpg`, `tm1.jpg`, `tm2.jpg`, `tm3.jpg`;
+- favicon/apple/android PNG приведены к точным размерам, заявленным в `header.php` и `site.webmanifest`;
+- `npm run template-styles:check` блокирует возврат удалённых template asset artifacts и проверяет реальные PNG-размеры favicon/apple/android icons.
+
 ## Risks
 
 - Browser Tailwind/runtime bundle больше не подключается в production header; post-deploy visual smoke остаётся обязательным gate после CSS-правок.
@@ -123,9 +140,11 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` не должен снова принимать активные CSS-правила или imports.
 - `styles/global.css` не должен содержать generic Remixicon fallback; новые `ri-*` классы должны существовать в `fonts/remixicon.css`.
+- `local/templates/tacticum/include/`, неиспользуемые font-source файлы и dead images не должны возвращаться в публичный шаблон; это покрывает `npm run template-styles:check`.
 - Если `tailwind.generated.css` потеряет декларацию порядка cascade layers, reset из `styles/global.css` может обнулить spacing/border utilities.
 - Repeated CTA markup больше не живёт копиями в public page PHP; новые варианты нужно добавлять через includes/components.
 - Metrika больше не требует inline-script exception; report-only CSP уже разрешает `https://mc.yandex.ru`, но enforcing CSP требует отдельного hardening шага.
+- Google Fonts/Readdy origins не используются в runtime assets; возврат этих third-party origins требует отдельного asset/CSP review.
 - Enforcing CSP нельзя включать тем же PR, где меняются vendor/assets: сначала нужен чистый report-only baseline, triage лишних источников, затем отдельный deploy с rollback на `Content-Security-Policy-Report-Only`.
 
 ## Rules Going Forward
@@ -138,6 +157,7 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 - JS behavior must bind to explicit selectors/data attributes; do not infer behavior from button text.
 - Static Tailwind source менять вместе с `tailwind.generated.css`; запускать `npm run css:build` и проверять `npm run css:check`; не включать Tailwind CLI `--minify`, пока CSS склеивается с migrated global CSS.
 - Не возвращать активные правила в `template_styles.css`; проверять `npm run template-styles:check`.
+- Новые изображения/шрифты в `local/templates/tacticum/images|fonts` добавлять только при фактической ссылке из PHP/CSS/manifest/helper и после source/rendered asset inventory.
 
 ## Recommended Next Step
 
@@ -146,4 +166,4 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 1. Deploy workflow уже выполняет `npm run visual:smoke` и `npm run browser:smoke` против production URL без `TACTICUM_VISUAL_INJECT_CSS`; при локальной выкладке запускать те же команды вручную.
 2. Следовать `docs/workflow/template-styles-retirement-plan.md`: дальнейший cleanup переносит конкретные блоки из `styles/global.css` в component/page assets малыми партиями после `visual:smoke:css-local`.
 3. Для CSS retirement использовать `npm run visual:smoke:css-local` перед PR и не расширять compatibility-блок responsive utilities без последующего visual smoke.
-4. Перед CSP enforcing собрать report-only evidence: нет first-party inline violations, Yandex Maps/Metrika работают, goals проверены после deploy, visual/browser smoke чистые.
+4. Перед CSP enforcing собрать report-only evidence: нет first-party inline violations, Metrika работает, goals проверены после deploy, `/contacts/` Yandex iframe smoke чистый, visual/browser smoke зелёные.

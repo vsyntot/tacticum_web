@@ -26,59 +26,64 @@ function tacticum_content_migration_fix_policy_contacts(): void
     }
 
     $res = CIBlockElement::GetList(
-        [],
-        [
-            'IBLOCK_ID' => $iblockId,
-            'ID' => 515,
-        ],
+        ['SORT' => 'ASC', 'ID' => 'ASC'],
+        ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y'],
         false,
-        ['nTopCount' => 1],
+        false,
         ['ID', 'DETAIL_TEXT', 'DETAIL_TEXT_TYPE']
     );
-    $element = $res->Fetch();
-    if (!$element) {
-        return;
-    }
+    $elementApi = new CIBlockElement();
+    $seenElement = false;
+    $updatedAny = false;
+    $needsRetry = false;
 
-    $detailText = (string)($element['DETAIL_TEXT'] ?? '');
-    $updatedText = preg_replace(
-        [
-            '~ОГРН:\s*\[указать\]~u',
-            '~Адрес:\s*\[указать[^\]]*\]~u',
-            '~info@tacticum\.ru~iu',
-        ],
-        [
-            'ОГРН: 1227700525942',
-            'Адрес: 119285, г. Москва, Вн.Тер.г. Муниципальный округ Раменки, Км Мжд Киевское 5-й, д. 1 стр. 1, помещ. 3/3',
-            'project@tacticum.ru',
-        ],
-        $detailText
-    );
+    while ($element = $res->Fetch()) {
+        $seenElement = true;
+        $detailText = (string)($element['DETAIL_TEXT'] ?? '');
+        $updatedText = preg_replace(
+            [
+                '~ОГРН:\s*\[указать\]~u',
+                '~Адрес:\s*\[указать[^\]]*\]~u',
+                '~info@tacticum\.ru~iu',
+            ],
+            [
+                'ОГРН: 1227700525942',
+                'Адрес: 119285, г. Москва, Вн.Тер.г. Муниципальный округ Раменки, Км Мжд Киевское 5-й, д. 1 стр. 1, помещ. 3/3',
+                'project@tacticum.ru',
+            ],
+            $detailText
+        );
 
-    if (!is_string($updatedText)) {
-        return;
-    }
-
-    if ($updatedText === $detailText) {
-        if (preg_match('~\[указать|info@tacticum\.ru~iu', $detailText) === 1) {
-            return;
+        if (!is_string($updatedText)) {
+            $needsRetry = true;
+            continue;
         }
 
-        Option::set('tacticum', $optionName, 'Y');
+        if ($updatedText === $detailText) {
+            if (preg_match('~\[указать|info@tacticum\.ru~iu', $detailText) === 1) {
+                $needsRetry = true;
+            }
+            continue;
+        }
+
+        $updated = $elementApi->Update((int)$element['ID'], [
+            'DETAIL_TEXT' => $updatedText,
+            'DETAIL_TEXT_TYPE' => (string)($element['DETAIL_TEXT_TYPE'] ?? 'html') ?: 'html',
+        ]);
+
+        if (!$updated) {
+            $needsRetry = true;
+            continue;
+        }
+
+        $updatedAny = true;
+    }
+
+    if (!$seenElement || $needsRetry) {
         return;
     }
 
-    $elementApi = new CIBlockElement();
-    $updated = $elementApi->Update((int)$element['ID'], [
-        'DETAIL_TEXT' => $updatedText,
-        'DETAIL_TEXT_TYPE' => (string)($element['DETAIL_TEXT_TYPE'] ?? 'html') ?: 'html',
-    ]);
-
-    if (!$updated) {
-        return;
-    }
-
-    if (method_exists('CIBlock', 'clearIblockTagCache')) {
+    if ($updatedAny && method_exists('CIBlock', 'clearIblockTagCache')) {
         CIBlock::clearIblockTagCache($iblockId);
     }
 

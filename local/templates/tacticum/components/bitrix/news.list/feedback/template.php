@@ -16,7 +16,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
             $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
             ?>
             <?php
-            // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
             $reviewText = tacticum_sanitize_iblock_html((string)($arItem["~DETAIL_TEXT"] ?? $arItem["DETAIL_TEXT"] ?? ""));
             $reviewNameRaw = tacticum_decode_iblock_text((string)$arItem["PROPERTIES"]["NAME"]["VALUE"]);
             $reviewName = htmlspecialcharsbx($reviewNameRaw);
@@ -39,7 +38,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     <?}
                     if ($hasHalfStar) {?>
                         <i class="ri-star-half-fill"></i>
-                        <?$fullStars++; // считаем её за занятую позицию
+                        <?$fullStars++;
                     }
                     for ($i = $fullStars; $i < $maxStars; $i++) {?>
                         <i class="ri-star-line"></i>

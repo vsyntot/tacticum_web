@@ -1,16 +1,5 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-/** @var array $arParams */
-/** @var array $arResult */
-/** @global CMain $APPLICATION */
-/** @global CUser $USER */
-/** @global CDatabase $DB */
-/** @var CBitrixComponentTemplate $this */
-/** @var string $templateName */
-/** @var string $templateFile */
-/** @var string $templateFolder */
-/** @var string $componentPath */
-/** @var CBitrixComponent $component */
 
 $summaryText = tacticum_sanitize_iblock_html((string)($arResult["PROPERTIES"]["SUMMARY"]["VALUE"]["TEXT"] ?? ""));
 $summaryPlain = trim(strip_tags($summaryText));
@@ -27,6 +16,11 @@ $budgetRaw = tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["BUDGE
 $timelineRaw = tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["TIMELINE"]["VALUE"] ?? ""));
 $budget = htmlspecialcharsbx($budgetRaw);
 $timeline = htmlspecialcharsbx($timelineRaw);
+$offerResponse = function_exists('tacticum_offer_catalog_response')
+    ? tacticum_offer_catalog_response((array)($arResult['PROPERTIES'] ?? []))
+    : [];
+$offerSector = tacticum_decode_iblock_text((string)($offerResponse['sector'] ?? ($arResult['SECTION_NAME'] ?? '')));
+$offerScenario = tacticum_decode_iblock_text((string)($offerResponse['scenario'] ?? ''));
 $offerH1 = trim(tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["H1"]["VALUE"] ?? "")));
 if ($offerH1 === "") {
     $offerH1 = trim(tacticum_decode_iblock_text((string)($arResult["PROPERTIES"]["TITLE"]["VALUE"] ?? "")));
@@ -47,14 +41,12 @@ $projectInfoLines = array_filter([
 $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
 ?>
 
-<!-- Project Summary Section -->
 <section class="pt-20 py-12 md:py-32 bg-white">
     <div class="container mx-auto px-4">
         <h1 class="text-2xl md:text-3xl font-bold text-center mb-12">
             <?=htmlspecialcharsbx($offerH1)?>
         </h1>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Project Description -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-primary/10 rounded-full mr-4">
@@ -70,7 +62,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
             </div>
-            <!-- MVP Goals -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
@@ -88,7 +79,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
             </div>
-            <!-- Functional Requirements -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
@@ -108,7 +98,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
             </div>
-            <!-- Non-functional Requirements -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
@@ -128,7 +117,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
             </div>
-            <!-- Project Team -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
@@ -146,7 +134,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
             </div>
-            <!-- Technology Stack -->
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
                 <div class="flex items-start mb-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
@@ -166,13 +153,10 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
             </div>
-            <!-- Budget -->
-            <div class="to-primary rounded-lg p-4 sm:p-6 md:p-8 shadow-xl md:col-span-2 relative overflow-hidden">
-                <!-- Фон (абсолютный) fixit -->
-                <div class="absolute inset-0 opacity-10 bg-[url('https://readdy.ai/api/search-image?query=abstract%2520geometric%2520pattern%2520with%2520deep%2520blue%2520gradient%2520and%2520subtle%2520tech%2520lines%2C%2520modern%2520minimal%2520design&amp;width=800&amp;height=400&amp;seq=budget1&amp;orientation=landscape')] bg-cover bg-center"></div>
+            <div class="bg-gradient-to-r from-secondary to-primary text-white rounded-lg p-4 sm:p-6 md:p-8 shadow-xl md:col-span-2 relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/10"></div>
 
                 <div class="relative z-10">
-                    <!-- flex-column на моб, row на md+ -->
                     <div class="flex flex-col md:flex-row md:items-start gap-6 md:gap-10 mb-6">
                         <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-white/10 rounded-full mx-auto md:mx-0 md:mr-4">
                             <i class="ri-money-dollar-circle-line text-white ri-xl"></i>
@@ -182,7 +166,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                                 Предварительная оценка MVP
                             </h3>
                             <div class="bg-white/10 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-lg border border-white/10 mb-6 sm:mb-8">
-                                <!-- flex-column на моб, row на md+ -->
                                 <div class="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
                                     <div class="text-center md:text-left mb-4 md:mb-0">
                                         <h4 class="text-base sm:text-lg text-white/80 mb-2 sm:mb-3">
@@ -223,12 +206,12 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                         </div>
                         <div class="flex flex-col items-center text-center mt-6 md:mt-8 md:ml-6 w-full md:w-auto">
                             <p class="text-white/80 text-base sm:text-lg mb-4 sm:mb-6">
-                                Хотите получить индивидуальное коммерческое предложение, технико-экономическое
-                                обоснование или задать вопросы по архитектуре и команде?
+                                Похожая задача не заменяет персональную смету. Отправьте контекст примера, и мы
+                                уточним scope, данные, интеграции и состав команды под ваш проект.
                             </p>
                             <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>" class="bg-primary text-white px-6 sm:px-8 py-2 sm:py-3 rounded-button hover:bg-primary/50 transition-colors whitespace-nowrap">
                                 <i class="ri-mail-send-line"></i>
-                                Получить предложение
+                                Уточнить по своей задаче
                             </a>
                         </div>
                     </div>
@@ -239,7 +222,6 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
     </div>
 </section>
 
-<!-- Risk Section -->
 <section class="py-12 md:py-16 bg-white">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-center gap-3 mb-4">
@@ -319,7 +301,7 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                                 Профессиональная экспертиза
                             </h4>
                             <p class="text-gray-600 text-sm">
-                                Более 10 лет опыта в реализации сложных IT-проектов
+                                Практический опыт в реализации сложных AI- и IT-проектов
                             </p>
                         </div>
                         <div class="bg-white rounded-lg p-6 shadow-sm">
@@ -344,7 +326,7 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     <a href="#CTA" data-tacticum-prefill-target="#message" data-tacticum-prefill-value="<?=$projectInfo?>"
                             class="inline-flex w-fit px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg text-lg font-medium items-center gap-2 mx-auto">
                         <i class="ri-shield-check-line"></i>
-                        Получить консультацию
+                        Снизить риски с командой
                     </a>
                 </div>
             </div>
@@ -352,20 +334,37 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
     </div>
 </section>
 
-<!-- CTA Section -->
 <section id='CTA' class="py-12 md:py-16 bg-gradient-to-b from-white to-indigo-50/50">
     <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto bg-white rounded-xl p-8 shadow-lg">
             <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">
-                Готовы обсудить ваш проект?
+                Получить персональную оценку по похожей задаче
             </h2>
             <p class="text-center text-gray-700 mb-8">
-                Мы открыты к диалогу на любом этапе: проконсультируем по вашей идее, проведём аудит или оперативно
-                подключимся к разработке. Оставьте заявку — и наш эксперт свяжется с вами для обсуждения деталей и
-                возможных шагов сотрудничества.
+                Пример выше помогает сориентироваться, но точная оценка зависит от ваших данных, интеграций,
+                требований безопасности и сроков. Отправьте заявку, и мы уточним следующий шаг.
             </p>
 
             <form id="applicationForm" class="space-y-6" data-tacticum-form data-form-id="offer-cta">
+                <input type="hidden" name="lead_entry" value="offer-detail">
+                <input type="hidden" name="lead_page_role" value="offer-example-detail">
+                <input type="hidden" name="lead_intent" value="personalize-similar-estimate">
+                <input type="hidden" name="lead_cta" value="offer-cta">
+                <input type="hidden" name="lead_next_step" value="offer-estimate-review">
+                <input type="hidden" name="lead_offer_code" value="<?=htmlspecialcharsbx((string)($arResult['CODE'] ?? ''))?>">
+                <input type="hidden" name="lead_offer_title" value="<?=htmlspecialcharsbx($offerH1)?>">
+                <?if ($offerSector !== ''):?>
+                    <input type="hidden" name="lead_industry" value="<?=htmlspecialcharsbx($offerSector)?>">
+                <?endif;?>
+                <?if ($offerScenario !== ''):?>
+                    <input type="hidden" name="lead_scenario" value="<?=htmlspecialcharsbx($offerScenario)?>">
+                <?endif;?>
+                <?if ($budgetRaw !== ''):?>
+                    <input type="hidden" name="lead_budget" value="<?=htmlspecialcharsbx($budgetRaw)?>">
+                <?endif;?>
+                <?if ($timelineRaw !== ''):?>
+                    <input type="hidden" name="lead_timeline" value="<?=htmlspecialcharsbx($timelineRaw)?>">
+                <?endif;?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
@@ -389,11 +388,10 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     </div>
                 </div>
                 <div>
-                    <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Дополнительная
-                        информация</label>
+                    <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Что нужно уточнить под ваш проект</label>
                     <textarea id="message" name="message" rows="4" required
                               class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                              placeholder="Укажите любые дополнительные пожелания или вопросы..."></textarea>
+                              placeholder="Опишите отличия от примера: отрасль, данные, интеграции, сроки, ограничения"></textarea>
                 </div>
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" id="consent" name="consent" data-tacticum-consent required checked>
@@ -406,7 +404,7 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                 <div class="flex justify-center">
                     <button type="submit"
                             class="px-8 py-3 bg-primary text-white !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap shadow-lg shadow-primary/30 text-lg">
-                        Отправить заявку
+                        Уточнить оценку
                     </button>
                 </div>
             </form>
@@ -414,11 +412,10 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
     </div>
 </section>
 
-<!-- Why Choose Us Section -->
 <section class="py-12 md:py-16 bg-white">
     <div class="container mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">
-            Почему стоит доверить реализацию нам
+            Почему стоит идти дальше с командой
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="bg-white rounded-lg p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-100/50 transition-shadow">
@@ -452,12 +449,11 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     <i class="ri-rocket-line text-primary ri-2x"></i>
                 </div>
                 <h3 class="text-xl font-semibold text-center mb-4">
-                    Быстрый старт работ
+                    Управляемый старт работ
                 </h3>
                 <p class="text-gray-700 text-center">
-                    Мы готовы начать работу над вашим проектом в течение 7 дней
-                    после согласования условий. Наша гибкая методология позволяет
-                    быстро адаптироваться к изменениям требований.
+                    После согласования scope, доступов и состава команды запускаем работу короткими итерациями и
+                    регулярно уточняем требования по мере появления новых вводных.
                 </p>
             </div>
         </div>
@@ -467,19 +463,19 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
                     <div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full mr-2">
                         <i class="ri-check-line text-primary"></i>
                     </div>
-                    <span class="text-gray-700">Более 150 успешных проектов</span>
+                    <span class="text-gray-700">Опыт проектных расчетов в разных отраслях</span>
                 </div>
                 <div class="flex items-center bg-gray-100 px-4 py-2 rounded-full">
                     <div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full mr-2">
                         <i class="ri-check-line text-primary"></i>
                     </div>
-                    <span class="text-gray-700">Команда из 50+ специалистов</span>
+                    <span class="text-gray-700">Команда аналитиков, инженеров и разработчиков</span>
                 </div>
                 <div class="flex items-center bg-gray-100 px-4 py-2 rounded-full">
                     <div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full mr-2">
                         <i class="ri-check-line text-primary"></i>
                     </div>
-                    <span class="text-gray-700">Поддержка 24/7</span>
+                    <span class="text-gray-700">Прозрачная смета, роли и этапы работ</span>
                 </div>
             </div>
         </div>
@@ -488,69 +484,11 @@ $projectInfo = htmlspecialcharsbx(implode("\n", $projectInfoLines));
 
 <?
 $APPLICATION->IncludeComponent(
-    "bitrix:news.list",
-    "faq",
+    "tacticum:faq.section",
+    "",
     [
-        "COMPONENT_TEMPLATE" => "faq",
-        "IBLOCK_TYPE" => "company",
         "IBLOCK_ID" => tacticum_iblock_id('faq'),
-        "NEWS_COUNT" => "0",
-        "SORT_BY1" => "SORT",
-        "SORT_ORDER1" => "ASC",
-        "SORT_BY2" => "ID",
-        "SORT_ORDER2" => "DESC",
-        "FILTER_NAME" => "",
-        "FIELD_CODE" => [
-            0 => "ID",
-            1 => "CODE",
-            2 => "NAME",
-            3 => "SORT",
-            4 => "DETAIL_TEXT",
-            5 => "IBLOCK_TYPE_ID",
-            6 => "IBLOCK_ID",
-            7 => "",
-        ],
-        "PROPERTY_CODE" => [
-            0 => "",
-            1 => "",
-        ],
-        "CHECK_DATES" => "Y",
-        "DETAIL_URL" => "",
-        "AJAX_MODE" => "N",
-        "AJAX_OPTION_JUMP" => "N",
-        "AJAX_OPTION_STYLE" => "Y",
-        "AJAX_OPTION_HISTORY" => "N",
-        "AJAX_OPTION_ADDITIONAL" => "",
-        "CACHE_TYPE" => "A",
-        "CACHE_TIME" => "36000000",
-        "CACHE_FILTER" => "N",
-        "CACHE_GROUPS" => "Y",
-        "PREVIEW_TRUNCATE_LEN" => "",
-        "ACTIVE_DATE_FORMAT" => "d.m.Y",
-        "SET_TITLE" => "N",
-        "SET_BROWSER_TITLE" => "N",
-        "SET_META_KEYWORDS" => "N",
-        "SET_META_DESCRIPTION" => "N",
-        "SET_LAST_MODIFIED" => "N",
-        "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-        "ADD_SECTIONS_CHAIN" => "N",
-        "HIDE_LINK_WHEN_NO_DETAIL" => "N",
-        "PARENT_SECTION" => "19",
-        "PARENT_SECTION_CODE" => "",
-        "INCLUDE_SUBSECTIONS" => "N",
-        "STRICT_SECTION_CHECK" => "N",
-        "PAGER_TEMPLATE" => ".default",
-        "DISPLAY_TOP_PAGER" => "N",
-        "DISPLAY_BOTTOM_PAGER" => "N",
-        "PAGER_TITLE" => "Новости",
-        "PAGER_SHOW_ALWAYS" => "N",
-        "PAGER_DESC_NUMBERING" => "N",
-        "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-        "PAGER_SHOW_ALL" => "N",
-        "PAGER_BASE_LINK_ENABLE" => "N",
-        "SET_STATUS_404" => "N",
-        "SHOW_404" => "N",
-        "MESSAGE_404" => ""
+        "SECTION_KEY" => "calculator",
     ],
     false
 );

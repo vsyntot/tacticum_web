@@ -10,28 +10,35 @@ $aMenuLinks = Array(
 	),
 	Array(
         "Услуги",
-        "services/",
+        "/services/",
         Array(),
         Array(),
         ""
     ),
 	Array(
-        "Тарифы",
-        "price/",
+        "Собрать команду",
+        "/price/",
+        Array(),
+        Array(),
+        ""
+    ),
+    Array(
+        "Примеры расчетов",
+        "/offer/",
         Array(),
         Array(),
         ""
     ),
 	Array(
-		"ИИ-калькулятор",
-		"calculator/",
+		"AI-калькулятор",
+		"/calculator/",
 		Array(),
 		Array(),
 		""
 	),
 	Array(
-		"ИИ-агенты",
-		"aiagents/",
+		"AI-боты",
+		"/aiagents/",
 		Array(),
 		Array(),
 		""

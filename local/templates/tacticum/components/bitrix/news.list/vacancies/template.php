@@ -10,7 +10,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                 $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));?>
                 <?php
-                // Экранируем пользовательские данные; разрешенный HTML чистим через общий sanitizer.
                 $vacancyName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                 $vacancyLocation = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["LOCATION"]["VALUE"]);
                 $vacancyType = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["TYPE"]["VALUE"]);
@@ -27,14 +26,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                         <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full"><?=$vacancyTime?></span>
                     </div>
                     <p class="text-gray-600 mb-4"><?=$vacancyPreview?></p>
-                   <?/*<button class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                        Подробнее <i class="ri-arrow-right-line"></i>
-                    </button>*/?>
                 </div>
             <?}?>
         </div>
-        <?/*<div class="text-center mt-8">
-            <a href="#" class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">Смотреть все вакансии</a>
-        </div>*/?>
     </div>
 <?}?>
