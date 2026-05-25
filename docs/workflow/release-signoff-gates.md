@@ -61,7 +61,7 @@ Regression coverage для самого checker:
 npm run release:signoff:self-test
 ```
 
-Для промежуточного PM/QA handoff, где часть ручных gates ещё не закрыта, допустим draft со статусом `pending` и обязательным `reason`:
+Для промежуточного PM/QA handoff, где часть ручных gates ещё не закрыта, допустим draft со статусом `pending`, обязательным `reason` и явным `due`:
 
 ```bash
 npm run release:signoff:draft-check -- path/to/release-signoff.draft.json
@@ -71,7 +71,7 @@ npm run release:signoff:summary -- path/to/release-signoff.draft.json
 Draft-check не является release closure: перед закрытием issue тот же файл должен пройти строгий `release:signoff:check`, где все gates имеют только `passed` или `not_applicable`.
 
 Ручные gates закрываются по `docs/workflow/manual-release-gates-runbook.md`. Безопасный JSON-формат evidence для переноса в release sign-off лежит в `docs/workflow/release-signoff-manual-evidence.template.json`; в него нельзя добавлять PII, raw payload, cookie/session IDs или полный upstream response.
-Для pending manual gates draft JSON обязан содержать ссылки `evidence.runbook` и `evidence.evidence_template`; draft-check печатает список оставшихся pending gates.
+Для pending manual gates draft JSON обязан содержать `due`, ссылки `evidence.runbook` и `evidence.evidence_template`; draft-check печатает список оставшихся pending gates.
 
 Если evidence указывает на локальный `manifest.json`, checker парсит его и дополнительно проверяет:
 
@@ -82,7 +82,7 @@ Draft-check не является release closure: перед закрытием
 - release metadata содержит `id`, `date`, `commit`; `date` имеет формат `YYYY-MM-DD`, `base_url` при наличии использует HTTPS, strict mode не принимает `working-tree` commit marker;
 - неизвестные gates запрещены: release JSON должен использовать только список из этого документа;
 - для manual gates в статусе `passed` evidence должен быть объектом с обязательными полями из runbook; checker дополнительно отсекает placeholder-ы, email/phone-like значения и ключи, похожие на raw payload, cookie/session/token/secret.
-- для manual gates в статусе `pending` draft evidence должен ссылаться на runbook и evidence template.
+- для manual gates в статусе `pending` draft должен содержать `due`, а evidence должен ссылаться на runbook и evidence template.
 
 ```markdown
 ### Release sign-off

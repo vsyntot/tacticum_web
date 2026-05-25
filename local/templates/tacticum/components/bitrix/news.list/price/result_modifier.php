@@ -13,7 +13,6 @@ if (empty($arResult['ITEMS'])) {
 $grouped = [];
 $sectionIds = [];
 
-// Группировка элементов по разделам
 foreach ($arResult['ITEMS'] as $item) {
     $sectionId = (int)($item['IBLOCK_SECTION_ID'] ?? 0);
     if ($sectionId > 0) {
@@ -22,7 +21,6 @@ foreach ($arResult['ITEMS'] as $item) {
     }
 }
 
-// Получение информации о разделах
 $sections = [];
 if (!empty($sectionIds)) {
     $res = CIBlockSection::GetList(
@@ -40,7 +38,6 @@ if (!empty($sectionIds)) {
     }
 }
 
-// Сортировка разделов по SORT
 uasort($sections, fn($a, $b) => $a['SORT'] <=> $b['SORT']);
 
 $arResult['GROUPED_SECTIONS'] = [];
@@ -57,14 +54,12 @@ foreach ($sections as $sectionId => $sectionData) {
         return $levelOrder[$normalized] ?? 100;
     };
 
-    // --- Группировка позиций внутри раздела по названию (NAME) ---
     $groupedItems = [];
     foreach ($items as $item) {
         $name = trim(tacticum_decode_iblock_text((string)$item['NAME']));
         $level = $item['DISPLAY_PROPERTIES']['LEVEL']['VALUE'] ?? null;
         $level = $level !== null ? trim(tacticum_decode_iblock_text((string)$level)) : null;
 
-        // Ключ для группировки: название
         if (!isset($groupedItems[$name])) {
             $groupedItems[$name] = [
                 'NAME' => $name,
@@ -74,7 +69,7 @@ foreach ($sections as $sectionId => $sectionData) {
                 ),
                 'LEVELS' => [],
                 'POPULAR' => $item['DISPLAY_PROPERTIES']['POPULAR'] ?? [],
-                'ICON' => null, // можно пробросить если нужно
+                'ICON' => null,
             ];
         }
 
@@ -84,7 +79,6 @@ foreach ($sections as $sectionId => $sectionData) {
                 'PROPS' => $item['DISPLAY_PROPERTIES'],
             ];
         } else {
-            // fallback, если LEVEL не заполнен — все равно добавим как отдельный уровень
             $groupedItems[$name]['LEVELS'][''] = [
                 'PRICE' => $item['DISPLAY_PROPERTIES']['PRICE']['DISPLAY_VALUE'],
                 'PROPS' => $item['DISPLAY_PROPERTIES'],
@@ -104,7 +98,6 @@ foreach ($sections as $sectionId => $sectionData) {
     }
     unset($groupedItem);
 
-    // Сброс индексов для GROUPED_ITEMS (важно для foreach в шаблоне)
     $arResult['GROUPED_SECTIONS'][] = [
         'ID' => $sectionData['ID'],
         'NAME' => $sectionData['NAME'],

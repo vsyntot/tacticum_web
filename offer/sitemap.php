@@ -14,7 +14,7 @@ if (!function_exists('tacticum_offer_sitemap_escape')) {
 if (!function_exists('tacticum_offer_sitemap_lastmod')) {
     function tacticum_offer_sitemap_lastmod(array $element): string
     {
-        $raw = trim((string)(($element['TIMESTAMP_X'] ?? '') ?: ($element['DATE_CREATE'] ?? '') ?: ''));
+        $raw = trim((string)(($element['DATE_ACTIVE_FROM'] ?? '') ?: ($element['TIMESTAMP_X'] ?? '') ?: ($element['DATE_CREATE'] ?? '') ?: ''));
         if ($raw === '' || !function_exists('MakeTimeStamp')) {
             return '';
         }
@@ -37,7 +37,7 @@ if (\Bitrix\Main\Loader::includeModule('iblock')) {
     $iblockId = tacticum_iblock_id('offer');
     if ($iblockId > 0) {
         $result = CIBlockElement::GetList(
-            ['TIMESTAMP_X' => 'DESC'],
+            ['DATE_ACTIVE_FROM' => 'DESC', 'TIMESTAMP_X' => 'DESC'],
             [
                 'IBLOCK_ID' => $iblockId,
                 'ACTIVE' => 'Y',
@@ -49,6 +49,7 @@ if (\Bitrix\Main\Loader::includeModule('iblock')) {
                 'ID',
                 'CODE',
                 'DATE_CREATE',
+                'DATE_ACTIVE_FROM',
                 'TIMESTAMP_X',
             ]
         );

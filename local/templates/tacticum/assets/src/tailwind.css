@@ -9,9 +9,9 @@
 @source "../../../../../policies/**/*.php";
 @source "../../../../../price/**/*.php";
 @source "../../../../../services/**/*.php";
+@source "../../../../../local/components/**/*.php";
 @source "../../components/**/*.php";
 @source "../../components/**/*.js";
-@source "../../include/**/*.php";
 @source "../../js/**/*.js";
 @source "../../header.php";
 @source "../../footer.php";

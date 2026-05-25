@@ -1,6 +1,12 @@
 <?
 $arUrlRewrite = array(
     array(
+        'CONDITION' => '#^/offer/catalog(?:/[^?]*)?(?:\?(.*))?$#',
+        'RULE' => '$1',
+        'ID' => '',
+        'PATH' => '/offer/index.php',
+    ),
+    array(
         'CONDITION' => '#^/offer/([A-Za-z0-9_-]+)/?(?:\?(.*))?$#',
         'RULE' => '$2&CODE=$1',
         'ID' => '',

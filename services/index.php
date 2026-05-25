@@ -1,8 +1,9 @@
 <?php
-$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq'];
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("AI-решения и разработка для бизнеса - Тактикум");
-$APPLICATION->SetPageProperty("description", "Услуги Tacticum: AI-консалтинг, внедрение искусственного интеллекта, разработка ML-решений, чат-ботов и автоматизация бизнеса.");
+require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+
+$APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
+$APPLICATION->SetTitle("Внедрение AI-решений и автоматизация для бизнеса - Тактикум");
+$APPLICATION->SetPageProperty("description", "Tacticum проектирует и внедряет AI- и IT-решения для бизнеса: discovery, архитектура, разработка, интеграции, запуск и развитие продукта.");
 tacticum_apply_seo_defaults('/services/', [
     'image' => SITE_TEMPLATE_PATH . '/images/services_hero_bg.jpg',
     'image_width' => 1536,
@@ -10,7 +11,7 @@ tacticum_apply_seo_defaults('/services/', [
     'schema' => [
         '@type' => 'Service',
         '@id' => tacticum_public_url('/services/#service'),
-        'name' => 'AI-решения и разработка для бизнеса',
+        'name' => 'Внедрение AI-решений и автоматизация для бизнеса',
         'serviceType' => 'AI consulting, ML development, chatbots and business automation',
         'provider' => [
             '@id' => tacticum_public_url('/#organization'),
@@ -20,22 +21,55 @@ tacticum_apply_seo_defaults('/services/', [
     ],
     'faq_schema' => true,
 ]);
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 ?>
 
-<!-- Hero Section -->
 <section class="services-hero-bg pt-24 min-h-[400px] flex items-center">
     <div class="container mx-auto px-4 py-16">
         <div class="max-w-3xl">
-            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-secondary">AI-решения для вашего бизнеса</h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-secondary">Внедрим AI-решение от идеи до рабочего процесса</h1>
             <p class="text-lg md:text-xl mb-8 text-gray-600">
-                Мы предлагаем полный спектр услуг по внедрению искусственного интеллекта — от консалтинга и
-                разработки до интеграции и поддержки. Наши решения помогают бизнесу автоматизировать процессы,
-                оптимизировать расходы и увеличивать прибыль.
+                Берем бизнес-задачу, разбираем ограничения, проектируем архитектуру, собираем команду и доводим
+                AI-продукт до запуска в ваших системах: CRM, ERP, документообороте, аналитике или клиентских каналах.
             </p>
-            <!-- исправлен якорь -->
-            <a href="/services/#contact-form"
-                    class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">
-                Запросить расчет
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a href="/services/#contact-form"
+                        class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">
+                    Обсудить внедрение
+                </a>
+                <a href="/offer/"
+                        class="inline-block bg-white text-secondary border border-gray-200 px-8 py-3 rounded-button hover:border-primary hover:text-primary transition-colors whitespace-nowrap text-center">
+                    Смотреть похожие расчеты
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="/offer/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <i class="ri-file-search-line text-2xl text-primary"></i>
+                </div>
+                <h2 class="text-xl font-bold text-secondary mb-2">Сначала нужна оценка</h2>
+                <p class="text-gray-600">Начните с примеров расчетов по отрасли, сценарию, команде и бюджету.</p>
+            </a>
+            <a href="/price/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <i class="ri-team-line text-2xl text-primary"></i>
+                </div>
+                <h2 class="text-xl font-bold text-secondary mb-2">Нужна delivery-команда</h2>
+                <p class="text-gray-600">Подберите роли и уровни специалистов под запуск, доработку или поддержку.</p>
+            </a>
+            <a href="/calculator/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <i class="ri-calculator-line text-2xl text-primary"></i>
+                </div>
+                <h2 class="text-xl font-bold text-secondary mb-2">Нужен быстрый ориентир</h2>
+                <p class="text-gray-600">Опишите задачу AI-калькулятору и получите черновую структуру оценки.</p>
             </a>
         </div>
     </div>
@@ -43,102 +77,57 @@ tacticum_apply_seo_defaults('/services/', [
 
 <?php
 $APPLICATION->IncludeComponent(
-        "bitrix:news.list",
-        "services",
-        [
-                "COMPONENT_TEMPLATE" => "services",
-                "IBLOCK_TYPE" => "services",
-                "IBLOCK_ID" => tacticum_iblock_id('services'),
-                "NEWS_COUNT" => "3",
-                "SORT_BY1" => "SORT",
-                "SORT_ORDER1" => "ASC",
-                "SORT_BY2" => "ID",
-                "SORT_ORDER2" => "DESC",
-                "FILTER_NAME" => "",
-                "FIELD_CODE" => ["ID","CODE","NAME","SORT","PREVIEW_TEXT","DETAIL_TEXT","IBLOCK_TYPE_ID","IBLOCK_ID"],
-                "PROPERTY_CODE" => ["OPTIONS"],
-                "CHECK_DATES" => "Y",
-                "DETAIL_URL" => "",
-                "AJAX_MODE" => "N",
-                "AJAX_OPTION_JUMP" => "N",
-                "AJAX_OPTION_STYLE" => "Y",
-                "AJAX_OPTION_HISTORY" => "N",
-                "AJAX_OPTION_ADDITIONAL" => "",
-                "CACHE_TYPE" => "A",
-                "CACHE_TIME" => "36000000",
-                "CACHE_FILTER" => "N",
-                "CACHE_GROUPS" => "Y",
-                "PREVIEW_TRUNCATE_LEN" => "",
-                "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                "SET_TITLE" => "N",
-                "SET_BROWSER_TITLE" => "N",
-                "SET_META_KEYWORDS" => "N",
-                "SET_META_DESCRIPTION" => "N",
-                "SET_LAST_MODIFIED" => "N",
-                "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                "ADD_SECTIONS_CHAIN" => "N",
-                "HIDE_LINK_WHEN_NO_DETAIL" => "N",
-                "PARENT_SECTION" => "",
-                "PARENT_SECTION_CODE" => "",
-                "INCLUDE_SUBSECTIONS" => "N",
-                "STRICT_SECTION_CHECK" => "N",
-                "PAGER_TEMPLATE" => ".default",
-                "DISPLAY_TOP_PAGER" => "N",
-                "DISPLAY_BOTTOM_PAGER" => "Y",
-                "PAGER_TITLE" => "Новости",
-                "PAGER_SHOW_ALWAYS" => "N",
-                "PAGER_DESC_NUMBERING" => "N",
-                "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                "PAGER_SHOW_ALL" => "N",
-                "PAGER_BASE_LINK_ENABLE" => "N",
-                "SET_STATUS_404" => "N",
-                "SHOW_404" => "N",
-                "MESSAGE_404" => ""
-        ],
-        false
+    "tacticum:content.list",
+    "",
+    [
+        "NEWS_LIST_TEMPLATE" => "services",
+        "IBLOCK_KEY" => "services",
+        "IBLOCK_TYPE" => "services",
+        "NEWS_COUNT" => "3",
+        "SORT_BY1" => "SORT",
+        "SORT_ORDER1" => "ASC",
+        "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "PREVIEW_TEXT", "DETAIL_TEXT", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
+        "PROPERTY_CODE" => ["OPTIONS"],
+        "DISPLAY_BOTTOM_PAGER" => "Y",
+    ],
+    false
 );
 ?>
 
-<!-- How it works Section -->
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Как это работает</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Как мы доводим AI-инициативу до запуска</h2>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                Наш структурированный подход к внедрению AI-решений обеспечивает максимальную эффективность и
-                прозрачность на всех этапах проекта
+                Процесс помогает не покупать технологию ради технологии: сначала проверяем ценность и данные, затем
+                собираем понятный scope, команду, интеграции и план внедрения.
             </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <!-- Step 1 -->
             <div class="step-item text-center px-4">
                 <div class="step-number w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-xl font-bold text-secondary">1</div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Анализ</h3>
-                <p class="text-gray-600">Изучаем бизнес-процессы и определяем точки роста</p>
+                <h3 class="text-lg font-bold text-secondary mb-2">Discovery</h3>
+                <p class="text-gray-600">Фиксируем цель, процесс, данные, риски и критерии готовности</p>
             </div>
-            <!-- Step 2 -->
             <div class="step-item text-center px-4">
                 <div class="step-number w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-xl font-bold text-secondary">2</div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Планирование</h3>
-                <p class="text-gray-600">Разрабатываем стратегию и выбираем технологии</p>
+                <h3 class="text-lg font-bold text-secondary mb-2">Архитектура</h3>
+                <p class="text-gray-600">Проектируем решение, интеграции, роли команды и этапы поставки</p>
             </div>
-            <!-- Step 3 -->
             <div class="step-item text-center px-4">
                 <div class="step-number w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-xl font-bold text-secondary">3</div>
                 <h3 class="text-lg font-bold text-secondary mb-2">Разработка</h3>
-                <p class="text-gray-600">Создаем и тестируем AI-решение</p>
+                <p class="text-gray-600">Собираем MVP или production-модуль короткими управляемыми итерациями</p>
             </div>
-            <!-- Step 4 -->
             <div class="step-item text-center px-4">
                 <div class="step-number w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-xl font-bold text-secondary">4</div>
                 <h3 class="text-lg font-bold text-secondary mb-2">Внедрение</h3>
-                <p class="text-gray-600">Интегрируем решение в бизнес-процессы</p>
+                <p class="text-gray-600">Подключаем к системам, обучаем пользователей и настраиваем контроль качества</p>
             </div>
-            <!-- Step 5 -->
             <div class="step-item text-center px-4">
                 <div class="step-number w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-xl font-bold text-secondary">5</div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Поддержка</h3>
-                <p class="text-gray-600">Обеспечиваем сопровождение и развитие</p>
+                <h3 class="text-lg font-bold text-secondary mb-2">Развитие</h3>
+                <p class="text-gray-600">Измеряем эффект, дорабатываем сценарии и масштабируем решение</p>
             </div>
         </div>
     </div>
@@ -146,63 +135,22 @@ $APPLICATION->IncludeComponent(
 
 <?php
 $APPLICATION->IncludeComponent(
-        "bitrix:news.list",
-        "cases",
-        [
-                "COMPONENT_TEMPLATE" => "cases",
-                "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => tacticum_iblock_id('cases'),
-                "NEWS_COUNT" => "3",
-                "SORT_BY1" => "RAND",
-                "SORT_ORDER1" => "DESC",
-                "SORT_BY2" => "ID",
-                "SORT_ORDER2" => "DESC",
-                "FILTER_NAME" => "",
-                "FIELD_CODE" => ["ID","CODE","NAME","SORT","PREVIEW_TEXT","PREVIEW_PICTURE","DETAIL_TEXT","IBLOCK_TYPE_ID","IBLOCK_ID"],
-                "PROPERTY_CODE" => [],
-                "CHECK_DATES" => "Y",
-                "DETAIL_URL" => "",
-                "AJAX_MODE" => "N",
-                "AJAX_OPTION_JUMP" => "N",
-                "AJAX_OPTION_STYLE" => "Y",
-                "AJAX_OPTION_HISTORY" => "N",
-                "AJAX_OPTION_ADDITIONAL" => "",
-                "CACHE_TYPE" => "A",
-                "CACHE_TIME" => "36000000",
-                "CACHE_FILTER" => "N",
-                "CACHE_GROUPS" => "Y",
-                "PREVIEW_TRUNCATE_LEN" => "",
-                "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                "SET_TITLE" => "N",
-                "SET_BROWSER_TITLE" => "N",
-                "SET_META_KEYWORDS" => "N",
-                "SET_META_DESCRIPTION" => "N",
-                "SET_LAST_MODIFIED" => "N",
-                "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                "ADD_SECTIONS_CHAIN" => "N",
-                "HIDE_LINK_WHEN_NO_DETAIL" => "N",
-                "PARENT_SECTION" => "",
-                "PARENT_SECTION_CODE" => "",
-                "INCLUDE_SUBSECTIONS" => "N",
-                "STRICT_SECTION_CHECK" => "N",
-                "PAGER_TEMPLATE" => ".default",
-                "DISPLAY_TOP_PAGER" => "N",
-                "DISPLAY_BOTTOM_PAGER" => "Y",
-                "PAGER_TITLE" => "Новости",
-                "PAGER_SHOW_ALWAYS" => "N",
-                "PAGER_DESC_NUMBERING" => "N",
-                "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                "PAGER_SHOW_ALL" => "N",
-                "PAGER_BASE_LINK_ENABLE" => "N",
-                "SET_STATUS_404" => "N",
-                "SHOW_404" => "N",
-                "MESSAGE_404" => ""
-        ],
-        false
+    "tacticum:content.list",
+    "",
+    [
+        "NEWS_LIST_TEMPLATE" => "cases",
+        "IBLOCK_KEY" => "cases",
+        "IBLOCK_TYPE" => "company",
+        "NEWS_COUNT" => "3",
+        "SORT_BY1" => "RAND",
+        "SORT_ORDER1" => "DESC",
+        "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "PREVIEW_TEXT", "PREVIEW_PICTURE", "DETAIL_TEXT", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
+        "DISPLAY_BOTTOM_PAGER" => "Y",
+    ],
+    false
 );
 ?>
 
-<!-- Technologies Section -->
 <section class="py-16">
     <div class="container mx-auto px-4">
         <div class="text-center mb-16">
@@ -212,7 +160,6 @@ $APPLICATION->IncludeComponent(
             </p>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            <!-- Tech cards... (без изменений) -->
             <div class="bg-white rounded-xl p-6 shadow-sm text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="ri-robot-line text-3xl text-primary"></i>
@@ -274,69 +221,41 @@ $APPLICATION->IncludeComponent(
 </section>
 
 <?php
-$tacticumProjectDiscussionCta = [
-    "form_id" => "services-cta",
-    "form_html_id" => "services-cta-form",
-    "field_prefix" => "services",
-];
-include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/project-discussion-cta.php";
+$APPLICATION->IncludeComponent(
+    "tacticum:lead.cta",
+    "",
+    [
+        "TYPE" => "project-discussion",
+        "FORM_ID" => "services-cta",
+        "FORM_HTML_ID" => "services-cta-form",
+        "FIELD_PREFIX" => "services",
+        "TITLE" => "Обсудим внедрение AI-решения",
+        "TEXT" => "Оставьте задачу, которую нужно автоматизировать или усилить AI. Мы уточним данные, ограничения, интеграции и предложим ближайший рабочий шаг.",
+        "FORM_TITLE" => "Заявка на обсуждение внедрения",
+        "MESSAGE_LABEL" => "Какая бизнес-задача требует решения",
+        "MESSAGE_PLACEHOLDER" => "Например: хотим снизить ручную обработку документов в отделе продаж",
+        "BUTTON_TEXT" => "Обсудить внедрение",
+        "LEAD_CONTEXT" => [
+            "lead_entry" => "services",
+            "lead_page_role" => "implementation-entry",
+            "lead_intent" => "ai-automation-delivery",
+            "lead_cta" => "services-cta",
+            "lead_next_step" => "discovery-call",
+        ],
+    ],
+    false
+);
 ?>
 
 <?php
 $APPLICATION->IncludeComponent(
-        "bitrix:news.list",
-        "faq",
-        [
-                "COMPONENT_TEMPLATE" => "faq",
-                "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => tacticum_iblock_id('faq'),
-                "NEWS_COUNT" => "0",
-                "SORT_BY1" => "SORT",
-                "SORT_ORDER1" => "ASC",
-                "SORT_BY2" => "ID",
-                "SORT_ORDER2" => "DESC",
-                "FILTER_NAME" => "",
-                "FIELD_CODE" => ["ID","CODE","NAME","SORT","DETAIL_TEXT","IBLOCK_TYPE_ID","IBLOCK_ID"],
-                "PROPERTY_CODE" => [],
-                "CHECK_DATES" => "Y",
-                "DETAIL_URL" => "",
-                "AJAX_MODE" => "N",
-                "AJAX_OPTION_JUMP" => "N",
-                "AJAX_OPTION_STYLE" => "Y",
-                "AJAX_OPTION_HISTORY" => "N",
-                "AJAX_OPTION_ADDITIONAL" => "",
-                "CACHE_TYPE" => "A",
-                "CACHE_TIME" => "36000000",
-                "CACHE_FILTER" => "N",
-                "CACHE_GROUPS" => "Y",
-                "PREVIEW_TRUNCATE_LEN" => "",
-                "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                "SET_TITLE" => "N",
-                "SET_BROWSER_TITLE" => "N",
-                "SET_META_KEYWORDS" => "N",
-                "SET_META_DESCRIPTION" => "N",
-                "SET_LAST_MODIFIED" => "N",
-                "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                "ADD_SECTIONS_CHAIN" => "N",
-                "HIDE_LINK_WHEN_NO_DETAIL" => "N",
-                "PARENT_SECTION" => "20",
-                "PARENT_SECTION_CODE" => "",
-                "INCLUDE_SUBSECTIONS" => "N",
-                "STRICT_SECTION_CHECK" => "N",
-                "PAGER_TEMPLATE" => ".default",
-                "DISPLAY_TOP_PAGER" => "N",
-                "DISPLAY_BOTTOM_PAGER" => "N",
-                "PAGER_TITLE" => "Новости",
-                "PAGER_SHOW_ALWAYS" => "N",
-                "PAGER_DESC_NUMBERING" => "N",
-                "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                "PAGER_SHOW_ALL" => "N",
-                "PAGER_BASE_LINK_ENABLE" => "N",
-                "SET_STATUS_404" => "N",
-                "SHOW_404" => "N",
-                "MESSAGE_404" => ""
-        ],
-        false
+    "tacticum:faq.section",
+    "",
+    [
+        "IBLOCK_ID" => tacticum_iblock_id('faq'),
+        "SECTION_KEY" => "services",
+    ],
+    false
 );
 ?>
 

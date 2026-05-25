@@ -1,8 +1,9 @@
 <?php
-$GLOBALS['TACTICUM_PAGE_ASSETS'] = ['faq', 'charts'];
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Тарифы IT-специалистов и AI-команд - Тактикум");
-$APPLICATION->SetPageProperty("description", "Тарифы и ставки специалистов Tacticum для AI, ML, разработки, аналитики, дизайна и управления проектами.");
+require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+
+$APPLICATION->SetPageProperty("tacticum_page_assets", "faq,charts,chat");
+$APPLICATION->SetTitle("Команда под AI- и IT-задачу: роли, ставки и быстрый старт - Тактикум");
+$APPLICATION->SetPageProperty("description", "Соберите управляемую AI- или IT-команду под задачу: роли, уровни специалистов, ставки, пресеты команды и заявка на старт работ.");
 tacticum_apply_seo_defaults('/price/', [
     'image' => SITE_TEMPLATE_PATH . '/images/price_hero_bg.jpg',
     'image_width' => 1536,
@@ -20,9 +21,10 @@ tacticum_apply_seo_defaults('/price/', [
     ],
     'faq_schema' => true,
 ]);
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 ?>
 
-<!-- Hero Section -->
 <section class="price-hero-bg pt-24">
     <div class="container mx-auto px-4 py-16">
         <div class="flex flex-col items-center text-center">
@@ -30,275 +32,173 @@ tacticum_apply_seo_defaults('/price/', [
                 <div class="flex items-center justify-center gap-2 mb-4 text-sm">
                     <a href="/" data-readdy="true" class="text-blue-200 hover:text-white transition-colors">Главная</a>
                     <i class="ri-arrow-right-s-line text-blue-200"></i>
-                    <span>Тарифы</span>
-                </div>
-                <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">Почасовые ставки IT-специалистов по модели T&M</h1>
+                <span>Команда и ставки</span>
+            </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">Соберите AI- и IT-команду под вашу задачу</h1>
                 <p class="text-lg md:text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
-                    Мы предлагаем гибкое расширение вашей команды под задачи бизнеса — вы платите только за
-                    отработанные часы специалистов нужного профиля. Получите доступ к профессионалам с релевантной
-                    экспертизой без затрат на найм и долгий поиск.
+                    Выберите роли, уровни и загрузку, чтобы быстро оценить состав работ. Ставки остаются прозрачным
+                    ориентиром, а заявка помогает уточнить команду, ответственность и формат подключения.
                 </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-3">
+                    <a href="#price-list" class="inline-flex items-center justify-center gap-2 rounded-button bg-primary px-6 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
+                        <i class="ri-team-line"></i>
+                        Подобрать состав
+                    </a>
+                    <a href="/offer/" class="inline-flex items-center justify-center gap-2 rounded-button border border-white/30 bg-white/10 px-6 py-3 text-sm font-medium text-white hover:bg-white/20 transition-colors">
+                        <i class="ri-file-search-line"></i>
+                        Сравнить с расчетами
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Benefits Section -->
 <section class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            <!-- Benefit 1 -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <i class="ri-time-line text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Экономия времени и бюджета</h3>
+                <h3 class="text-lg font-bold text-secondary mb-2">Состав под задачу</h3>
                 <p class="text-gray-600">
-                    Нет затрат на поиск, найм и удержание специалистов. Платите только за фактические часы работы.
+                    Подбираем роли под конкретный этап: discovery, MVP, интеграции, support или релизный рывок.
                 </p>
             </div>
-            <!-- Benefit 2 -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <i class="ri-rocket-line text-3xl text-primary"></i>
                 </div>
                 <h3 class="text-lg font-bold text-secondary mb-2">Быстрый старт работы</h3>
                 <p class="text-gray-600">
-                    Подключаем специалистов к вашему проекту в течение 1-3 дней после согласования условий.
+                    После согласования scope и доступов подключаем специалистов короткими управляемыми итерациями.
                 </p>
             </div>
-            <!-- Benefit 3 -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <i class="ri-price-tag-3-line text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Прозрачное ценообразование</h3>
+                <h3 class="text-lg font-bold text-secondary mb-2">Прозрачные ставки</h3>
                 <p class="text-gray-600">
-                    Фиксированные почасовые ставки без скрытых платежей. Понятная система учета рабочего времени.
+                    Видите ставку, уровень и примерный месячный бюджет до того, как оставите заявку.
                 </p>
             </div>
-            <!-- Benefit 4 -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <i class="ri-scales-3-line text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Возможность быстро масштабировать команду</h3>
+                <h3 class="text-lg font-bold text-secondary mb-2">Масштабирование команды</h3>
                 <p class="text-gray-600">
-                    Легко увеличивайте или уменьшайте количество специалистов в зависимости от текущих потребностей.
+                    Можно начать с узкого состава и расширять его по мере появления задач и данных.
                 </p>
             </div>
-            <!-- Benefit 5 -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <i class="ri-file-paper-2-line text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Работаем по договору и с НДС</h3>
+                <h3 class="text-lg font-bold text-secondary mb-2">Договор и понятная зона ответственности</h3>
                 <p class="text-gray-600">
-                    Полностью легальное сотрудничество с заключением договора и предоставлением всех необходимых
-                    документов.
+                    Фиксируем формат работы, коммуникации, отчетность и ожидаемый результат этапа.
                 </p>
             </div>
         </div>
     </div>
 </section>
 
+<div id="price-list">
 <?php
 $APPLICATION->IncludeComponent(
-        "bitrix:news.list",
-        "price",
-        [
-                "COMPONENT_TEMPLATE" => "price",
-                "IBLOCK_TYPE" => "services",
-                "IBLOCK_ID" => tacticum_iblock_id('rates'),
-                "NEWS_COUNT" => "9999",
-                "SORT_BY1" => "SORT",
-                "SORT_ORDER1" => "ASC",
-                "SORT_BY2" => "ID",
-                "SORT_ORDER2" => "DESC",
-                "FILTER_NAME" => "",
-                "FIELD_CODE" => ["ID","CODE","NAME","SORT","IBLOCK_TYPE_ID","IBLOCK_ID"],
-                "PROPERTY_CODE" => ["LEVEL","PRICE","OPTIONS","POPULAR"],
-                "CHECK_DATES" => "Y",
-                "DETAIL_URL" => "",
-                "AJAX_MODE" => "N",
-                "AJAX_OPTION_JUMP" => "N",
-                "AJAX_OPTION_STYLE" => "Y",
-                "AJAX_OPTION_HISTORY" => "N",
-                "AJAX_OPTION_ADDITIONAL" => "",
-                "CACHE_TYPE" => "A",
-                "CACHE_TIME" => "36000000",
-                "CACHE_FILTER" => "N",
-                "CACHE_GROUPS" => "Y",
-                "PREVIEW_TRUNCATE_LEN" => "",
-                "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                "SET_TITLE" => "N",
-                "SET_BROWSER_TITLE" => "N",
-                "SET_META_KEYWORDS" => "N",
-                "SET_META_DESCRIPTION" => "N",
-                "SET_LAST_MODIFIED" => "N",
-                "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                "ADD_SECTIONS_CHAIN" => "N",
-                "HIDE_LINK_WHЕН_NO_DETAIL" => "N",
-                "PARENT_SECTION" => "",
-                "PARENT_SECTION_CODE" => "",
-                "INCLUDE_SUBSECTIONS" => "N",
-                "STRICT_SECTION_CHECK" => "N",
-                "PAGER_TEMPLATE" => ".default",
-                "DISPLAY_TOP_PAGER" => "N",
-                "DISPLAY_BOTTOM_PAGER" => "N",
-                "PAGER_TITLE" => "Новости",
-                "PAGER_SHOW_ALWAYS" => "N",
-                "PAGER_DESC_NUMBERING" => "N",
-                "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                "PAGER_SHOW_ALL" => "N",
-                "PAGER_BASE_LINK_ENABLE" => "N",
-                "SET_STATUS_404" => "N",
-                "SHOW_404" => "N",
-                "MESSAGE_404" => ""
-        ],
-        false
+    "tacticum:content.list",
+    "",
+    [
+        "NEWS_LIST_TEMPLATE" => "price",
+        "IBLOCK_KEY" => "rates",
+        "IBLOCK_TYPE" => "services",
+        "NEWS_COUNT" => "9999",
+        "SORT_BY1" => "SORT",
+        "SORT_ORDER1" => "ASC",
+        "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
+        "PROPERTY_CODE" => ["LEVEL", "PRICE", "OPTIONS", "POPULAR"],
+        "DISPLAY_BOTTOM_PAGER" => "N",
+    ],
+    false
 );
 ?>
+</div>
 
-<!-- AI Calculator Section -->
 <div id="calculator">
     <section class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row items-center gap-12">
-                <!-- LIVE чат, как на /calculator/ -->
                 <div class="w-full md:w-1/2">
-                    <div class="ai-chat-container shadow-lg" data-tacticum-chat="light" data-chat-surface="price">
-                        <!-- Chat Header -->
-                        <div class="bg-white p-4 border-b border-gray-200">
-                            <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                                <div class="text-gray-500 text-sm">AI-калькулятор Tacticum</div>
-                            </div>
-                        </div>
-
-                        <!-- Chat Body -->
-                        <div class="p-6 space-y-6" data-chat-messages>
-                            <!-- Welcome Message -->
-                            <div class="bg-primary/10 rounded-lg p-4">
-                                <p class="text-gray-700">
-                                    Здравствуйте! Я ИИ-ассистент Tacticum. Опишите вашу задачу, и я помогу оценить
-                                    необходимые ресурсы, состав команды и примерный бюджет.
-                                </p>
-                            </div>
-                            <?/* примеры и typing — добавляются динамически */?>
-                        </div>
-
-                        <!-- Chat Input -->
-                        <div class="bg-white p-4 border-t border-gray-200">
-                            <div class="flex items-center gap-2">
-                                <input type="text" placeholder="Опишите вашу задачу..."
-                                       data-chat-input
-                                       class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                <button type="button"
-                                        data-chat-send
-                                        aria-label="Отправить сообщение"
-                                        class="bg-primary w-10 h-10 rounded-full flex items-center justify-center text-white">
-                                    <i class="ri-send-plane-fill"></i>
-                                </button>
-                            </div>
-                            <div class="mt-3 flex flex-wrap gap-2">
-                                <button type="button" data-chat-quick-reply data-message="Чат-бот" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Чат-бот</button>
-                                <button type="button" data-chat-quick-reply data-message="Анализ данных" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Анализ данных</button>
-                                <button type="button" data-chat-quick-reply data-message="Интеграция ИИ-агентов" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Интеграция ИИ-агентов</button>
-                                <button type="button" data-chat-quick-reply data-message="Мобильное приложение" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors">Мобильное приложение</button>
-                            </div>
-                        </div>
-                    </div>
+                    <?php
+                    $APPLICATION->IncludeComponent(
+                        "tacticum:chat.surface",
+                        "",
+                        [
+                            "VARIANT" => "light",
+                            "SURFACE" => "price",
+                            "ROOT_CLASS" => "ai-chat-container shadow-lg",
+                            "TITLE" => "AI-калькулятор Tacticum",
+                            "INTRO" => "Здравствуйте! Опишите задачу, текущий этап и ограничения. Я помогу наметить состав команды, роли и ориентир бюджета, а точный план уточнит специалист Tacticum.",
+                            "PLACEHOLDER" => "Опишите вашу задачу...",
+                            "QUICK_REPLIES" => [
+                                "MVP с AI",
+                                "Интеграция в CRM",
+                                "Команда на 2 месяца",
+                                "Поддержка продукта",
+                            ],
+                        ],
+                        false
+                    );
+                    ?>
                 </div>
 
-                <!-- Изображение справа -->
                 <div class="w-full md:w-1/2">
                     <img src="<?=SITE_TEMPLATE_PATH?>/images/ai.jpg"
-                         alt="AI-калькулятор" class="w-full h-auto rounded-xl shadow-lg object-cover object-top">
+                         width="608" height="512" alt="AI-калькулятор" loading="lazy" decoding="async" class="w-full h-auto rounded-xl shadow-lg object-cover object-top">
                 </div>
             </div>
         </div>
     </section>
 </div>
 
-<?
+<?php
 $APPLICATION->IncludeComponent(
-        "bitrix:news.list",
-        "faq",
-        [
-                "COMPONENT_TEMPLATE" => "faq",
-                "IBLOCK_TYPE" => "company",
-                "IBLOCK_ID" => tacticum_iblock_id('faq'),
-                "NEWS_COUNT" => "0",
-                "SORT_BY1" => "SORT",
-                "SORT_ORDER1" => "ASC",
-                "SORT_BY2" => "ID",
-                "SORT_ORDER2" => "DESC",
-                "FILTER_NAME" => "",
-                "FIELD_CODE" => [
-                        0 => "ID",
-                        1 => "CODE",
-                        2 => "NAME",
-                        3 => "SORT",
-                        4 => "DETAIL_TEXT",
-                        5 => "IBLOCK_TYPE_ID",
-                        6 => "IBLOCK_ID",
-                        7 => "",
-                ],
-                "PROPERTY_CODE" => [
-                        0 => "",
-                        1 => "",
-                ],
-                "CHECK_DATES" => "Y",
-                "DETAIL_URL" => "",
-                "AJAX_MODE" => "N",
-                "AJAX_OPTION_JUMP" => "N",
-                "AJAX_OPTION_STYLE" => "Y",
-                "AJAX_OPTION_HISTORY" => "N",
-                "AJAX_OPTION_ADDITIONAL" => "",
-                "CACHE_TYPE" => "A",
-                "CACHE_TIME" => "36000000",
-                "CACHE_FILTER" => "N",
-                "CACHE_GROUPS" => "Y",
-                "PREVIEW_TRUNCATE_LEN" => "",
-                "ACTIVE_DATE_FORMAT" => "d.m.Y",
-                "SET_TITLE" => "N",
-                "SET_BROWSER_TITLE" => "N",
-                "SET_META_KEYWORDS" => "N",
-                "SET_META_DESCRIPTION" => "N",
-                "SET_LAST_MODIFIED" => "N",
-                "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-                "ADD_SECTIONS_CHAIN" => "N",
-                "HIDE_LINK_WHEN_NO_DETAIL" => "N",
-                "PARENT_SECTION" => "21",
-                "PARENT_SECTION_CODE" => "",
-                "INCLUDE_SUBSECTIONS" => "N",
-                "STRICT_SECTION_CHECK" => "N",
-                "PAGER_TEMPLATE" => ".default",
-                "DISPLAY_TOP_PAGER" => "N",
-                "DISPLAY_BOTTOM_PAGER" => "N",
-                "PAGER_TITLE" => "Новости",
-                "PAGER_SHOW_ALWAYS" => "N",
-                "PAGER_DESC_NUMBERING" => "N",
-                "PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-                "PAGER_SHOW_ALL" => "N",
-                "PAGER_BASE_LINK_ENABLE" => "N",
-                "SET_STATUS_404" => "N",
-                "SHOW_404" => "N",
-                "MESSAGE_404" => ""
-        ],
-        false
+    "tacticum:faq.section",
+    "",
+    [
+        "IBLOCK_ID" => tacticum_iblock_id('faq'),
+        "SECTION_KEY" => "price",
+    ],
+    false
 );
 ?>
 
 <?php
-$tacticumPersonalOfferCta = [
-    "form_id" => "price-cta",
-    "form_html_id" => "pricing-cta-form",
-];
-include $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/include/personal-offer-cta.php";
+$APPLICATION->IncludeComponent(
+    "tacticum:lead.cta",
+    "",
+    [
+        "TYPE" => "personal-offer",
+        "FORM_ID" => "price-cta",
+        "FORM_HTML_ID" => "pricing-cta-form",
+        "TITLE" => "Нужен состав команды под вашу задачу?",
+        "TEXT" => "Опишите, какой результат нужен, текущий этап и желаемый срок. Мы предложим роли, уровень специалистов, формат загрузки и следующий шаг по подключению.",
+        "MESSAGE_LABEL" => "Опишите задачу для команды",
+        "MESSAGE_PLACEHOLDER" => "Например: нужен MVP личного кабинета с AI-подсказками, старт в июне, команда на 2-3 месяца",
+        "BUTTON_TEXT" => "Подобрать команду",
+        "LEAD_CONTEXT" => [
+            "lead_entry" => "price",
+            "lead_page_role" => "team-entry",
+            "lead_intent" => "build-managed-team",
+            "lead_cta" => "price-cta",
+            "lead_next_step" => "team-scope-and-staffing",
+        ],
+    ],
+    false
+);
 ?>
 
 <?php require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php"); ?>

@@ -22,10 +22,13 @@
     "release:signoff:draft-check": "node ./tools/release-signoff-check.mjs --allow-pending",
     "release:signoff:summary": "node ./tools/release-signoff-check.mjs --allow-pending --summary",
     "release:signoff:self-test": "node ./tools/release-signoff-self-test.mjs",
+    "gaps:known": "node ./tools/known-gaps-check.mjs",
+    "gaps:known:strict": "node ./tools/known-gaps-check.mjs --strict",
     "visual:smoke:css-local": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_REMOVE_CSS=tailwind.generated.css,template_styles.css,styles/global.css,styles/aiagents.css TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/styles/global.css node ./tools/visual-smoke.mjs",
     "browser:smoke:css-local": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_REMOVE_CSS=tailwind.generated.css,template_styles.css,styles/global.css,styles/aiagents.css TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/styles/global.css TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs",
     "config:check": "node ./tools/config-contract-check.mjs",
-    "sale:sunset:check": "node ./tools/legacy-sale-sunset-check.mjs"
+    "sale:sunset:check": "node ./tools/legacy-sale-sunset-check.mjs",
+    "bitrix:check": "node ./tools/bitrix-architecture-check.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.1.8",

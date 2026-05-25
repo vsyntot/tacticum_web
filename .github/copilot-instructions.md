@@ -27,9 +27,14 @@
 │   │   ├── tacticum_prefill.php    # Предзаполнение форм
 │   │   └── resolve_telegram_link.php
 │   ├── php_interface/
-│   │   ├── init.php                # EventManager, Bitrix REST (calcrequests.*)
+│   │   ├── init.php                # Тонкий bootstrap include/registration
 │   │   └── include/
 │   │       ├── tacticum_config.php # Конфиг: инфоблоки, URL, CORS, IP (НЕ в git)
+│   │       ├── site_helpers.php    # Site URL / iblock key helpers
+│   │       ├── seo_helpers.php     # Canonical/OG/JSON-LD/robots helpers
+│   │       ├── component_helpers.php # Shared component parameter helpers
+│   │       ├── calcrequests_rest.php # Bitrix REST calcrequests.*
+│   │       ├── offer_catalog_cache.php # Лёгкий cache/event layer для /offer/
 │   │       └── menu_helpers.php
 │   └── templates/tacticum/        # Активный шаблон Bitrix
 │       ├── header.php              # Подключение JS/CSS, Яндекс.Метрика (ID: 103471113)
@@ -66,7 +71,8 @@
 ### PHP
 - Стиль: **PSR-12**, в новых файлах `declare(strict_types=1)`.
 - PHP 8.4: `match`, `readonly`, named arguments, `enum` — приветствуется.
-- Функции в `init.php` — префикс `tacticum_`.
+- `init.php` должен оставаться тонким bootstrap/registration файлом; domain helpers и REST callbacks выносить в `local/php_interface/include/`.
+- Функции в `local/php_interface/include/*.php` — префикс `tacticum_`, shared component parameter helpers — через `TacticumComponentParams`.
 - Функции в `rest_helpers.php` — префикс `tacticum_rest_` или `tacticum_api_`.
 - Предпочитать Bitrix D7 / ORM над старым API где возможно.
 - Загрузка модулей: `Loader::includeModule()`, не `CModule::IncludeModule()`.
@@ -162,6 +168,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICOD
 - Новый CSS предпочтительно добавлять через Tailwind source, scoped block в `styles/global.css` с body/page class или component `style.css`; новый template-level page CSS не добавлять без отдельного архитектурного решения и обновления `docs/workflow/asset-layout-audit.md`.
 - Форма: атрибут `data-tacticum-form` на `<form>` — автоматически подхватывается `forms.js`.
 - После CSS/JS правок запускать `npm run e2e:css-js:local` до deploy и `npm run e2e:css-js:prod` после deploy, если PR затрагивает browser runtime/assets; точечные guards `css:check`, `template-styles:check`, `visual:smoke:*` и `browser:smoke:*` можно использовать для локализации падения.
+- После изменений public page/component/bootstrap patterns запускать `npm run bitrix:check`.
 
 ---
 

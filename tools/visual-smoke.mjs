@@ -462,7 +462,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         if (ogImage && ogImage.protocol !== 'https:') {
           pushSeoError('og:image is not HTTPS');
         }
-        const requiredNavigationPaths = ['/price/', '/calculator/', '/aiagents/'].map(normalizePath);
+        const requiredNavigationPaths = ['/price/', '/offer/', '/calculator/', '/aiagents/'].map(normalizePath);
         for (const path of requiredNavigationPaths) {
           if (!navLinks.includes(path)) {
             pushSeoError('top navigation is missing money page ' + path);

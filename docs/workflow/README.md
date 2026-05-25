@@ -129,10 +129,18 @@ QA подключается до разработки, если задача к�
 - `chat-api-contract.md` — низкоуровневый contract `/local/rest/tacticum_chat.php`.
 - `asset-layout-audit.md` — карта текущих CSS/JS assets, inline-долги и правила дальнейшей верстки.
 - `seo-gap-analysis.md` — детальный SEO gap analysis: indexability, 404, structured data, sitemap/robots и social preview.
+- `product-marketing-gap-analysis.md` — продуктово-маркетинговый gap analysis: positioning, funnel, CTA, proof, `/offer/` segmentation и lead qualification.
+- `offer-example-seed-runbook.md` — запуск и контроль CLI-сидера synthetic offer examples для `/offer/`.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
 - `release-signoff-gates.md` — ручные/staging sign-off gates для success-flow, Метрики, config sync и Bitrix admin.
 - `rest-response-contract-decision.md` — решение по сохранению доменных success/error response shapes.
 - `sprints/` — snapshot-ы спринтов.
+
+## Static Guards
+
+- `npm run bitrix:check` — guard для Bitrix architecture: thin `init.php`, отсутствие direct `bitrix:*` в public page entries, отсутствие component-level global helper functions, наличие `/offer/` service/cache hardening и footer modal component.
+- `npm run gaps:known` — PM/QA guard для текущего известного хвоста: code-level open gaps, pending release gates, legacy inventory и post-deploy/cache smoke.
+- `npm run template-styles:check` — guard для CSS retirement и template public asset hygiene, включая запрет возврата Remixicon demo HTML в `local/templates/tacticum/fonts/`.
 
 ## Definition Of Ready
 

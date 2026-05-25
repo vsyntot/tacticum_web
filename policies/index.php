@@ -1,5 +1,6 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+<?php
+require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+
 $APPLICATION->SetTitle("Политика конфиденциальности - Тактикум");
 $APPLICATION->SetPageProperty("description", "Политика конфиденциальности Tacticum: порядок обработки персональных данных и права пользователей.");
 tacticum_apply_seo_defaults('/policies/', [
@@ -13,66 +14,22 @@ tacticum_apply_seo_defaults('/policies/', [
         ],
     ],
 ]);
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 ?>
 
 <?
 $APPLICATION->IncludeComponent(
-	"bitrix:news.detail", 
-	"policies",
-	[
-		"COMPONENT_TEMPLATE" => "policies",
-		"IBLOCK_TYPE" => "company",
-		"IBLOCK_ID" => tacticum_iblock_id('policies'),
-		"ELEMENT_ID" => "515",
-		"ELEMENT_CODE" => "",
-		"CHECK_DATES" => "Y",
-		"FIELD_CODE" => [
-			0 => "ID",
-			1 => "CODE",
-			2 => "NAME",
-			3 => "DETAIL_TEXT",
-			4 => "",
-		],
-		"PROPERTY_CODE" => [
-			0 => "",
-		],
-		"IBLOCK_URL" => "",
-		"DETAIL_URL" => "",
-		"AJAX_MODE" => "N",
-		"AJAX_OPTION_JUMP" => "N",
-		"AJAX_OPTION_STYLE" => "Y",
-		"AJAX_OPTION_HISTORY" => "N",
-		"AJAX_OPTION_ADDITIONAL" => "",
-		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "36000000",
-		"CACHE_GROUPS" => "Y",
-			"SET_TITLE" => "N",
-			"SET_CANONICAL_URL" => "N",
-			"SET_BROWSER_TITLE" => "N",
-			"BROWSER_TITLE" => "-",
-			"SET_META_KEYWORDS" => "N",
-			"META_KEYWORDS" => "-",
-			"SET_META_DESCRIPTION" => "N",
-			"META_DESCRIPTION" => "-",
-		"SET_LAST_MODIFIED" => "N",
-		"INCLUDE_IBLOCK_INTO_CHAIN" => "N",
-		"ADD_SECTIONS_CHAIN" => "N",
-		"ADD_ELEMENT_CHAIN" => "N",
-		"ACTIVE_DATE_FORMAT" => "d.m.Y",
-		"USE_PERMISSIONS" => "N",
-		"STRICT_SECTION_CHECK" => "N",
-		"PAGER_TEMPLATE" => ".default",
-		"DISPLAY_TOP_PAGER" => "N",
-		"DISPLAY_BOTTOM_PAGER" => "Y",
-		"PAGER_TITLE" => "Страница",
-		"PAGER_SHOW_ALL" => "N",
-		"PAGER_BASE_LINK_ENABLE" => "N",
-		"SET_STATUS_404" => "N",
-		"SHOW_404" => "N",
-		"MESSAGE_404" => ""
-	],
-	false
+    "tacticum:content.detail",
+    "",
+    [
+        "IBLOCK_KEY" => "policies",
+        "DETAIL_TEMPLATE" => "policies",
+        "FIELD_CODE" => ["ID", "CODE", "NAME", "DETAIL_TEXT"],
+        "PROPERTY_CODE" => [],
+    ],
+    false
 );
 ?>
 
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+<?php require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>

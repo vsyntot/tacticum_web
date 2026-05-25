@@ -7,8 +7,40 @@ const templateStylesPath = 'local/templates/tacticum/template_styles.css';
 const stylesDir = 'local/templates/tacticum/styles';
 const globalStylesPath = 'local/templates/tacticum/styles/global.css';
 const tailwindStylesPath = 'local/templates/tacticum/tailwind.generated.css';
+const tailwindSourcePath = 'local/templates/tacticum/assets/src/tailwind.css';
 const headerPath = 'local/templates/tacticum/header.php';
 const remixIconStylesPath = 'local/templates/tacticum/fonts/remixicon.css';
+const forbiddenTemplateAssetPaths = [
+  'local/templates/tacticum/include',
+  'local/templates/tacticum/fonts/index.html',
+  'local/templates/tacticum/fonts/symbol.html',
+  'local/templates/tacticum/fonts/unicode.html',
+  'local/templates/tacticum/fonts/pacifico',
+  'local/templates/tacticum/fonts/RemixIcon_Fonts_v4.6.0.zip',
+  'local/templates/tacticum/fonts/remixicon.glyph.json',
+  'local/templates/tacticum/fonts/remixicon.less',
+  'local/templates/tacticum/fonts/remixicon.module.less',
+  'local/templates/tacticum/fonts/remixicon.scss',
+  'local/templates/tacticum/fonts/remixicon.styl',
+  'local/templates/tacticum/fonts/remixicon.symbol.svg',
+  'local/templates/tacticum/images/aibot_hero_bg.jpg',
+  'local/templates/tacticum/images/aibot_hero_bg_2.png',
+  'local/templates/tacticum/images/aibot_hero_bg_old.jpg',
+  'local/templates/tacticum/images/background.jpg',
+  'local/templates/tacticum/images/finance.jpg',
+  'local/templates/tacticum/images/logistics.jpg',
+  'local/templates/tacticum/images/retail.jpg',
+  'local/templates/tacticum/images/tm1.jpg',
+  'local/templates/tacticum/images/tm2.jpg',
+  'local/templates/tacticum/images/tm3.jpg',
+];
+const pngDimensionExpectations = [
+  ['local/templates/tacticum/images/favicon-16x16.png', 16, 16],
+  ['local/templates/tacticum/images/favicon-32x32.png', 32, 32],
+  ['local/templates/tacticum/images/apple-touch-icon.png', 180, 180],
+  ['local/templates/tacticum/images/android-chrome-192x192.png', 192, 192],
+  ['local/templates/tacticum/images/android-chrome-512x512.png', 512, 512],
+];
 const remixIconScanRoots = [
   'index.php',
   'about',
@@ -19,13 +51,15 @@ const remixIconScanRoots = [
   'aiagents',
   'contacts',
   'policies',
+  'local/components',
   'local/templates/tacticum',
 ];
 
-const [templateStyles, globalStyles, tailwindStyles, header, remixIconStyles, styleFiles] = await Promise.all([
+const [templateStyles, globalStyles, tailwindStyles, tailwindSource, header, remixIconStyles, styleFiles] = await Promise.all([
   readFile(templateStylesPath, 'utf8'),
   readFile(globalStylesPath, 'utf8'),
   readFile(tailwindStylesPath, 'utf8'),
+  readFile(tailwindSourcePath, 'utf8'),
   readFile(headerPath, 'utf8'),
   readFile(remixIconStylesPath, 'utf8'),
   readdir(stylesDir),
@@ -44,6 +78,14 @@ if (!globalStyles.includes('Migrated global template styles')) {
 
 if (/:where\(\[class\^="ri-"\]\)::before/.test(globalStyles)) {
   failures.push(`${globalStylesPath} must not define a generic Remixicon fallback; use only real classes from ${remixIconStylesPath}.`);
+}
+
+if (/Pacifico|fonts\/pacifico/.test(globalStyles)) {
+  failures.push(`${globalStylesPath} must not load unused Pacifico fonts.`);
+}
+
+if (tailwindSource.includes('../../include/**/*.php')) {
+  failures.push(`${tailwindSourcePath} must not scan removed template include directory.`);
 }
 
 if (!header.includes('styles/global.css')) {
@@ -73,6 +115,8 @@ for (const [file, source] of [
 }
 
 failures.push(...await checkRemixIconClasses(remixIconStyles, remixIconScanRoots));
+failures.push(...await checkForbiddenTemplateAssetPaths(forbiddenTemplateAssetPaths));
+failures.push(...await checkPngDimensions(pngDimensionExpectations));
 
 if (failures.length > 0) {
   console.error('Template styles retirement check failed:');
@@ -133,6 +177,44 @@ async function checkRemixIconClasses(remixIconStyles, roots) {
 
   for (const missingClass of missingClasses) {
     errors.push(`Unknown Remixicon class ${missingClass}; use a class present in ${remixIconStylesPath}.`);
+  }
+
+  return errors;
+}
+
+async function checkForbiddenTemplateAssetPaths(paths) {
+  const errors = [];
+
+  for (const file of paths) {
+    try {
+      await stat(file);
+      errors.push(`${file} must not be deployed with the public template; keep only referenced runtime assets.`);
+    } catch (error) {
+      if (error?.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
+
+  return errors;
+}
+
+async function checkPngDimensions(images) {
+  const errors = [];
+  const pngSignature = '89504e470d0a1a0a';
+
+  for (const [file, expectedWidth, expectedHeight] of images) {
+    const buffer = await readFile(file);
+    if (buffer.subarray(0, 8).toString('hex') !== pngSignature || buffer.subarray(12, 16).toString('ascii') !== 'IHDR') {
+      errors.push(`${file} must be a valid PNG image.`);
+      continue;
+    }
+
+    const width = buffer.readUInt32BE(16);
+    const height = buffer.readUInt32BE(20);
+    if (width !== expectedWidth || height !== expectedHeight) {
+      errors.push(`${file} must be ${expectedWidth}x${expectedHeight}, got ${width}x${height}.`);
+    }
   }
 
   return errors;

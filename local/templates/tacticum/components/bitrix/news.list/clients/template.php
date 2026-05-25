@@ -13,7 +13,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')))
                 ?>
                 <?php
-                // Экранируем пользовательские данные; не удалять при правках шаблона.
                 $clientName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                 ?>
                 <div class="client-logo w-32 h-16 flex items-center justify-center">

@@ -14,6 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const getFormId = (form) => form.dataset.formId || form.id || "unknown";
+    const acceptsOfferContext = (form) => Boolean(
+        form.dataset.tacticumAcceptOfferContext === "true" ||
+        form.querySelector('[name^="lead_"]')
+    );
 
     const ensureToastContainer = () => {
         let container = document.getElementById("tacticum-toast-container");
@@ -120,8 +124,13 @@ document.addEventListener("DOMContentLoaded", () => {
             data.sessid = BX.bitrix_sessid();
         }
 
-        if (window.tacticum_offer_context?.groupId) {
-            data.group_id = window.tacticum_offer_context.groupId;
+        const scopedGroupId = (form.dataset.tacticumOfferGroupId || "").trim();
+        const globalGroupId = acceptsOfferContext(form)
+            ? (window.tacticum_offer_context?.groupId || "").trim()
+            : "";
+        const groupId = scopedGroupId || globalGroupId;
+        if (groupId) {
+            data.group_id = groupId;
         }
 
         if (form.dataset.formId) {
@@ -237,6 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             showToast(successMessage, "success");
             form.reset();
+            delete form.dataset.tacticumOfferGroupId;
             closeModalIfNeeded(form);
         } catch (error) {
             trackEvent("tacticum_form_error", {

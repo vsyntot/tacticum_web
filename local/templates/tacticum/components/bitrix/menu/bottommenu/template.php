@@ -4,7 +4,6 @@
     <?foreach($arResult as $itemID => $arItem){?>
         <?if ($arItem["PERMISSION"] > "D"){?>
             <?php
-            // Экранируем строки меню; не удалять при правках шаблона.
             $itemLink = $arItem["LINK"];
             $itemLinkEsc = htmlspecialcharsbx($itemLink);
             $itemTextEsc = htmlspecialcharsbx($arItem["TEXT"]);

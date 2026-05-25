@@ -14,6 +14,15 @@ Status: `external handoff`
 | Production browser/CSS/JS | passed | `npm run e2e:css-js:prod` passed after deploy; manifests recorded in release sign-off draft |
 | Production SEO/offer clear-cache | passed | `/offer/marketingoviy-marketpleys-dlya-medikov-i-klinik/?clear_cache=Y` вернул `200`; `npm run seo:check:prod` passed |
 
+## Repository Closure Refresh - 25.05.2026
+
+| Area | Result | Evidence |
+|---|---|---|
+| Static repository guards | passed | `seo:check`, `css:check`, `template-styles:check`, `config:check`, `sale:sunset:check`, `release:signoff:draft-check`, `release:signoff:summary`, `release:signoff:self-test` |
+| Production-safe checks | passed | `seo:check:prod`; unauthenticated `/bitrix/admin/` returned authorize screen without 500; GET guards for form/chat/prefill/staff/resolver returned controlled `405` JSON |
+| Local PHP preflight | degraded | PHP CLI отсутствует локально; GitHub PHP 8.4 lint остаётся обязательным fallback |
+| Current working-tree post-deploy smoke | pending deploy/cache | `visual:smoke:prod` и `browser:smoke:prod` запускать после deploy и Bitrix menu/component cache refresh, потому что rendered navigation теперь должна содержать `/offer/` |
+
 ## External Gates
 
 | Sprint ID | Release Gate | Owner | Due | Required Evidence | Repository Status |

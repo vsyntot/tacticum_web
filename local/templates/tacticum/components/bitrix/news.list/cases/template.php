@@ -3,7 +3,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 ?>
 
 <div id="cases">
-    <!-- Case Studies Section -->
     <section class="py-20">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
@@ -19,16 +18,14 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM'))) ?>
                     <?php
-                    // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
                     $caseName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
                     $caseImage = htmlspecialcharsbx($arItem["PREVIEW_PICTURE"]["SRC"]);
                     $casePreviewRaw = (string)($arItem["~PREVIEW_TEXT"] ?? $arItem["PREVIEW_TEXT"] ?? "");
                     $casePreview = tacticum_sanitize_iblock_html($casePreviewRaw);
                     ?>
-                    <!-- Case Study 1 -->
                     <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
                         <div class="h-80 overflow-hidden">
-                            <img src="<?=$caseImage?>" alt="<?=$caseName?>" class="w-full h-full object-cover object-top"/>
+                            <img src="<?=$caseImage?>" alt="<?=$caseName?>" loading="lazy" decoding="async" class="w-full h-full object-cover object-top"/>
                         </div>
                         <div class="p-6">
                             <div class="flex items-center gap-2 mb-4">
@@ -40,14 +37,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                             <p class="text-gray-600 mb-4">
                                 <?=$casePreview?>
                             </p>
-                            <?/*<a href="#" class="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">Подробнее <i class="ri-arrow-right-line"></i></a>*/?>
                         </div>
                     </div>
                 <?}?>
             </div>
-            <?/*<div class="text-center mt-12">
-                <a href="#" class="inline-block bg-white border border-primary text-primary px-8 py-3 rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Смотреть все кейсы</a>
-            </div>*/?>
         </div>
     </section>
 </div>

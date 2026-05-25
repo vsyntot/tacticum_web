@@ -21,10 +21,10 @@
 Основные риски:
 
 - frontend-debts переведены в управляемый track: old generated Tailwind block удалён, активные legacy/global styles перенесены из `template_styles.css` в `styles/global.css`, CSS/JS readiness доступен через `npm run e2e:css-js:prod` и `npm run e2e:css-js:local`, `template_styles.css` контролируется `npm run template-styles:check`;
-- repeated CTA/form sections на `/`, `/calculator/`, `/price/`, `/contacts/`, `/about/`, `/services/` вынесены в template includes с явными page-specific form config;
+- repeated CTA/form sections на `/`, `/calculator/`, `/price/`, `/contacts/`, `/about/`, `/services/` вынесены в локальный компонент `tacticum:lead.cta` с явными page-specific params;
 - production REST требует HTTPS URL внешних AI-сервисов; production health-check `GET /local/rest/health_config.php` подтверждён 21.05.2026, deploy health smoke остаётся обязательным guard;
 - локальный `tacticum_config.php` хранится вне Git index и должен синхронизироваться с `tacticum_config.example.php` вручную на окружениях; example config проверяется `npm run config:check`;
-- локальный PHP CLI у разработчика не считается гарантированным: `npm run dev:preflight` проверяет наличие PHP 8.4+ и запускает lint при доступности, а GitHub `php-lint` с PHP 8.4 остаётся обязательным CI fallback;
+- локальный PHP CLI у разработчика не считается гарантированным: `npm run dev:preflight` проверяет наличие PHP 8.4+ и запускает lint `local/`, корневых PHP и публичных разделов при доступности, а GitHub `php-lint` с PHP 8.4 остаётся обязательным CI fallback;
 - продуктовые сценарии AI-чата/калькулятора/оффера требуют регулярного post-deploy smoke и manual/staging sign-off по `docs/workflow/release-signoff-gates.md`.
 
 ## Структура Приложения
@@ -36,10 +36,11 @@
 | POST REST | `local/rest/tacticum_form.php`, `tacticum_chat.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_sale_staff.php`, `tacticum_prefill.php`, `resolve_telegram_link.php` | Формы, чат, AI-service, prefill, Telegram resolver |
 | Shared REST helpers | `local/rest/rest_helpers.php` | Config, CORS/origin, IP allowlist, rate limit, CSRF, curl defaults, masking |
 | Config health | `local/rest/health_config.php` | Same-origin health-check config keys without secret values |
-| Bitrix REST | `local/php_interface/init.php` | Методы `calcrequests.list` и `calcrequests.add` через `OnRestServiceBuildDescription` |
+| Bitrix bootstrap / REST | `local/php_interface/init.php`, `local/php_interface/include/site_helpers.php`, `seo_helpers.php`, `component_helpers.php`, `calcrequests_rest.php` | Тонкий bootstrap, site/SEO/component helpers и методы `calcrequests.list` / `calcrequests.add` через `OnRestServiceBuildDescription` |
 | Template | `local/templates/tacticum/header.php`, `footer.php`, `js/`, `styles/`, `components/bitrix/` | Активный шаблон сайта |
-| Template includes | `local/templates/tacticum/include/personal-offer-cta.php`, `project-discussion-cta.php` | Общие CTA/form sections для ключевых публичных страниц |
+| Reusable local components | `local/components/tacticum/lead.cta/`, `faq.section/`, `chat.surface/`, `content.list/`, `content.detail/`, `contact.modal/`, `aiagents/`, `offer/`, `offer.catalog/` | Общие CTA/form sections, FAQ wrapper, chat surfaces, content list/detail wrappers, footer modal и section-level `/aiagents/` / `/offer/` |
 | Content helpers | `local/php_interface/include/content_helpers.php` | Декодирование Bitrix HTML entities, escaping и sanitizer для публичного вывода инфоблоков |
+| Offer section | `local/components/tacticum/offer/`, `local/components/tacticum/offer.catalog/`, `local/php_interface/include/offer_page.php`, `local/php_interface/include/offer_catalog.php`, `offer_catalog_cache.php`, `docs/adr/ADR-007-offer-section-component.md` | Кастомный section-level компонент `/offer/`: тонкий front controller, pre-header route/SEO helper, dispatch list/detail/404, catalog child component, `TacticumOfferCatalogService` + repository/cache layer, managed tag/cache invalidation и compatibility wrappers для поиска offer, фильтрации, ЧПУ-ссылок и пагинации |
 | Frontend build | `package.json`, `package-lock.json`, `local/templates/tacticum/assets/src/tailwind.css`, `tailwind.generated.css` | Static Tailwind CSS сборка для шаблона |
 | CI/CD | `.github/workflows/deploy.yml`, `pr-check.yml`, `sitemap.yml` | Lint, convention checks, deploy, sitemap validation |
 | Architecture | `docs/adr/` | Принятые архитектурные решения |
@@ -120,36 +121,45 @@ JSON endpoints в `local/api/*.php` и доменных `local/rest/*.php` от�
 - `analytics.js`;
 - `metrika.js`;
 - `forms.js`;
-- `chat-agent.js`;
+- `chat-agent.js` условно через page property `tacticum_page_assets=chat`;
 - `modal.js`;
 - `scroll.js`;
 - `tg-link-resolver.js`;
-- `yandex-map.js` условно через `TACTICUM_PAGE_ASSETS`;
-- `faq.js`, `charts.js` условно через `TACTICUM_PAGE_ASSETS`;
+- `yandex-map.js` условно через page property `tacticum_page_assets`;
+- `faq.js`, `charts.js` условно через page property `tacticum_page_assets`;
 - `tailwind.generated.css`;
 - `fonts/remixicon.min.css`;
 - `styles/global.css`.
 
-Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`. Active global/template CSS живёт в единственном manual runtime file `styles/global.css`, а `template_styles.css` оставлен comment-only Bitrix shim; `npm run template-styles:check` блокирует возврат активных правил в shim, generic Remixicon fallback и неизвестные `ri-*` классы. `/aiagents/` больше не имеет отдельного CSS asset: его небольшой page-specific блок перенесён в `styles/global.css` и scoped через body class `tacticum-aiagents-page`. Для визуальной проверки добавлен `npm run visual:smoke`; перед deploy можно использовать `TACTICUM_VISUAL_INJECT_CSS`, после deploy workflow запускает smoke против production URL без injection. Для проверки обработчиков без создания лидов добавлен `npm run browser:smoke` (`TACTICUM_VISUAL_ACTIONS=1`). Для CSS retirement batch добавлены `npm run visual:smoke:css-local` и `npm run browser:smoke:css-local`, которые удаляют production CSS links и inject локальные CSS поверх production HTML.
+Browser Tailwind runtime `bundle.v3.4.16.js` и config `init.js` удалены после source/rendered asset inventory. Static utilities собираются командой `npm run css:build`, CI проверяет актуальность и cascade layer order через `npm run css:check`. Active global/template CSS живёт в единственном manual runtime file `styles/global.css`, а `template_styles.css` оставлен comment-only Bitrix shim; `npm run template-styles:check` блокирует возврат активных правил в shim, generic Remixicon fallback и неизвестные `ri-*` классы в публичных страницах, локальных компонентах и шаблоне. `/aiagents/` больше не имеет отдельного CSS asset: его небольшой page-specific блок перенесён в `styles/global.css` и scoped через body class `tacticum-aiagents-page`. Для визуальной проверки добавлен `npm run visual:smoke`; перед deploy можно использовать `TACTICUM_VISUAL_INJECT_CSS`, после deploy workflow запускает smoke против production URL без injection. Для проверки обработчиков без создания лидов добавлен `npm run browser:smoke` (`TACTICUM_VISUAL_ACTIONS=1`). Для CSS retirement batch добавлены `npm run visual:smoke:css-local` и `npm run browser:smoke:css-local`, которые удаляют production CSS links и inject локальные CSS поверх production HTML.
 
 После browser-error challenge 22.05.2026 `visual:smoke` также фиксирует `console.error`, page exceptions и network/resource errors. Фоновый Telegram resolver больше не должен вызывать `/local/rest/resolve_telegram_link.php` при initial page load; resolver включается только для ссылок с `data-tacticum-tg-resolve` и доступным `BX.bitrix_sessid()`. Production initial-load smoke 23.05.2026 прошёл без browser errors. `/price/` mixed-rollout regression устранён в `news.list/price/script.js`: скрипт поддерживает legacy/new selectors и fallback modal; обычный `npm run browser:smoke` без injection прошёл 23.05.2026.
 
-Yandex Maps constructor на `/contacts/` загружается через explicit asset `js/yandex-map.js` и контейнер `data-yandex-constructor-map`, а не через inline script в public page. Yandex.Metrika вынесена из inline script в centralized template asset `js/metrika.js`. Template по умолчанию отправляет transitional `Content-Security-Policy-Report-Only` header; `security.csp_mode=enforce` включает enforcing header только после report-only baseline, triage лишних источников и подтверждения карты/Метрики post-deploy smoke.
+`/contacts/` больше не зависит от Yandex Maps constructor script: карта рендерится через Yandex map widget iframe на объект `Тактикум` (`oid=243968538014`) с координатами `55.723957,37.503747` и ссылкой на карточку в Яндекс Картах. `БЦ Victory Park` показывается как навигационный ориентир, а юридический адрес `119285, г. Москва, ... Км Мжд Киевское 5-й, д. 1 стр. 1, помещ. 3/3` показывается текстом рядом как корректный адрес для документов, чтобы публичная карта, ориентир и реквизиты не конфликтовали. Опциональный asset `js/yandex-map.js` остаётся в template allowlist для будущих page-specific случаев, но текущая contact page его не подключает. Yandex.Metrika вынесена из inline script в centralized template asset `js/metrika.js`. Template по умолчанию отправляет transitional `Content-Security-Policy-Report-Only` header; `security.csp_mode=enforce` включает enforcing header только после report-only baseline, triage лишних источников и подтверждения карты/Метрики/post-deploy smoke.
 
-Страницы объявляют page-specific assets до `require bitrix/header.php`, например:
+Страницы объявляют page-specific assets до визуального пролога через split prolog и page property `tacticum_page_assets`, например:
 
-- `['faq']` для главной, services, calculator, offer;
+- `['faq']` для главной, services, calculator;
 - `['faq', 'charts']` для price;
-- `['yandex_map']` для contacts;
-- `['faq']` для aiagents.
+- `tacticum_page_assets=faq` для offer и aiagents.
 
 Dead page-specific CSS (`main.css`, `services.css`, `price.css`, `calculator.css`, `about.css`, `contacts.css`, `expertise.css`, `css2.css`, `aiagents.css`) удалены после source/rendered asset inventory и CSS consolidation. Approved file в `local/templates/tacticum/styles/` — только `global.css`, подключаемый как template asset. Старый generated Tailwind block удалён из `template_styles.css`; generated utilities должны жить только в `tailwind.generated.css`.
 
-FAQ presentation задаётся параметром компонента `SECTION_CLASS`, а не текущим URL. `/aiagents/` явно передаёт `py-16 bg-gray-50`.
+Template asset hygiene refresh 25.05.2026: пустая `local/templates/tacticum/include/` удалена и исключена из Tailwind source scan; `fonts/` содержит только runtime RemixIcon CSS/font binaries и `remixicon.css` для guard; неиспользуемый Pacifico, RemixIcon source/archive artifacts и dead image duplicates удалены; favicon/apple/android PNG соответствуют заявленным размерам.
 
-Основной personal-offer CTA для `/`, `/calculator/`, `/price/`, `/contacts/` вынесен в `local/templates/tacticum/include/personal-offer-cta.php`. `/contacts/` использует явный вариант `glass`. Project-discussion CTA для `/about/` и `/services/` вынесен в `local/templates/tacticum/include/project-discussion-cta.php`. Страницы передают только page-specific `form_id`, HTML `id` формы, field prefix и variant.
+FAQ presentation задаётся параметром wrapper-компонента `tacticum:faq.section` / `SECTION_CLASS`, а не текущим URL. FAQ-разделы на публичных страницах задаются semantic `SECTION_KEY`; компонент сначала ищет section по `CODE`, а numeric fallback допускается только через server config `content.faq_section_fallback_ids`, не через component code. `/aiagents/` явно передаёт `py-16 bg-gray-50`.
 
-Light chat surfaces на `/calculator/` и `/price/` размечены явными `data-tacticum-chat`, `data-chat-*` contracts; quick replies передают payload через `data-message`, а не через текст кнопки. Сообщения имеют общий CSS-ограничитель высоты и внутреннюю прокрутку `[data-chat-messages]`, чтобы новые ответы не растягивали всю секцию.
+Повторяемые списки инфоблоков на публичных страницах (`cases`, `feedback`, `services`, `team`, `vacancies`, `rates`, `aiagents`) вызываются через wrapper-компонент `tacticum:content.list`, который нормализует общий boilerplate `bitrix:news.list` и позволяет page entries передавать только доменные параметры: `IBLOCK_KEY`, template, fields/properties, count и сортировку.
+
+Статический detail-контент `/policies/` вызывается через wrapper-компонент `tacticum:content.detail`: публичная страница передаёт `IBLOCK_KEY=policies` и template, а numeric `ELEMENT_ID` не хардкодится в page entry.
+
+Sprint 15 product marketing architecture: публичный сайт упакован в 4 коммерческих входа: рассчитать проект (`/offer/`, `/calculator/`), внедрить AI-решение (`/services/`), собрать команду (`/price/`), запустить AI-бота (`/aiagents/`). Главная работает как router этих входов; `/services/`, `/price/`, `/calculator/`, `/offer/` и `/aiagents/` получили page-specific promise, next-step CTA и безопасный proof copy без спорных claims вроде `98%`, `15+ лет` или “гарантия результата”. Меню `services/.left.menu.php` и footer labels отражают product ladder, при этом URL inventory и SEO guard по money pages сохранены.
+Автоматическая проверка Sprint 15 прошла 25.05.2026: SEO/static guards, CSS build/check, Bitrix architecture check, browser smoke, price smoke, CSS-local visual/action smoke и production SEO check зелёные. PHP CLI локально недоступен, поэтому PHP lint остаётся CI/deploy fallback; production deploy и post-deploy smoke остаются release gates.
+Final stabilization challenge 25.05.2026 зафиксирован в `docs/workflow/final-stabilization-challenge-gap-analysis-2026-05-25.md`. Sprint 16 закрыл локальные code/docs gaps по карте `/contacts/`, offer detail estimate contrast, calculator/price chat-to-lead handoff, CTA image cleanup, contact/legal hierarchy, proof matrix, industry/scenario SEO decision и CSP target-state decision. Production deploy/cache smoke, real success-flow/staff upstream и Metrika goals остаются внешними release gates и не считаются закрытыми без evidence.
+
+Основной personal-offer CTA для `/`, `/calculator/`, `/price/`, `/contacts/` и project-discussion CTA для `/about/`, `/services/` отрисовываются через `local/components/tacticum/lead.cta/`. `/contacts/` использует явный вариант `glass`. Компонент поддерживает optional qualification fields `lead_budget` / `lead_timeline` и hidden `LEAD_CONTEXT`; backend `/local/rest/tacticum_form.php` добавляет allowlisted `lead_*` context в существующее поле `task`, не меняя upstream response shape. Footer contact modal отрисовывается через `local/components/tacticum/contact.modal/` и сохраняет DOM/JS contract `#tacticum-modal`, `#tacticum-modal-form`, `data-tacticum-form`. Страницы передают только page-specific `form_id`, HTML `id` формы, field prefix, variant, CTA copy и safe context.
+
+Hero chat на главной и light chat surfaces на `/calculator/` и `/price/` отрисовываются через `local/components/tacticum/chat.surface/` и сохраняют явные `#main_chat`, `#aichat`, `data-tacticum-chat`, `data-chat-*` contracts; quick replies передают payload через `data-message`, а не через текст кнопки. Сообщения имеют общий CSS-ограничитель высоты и внутреннюю прокрутку `[data-chat-messages]`, чтобы новые ответы не растягивали всю секцию. Light chat на `/calculator/` и `/price/` после успешного AI-ответа может передать контекст в целевую CTA форму: используется существующий `group_id`/prefill contract, summary заполняет `message`, а analytics получает только boolean flags без текста пользователя. Тёмный calculator block на главной остаётся на legacy DOM contract `#chatMessages/#userMessage/#sendMessage`.
 
 Specialist order modal для `/price/` находится в Bitrix component template `news.list/price/template.php`; component `script.js` управляет фильтрами, ценами, segmented-выбором уровня специалиста, счётчиком результатов, empty state, составом multi-staff заявки, пресетами срока, быстрыми пресетами команды, persistent summary, расчётом ориентировочного месячного бюджета и hidden fields через `data-price-*` contracts. Уровни сортируются в компонентном `result_modifier.php` в порядке `Junior -> Middle -> Senior -> Lead`. Frontend отправляет `workers_json`, `duration`, `endDate`, `team_preset`, `monthly_budget_estimate`, а `tacticum_sale_staff.php` сохраняет fallback по legacy `specialist/level/rate`.
 
@@ -159,14 +169,14 @@ Specialist order modal для `/price/` находится в Bitrix component t
 
 Формы с `data-tacticum-form` найдены:
 
-- main CTA: `index.php` через `include/personal-offer-cta.php`;
-- about CTA: `about/index.php` через `include/project-discussion-cta.php`;
-- services CTA: `services/index.php` через `include/project-discussion-cta.php`;
-- calculator CTA: `calculator/index.php` через `include/personal-offer-cta.php`;
-- price CTA: `price/index.php` через `include/personal-offer-cta.php`;
-- contacts CTA: `contacts/index.php` через `include/personal-offer-cta.php` с `variant=glass`;
+- main CTA: `index.php` через `tacticum:lead.cta`;
+- about CTA: `about/index.php` через `tacticum:lead.cta`;
+- services CTA: `services/index.php` через `tacticum:lead.cta`;
+- calculator CTA: `calculator/index.php` через `tacticum:lead.cta`;
+- price CTA: `price/index.php` через `tacticum:lead.cta`;
+- contacts CTA: `contacts/index.php` через `tacticum:lead.cta` с `VARIANT=glass`;
 - offer CTA: `local/templates/tacticum/components/bitrix/news.detail/offer/template.php`;
-- aiagents inline: `aiagents/index.php`;
+- aiagents inline: `local/components/tacticum/aiagents/templates/.default/template.php`;
 - modal form: `footer.php`;
 - specialist order: `news.list/price/template.php` + `news.list/price/script.js`.
 
@@ -178,12 +188,13 @@ Specialist order modal для `/price/` находится в Bitrix component t
 - добавляет `group_id` из `window.tacticum_offer_context`;
 - отправляет формы в `/local/rest/tacticum_form.php` по умолчанию;
 - поддерживает `data-endpoint` для доменных сценариев, например `/price/` staff-order;
+- отправляет optional `lead_*` context из hidden/qualification fields; analytics по-прежнему не получает эти values;
 - показывает toast и reset/close modal;
 - отправляет события `tacticum_form_*` без PII.
 
 ### AI Chat
 
-Production chat surfaces унифицированы через `local/templates/tacticum/js/chat-agent.js`, подключённый в `header.php` через `Bitrix\Main\Page\Asset`.
+Production chat surfaces унифицированы через `local/templates/tacticum/js/chat-agent.js`, подключённый в `header.php` через `Bitrix\Main\Page\Asset` только при page asset `chat`; повторяемые hero/light DOM surfaces вынесены в `local/components/tacticum/chat.surface/`.
 
 Покрытые поверхности:
 
@@ -218,7 +229,7 @@ Generated artifacts `sitemap-basic.xml`, `sitemap-basic-files.xml`, `sitemap-bas
 
 `npm run seo:check` статически проверяет repo-owned `sitemap.xml`, `robots.txt` и canonical paths публичных страниц: HTTPS `loc`, отсутствие legacy `sitemap-files.xml` в root index, один `lastmod` на каждый `loc`, freshness от `2026-05-24` и `Sitemap: https://tacticum.ru/sitemap.xml`. Если локально есть generated `sitemap-basic-files.xml`, он тоже валидируется. `npm run seo:check:prod` дополнительно проверяет production `sitemap.xml`, `sitemap-basic-files.xml`, `X-Robots-Tag: noindex, nofollow` на JSON endpoints и отсутствие дублей в dynamic `/offer/sitemap.php`; production sitemap guard запрещает `/404.php`, `/bitrix/` и `/local/` в sitemap loc.
 
-SEO/navigation decision: `/price/`, `/calculator/` и `/aiagents/` остаются не отдельными top-level пунктами, а дочерними ссылками dropdown `Услуги` через `services/.top.menu_ext.php`; это сохраняет короткий header и оставляет коммерческие URL в sitewide menu structure. `npm run seo:check` блокирует выпадение этих ссылок из top menu structure.
+SEO/navigation decision: `/price/`, `/offer/`, `/calculator/` и `/aiagents/` остаются не отдельными top-level пунктами, а дочерними ссылками dropdown `Услуги` через `services/.left.menu.php`; это сохраняет короткий header и оставляет коммерческие URL в sitewide menu structure. Те же money pages закреплены в footer menu `.bottom.menu.php`, а `/offer/` дополнительно добавлен в блок `Наши услуги` как карточка `Расчет проекта`. `/offer/` в меню называется `Расчет проекта`: это коммерческая landing-страница с индексируемыми примерами расчётов, а `/calculator/` остаётся отдельным инструментом `ИИ-калькулятор`. Top/mobile menu components используют root `.top.menu.php`, `CHILD_MENU_TYPE=left` и `USE_EXT=N`, чтобы section-level menu files не заменяли верхний уровень на `/services/`. `npm run seo:check` блокирует выпадение этих ссылок из top/footer/services menu structures и запрещает относительные footer URLs для публичных money pages.
 
 Публичные страницы задают `SetTitle(...)`, `description` и вызывают `tacticum_apply_seo_defaults(...)`, который добавляет:
 
@@ -239,9 +250,11 @@ Default social preview image: `local/templates/tacticum/images/og-default.jpg`, 
 
 FAQ JSON-LD включается только для страниц, где реально рендерится FAQ component: `/`, `/services/`, `/price/`, `/calculator/`, `/aiagents/`.
 
-`/offer/` остаётся landing-входом в offer flow. Детальные offer pages считаются индексируемыми примерами расчёта и открываются по ЧПУ `/offer/<ELEMENT_CODE>/`; `CODE` для новых элементов формируется из `slug.title` и timestamp создания. Legacy `/offer/?ID=<valid>` должен отдавать 301 на канонический ЧПУ, а invalid ID/code - 404 с `noindex`.
+`/offer/` остаётся landing-входом в offer flow и работает как индексируемый hub-каталог примеров расчёта через кастомный section-level компонент `tacticum:offer`; архитектурная граница зафиксирована в `docs/adr/ADR-007-offer-section-component.md`. Публичная страница `offer/index.php` оставлена тонким front controller: она подключает `prolog_before.php`, вызывает `local/php_interface/include/offer_page.php` для route/redirect/SEO/template properties, затем подключает визуальный пролог через `prolog_after.php`, а весь render list/detail/404 делегирует компоненту. `/offer/` не задаёт template globals: `faq` asset и body class выставляются через Bitrix page properties `tacticum_page_assets` и `tacticum_body_class`, которые читает `local/templates/tacticum/header.php`. List mode внутри `tacticum:offer` вызывает child component `tacticum:offer.catalog`: hero, статистика, быстрые отраслевые/scenario chips, серверные фильтры по поиску/отрасли/типу задачи/бюджету/формату, сортировка и пагинация. Catalog data проходит через `TacticumOfferCatalogService`, `TacticumOfferCatalogRepository` и `TacticumOfferCatalogCache`; cache dir `/tacticum/offer_catalog` регистрирует managed tag `iblock_id_<offer_iblock_id>` и очищается после add/update/delete элементов offer-инфоблока и отдельных property-update событий. В Sprint 15 list/detail templates усиливают conversion bridge: карточки и detail CTA явно говорят, что пример не является финальной сметой, а форма `offer-cta` передаёт safe `lead_offer_code`, `lead_offer_title`, industry/scenario/budget/timeline context. Detail mode использует штатный `bitrix:news.detail` с шаблоном `offer`, чтобы сохранить Bitrix lifecycle для элемента. Фасеты и пагинация каталога используют зарезервированный namespace `/offer/catalog/...`, например `/offer/catalog/scenario/ai-kopaylot/page/2/`, чтобы не конфликтовать с detail URL `/offer/<ELEMENT_CODE>/`; search/sort остаются query-параметрами. Query/filtered состояния каталога получают canonical `/offer/` и `noindex,follow`, чтобы не плодить индексируемые дубли. Редирект со старых query-состояний каталога сохраняет Bitrix service-параметры вроде `clear_cache=Y`. Детальные offer pages считаются индексируемыми примерами расчёта и открываются по ЧПУ `/offer/<ELEMENT_CODE>/`; `CODE` для новых элементов формируется из `slug.title` и timestamp создания. Legacy `/offer/?ID=<valid>` должен отдавать 301 на канонический ЧПУ, а invalid ID/code - 404 с `noindex`.
 
-Root `404.php` больше не использует `bitrix:main.map`: страница задаёт status 404, title `Страница не найдена - Тактикум`, `meta robots` и `X-Robots-Tag: noindex,nofollow`, один H1 и ссылки на ключевые разделы.
+Для массового наполнения индексируемых примеров расчета добавлен управляемый CLI-сидер `local/tools/seed_offer_examples.php`: он генерирует 1117 synthetic offer-запросов, берет инфоблок через key `offer`, по умолчанию работает в dry-run и пишет элементы только с явным `--apply`. Synthetic timestamp в `ELEMENT_CODE` и `DATE_ACTIVE_FROM` распределяется с 01.09.2022 по 24.05.2026. Runbook: `docs/workflow/offer-example-seed-runbook.md`.
+
+Root `404.php` больше не использует `bitrix:main.map`: страница задаёт status 404, title `Страница не найдена - Тактикум`, robots meta через `tacticum_add_robots_meta(...)`, `X-Robots-Tag: noindex,nofollow`, один H1 и ссылки на ключевые разделы.
 
 Post-deploy SEO smoke 24.05.2026: `npm run seo:smoke` прошёл по 9 публичным URL в desktop/mobile, все checks `seo=ok`, manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T08-28-30-284Z/manifest.json`. Production checks подтвердили 404/noindex, valid offer detail self-canonical, invalid offer 404/noindex и `X-Robots-Tag` на JSON endpoints. Повторный `npm run seo:check:prod` после deploy dedupe fix прошёл; dynamic `/offer/sitemap.php` не содержит duplicate `<loc>`. Sprint 10 SEO-009 revalidation также прошёл `seo:check`, `seo:check:prod` и rendered `seo:smoke`, manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-24T10-52-46-468Z/manifest.json`.
 
@@ -253,22 +266,22 @@ Post-deploy SEO smoke 24.05.2026: `npm run seo:smoke` прошёл по 9 пуб
 
 - lint PHP 8.4 по `local/`;
 - rsync `local/`;
-- rsync публичных разделов;
+- rsync публичных разделов с `--delete`, чтобы удалённые repo-owned файлы не оставались stale на production;
 - rsync корневых файлов;
-- чистит `bitrix/managed_cache`, проектный cache, component HTML cache `bitrix/cache/s1/bitrix/news.list|news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона.
+- чистит `bitrix/managed_cache`, проектный cache, menu component cache, component HTML cache `bitrix/cache/s1/bitrix/news.list|news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона.
 - проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
 - запускает `npm ci`, lifecycle guards `css:check` / `template-styles:check`, `npm run visual:smoke` и `npm run browser:smoke` против `https://tacticum.ru`; visual smoke в deploy включает `TACTICUM_EXPECT_SEO_HEAD=1` и проверяет title/description/canonical/OpenGraph/Twitter/JSON-LD/H1/top navigation money links, а `/price/` team presets обязательны через `TACTICUM_EXPECT_PRICE_TEAM_PRESETS=1`.
 - запускает `npm run seo:check` до smoke и `npm run seo:check:prod` после browser smoke, чтобы поймать рассинхрон sitemap/robots/canonical, попадание `/404.php` в Bitrix-generated sitemap и отсутствие `X-Robots-Tag` у JSON endpoints.
 - для ручной/PM проверки CSS/JS e2e readiness добавлены aggregate scripts `npm run e2e:css-js:prod` и `npm run e2e:css-js:local`; Sprint 10 использует их как единый browser/CSS/JS readiness gate.
 - legacy sale aliases контролируются `npm run sale:sunset:check`; Sprint 09 фиксирует action matrix, Sprint 10 ведёт `docs/workflow/legacy-sale-alias-consumer-inventory.md` с repo scan evidence и внешним inventory по access logs/CRM до `30.06.2026`, migration до `31.08.2026` и final alias mode до `30.09.2026`.
-- release evidence можно закрывать machine-readable JSON по `docs/workflow/release-signoff.example.json`; проверка `npm run release:signoff:check -- <file>` блокирует pending/missing evidence, unknown gates, placeholder/working-tree metadata, валидирует структуру ручных gates, CSS/JS e2e manifests и отсекает PII-like evidence; `npm run release:signoff:summary -- <file>` даёт PM/QA статус draft без чтения JSON; `npm run release:signoff:self-test` закрепляет негативные кейсы checker в PR/deploy lifecycle guard, а `docs/workflow/manual-release-gates-runbook.md` задаёт порядок закрытия ручных gates без PII.
-- локальный `npm run dev:preflight` не блокирует работу без PHP CLI 8.4+, но явно сообщает degraded state; authoritative PHP syntax fallback — GitHub job `php-lint`, который устанавливает PHP 8.4 через `shivammathur/setup-php`.
+- release evidence можно закрывать machine-readable JSON по `docs/workflow/release-signoff.example.json`; проверка `npm run release:signoff:check -- <file>` блокирует pending/missing evidence, unknown gates, placeholder/working-tree metadata, валидирует структуру ручных gates, CSS/JS e2e manifests и отсекает PII-like evidence; draft-проверка требует `reason`, `due`, runbook и evidence template у pending gates; deploy lifecycle guard проверяет актуальный draft через `release:signoff:draft-check`, а не strict example sign-off; `npm run release:signoff:summary -- <file>` даёт PM/QA статус draft без чтения JSON; `npm run release:signoff:self-test` закрепляет негативные кейсы checker в PR/deploy lifecycle guard, `npm run gaps:known` показывает текущий известный хвост, а `docs/workflow/manual-release-gates-runbook.md` задаёт порядок закрытия ручных gates без PII.
+- локальный `npm run dev:preflight` не блокирует работу без PHP CLI 8.4+, но явно сообщает degraded state; authoritative PHP syntax fallback — GitHub job `php-lint`, который устанавливает PHP 8.4 через `shivammathur/setup-php` и проверяет `local/`, корневые PHP и публичные разделы с `short_open_tag=1`.
 
 Production smoke 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.php` с `Origin: https://tacticum.ru` вернул `200` и `{"success":true,"code":"ok"}` по scopes `api`, `ai`, `telegram`, `offer`, `content`, `rest`.
 
 `pr-check.yml`:
 
-- PHP syntax по `local/`;
+- PHP syntax по `local/`, корневым PHP и публичным разделам с `short_open_tag=1`;
 - `npm run seo:check` для sitemap/robots/canonical inventory;
 - blocker при хардкоде iblock ID, HTTP fallback, файловом runtime-логировании и пропущенном bootstrap в изменённых runtime-файлах;
 - warning при hardcoded `IBLOCK_ID` в новом/legacy-коде вне разрешённых runtime исключений;
@@ -300,7 +313,7 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 | Bitrix isolation | Хорошее: кастомный код в `local/`, ядро не рабочая зона | Низкий |
 | REST bootstrap | Хорошее: pattern есть, outbound helper общий, response shapes оставлены доменными | Низкий/средний |
 | Config discipline | Хорошее: config validation есть, local config вынесен из Git index, production health подтверждён, deploy проверяет health endpoint | Низкий |
-| Frontend maintainability | Хорошее: chat/forms/assets, repeated CTA, light chat и price component contracts унифицированы; static Tailwind bundle, `styles/global.css`, browser-error smoke, non-network action-smoke, CSS replacement smoke, aggregate CSS/JS e2e scripts и CSP report-only есть; `template_styles.css` удерживается comment-only guard | Низкий/средний |
+| Frontend maintainability | Хорошее: chat/forms/assets, repeated CTA, light chat и price component contracts унифицированы; static Tailwind bundle, `styles/global.css`, browser-error smoke, non-network action-smoke, CSS replacement smoke, aggregate CSS/JS e2e scripts и CSP report-only есть; `template_styles.css` удерживается comment-only guard; `chat-agent.js` грузится только на chat pages через page asset `chat` | Низкий/средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
 | CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
 | Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; real success-flow закрывается staging/manual sign-off, автоматический deploy smoke покрывает non-network actions | Низкий/средний |

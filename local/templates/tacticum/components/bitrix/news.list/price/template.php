@@ -3,12 +3,12 @@
 <section class="py-12" data-price-list>
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Ставки специалистов по категориям</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Роли и ставки для вашей команды</h2>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                Выберите нужную категорию специалистов или воспользуйтесь фильтром для поиска конкретной позиции
+                Выберите специалистов вручную или начните с пресета команды. Итоговая заявка сохранит состав,
+                уровни, загрузку и бюджетный ориентир.
             </p>
         </div>
-        <!-- Filter Tabs -->
         <div class="flex flex-wrap justify-center gap-4 mb-12" data-price-filter-tabs>
             <button type="button"
                     data-price-filter-tab
@@ -30,7 +30,6 @@
             <?php endforeach; ?>
         </div>
 
-        <!-- Only Search -->
         <div class="flex flex-col md:flex-row gap-4 mb-4">
             <div class="relative flex-grow">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -65,7 +64,7 @@
                 <div class="max-w-2xl">
                     <h3 class="text-xl font-bold text-secondary">Быстрые пресеты команды</h3>
                     <p class="text-sm text-gray-500 mt-1">
-                        Подберите стартовый состав под тип задачи, а затем уточните уровни и количество специалистов.
+                        Начните с типового состава под этап работ, затем уточните уровни, количество и загрузку.
                     </p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:min-w-[640px]">
@@ -154,7 +153,6 @@
                         $levels = $item['LEVELS'] ?? [];
                         $levelKeys = array_keys($levels);
 
-                        // По умолчанию Middle, если есть, иначе первый
                         $defaultLevel = 'Middle';
                         $selectedLevel = in_array($defaultLevel, $levelKeys) ? $defaultLevel : reset($levelKeys);
                         $selectedPrice = $levels[$selectedLevel]['PRICE'] ?? null;
@@ -234,8 +232,8 @@
          data-price-order-modal-card>
         <div class="flex justify-between items-start gap-4 px-6 py-5 border-b border-gray-100 bg-white">
             <div>
-                <h3 class="text-2xl font-bold text-secondary">Заказать специалистов</h3>
-                <p class="text-sm text-gray-500 mt-1">Состав заявки можно изменить перед отправкой.</p>
+                <h3 class="text-2xl font-bold text-secondary">Подобрать команду под задачу</h3>
+                <p class="text-sm text-gray-500 mt-1">Состав, загрузку и срок можно изменить перед отправкой.</p>
             </div>
             <button id="closeOrderModal" type="button"
                     data-price-modal-close
@@ -308,7 +306,7 @@
                 </section>
 
                 <section class="space-y-4">
-                    <h4 class="text-lg font-semibold text-secondary">Параметры работы</h4>
+                    <h4 class="text-lg font-semibold text-secondary">Параметры подключения</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <label class="block">
                             <span class="block text-sm font-medium text-gray-600 mb-2">Дата старта</span>
@@ -346,7 +344,7 @@
                 </section>
 
                 <label class="block">
-                    <span class="block text-sm font-medium text-gray-600 mb-2">Описание задачи</span>
+                    <span class="block text-sm font-medium text-gray-600 mb-2">Какую задачу должна решить команда</span>
                     <textarea id="orderDescription" name="message" required rows="4"
                               class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50"></textarea>
                 </label>
@@ -372,7 +370,7 @@
             <div class="flex flex-col sm:flex-row gap-4 px-6 py-5 border-t border-gray-100 bg-white">
                 <button type="submit"
                         class="w-full sm:flex-1 bg-primary text-white px-6 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">
-                    Отправить заявку
+                    Отправить состав команды
                 </button>
                 <button type="button" id="cancelOrderModal"
                         data-price-modal-cancel

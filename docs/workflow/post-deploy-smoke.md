@@ -20,6 +20,8 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] При CSS/JS PR до deploy проходит `npm run e2e:css-js:local`; для локальной JS-проверки конкретного компонента используется `TACTICUM_VISUAL_INJECT_JS=<path> npm run browser:smoke`.
 - [ ] `/price/` action smoke подтверждает team presets, persistent summary и расчёт месячного бюджета: `npm run browser:smoke:price`; в manifest action `price team presets/summary` имеет `status=ok` для desktop/mobile.
 - [ ] Валидная `/offer/<code>/?clear_cache=Y` не отдаёт 404; этот guard входит в `npm run seo:check:prod`.
+- [ ] Валидная `/offer/<code>/` визуально проверена на readable estimate block; при ручной проверке можно использовать focused smoke: `TACTICUM_VISUAL_PAGES=/offer/<code>/ TACTICUM_EXPECT_SEO_HEAD=1 npm run visual:smoke`.
+- [ ] `/offer/?scenario=ai-kopaylot&page=2&clear_cache=Y` редиректит на `/offer/catalog/scenario/ai-kopaylot/page/2/?clear_cache=Y`; этот guard входит в `npm run seo:check:prod`.
 - [ ] Если `/price/` smoke падает с `team preset controls are missing`, проверить, что очищен component cache `bitrix/cache/s1/bitrix/news.list/*` и composite cache `bitrix/html_pages/*`, а rendered HTML содержит `data-price-team-preset`.
 - [ ] Release sign-off JSON заполнен по `docs/workflow/release-signoff.example.json`, ручные gates закрыты по `docs/workflow/manual-release-gates-runbook.md` и файл проходит `npm run release:signoff:check -- <file>`.
 - [ ] Нет 500/502 на затронутых страницах.
@@ -38,6 +40,9 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] POST возвращает JSON `{ success: true }` или документированную ошибку.
 - [ ] Пользователь видит success/error state.
 - [ ] Срабатывают analytics events `tacticum_form_submit` и success/error без PII.
+- [ ] Для Sprint 15 CTA формы optional `lead_budget` / `lead_timeline` отправляются только в lead payload и не появляются в analytics event params.
+- [ ] `/offer/<code>/` form smoke подтверждает hidden `lead_offer_code` / `lead_offer_title` context и отсутствие этих values в analytics events.
+- [ ] `/calculator/` и `/price/` light chat handoff заполняет только целевую CTA form, сохраняет scoped `group_id` на форме и не передаёт текст сообщения в analytics events.
 - [ ] Если проверка выполняется как real success-flow, evidence записан по `release-signoff-gates.md`.
 - [ ] Кастомный runtime-код `/local` и публичных скриптов не пишет payload/response в файловые логи.
 
@@ -63,6 +68,7 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] Upstream errors показываются пользователю без raw stack/PII.
 - [ ] `group_id` сохраняется и используется для prefill, если сценарий это предполагает.
 - [ ] Prefill production path вызывает `POST /local/rest/tacticum_prefill.php` с JSON `group_id` + `sessid`.
+- [ ] Calculator/price chat после успешного ответа показывает action `Передать вводные...`; click скроллит к CTA, заполняет message и отправляет только safe boolean analytics event `tacticum_chat_lead_handoff`.
 - [ ] `GET /local/rest/tacticum_prefill.php` возвращает controlled `405 method_not_allowed`.
 - [ ] `bitrix_url` открывает canonical offer page `/offer/<element-code>/`, если AI вернул ссылку.
 - [ ] `/offer/?ID=<valid>` отдаёт 301 на canonical `/offer/<element-code>/`.
@@ -101,11 +107,12 @@ Release sign-off gates для ручных проверок зафиксиров
 - [ ] `/policies/` есть в `sitemap-basic-files.xml`.
 - [ ] `robots.txt` указывает HTTPS sitemap.
 - [ ] Новый публичный URL есть в sitemap.
-- [ ] В rendered верхней навигации/dropdown `Услуги` доступны `/price/`, `/calculator/`, `/aiagents/`.
+- [ ] В rendered верхней навигации/dropdown `Услуги`, mobile menu и footer доступны `/price/`, `/offer/`, `/calculator/`, `/aiagents/`.
+- [ ] В блоке `/services/` → `Наши услуги` есть карточка `Расчет проекта` со ссылкой `/offer/`.
 - [ ] У затронутой страницы есть один H1.
 - [ ] 404 URL отдаёт HTTP 404, title `Страница не найдена - Тактикум`, один H1 и `noindex` в meta/header.
 - [ ] Rendered head подтверждён автоматикой: `npm run seo:smoke` прошёл, а в manifest для затронутых URL `seoErrors=[]`.
-- [ ] Manifest `seoHead` содержит один `title`, одну `description`, один HTTPS `canonical` с path текущей страницы, top navigation links `/price/`, `/calculator/`, `/aiagents/` и OpenGraph `og:site_name`, `og:type`, `og:url`, `og:title`, `og:description`, `og:image` без дублей.
+- [ ] Manifest `seoHead` содержит один `title`, одну `description`, один HTTPS `canonical` с path текущей страницы, top navigation links `/price/`, `/offer/`, `/calculator/`, `/aiagents/` и OpenGraph `og:site_name`, `og:type`, `og:url`, `og:title`, `og:description`, `og:image` без дублей.
 - [ ] Manifest/rendered HTML содержит Twitter Card, `og:image:width/height/type` и JSON-LD graph на публичных URL.
 - [ ] Страницы без page-specific social image используют `og-default.jpg` 1200x630.
 - [ ] Если SEO head проверяется вручную на staging, результат перенесён в release issue по `release-signoff-gates.md`.
@@ -114,7 +121,7 @@ Release sign-off gates для ручных проверок зафиксиров
 
 - [ ] `/`, `/services/`, `/calculator/`, `/offer/`: `faq.js` подключается.
 - [ ] `/price/`: `faq.js` и `charts.js` подключаются.
-- [ ] `/contacts/`: `yandex-map.js` подключается, карта загружается без first-party JS errors.
+- [ ] `/contacts/`: Yandex map widget iframe показывает объект `Тактикум`, ссылка "Открыть в Яндекс Картах" открывает карточку `Тактикум`, `БЦ Victory Park` остаётся ориентиром, а юридический адрес остаётся видимым текстом; `yandex-map.js` не обязателен и не должен давать first-party JS errors.
 - [ ] `/aiagents/`: `faq.js` подключается, body содержит `tacticum-aiagents-page`, hero/background styles приходят из `styles/global.css`.
 - [ ] `/about/`, `/contacts/`, `/policies/`: optional assets не подключаются без явной необходимости.
 - [ ] Response headers содержат `Content-Security-Policy-Report-Only` без новых browser console errors.

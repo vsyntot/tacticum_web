@@ -10,7 +10,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
             ?>
             <?php
-            // Экранируем пользовательские данные; HTML допускаем только через общий sanitizer.
             $memberPhoto = htmlspecialcharsbx(CFile::GetPath($arItem["PROPERTIES"]["PHOTO"]["VALUE"]));
             $memberName = tacticum_escape_iblock_text((string)$arItem["NAME"]);
             $memberPosition = tacticum_escape_iblock_text((string)$arItem["PROPERTIES"]["POSITION"]["VALUE"]);
@@ -22,7 +21,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
             <div class="team-member bg-white rounded-xl overflow-hidden shadow-sm group relative">
                 <div class="h-96 overflow-hidden">
-                    <img src="<?=$memberPhoto?>" alt="<?=$memberName?>" class="w-full h-full object-cover object-top">
+                    <img src="<?=$memberPhoto?>" alt="<?=$memberName?>" loading="lazy" decoding="async" class="w-full h-full object-cover object-top">
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-bold text-secondary mb-1"><?=$memberName?></h3>

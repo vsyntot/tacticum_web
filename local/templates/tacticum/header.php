@@ -2,14 +2,24 @@
 <?
 use Bitrix\Main\Page\Asset;
 $obAsset = Asset::getInstance();
-$pageAssets = $GLOBALS['TACTICUM_PAGE_ASSETS'] ?? [];
-if (!is_array($pageAssets)) {
-    $pageAssets = [];
+$pageAssets = [];
+$pageAssetsProperty = trim((string)$APPLICATION->GetPageProperty('tacticum_page_assets', ''));
+if ($pageAssetsProperty !== '') {
+    $pageAssets = array_merge(
+        $pageAssets,
+        array_filter(
+            array_map('trim', explode(',', $pageAssetsProperty)),
+            static fn(string $asset): bool => $asset !== ''
+        )
+    );
 }
 $hasPageAsset = static function (string $asset) use ($pageAssets): bool {
     return in_array($asset, $pageAssets, true) || !empty($pageAssets[$asset]);
 };
-$bodyClass = (string)($GLOBALS['TACTICUM_BODY_CLASS'] ?? 'bg-white font-sans');
+$bodyClass = trim((string)$APPLICATION->GetPageProperty('tacticum_body_class', 'bg-white font-sans'));
+if ($bodyClass === '') {
+    $bodyClass = 'bg-white font-sans';
+}
 if (!headers_sent()) {
     $securityConfig = function_exists('tacticum_rest_get_config_section')
         ? tacticum_rest_get_config_section('security')
@@ -21,9 +31,9 @@ if (!headers_sent()) {
     header(
         $cspHeaderName . ": default-src 'self'; base-uri 'self'; object-src 'none'; " .
         "script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://api-maps.yandex.ru https://*.yandex.ru https://*.yandex.net; " .
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
-        "img-src 'self' data: https://mc.yandex.ru https://*.yandex.ru https://*.yandex.net https://readdy.ai; " .
-        "font-src 'self' data: https://fonts.gstatic.com; " .
+        "style-src 'self' 'unsafe-inline'; " .
+        "img-src 'self' data: https://mc.yandex.ru https://*.yandex.ru https://*.yandex.net; " .
+        "font-src 'self' data:; " .
         "connect-src 'self' https://mc.yandex.ru https://*.yandex.ru https://*.yandex.net; " .
         "frame-src 'self' https://yandex.ru https://*.yandex.ru"
     );
@@ -46,7 +56,9 @@ if (!headers_sent()) {
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/analytics.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/metrika.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
-    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-agent.js");
+    if ($hasPageAsset('chat')) {
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-agent.js");
+    }
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/scroll.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/tg-link-resolver.js");
@@ -63,17 +75,13 @@ if (!headers_sent()) {
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
     $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/global.css");
     ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <?$APPLICATION->ShowHead(); ?>
 
     <title><?$APPLICATION->ShowTitle(); ?></title>
 </head>
 <body class="<?=htmlspecialchars($bodyClass, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')?>">
 <?$APPLICATION->ShowPanel(); ?>
-<!-- Yandex.Metrika noscript pixel -->
-<noscript><div><img src="https://mc.yandex.ru/watch/103471113" class="tacticum-metrika-pixel" alt="" /></div></noscript>
-<!-- Header -->
+<noscript><div><img src="https://mc.yandex.ru/watch/103471113" width="1" height="1" class="tacticum-metrika-pixel" alt="" /></div></noscript>
 <div id="header">
     <header class="fixed w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -93,22 +101,27 @@ if (!headers_sent()) {
 		"MENU_CACHE_GET_VARS" => [
 		],
 		"MAX_LEVEL" => "2",
-		"CHILD_MENU_TYPE" => "top",
-		"USE_EXT" => "Y",
+		"CHILD_MENU_TYPE" => "left",
+		"USE_EXT" => "N",
 		"DELAY" => "N",
 		"ALLOW_MULTI_SELECT" => "N"
 	],
 	false
 );
             ?>
-            <div class="hidden md:block">
+            <div class="hidden lg:block">
                 <button id="contactUsBtn" class="bg-primary text-white px-6 py-2 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">
                     Связаться с нами
                 </button>
             </div>
-            <div class="md:hidden w-10 h-10 flex items-center justify-center cursor-pointer">
+            <button type="button"
+                    class="lg:hidden w-10 h-10 flex items-center justify-center cursor-pointer"
+                    data-tacticum-menu-toggle
+                    aria-controls="tacticum-mobile-menu"
+                    aria-expanded="false"
+                    aria-label="Открыть меню">
                 <i class="ri-menu-line text-2xl text-secondary"></i>
-            </div>
+            </button>
         </div>
     </header>
 

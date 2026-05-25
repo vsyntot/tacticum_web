@@ -18,6 +18,63 @@ function tacticum_form_response(bool $success, ?string $error, string $code, arr
     exit;
 }
 
+function tacticum_form_build_lead_context(array $data): string
+{
+    $labels = [
+        'lead_entry' => 'Вход',
+        'lead_page_role' => 'Роль страницы',
+        'lead_intent' => 'Интент',
+        'lead_cta' => 'CTA',
+        'lead_next_step' => 'Ожидаемый следующий шаг',
+        'lead_product' => 'Продуктовый сценарий',
+        'lead_scenario' => 'Сценарий',
+        'lead_industry' => 'Отрасль',
+        'lead_budget' => 'Бюджетный ориентир',
+        'lead_timeline' => 'Срок',
+        'lead_offer_code' => 'Код примера расчета',
+        'lead_offer_title' => 'Пример расчета',
+    ];
+    $valueLabels = [
+        'lead_budget' => [
+            'up-to-1m' => 'до 1 млн руб.',
+            '1-3m' => '1-3 млн руб.',
+            '3-7m' => '3-7 млн руб.',
+            '7m-plus' => '7+ млн руб.',
+        ],
+        'lead_timeline' => [
+            'asap' => 'нужен быстрый старт',
+            '1-2-months' => '1-2 месяца',
+            '3-6-months' => '3-6 месяцев',
+            '6-plus-months' => 'дольше 6 месяцев',
+        ],
+    ];
+
+    $lines = [];
+    foreach ($labels as $key => $label) {
+        $value = $data[$key] ?? '';
+        if (is_array($value)) {
+            continue;
+        }
+
+        $value = trim(preg_replace('/\s+/u', ' ', (string)$value) ?: '');
+        if ($value === '') {
+            continue;
+        }
+
+        if (isset($valueLabels[$key][$value])) {
+            $value = $valueLabels[$key][$value];
+        }
+
+        $lines[] = $label . ': ' . mb_substr($value, 0, 180);
+    }
+
+    if ($lines === []) {
+        return '';
+    }
+
+    return mb_substr("Контекст заявки:\n- " . implode("\n- ", $lines), 0, 900);
+}
+
 tacticum_rest_validate_origin();
 tacticum_rest_rate_limit('tacticum_form');
 tacticum_rest_require_method('POST');
@@ -34,6 +91,7 @@ $phone = trim((string)($data['phone'] ?? ''));
 $message = trim((string)($data['message'] ?? $data['task'] ?? $data['description'] ?? $data['project'] ?? ''));
 $page_url = trim((string)($data['page_url'] ?? ($_SERVER['HTTP_REFERER'] ?? '')));
 $group_id = trim((string)($data['group_id'] ?? ''));
+$lead_context = tacticum_form_build_lead_context($data);
 
 $phone_normalized = tacticum_rest_normalize_phone($phone);
 
@@ -124,6 +182,10 @@ if ($is_specialist_order) {
     $taskParts[] = 'Описание задачи: ' . $message;
 
     $payload['task'] = implode("\n", $taskParts);
+}
+
+if ($lead_context !== '') {
+    $payload['task'] .= "\n\n" . $lead_context;
 }
 
 $result = tacticum_rest_submit_chat_agent_sale(

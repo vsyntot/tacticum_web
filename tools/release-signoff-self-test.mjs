@@ -88,8 +88,24 @@ const draftCases = [
       payload.gates['manual-success-flow'] = {
         status: 'pending',
         owner: 'QA + Backend/Frontend',
+        due: 'before-strict-release-closure',
         reason: 'Waiting for staging owner',
         evidence: {
+          evidence_template: 'docs/workflow/release-signoff-manual-evidence.template.json',
+        },
+      };
+    },
+  },
+  {
+    name: 'pending gate without due',
+    expected: /pending gate must include due/,
+    mutate(payload) {
+      payload.gates['manual-success-flow'] = {
+        status: 'pending',
+        owner: 'QA + Backend/Frontend',
+        reason: 'Waiting for staging owner',
+        evidence: {
+          runbook: 'docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow',
           evidence_template: 'docs/workflow/release-signoff-manual-evidence.template.json',
         },
       };

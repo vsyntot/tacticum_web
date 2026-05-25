@@ -26,8 +26,11 @@ jobs:
           php-version: "8.4"
           coverage: none
 
-      - name: Check PHP syntax — local/
-        run: find local/ -name "*.php" -print0 | xargs -0 -n1 php -l
+      - name: Check PHP syntax — local/ and public PHP
+        run: |
+          find local/ -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+          find . -maxdepth 1 -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+          find about services contacts calculator price offer aiagents policies -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
 
   # ──────────────────────────────────────────
   # 2. Деплой
@@ -62,7 +65,7 @@ jobs:
 
       - name: Sync публичные разделы сайта
         run: |
-          rsync -avz --relative \
+          rsync -avz --delete --relative \
             --exclude='.git' \
             ./about/ ./services/ ./contacts/ ./calculator/ \
             ./price/ ./offer/ ./aiagents/ ./policies/ \
@@ -84,6 +87,7 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/managed_cache/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/tacticum 2>/dev/null || true; \
+             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/menu/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/news.list/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/news.detail/* 2>/dev/null || true; \
              rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/html_pages/* 2>/dev/null || true; \
@@ -114,8 +118,9 @@ jobs:
           npm run template-styles:check
           npm run config:check
           npm run seo:check
+          npm run bitrix:check
           npm run sale:sunset:check
-          npm run release:signoff:check -- docs/workflow/release-signoff.example.json
+          npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json
           npm run release:signoff:self-test
 
       - name: Post-deploy visual smoke

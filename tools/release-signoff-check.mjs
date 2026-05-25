@@ -100,6 +100,9 @@ for (const gateName of requiredGates) {
 
   if (status === 'pending') {
     pendingGates.push(gateName);
+    if (!hasMeaningfulEvidence(gate.due)) {
+      fail(`${gateName}: pending gate must include due`);
+    }
     if (manualEvidenceGates.has(gateName)) {
       validatePendingManualGate(gateName, gate.evidence);
     }
@@ -149,7 +152,7 @@ function printSummary(payload, gates, sourceFile) {
     const status = String(gate.status || 'missing');
     const owner = String(gate.owner || '-');
     const detail = status === 'pending'
-      ? String(gate.reason || '-')
+      ? `due=${String(gate.due || '-')}; ${String(gate.reason || '-')}`
       : summarizeEvidence(gate);
     return [gateName, status, owner, detail];
   });
