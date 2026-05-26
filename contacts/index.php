@@ -95,7 +95,7 @@ $APPLICATION->IncludeComponent(
         "TYPE" => "personal-offer",
         "FORM_ID" => "contacts-cta",
         "FORM_HTML_ID" => "contacts-cta-form",
-        "VARIANT" => "glass",
+        "VARIANT" => "solid",
         "TITLE" => "Расскажите, какой следующий шаг вам нужен",
         "TEXT" => "Можно начать с консультации, предварительной оценки, подбора команды или прототипа AI-бота. Опишите задачу, а мы направим обращение к нужному специалисту.",
         "MESSAGE_LABEL" => "Ваш вопрос или задача",

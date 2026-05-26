@@ -687,6 +687,28 @@ async function runActionSmoke(cdp) {
           return forms.length + ' forms';
         });
 
+        await run('contacts message label clearance', async () => {
+          const form = find('#contacts-cta-form');
+          const textarea = form?.querySelector('textarea[name="message"]');
+          if (!form || !textarea) return false;
+          const label = findAll('label', form).find((candidate) => candidate.htmlFor === textarea.id) || null;
+          if (!label) {
+            throw new Error('message label is missing');
+          }
+          textarea.focus();
+          textarea.value = 'Smoke label check';
+          textarea.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+          await sleep(80);
+          const textareaRect = textarea.getBoundingClientRect();
+          const labelRect = label.getBoundingClientRect();
+          if (labelRect.bottom > textareaRect.top - 2) {
+            throw new Error('message label still overlaps textarea text area');
+          }
+          textarea.value = '';
+          textarea.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+          return 'label clear';
+        }, path === '/contacts/');
+
         await run('hero chat empty send', async () => {
           const button = find('#aichat');
           if (!button) return false;
