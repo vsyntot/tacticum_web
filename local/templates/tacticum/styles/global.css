@@ -1194,6 +1194,18 @@ form.bg-white\/10:not(.tacticum-lead-cta-form--select-labels-static) select[name
     line-height: 1.25rem;
 }
 
+.tacticum-lead-cta-form--glass input:-webkit-autofill,
+.tacticum-lead-cta-form--glass input:-webkit-autofill:hover,
+.tacticum-lead-cta-form--glass input:-webkit-autofill:focus,
+.tacticum-lead-cta-form--glass textarea:-webkit-autofill,
+.tacticum-lead-cta-form--glass textarea:-webkit-autofill:hover,
+.tacticum-lead-cta-form--glass textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #1f2937;
+    box-shadow: 0 0 0 1000px #ffffff inset;
+    caret-color: #1f2937;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
 .case-card {
     transition: all 0.3s ease;
 }
