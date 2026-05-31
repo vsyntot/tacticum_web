@@ -1,0 +1,82 @@
+<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?
+$aMenuLinks = Array(
+	Array(
+		"Услуги",
+		"",
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+        "Услуги",
+        "/services/",
+        Array(),
+        Array(),
+        ""
+    ),
+	Array(
+        "Собрать команду",
+        "/price/",
+        Array(),
+        Array(),
+        ""
+    ),
+    Array(
+        "Примеры расчетов",
+        "/offer/",
+        Array(),
+        Array(),
+        ""
+    ),
+	Array(
+		"AI-калькулятор",
+		"/calculator/",
+		Array(),
+		Array(),
+		""
+	),
+	Array(
+		"AI-боты",
+		"/aiagents/",
+		Array(),
+		Array(),
+		""
+	),
+    Array(
+        "Компания",
+        "",
+        Array(),
+        Array(),
+        ""
+    ),
+	Array(
+        "О нас",
+        "/about/#about-company",
+        Array(),
+        Array(),
+        ""
+    ),
+	Array(
+        "Команда",
+        "/about/#team",
+        Array(),
+        Array(),
+        ""
+    ),
+	Array(
+        "Карьера",
+        "/about/#careers",
+        Array(),
+        Array(),
+        ""
+    ),
+	Array(
+        "Партнеры",
+        "/about/#partners",
+        Array(),
+        Array(),
+        ""
+    )
+);
+?>
