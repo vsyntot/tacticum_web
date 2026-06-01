@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tacticum Forum — диалоговая платформа для клиентских коммуникаций</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #161922; --panel-2: #1c2030; --border: #2a2f40;
+    --accent: #f7768e; --accent-2: #e0af68;
+    --ok: #9ece6a; --warn: #e0af68; --err: #f7768e;
+    --text: #c0caf5; --muted: #565f89; --strong: #ffffff; --brand: #36d6aa;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto", sans-serif;
+    line-height: 1.55; font-size: 16px; -webkit-font-smoothing: antialiased; overflow-x: hidden; word-wrap: break-word; }
+  body { width: 100%; max-width: 100vw; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  .header .brand { display: inline-block; padding: 6px 12px; background: rgba(54,214,170,0.1); color: var(--brand);
+    border: 1px solid rgba(54,214,170,0.3); border-radius: 6px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+  .header h1 { font-size: 34px; margin: 0 0 10px 0; color: var(--strong); letter-spacing: -0.02em; line-height: 1.2; }
+  .header .sub { color: var(--muted); font-size: 15px; max-width: 720px; }
+  .slide { background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 32px 32px 28px; margin: 24px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.02); }
+  .slide-num { display: inline-block; background: var(--panel-2); color: var(--accent); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 16px;
+    letter-spacing: 0.1em; text-transform: uppercase; }
+  .slide h2 { font-size: 24px; color: var(--strong); margin: 0 0 16px 0; letter-spacing: -0.01em; line-height: 1.3; }
+  .slide h3 { font-size: 18px; color: var(--accent); margin: 22px 0 12px 0; }
+  .slide h4 { font-size: 15px; color: var(--accent-2); margin: 16px 0 8px 0; }
+  .slide p { margin: 10px 0; }
+  .slide ul, .slide ol { padding-left: 24px; margin: 10px 0; }
+  .slide li { margin: 6px 0; }
+  .slide strong { color: var(--strong); font-weight: 600; }
+  .slide em { color: var(--accent-2); font-style: normal; font-weight: 500; }
+  .slide hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+  .note { border-left: 3px solid var(--accent-2); background: rgba(224,175,104,0.05); padding: 14px 18px;
+    margin: 16px 0; border-radius: 0 8px 8px 0; color: var(--text); font-size: 14.5px; }
+  .note::before { content: "Примечание · "; color: var(--accent-2); font-weight: 600; }
+  table { display: block; width: 100%; max-width: 100%; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  table tbody { display: table; width: 100%; min-width: 100%; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--strong); font-weight: 600; font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:hover td { background: rgba(247,118,142,0.03); }
+  pre { background: #0a0d14; color: #c0caf5; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 12.5px; line-height: 1.55;
+    margin: 14px 0; max-width: 100%; white-space: pre; }
+  code { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 13px; color: var(--accent-2);
+    background: rgba(224,175,104,0.08); padding: 1px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .footer { color: var(--muted); font-size: 13px; text-align: center; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer .brand-mark { color: var(--brand); font-weight: 600; letter-spacing: 0.1em; }
+  @media (max-width: 720px) {
+    .container { padding: 20px 14px 60px; }
+    .slide { padding: 22px 18px 20px; border-radius: 10px; }
+    .header h1 { font-size: 26px; } .slide h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <span class="brand">Tacticum Forum</span>
+  <h1>Диалоговая платформа для клиентских коммуникаций</h1>
+  <div class="sub">Сценарные диалоговые боты с обогащением LLM. Карта потребностей · A/B-тесты · авто-выявление новых типов обращений. On-prem · Sovereign LLM · Astra Linux · РЕД ОС.</div>
+</div>
+
+<section class="slide">
+  <span class="slide-num">Slide 1 · Title</span>
+  <h2>Tacticum Forum</h2>
+  <p>Импортонезависимая программная платформа для автоматизации обработки клиентских обращений. Сценарии + LLM, без иллюзий. Классы 04.13 «Системы управления процессами организации», 04.11, 02.09.</p>
+  <p><strong>Сценарии + LLM · Карта потребностей · A/B-тесты · On-prem · Sovereign LLM · Astra Linux · РЕД ОС.</strong></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 2 · Проблема</span>
+  <h2>Между сценарными ботами и «чистыми LLM»</h2>
+  <p>Сегодня в обслуживании клиентов через цифровые каналы — две крайности, и обе не работают:</p>
+  <table>
+    <thead><tr><th>Подход</th><th>Что обещает</th><th>Где ломается</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Классические сценарные боты</strong></td><td>Контролируемые ответы, predictable UX</td><td>Жёсткое дерево из 200+ узлов. Любое отклонение → «не понимаю вас». Стоимость поддержки растёт линейно</td></tr>
+      <tr><td><strong>Чистые LLM-боты на API</strong></td><td>Естественный диалог, «можно поговорить о чём угодно»</td><td>Галлюцинации в проде. Невозможно гарантировать корректный ответ на критичный вопрос. Регуляторика — недоступно</td></tr>
+      <tr><td><strong>Live-чат с операторами</strong></td><td>Качество, но дорого</td><td>Операторы тонут в типовых обращениях. SLA рушится на пике</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Контакт-центры и службы клиентской поддержки в 2026 году:</strong></p>
+  <ul>
+    <li>60–80% обращений — типовые (статус заказа, политика возвратов, тарифы, FAQ).</li>
+    <li>Стоимость минуты оператора растёт быстрее автоматизации.</li>
+    <li>Регуляторы требуют traceability ответов в финансах, страховании, госуслугах.</li>
+    <li>Импортные платформы (Twilio Flex, Genesys Cloud, Salesforce Service Cloud) больше нельзя использовать — нужны замены.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 3 · Решение</span>
+  <h2>Сценарии + LLM, без иллюзий</h2>
+  <p>Tacticum Forum — гибридный подход: жёсткие сценарные графы для критичных путей + LLM-обогащение для распознавания намерения, обработки уточнений и автоматического выявления новых потребностей.</p>
+  <p><strong>Архитектурно</strong> — это тонкое приложение поверх Tacticum Platform: сценарий описывается как декларативный манифест с расширенным DSL (узлы Start / Message / Input / Condition / Interrupt / Checkpoint / End), а исполняется тем же Agent Runtime, который Tacticum Agents использует для агентов. Один движок — два словаря.</p>
+<pre>┌──────────────────────────────────────────────────────────────┐
+│              TACTICUM FORUM (доменный слой)                  │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  Needs Catalog — карта потребностей клиента            │  │
+│  │  Группировка · health · доля обращений за период      │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                              │                               │
+│                              ▼                               │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  Visual Scenario Editor + Scenario DSL                 │  │
+│  │  Узлы: Start · Message · Input · Condition ·          │  │
+│  │  Interrupt · Checkpoint · End                          │  │
+│  │  Версионирование: draft / published / archived         │  │
+│  │  → Scenario Manifest (декларация графа)               │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                              │                               │
+│  ┌──────────────────────────┐  ┌─────────────────────────┐   │
+│  │  Scenario Routing        │  │  A/B Experiment Engine  │   │
+│  │  Intent recognition →    │  │  Сплит вариантов,       │   │
+│  │  выбор сценария          │  │  статсиг, защита от     │   │
+│  │                          │  │  конфликтов             │   │
+│  └──────────────────────────┘  └─────────────────────────┘   │
+│                                                              │
+│  ┌──────────────────────────┐  ┌─────────────────────────┐   │
+│  │  Need Discovery Engine   │  │  Funnel Analytics       │   │
+│  │  LLM-кластеризация       │  │  Воронка по             │   │
+│  │  непонятых фраз →        │  │  чекпоинтам, drop-off,  │   │
+│  │  карточки предложений    │  │  automation rate        │   │
+│  └──────────────────────────┘  └─────────────────────────┘   │
+│                                                              │
+│  ┌──────────────────────────┐  ┌─────────────────────────┐   │
+│  │  Dialog Journal          │  │  Reports Engine         │   │
+│  │  + CH Aggregates         │  │  PDF / XLSX             │   │
+│  └──────────────────────────┘  └─────────────────────────┘   │
+└──────────────────────────────────────────────────────────────┘
+                              │
+              Scenario Manifest (декларация графа)
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  TACTICUM PLATFORM                           │
+│  Agent Runtime (исполняет манифест с DSL-расширением) ·      │
+│  LLM Gateway · Prompt Mgmt · Guardrails · RAG · Memory ·    │
+│  Identity &amp; RBAC · Tenancy · Connectors (TG/web/SIP/MAX) ·   │
+│  Workflow Spec Engine (lifecycle сценария: draft→review→     │
+│  published→archived) · Event Bus · Observability             │
+└──────────────────────────────────────────────────────────────┘</pre>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 4 · Архитектура</span>
+  <h2>Что внутри платформы</h2>
+  <table>
+    <thead><tr><th>Подсистема</th><th>Назначение</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Каталог потребностей клиента</strong></td><td>Карта потребностей, привязка к сценариям, индикаторы здоровья, доля обращений за период</td></tr>
+      <tr><td><strong>Визуальный редактор сценариев</strong></td><td>Граф узлов (Start, Message, Input, Condition, Interrupt, Checkpoint, End) с версионированием и тестированием draft</td></tr>
+      <tr><td><strong>Движок исполнения</strong></td><td>Persisted ConversationState, маршрутизация по распознанной потребности, эскалация оператору, чекпоинты</td></tr>
+      <tr><td><strong>Подсистема аналитики</strong></td><td>Дашборды, воронка по чекпоинтам, drop-off, automation rate, drill-down в конкретный диалог</td></tr>
+      <tr><td><strong>Подсистема A/B-тестов</strong></td><td>Сплит-стратегии, сбор метрик, статсиг, защита от конфликтов экспериментов</td></tr>
+      <tr><td><strong>Авто-выявление новых потребностей</strong></td><td>Накопление непонятых фраз, LLM-кластеризация, карточки предложений</td></tr>
+      <tr><td><strong>Журнал диалогов</strong></td><td>Полнотекстовый поиск, фильтрация, метаданные</td></tr>
+      <tr><td><strong>Отчётность</strong></td><td>PDF и XLSX отчёты по потребностям, сценариям, периодам, эффективности</td></tr>
+      <tr><td><strong>Шлюз LLM</strong></td><td>Через Tacticum Platform: GigaChat, YandexGPT, Qwen, Kimi, Llama</td></tr>
+      <tr><td><strong>REST API</strong></td><td>OpenAPI для интеграции с каналами и BI</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 5 · Метрики</span>
+  <h2>Что двигаем</h2>
+  <table>
+    <thead><tr><th>Метрика</th><th>Что измеряет</th><th>Куда движется</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Automation rate</strong></td><td>Доля обращений, закрытых без оператора</td><td>40–70% по индустрии</td></tr>
+      <tr><td><strong>Drop-off rate</strong></td><td>Доля диалогов, прерванных клиентом до решения</td><td>−20–40% после первой итерации</td></tr>
+      <tr><td><strong>Time to resolution</strong></td><td>Время от первого сообщения до закрытия диалога</td><td>−50–70% на автоматизируемых сценариях</td></tr>
+      <tr><td><strong>First contact resolution</strong></td><td>Доля обращений, решённых с первого касания</td><td>+15–25 п.п. на типовых обращениях</td></tr>
+      <tr><td><strong>Доля передач оператору</strong></td><td>Сколько диалогов эскалируется</td><td>−30–50% после настройки сценариев</td></tr>
+      <tr><td><strong>Cost per contact</strong></td><td>Себестоимость одного обращения</td><td>−30–60% на типовом потоке</td></tr>
+    </tbody>
+  </table>
+  <h3>Индустриальный benchmark</h3>
+  <table>
+    <thead><tr><th>Источник</th><th>Метрика</th></tr></thead>
+    <tbody>
+      <tr><td>Gartner (CX Predicts 2025)</td><td>К 2026: <strong>30%</strong> взаимодействий КЦ — полностью AI-разрешённые</td></tr>
+      <tr><td>McKinsey (State of AI in CX, 2024)</td><td>Снижение operating cost КЦ при гибридной AI-автоматизации — <strong>20–40%</strong></td></tr>
+      <tr><td>Forrester (CX Conversational AI, 2024)</td><td>FCR на гибридных ботах vs чистых сценарных — <strong>+20 п.п.</strong></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 6 · A/B-тесты</span>
+  <h2>Управляемая оптимизация без релизов</h2>
+  <p><strong>Главная проблема contact-center automation:</strong> «мы поменяли сценарий, и метрика поплыла. Почему?»</p>
+  <p>Tacticum Forum закрывает этот разрыв встроенными A/B-инструментами на уровне самой платформы.</p>
+  <h3>Что можно проверять</h3>
+  <table>
+    <thead><tr><th>Гипотеза</th><th>Как тестируем</th></tr></thead>
+    <tbody>
+      <tr><td>Новый вариант формулировки повышает FCR</td><td>Сплит 50/50, метрика FCR, статсиг</td></tr>
+      <tr><td>Изменение порядка чекпоинтов снижает drop-off</td><td>Сплит 30/70, метрика drop-off в каждом чекпоинте</td></tr>
+      <tr><td>Новый checkpoint перед эскалацией снижает передачи оператору</td><td>Сплит, метрика escalation rate, контроль time-to-resolution</td></tr>
+      <tr><td>LLM-обогащение узла X повышает понимание</td><td>Сплит «классический» vs «LLM-обогащённый», метрика распознавания намерения</td></tr>
+    </tbody>
+  </table>
+  <h3>Что внутри подсистемы</h3>
+  <ul>
+    <li>Доменная модель «эксперимент / вариант / правило сплита / метрика / период наблюдения».</li>
+    <li>Детерминированный сплит (по идентификатору диалога) и рандомизированный (с контролем доли).</li>
+    <li>Сбор событий в разрезе варианта: доходимость до чекпоинтов, drop-off, передачи оператору, удовлетворённость.</li>
+    <li>Расчёт статсиг между вариантами с защитой от p-hacking.</li>
+    <li>Контроль состояний эксперимента: создание → запуск → остановка → завершение.</li>
+    <li>Защита от одновременного запуска конфликтующих экспериментов на одном сценарии.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 7 · Отрасли</span>
+  <h2>Кейсы по индустриям</h2>
+  <p>Конкретные кейсы заказчиков фиксируются по мере подписания соглашений о публичности. Ниже — индустриальный benchmark по типовым внедрениям.</p>
+  <h3>Контакт-центры e-commerce</h3>
+  <ul>
+    <li><strong>Типовой поток:</strong> статус заказа, политика возвратов, информация о продукте, изменение доставки.</li>
+    <li><strong>Эффект:</strong> automation rate 50–70%, снижение нагрузки операторов на 40%, drop-off −25%.</li>
+  </ul>
+  <h3>Финансовые организации (банки, страховые)</h3>
+  <ul>
+    <li><strong>Типовой поток:</strong> баланс/выписка, статус заявки, FAQ по продуктам, навигация по тарифам.</li>
+    <li><strong>Эффект:</strong> automation rate 35–50%, FCR +20 п.п., регуляторный аудит ответов через журнал.</li>
+  </ul>
+  <h3>Телеком</h3>
+  <ul>
+    <li><strong>Типовой поток:</strong> баланс, тарифы, активация услуг, обращения по качеству связи.</li>
+    <li><strong>Эффект:</strong> automation rate 45–60%, снижение AHT операторов на 20–30%.</li>
+  </ul>
+  <h3>Государственные и муниципальные сервисы</h3>
+  <ul>
+    <li><strong>Типовой поток:</strong> статус заявления, навигация по услугам, FAQ по документам.</li>
+    <li><strong>Эффект:</strong> automation rate 40–55% при правильно описанной карте потребностей.</li>
+  </ul>
+  <h3>Внутренний саппорт (HR, IT helpdesk)</h3>
+  <ul>
+    <li><strong>Типовой поток:</strong> статус заявки, FAQ по политикам, навигация по корп-документам.</li>
+    <li><strong>Эффект:</strong> automation rate 50–70% за счёт ограниченного словаря и качественной FAQ-базы.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 8 · Reg-ready</span>
+  <h2>Соответствие требованиям 2026 года</h2>
+  <table>
+    <thead><tr><th>Норма</th><th>Требование</th><th>Как закрывает Tacticum Forum</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ПП РФ № 1236</strong> (ред. от 09.12.2025)</td><td>Включение в Реестр</td><td>Подача по классу 04.13 «Системы управления процессами организации»</td></tr>
+      <tr><td><strong>ПП РФ № 1937 от 28.11.2025</strong></td><td>Подкласс «доверенного ПО»; приоритет в закупках</td><td>Поддерживается сертификация ФСТЭК/ФСБ; правило двух доверенных ОС</td></tr>
+      <tr><td><strong>ФЗ № 152-ФЗ</strong></td><td>Защита персональных данных клиентов</td><td>On-prem, тенантная изоляция, маскирование персданных, журнал согласий</td></tr>
+      <tr><td><strong>ФЗ № 187-ФЗ (КИИ)</strong></td><td>Безопасность объектов критической инфраструктуры</td><td>Совместимость с доверенными ОС, локальные LLM, изолированный контур</td></tr>
+      <tr><td><strong>ФЗ № 248-ФЗ</strong></td><td>Государственный контроль и надзор</td><td>Полный журнал диалогов с метаданными, экспорт в SIEM</td></tr>
+      <tr><td><strong>Правило двух ОС</strong> (дедлайн 01.06.2027)</td><td>Совместимость с двумя доверенными ОС</td><td>Astra Linux + РЕД ОС</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 9 · Интеграции</span>
+  <h2>Каналы и корпоративные системы</h2>
+  <h3>Входящие каналы</h3>
+  <table>
+    <tbody>
+      <tr><td>Telegram</td><td>Готов</td></tr>
+      <tr><td>Веб-чат (виджет)</td><td>Готов</td></tr>
+      <tr><td>Мобильное приложение (REST API)</td><td>Готов</td></tr>
+      <tr><td>SIP-телефония (голосовые AI-агенты)</td><td>Готов (PJSIP)</td></tr>
+      <tr><td>MAX (российский мессенджер)</td><td>Готов</td></tr>
+      <tr><td>VK Teams</td><td>Готов</td></tr>
+      <tr><td>Веб-хуки</td><td>Готов</td></tr>
+    </tbody>
+  </table>
+  <h3>Корпоративные системы (через MCP-инструменты)</h3>
+  <table>
+    <tbody>
+      <tr><td>CRM (Битрикс24, amoCRM, 1С CRM)</td><td>Стандартные MCP-инструменты</td></tr>
+      <tr><td>ERP (1С, Галактика, Парус)</td><td>Стандартные MCP-инструменты</td></tr>
+      <tr><td>Helpdesk (Jira Service Desk, OTRS)</td><td>Стандартные MCP-инструменты</td></tr>
+      <tr><td>BI (Yandex DataLens, FineBI, Modus BI)</td><td>Экспорт метрик через REST</td></tr>
+      <tr><td>SIEM (R-Vision, Kaspersky UMP)</td><td>Экспорт журнала событий</td></tr>
+    </tbody>
+  </table>
+  <h3>LLM-провайдеры (через Tacticum Platform)</h3>
+  <table>
+    <thead><tr><th>Категория</th><th>Примеры</th></tr></thead>
+    <tbody>
+      <tr><td>Российские облачные</td><td>GigaChat, YandexGPT, T-Bank LM</td></tr>
+      <tr><td>Open-source в контуре заказчика</td><td>Qwen, Kimi, Llama, Mistral</td></tr>
+      <tr><td>Зарубежные облачные (по политике арендатора)</td><td>OpenAI, Anthropic, Google</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Forum не вызывает LLM-провайдеров напрямую. Все вызовы идут через Tacticum Platform LLM Gateway, который применяет политику арендатора (sovereign-LLM-only для регулируемых отраслей), считает стоимость, ведёт аудит.</div>
+  <div class="note">ClickHouse-агрегаты на текущем этапе внутри Forum. Архитектурно — кандидат на платформенный модуль <code>analytics_warehouse</code>, если в линейке Tacticum появится второе приложение с CH-аналитикой.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 10 · Старт</span>
+  <h2>От discovery к production</h2>
+  <table>
+    <thead><tr><th>Этап</th><th>Срок</th><th>Что внутри</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Discovery + dataset assessment</strong></td><td>1–2 недели</td><td>Аудит потока, карта потребностей, выбор пилотных сценариев</td></tr>
+      <tr><td><strong>Pilot</strong></td><td>4–6 недель</td><td>Один сценарий в production на ограниченной аудитории, A/B-тесты, итерации</td></tr>
+      <tr><td><strong>Integration</strong></td><td>1–2 месяца</td><td>Подключение к CRM/ERP/каналам, развёртывание в контуре</td></tr>
+      <tr><td><strong>Production rollout</strong></td><td>2–4 месяца</td><td>Раскатка на полный поток, обучение операторов, передача наблюдаемости</td></tr>
+    </tbody>
+  </table>
+  <h3>Cascade-ask</h3>
+<pre>1️⃣  DISCOVERY (60-90 минут)
+    └─ Card-board вашей текущей карты обращений
+       Выбор 1-2 топ-сценариев по объёму потока
+
+2️⃣  PILOT (4-6 недель)
+    └─ Один сценарий в продакшене
+       Реальные метрики, реальная итерация на сценарии
+
+3️⃣  INTEGRATION + ROLL-OUT
+    └─ Подключение к CRM/каналам
+       Раскатка на полный поток
+
+4️⃣  CONTINUOUS OPTIMIZATION
+    └─ A/B-тесты как часть операционного процесса
+       Авто-выявление новых потребностей</pre>
+  <h3>Что нужно от заказчика для старта</h3>
+  <ol>
+    <li>Описать текущий поток обращений (объём, каналы, типовые тематики).</li>
+    <li>Назначить владельца со стороны контакт-центра / CX-направления.</li>
+    <li>Подготовить корп-документы / FAQ / шаблоны ответов для RAG.</li>
+    <li>Согласовать контур развёртывания (SaaS / on-prem / гибрид).</li>
+  </ol>
+</section>
+
+<div class="footer">
+  <span class="brand-mark">TACTICUM FORUM</span> · Диалоговая платформа для клиентских коммуникаций · 2026
+</div>
+
+</div>
+</body>
+</html>

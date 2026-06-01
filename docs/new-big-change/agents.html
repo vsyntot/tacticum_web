@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tacticum Agents — мультиагентные ассистенты для бизнес-функций</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161922;
+    --panel-2: #1c2030;
+    --border: #2a2f40;
+    --accent: #e0af68;
+    --accent-2: #9ece6a;
+    --ok: #9ece6a;
+    --warn: #e0af68;
+    --err: #f7768e;
+    --text: #c0caf5;
+    --muted: #565f89;
+    --strong: #ffffff;
+    --brand: #36d6aa;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto", sans-serif;
+    line-height: 1.55; font-size: 16px;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden; word-wrap: break-word;
+  }
+  body { width: 100%; max-width: 100vw; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  .header .brand { display: inline-block; padding: 6px 12px; background: rgba(54,214,170,0.1); color: var(--brand);
+    border: 1px solid rgba(54,214,170,0.3); border-radius: 6px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+  .header h1 { font-size: 34px; margin: 0 0 10px 0; color: var(--strong); letter-spacing: -0.02em; line-height: 1.2; }
+  .header .sub { color: var(--muted); font-size: 15px; max-width: 720px; }
+  .slide { background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 32px 32px 28px; margin: 24px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.02); }
+  .slide-num { display: inline-block; background: var(--panel-2); color: var(--accent); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 16px;
+    letter-spacing: 0.1em; text-transform: uppercase; }
+  .slide h2 { font-size: 24px; color: var(--strong); margin: 0 0 16px 0; letter-spacing: -0.01em; line-height: 1.3; }
+  .slide h3 { font-size: 18px; color: var(--accent); margin: 22px 0 12px 0; }
+  .slide h4 { font-size: 15px; color: var(--accent-2); margin: 16px 0 8px 0; }
+  .slide p { margin: 10px 0; }
+  .slide ul, .slide ol { padding-left: 24px; margin: 10px 0; }
+  .slide li { margin: 6px 0; }
+  .slide strong { color: var(--strong); font-weight: 600; }
+  .slide em { color: var(--accent-2); font-style: normal; font-weight: 500; }
+  .slide hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+  .quote { border-left: 3px solid var(--accent); background: var(--panel-2); padding: 14px 18px; margin: 16px 0;
+    border-radius: 0 8px 8px 0; color: var(--text); font-style: italic; }
+  .note { border-left: 3px solid var(--accent-2); background: rgba(158,206,106,0.05); padding: 14px 18px;
+    margin: 16px 0; border-radius: 0 8px 8px 0; color: var(--text); font-size: 14.5px; }
+  .note::before { content: "Примечание · "; color: var(--accent-2); font-weight: 600; }
+  table { display: block; width: 100%; max-width: 100%; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  table tbody { display: table; width: 100%; min-width: 100%; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--strong); font-weight: 600; font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:hover td { background: rgba(224,175,104,0.03); }
+  pre { background: #0a0d14; color: #c0caf5; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 12.5px; line-height: 1.55;
+    margin: 14px 0; max-width: 100%; white-space: pre; }
+  code { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 13px; color: var(--accent-2);
+    background: rgba(158,206,106,0.08); padding: 1px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .footer { color: var(--muted); font-size: 13px; text-align: center; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer .brand-mark { color: var(--brand); font-weight: 600; letter-spacing: 0.1em; }
+  @media (max-width: 720px) {
+    .container { padding: 20px 14px 60px; }
+    .slide { padding: 22px 18px 20px; border-radius: 10px; }
+    .header h1 { font-size: 26px; } .slide h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <span class="brand">Tacticum Agents</span>
+  <h1>Мультиагентные ассистенты для HR, юр, бух, саппорта и корп-знаний</h1>
+  <div class="sub">Платформа проектирования, конфигурирования и эксплуатации мультиагентных AI-ассистентов. Граф агента · MCP-инструменты · ConversationState · Telegram · веб · API · on-prem · sovereign LLM.</div>
+</div>
+
+<section class="slide">
+  <span class="slide-num">Slide 1 · Title</span>
+  <h2>Tacticum Agents</h2>
+  <p>Мультиагентные ассистенты для бизнес-функций: HR, юридического, бухгалтерского, клиентского и корпоративного контуров. Класс 04.13 «Системы искусственного интеллекта».</p>
+  <p><strong>Граф агента · MCP-инструменты · ConversationState · Telegram · веб · API · on-prem · sovereign LLM.</strong></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 2 · Контекст</span>
+  <h2>AI-агенты — уже не эксперимент</h2>
+  <p><strong>2026: бизнес-функции хотят AI-ассистентов вчера. IT не успевает.</strong></p>
+  <ul>
+    <li>HR-директор хочет бота-онбординг и предчтение резюме — нужен ещё вчера.</li>
+    <li>Юр-департамент задыхается от типовых проверок договоров.</li>
+    <li>Бухгалтерия отвечает на одни и те же вопросы по командировкам месяцами.</li>
+    <li>Клиентский саппорт горит на первой линии — типовые обращения съедают 60–80% времени операторов.</li>
+    <li>Каждый отдел хочет «корп-ChatGPT, который знает наши процессы».</li>
+  </ul>
+  <h3>Бенчмарки рынка (2024–2025)</h3>
+  <table>
+    <thead><tr><th>Источник</th><th>Метрика</th></tr></thead>
+    <tbody>
+      <tr><td>McKinsey (Generative AI in HR, 2024)</td><td>До <strong>70%</strong> задач рекрутинга на первой линии — кандидат на автоматизацию</td></tr>
+      <tr><td>Gartner (CX Predicts 2025)</td><td>К 2026 году <strong>30%</strong> взаимодействий контакт-центров будут полностью разрешаться AI-ассистентами без эскалации</td></tr>
+      <tr><td>World Economic Forum (Future of Jobs, 2025)</td><td>Routine cognitive work — основная категория, где AI приносит <strong>30–50%</strong> time savings</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Что мешает:</strong> строить такой стек самим — это 3–4 месяца на инфраструктуру до первой продуктивной задачи.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 3 · Проблема</span>
+  <h2>Что ломается у тех, кто строит сам</h2>
+  <table>
+    <thead><tr><th>Проблема</th><th>Что происходит без платформы</th></tr></thead>
+    <tbody>
+      <tr><td>🔴 <strong>Фрагментация LLM-вызовов</strong></td><td>Каждый бот общается со своим провайдером. Нет единого учёта стоимости, нет ротации ключей</td></tr>
+      <tr><td>🔴 <strong>Нет тенансов</strong></td><td>Бот HR-департамента и бот юр-департамента работают в одной памяти. Утечки контекста</td></tr>
+      <tr><td>🔴 <strong>Нет каталога инструментов</strong></td><td>Excel-парсер написан 3 раза в трёх ботах. Каждое подключение к 1С — отдельный проект</td></tr>
+      <tr><td>🔴 <strong>Нет наблюдаемости стоимости</strong></td><td>Месячный счёт от LLM-провайдера = $40 тыс. Кто из ботов сколько потратил — никто не знает</td></tr>
+      <tr><td>🔴 <strong>Нет управления промптами</strong></td><td>Промпты живут в коде. Поменять формулировку — нужен релиз. Версионирования нет</td></tr>
+      <tr><td>🔴 <strong>Регрессии без guardrails</strong></td><td>Агент начинает галлюцинировать через неделю после обновления модели. Никто не замечает до жалобы</td></tr>
+      <tr><td>🔴 <strong>Каналы — каждый раз с нуля</strong></td><td>Подключение бота к Telegram, веб-чату, MAX — каждый раз новый интеграционный проект</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Итог:</strong> первый AI-ассистент строится 4 месяца. Второй — 3 месяца. Третий — 3 месяца. Никакого ROI от платформенного эффекта нет, потому что платформы нет.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 4 · Решение</span>
+  <h2>Готовая мультиагентная платформа</h2>
+  <p>Tacticum Agents — это не «конструктор ботов». Это <strong>тонкое прикладное приложение поверх Tacticum Platform</strong>: оно владеет бизнес-доменом и UI, но описывает агентов как декларативные манифесты — а исполнением, LLM, MCP-инструментами, каналами и наблюдаемостью занимается платформа.</p>
+<pre>┌──────────────────────────────────────────────────────────────┐
+│                  TACTICUM AGENTS (доменный слой)             │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  Agent Catalog                                         │  │
+│  │  Агент как конфигурируемая сущность арендатора:        │  │
+│  │  имя · бизнес-функция · версии · деплойменты           │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  Business-Function Templates                           │  │
+│  │  HR · юр · бух · саппорт · KB · IT helpdesk — reference│  │
+│  │  декларативные графы (Agent Manifest)                  │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  Multi-Channel Admin UI                                │  │
+│  │  Web-админка: агенты, графы, промпты, журналы,        │  │
+│  │  стоимость, тестирование draft                         │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌──────────────────┐                ┌───────────────────┐   │
+│  │  ACP-Adapter     │                │  Agent-Domain     │   │
+│  │  (мост к external│                │  Analytics        │   │
+│  │   agentic CLI)   │                │  (KPI бизнес-     │   │
+│  │                  │                │   функций)        │   │
+│  └──────────────────┘                └───────────────────┘   │
+└──────────────────────────────────────────────────────────────┘
+                              │
+              Agent Manifest (декларация графа)
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  TACTICUM PLATFORM                           │
+│                                                              │
+│  Agent Runtime (исполняет манифест) · MCP Runtime ·          │
+│  LLM Gateway · Prompt Mgmt · Guardrails · Memory · RAG ·     │
+│  Identity &amp; RBAC · Tenancy · Connectors (TG/web/SIP/MAX) ·   │
+│  Event Bus · Observability                                   │
+└──────────────────────────────────────────────────────────────┘</pre>
+  <p><strong>Что меняется:</strong> время от «нам нужен бот» до production — с 3–4 месяцев до 4–6 недель. Первая фича закрывается за дни, а не месяцы.</p>
+  <div class="note">Все «жёсткие» вещи (мультитенантность, sovereign-LLM, on-prem, аудит) — берёт на себя платформа. Agents концентрируется на бизнес-домене.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 5 · Сценарии</span>
+  <h2>Каталог типовых сценариев</h2>
+  <p>Платформа поставляется с предконфигурированными референсными сценариями для типичных бизнес-функций. Это не «жёсткие шаблоны» — это стартовая точка, которая адаптируется под процессы заказчика.</p>
+  <table>
+    <thead><tr><th>Сценарий</th><th>Описание</th><th>Эффект</th></tr></thead>
+    <tbody>
+      <tr><td><strong>HR-онбординг</strong></td><td>Бот сопровождает нового сотрудника по чек-листу, отвечает на FAQ, эскалирует к HR</td><td>−40–60% типовых вопросов HR</td></tr>
+      <tr><td><strong>Предчтение резюме</strong></td><td>Бот извлекает структуру кандидата, ранжирует по критериям, отдаёт shortlist рекрутеру</td><td>Time-to-shortlist −60–70%</td></tr>
+      <tr><td><strong>Юр-предчтение договоров</strong></td><td>Бот сравнивает с шаблоном, помечает отклонения, формирует комментарии</td><td>Первая проверка ×2–3 быстрее</td></tr>
+      <tr><td><strong>Бух-FAQ</strong></td><td>Бот отвечает на типовые вопросы по командировкам, отпускам, авансовым отчётам, налогам</td><td>−50–70% нагрузки бухгалтерии</td></tr>
+      <tr><td><strong>Корп-ассистент / knowledge base</strong></td><td>Бот ищет ответы по корп-документам (RAG), помогает с процессами</td><td>Поиск информации ×4–10 быстрее</td></tr>
+      <tr><td><strong>Клиентский саппорт первой линии</strong></td><td>Бот разбирает типовые обращения, эскалирует к оператору при необходимости</td><td>Automation rate 40–60%</td></tr>
+      <tr><td><strong>Тех-саппорт (внутренний IT helpdesk)</strong></td><td>Бот решает типовые IT-запросы, заводит тикеты, эскалирует к админу</td><td>−40–60% нагрузки IT-саппорта</td></tr>
+    </tbody>
+  </table>
+  <p>Каждый сценарий — это готовый граф агента с типовыми промптами, MCP-инструментами и точками интеграции.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 6 · Vs. альтернатив</span>
+  <h2>Когда брать Tacticum Agents</h2>
+  <table>
+    <thead><tr><th>Подход</th><th>Что это</th><th>Где ломается</th></tr></thead>
+    <tbody>
+      <tr><td><strong>«Сами на GPT API + LangChain»</strong></td><td>Свой backend, свой LLM-шлюз, свои тенансы, свои MCP</td><td>3–4 месяца на первый production-бот</td></tr>
+      <tr><td><strong>Готовые ассистенты (YandexGPT-бот и т.д.)</strong></td><td>SaaS-боты с UI-конфигурацией</td><td>Нет мультиагентности, нет MCP, нет on-prem, нет интеграции с корп-системами</td></tr>
+      <tr><td><strong>n8n / Make / Zapier + LLM-блоки</strong></td><td>Low-code orchestration</td><td>Подходит для простых пайплайнов; на мультиагентных диалогах с состоянием не работает</td></tr>
+      <tr><td><strong>Корп-копилоты (MS Copilot, Google Duet)</strong></td><td>Глубоко интегрированные с офис-стеком</td><td>Привязка к вендору, нет on-prem, ограничены готовыми сценариями</td></tr>
+      <tr><td><strong>Tacticum Agents</strong></td><td>Платформа мультиагентных систем с MCP-инструментами</td><td>On-prem, sovereign LLM, тенансы, наблюдаемость, готовые сценарии</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Когда брать:</strong> 3+ бота для разных бизнес-функций; нужен on-prem или sovereign LLM; есть требование к аудиту и тенансам; интеграция с корп-системами обязательна.</p>
+  <p><strong>Когда не брать:</strong> один простой Telegram-бот без интеграций и без требований к безопасности.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 7 · Reference-кейсы</span>
+  <h2>Benchmark-уровень внедрений</h2>
+  <p>Размещены индустриальные benchmark-цифры. Конкретные кейсы заказчиков добавляются по мере подписания соглашений о публичности.</p>
+  <h3>HR-конвейер</h3>
+  <ul>
+    <li><strong>Воронка:</strong> входящий поток резюме → бот извлекает структуру → ранжирует по критериям → отдаёт shortlist рекрутёру.</li>
+    <li><strong>Эффект:</strong> time-to-shortlist −60–70%; точность ранжирования сопоставима с senior-рекрутёром.</li>
+    <li><strong>Стек:</strong> граф агента + парсинг PDF/DOCX + MCP-инструмент LinkedIn/HH-выгрузки + RAG по критериям + интеграция с ATS.</li>
+  </ul>
+  <h3>Юр-проверка договоров</h3>
+  <ul>
+    <li><strong>Воронка:</strong> входящий договор → бот сравнивает с шаблоном → формирует таблицу отклонений → эскалирует юристу.</li>
+    <li><strong>Эффект:</strong> время первой проверки −50–60%; обнаружение отклонений 90–95%.</li>
+    <li><strong>Стек:</strong> граф агента + MCP Word + RAG по библиотеке шаблонов + чек-листы отклонений.</li>
+  </ul>
+  <h3>Контакт-центр первой линии</h3>
+  <ul>
+    <li><strong>Воронка:</strong> входящее сообщение → бот распознаёт намерение → отвечает по сценарию или эскалирует.</li>
+    <li><strong>Эффект:</strong> automation rate 40–60%; снижение нагрузки операторов на 30–50%.</li>
+    <li><strong>Стек:</strong> граф агента + RAG по продуктовой документации + CRM через MCP + Telegram + веб-чат + SIP.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 8 · Безопасность</span>
+  <h2>Tenancy, аудит, регуляторика</h2>
+  <table>
+    <tbody>
+      <tr><td><strong>Мультитенантность</strong></td><td>Tenant → Account → Project → User. Изоляция по <code>tenant_id</code> на уровне query layer</td></tr>
+      <tr><td><strong>AuthScope</strong></td><td>Каждый вызов LLM, MCP-инструмента и платформенного сервиса содержит контекст безопасности</td></tr>
+      <tr><td><strong>Identity</strong></td><td>OIDC через Authentik, интеграция с AD/Keycloak/ESIA, API-токены с ограниченным scope</td></tr>
+      <tr><td><strong>Аудит</strong></td><td>Полный журнал вызовов агентов, LLM, MCP-инструментов и обращений к данным. Экспорт в SIEM</td></tr>
+      <tr><td><strong>Guardrails</strong></td><td>Политики валидации входа/выхода LLM. Маскирование персданных</td></tr>
+      <tr><td><strong>On-prem</strong></td><td>Развёртывание в контуре заказчика без обращения к зарубежным сервисам</td></tr>
+      <tr><td><strong>Sovereign LLM</strong></td><td>GigaChat, YandexGPT, Qwen, Kimi, Llama в контуре заказчика</td></tr>
+      <tr><td><strong>ФЗ-152</strong></td><td>Хранение и обработка персданных в РФ. Согласия фиксируются на уровне арендатора</td></tr>
+      <tr><td><strong>ФЗ-187 (КИИ)</strong></td><td>Совместимость с доверенными ОС (Astra Linux + РЕД ОС), локальные LLM</td></tr>
+      <tr><td><strong>Реестр Минцифры</strong></td><td>Подача по классу 04.13 «Системы искусственного интеллекта»</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 9 · Архитектура внедрения</span>
+  <h2>Agents поверх Tacticum Platform</h2>
+<pre>┌────────────────────────────────────────────────────────────────┐
+│  ARCHITECTURE OVERVIEW                                         │
+│                                                                │
+│   Каналы (Platform Connectors)                                 │
+│   ─────────►          ┌──────────────────────────────────┐     │
+│   • Telegram ──┐      │  TACTICUM AGENTS (доменный слой) │     │
+│   • Web chat ──┤      │                                  │     │
+│   • SIP      ──┤      │  Agent Catalog · Templates ·     │     │
+│   • MAX      ──┤      │  Admin UI · ACP · Analytics      │     │
+│   • VK Teams ──┤      │                                  │     │
+│   • API      ──┘      │  → Agent Manifest (декларация)   │     │
+│         │             └─────────────────┬────────────────┘     │
+│         │                               │                      │
+│         │                               ▼                      │
+│         │             ┌──────────────────────────────────┐     │
+│         │             │   TACTICUM PLATFORM              │     │
+│         └────────────►│                                  │     │
+│                       │  Agent Runtime ◄─ исполняет ─┐  │     │
+│                       │   MCP Runtime ─► Embedded MCP+  │     │
+│                       │      │           кастомные MCP  │     │
+│                       │   LLM Gateway ◄── Sovereign LLM  │     │
+│                       │   Memory · RAG · Identity ·  │  │     │
+│                       │   Tenancy · Observability ·  │  │     │
+│                       │   Event Bus                  │  │     │
+│                       └──────────────────────────────────┘     │
+└────────────────────────────────────────────────────────────────┘</pre>
+  <p>Tacticum Agents — приложение на инфраструктуре Tacticum Platform. Один LLM-шлюз и одно тенансное ядро на все продукты заказчика, включая Tacticum Dev и Tacticum Forum.</p>
+  <div class="note">Один Agent Runtime — три DSL. Тот же движок, который исполняет агентов Agents, исполняет сценарии Tacticum Forum и analysis-subagent'ов Tacticum Dev. Это не три отдельных runtime'а — это один универсальный исполнитель декларативных графов.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 10 · Roll-out</span>
+  <h2>От пилота к production</h2>
+  <table>
+    <thead><tr><th>Этап</th><th>Срок</th><th>Что внутри</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Discovery + dataset assessment</strong></td><td>1–2 недели</td><td>Аудит процессов, выбор 1–2 пилотных сценариев, оценка данных для RAG</td></tr>
+      <tr><td><strong>Pilot</strong></td><td>4–6 недель</td><td>Один граф агента в продакшене на ограниченной аудитории, метрики, итерации</td></tr>
+      <tr><td><strong>Integration</strong></td><td>1–2 месяца</td><td>Подключение к корп-системам через MCP, разработка кастомных инструментов</td></tr>
+      <tr><td><strong>Production rollout</strong></td><td>1–3 месяца</td><td>Раскатка на полную аудиторию, обучение операторов / сотрудников</td></tr>
+    </tbody>
+  </table>
+  <h3>Кого со стороны заказчика подключить</h3>
+  <table>
+    <tbody>
+      <tr><td>Спонсор (CIO / HR-директор / CFO)</td><td>Принятие решения и согласование scope</td></tr>
+      <tr><td>Владелец процесса</td><td>Постановка задач, валидация сценариев</td></tr>
+      <tr><td>IT-архитектор</td><td>Согласование интеграций с корп-системами</td></tr>
+      <tr><td>Безопасность</td><td>Согласование контура развёртывания и аудит-политик</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 11 · Старт</span>
+  <h2>Cascade-ask + что нужно для пилота</h2>
+<pre>1️⃣  DISCOVERY (60 минут)
+    └─ Какие 1-2 сценария дают самый быстрый ROI у вас
+
+2️⃣  PILOT (4-6 недель)
+    └─ Один граф агента в production
+       С реальной аудиторией, с реальными метриками
+
+3️⃣  INTEGRATION + ROLL-OUT
+    └─ MCP-инструменты под ваши корп-системы
+       Production-каналы, наблюдаемость, передача в эксплуатацию
+
+4️⃣  PLATFORM CONSOLIDATION (опционально)
+    └─ Если у вас уже есть свои AI-ассистенты — миграция на единое ядро</pre>
+  <h3>Что нужно от заказчика для старта</h3>
+  <ol>
+    <li>Уточнить бизнес-функцию и желаемый сценарий (HR / юр / бух / саппорт / knowledge).</li>
+    <li>Назначить владельца процесса со стороны заказчика.</li>
+    <li>Подготовить набор корпоративных документов / шаблонов / FAQ для RAG.</li>
+    <li>Согласовать контур развёртывания (SaaS / on-prem / гибрид).</li>
+  </ol>
+</section>
+
+<div class="footer">
+  <span class="brand-mark">TACTICUM AGENTS</span> · Мультиагентные ассистенты для бизнес-функций · 2026
+</div>
+
+</div>
+</body>
+</html>

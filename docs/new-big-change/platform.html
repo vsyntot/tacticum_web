@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tacticum Platform — российская AI-инфраструктура</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161922;
+    --panel-2: #1c2030;
+    --border: #2a2f40;
+    --accent: #7aa2f7;
+    --accent-2: #36d6aa;
+    --ok: #9ece6a;
+    --warn: #e0af68;
+    --err: #f7768e;
+    --text: #c0caf5;
+    --muted: #565f89;
+    --strong: #ffffff;
+    --brand: #36d6aa;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto", sans-serif;
+    line-height: 1.55;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    word-wrap: break-word;
+  }
+  body { width: 100%; max-width: 100vw; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; width: 100%; }
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  .header .brand {
+    display: inline-block; padding: 6px 12px;
+    background: rgba(54,214,170,0.1); color: var(--brand);
+    border: 1px solid rgba(54,214,170,0.3); border-radius: 6px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .header h1 { font-size: 34px; margin: 0 0 10px 0; color: var(--strong); letter-spacing: -0.02em; line-height: 1.2; }
+  .header .sub { color: var(--muted); font-size: 15px; max-width: 720px; }
+  .slide {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 32px 32px 28px; margin: 24px 0;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.02);
+  }
+  .slide-num {
+    display: inline-block; background: var(--panel-2); color: var(--accent);
+    border: 1px solid var(--border); padding: 4px 12px;
+    border-radius: 999px; font-size: 11px; font-weight: 700;
+    margin-bottom: 16px; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .slide h2 { font-size: 24px; color: var(--strong); margin: 0 0 16px 0; letter-spacing: -0.01em; line-height: 1.3; }
+  .slide h3 { font-size: 18px; color: var(--accent); margin: 22px 0 12px 0; }
+  .slide h4 { font-size: 15px; color: var(--accent-2); margin: 16px 0 8px 0; }
+  .slide p { margin: 10px 0; }
+  .slide ul, .slide ol { padding-left: 24px; margin: 10px 0; }
+  .slide li { margin: 6px 0; }
+  .slide strong { color: var(--strong); font-weight: 600; }
+  .slide em { color: var(--accent-2); font-style: normal; font-weight: 500; }
+  .slide hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+  .quote {
+    border-left: 3px solid var(--accent); background: var(--panel-2);
+    padding: 14px 18px; margin: 16px 0; border-radius: 0 8px 8px 0;
+    color: var(--text); font-style: italic;
+  }
+  .note {
+    border-left: 3px solid var(--accent-2); background: rgba(54,214,170,0.05);
+    padding: 14px 18px; margin: 16px 0; border-radius: 0 8px 8px 0;
+    color: var(--text); font-size: 14.5px;
+  }
+  .note::before { content: "Примечание · "; color: var(--accent-2); font-weight: 600; }
+  table {
+    display: block; width: 100%; max-width: 100%;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border-collapse: collapse; margin: 14px 0; font-size: 14px;
+  }
+  table tbody { display: table; width: 100%; min-width: 100%; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--strong); font-weight: 600;
+       font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:hover td { background: rgba(122,162,247,0.03); }
+  pre {
+    background: #0a0d14; color: #c0caf5;
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 12.5px; line-height: 1.55; margin: 14px 0;
+    max-width: 100%; white-space: pre;
+  }
+  code {
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 13px; color: var(--accent-2);
+    background: rgba(54,214,170,0.08); padding: 1px 6px; border-radius: 4px;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 600; margin-right: 4px; }
+  .tag.ok { background: rgba(158,206,106,0.15); color: var(--ok); }
+  .tag.warn { background: rgba(224,175,104,0.15); color: var(--warn); }
+  .tag.err { background: rgba(247,118,142,0.15); color: var(--err); }
+  .footer { color: var(--muted); font-size: 13px; text-align: center; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer .brand-mark { color: var(--brand); font-weight: 600; letter-spacing: 0.1em; }
+  @media (max-width: 720px) {
+    .container { padding: 20px 14px 60px; }
+    .slide { padding: 22px 18px 20px; border-radius: 10px; }
+    .header h1 { font-size: 26px; }
+    .slide h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <span class="brand">Tacticum Platform</span>
+  <h1>Российская AI-инфраструктура для систем на больших языковых моделях</h1>
+  <div class="sub">Программная платформа-ядро. On-prem · Sovereign LLM · Реестр Минцифры · Astra Linux · РЕД ОС · готово к ПП №1937 от 28.11.2025.</div>
+</div>
+
+<section class="slide">
+  <span class="slide-num">Slide 1 · Title</span>
+  <h2>Tacticum Platform</h2>
+  <p>Российская AI-инфраструктура для построения, развёртывания и эксплуатации систем искусственного интеллекта на основе больших языковых моделей.</p>
+  <p><strong>On-prem · Sovereign LLM · Реестр Минцифры.</strong> Astra Linux Special Edition · РЕД ОС · готово к ПП №1937 от 28.11.2025 (правило двух доверенных ОС, статус «доверенного ПО»).</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 2 · Контекст</span>
+  <h2>«Свой собственный AI-стек» сегодня</h2>
+  <p>В каждой крупной организации, строящей продукты с применением LLM, повторяется один и тот же сценарий:</p>
+  <ul>
+    <li>разные команды используют разных LLM-провайдеров — нет единого учёта стоимости;</li>
+    <li>каждая команда самостоятельно поднимает MCP-серверы, RAG, память;</li>
+    <li>идентификация пользователей и арендаторов реализована отдельно в каждом продукте;</li>
+    <li>нет единой наблюдаемости вызовов LLM и единого аудита;</li>
+    <li>инфраструктура для on-prem-поставки одного продукта тащит в себе полную копию всей AI-инфраструктуры.</li>
+  </ul>
+  <p><strong>Результат:</strong> одни и те же баги фиксятся в трёх местах; пилотный проект на 8 недель превращается в 6 месяцев; экспертиза по безопасности проходится отдельно для каждого продукта.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 3 · Решение</span>
+  <h2>Единое инфраструктурное ядро</h2>
+  <p>Tacticum Platform выносит в общее ядро всё, что повторяется в двух и более AI-приложениях, и предоставляет это как сервисы и SDK. 17 модулей сгруппированы в 6 категорий по типу ответственности.</p>
+<pre>┌─────────────────────────────────────────────────────────────────────┐
+│                      TACTICUM PLATFORM (ядро)                       │
+│                                                                     │
+│  RUNTIME   │ Agent Runtime · MCP Runtime · Workflow Spec Engine     │
+│  ──────────┼──────────────────────────────────────────────────────  │
+│  AI        │ LLM Gateway · Prompt Management · Guardrails           │
+│  ──────────┼──────────────────────────────────────────────────────  │
+│  DATA      │ Knowledge / RAG · Memory Service · Doc Processing      │
+│  ──────────┼──────────────────────────────────────────────────────  │
+│  ACCESS    │ Identity &amp; RBAC · Tenancy &amp; Quotas · Credential Pool   │
+│  ──────────┼──────────────────────────────────────────────────────  │
+│  IO        │ Connectors · Event Bus · Embedded MCP Servers          │
+│  ──────────┼──────────────────────────────────────────────────────  │
+│  OPS       │ Observability &amp; Cost Tracking · Platform SDK           │
+└─────────────────────────────────────────────────────────────────────┘
+            ▲                       ▲                       ▲
+       Agent Manifest         Profile +              Scenario Manifest
+       (декларация)         Workflow Manifest        (декларация)
+            │                       │                       │
+       Tacticum                Tacticum                Tacticum
+       Agents                    Dev                    Forum</pre>
+  <p><strong>Принцип:</strong> прикладные приложения <em>не реализуют движки</em> — они описывают свои графы, сценарии и workflow как декларативные манифесты. Платформа исполняет.</p>
+  <div class="note">Один Agent Runtime — три словаря. Agents даёт манифест графа агента, Forum — манифест сценария (с узлами Message / Input / Condition / Checkpoint), Dev — манифест analysis-subagents. Исполняет один универсальный движок.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 4 · Архитектура</span>
+  <h2>Что внутри ядра</h2>
+  <table>
+    <thead><tr><th>Группа</th><th>Подсистема</th><th>Назначение</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3"><strong>RUNTIME</strong></td><td><strong>Agent Runtime</strong></td><td>Generic-движок исполнения декларативных графов с ConversationState, checkpointing, привязкой MCP-инструментов. Используется Agents, Forum, Dev — один движок, три DSL</td></tr>
+      <tr><td><strong>MCP Runtime + Registry</strong></td><td>Среда исполнения MCP-серверов и каталог совместимости. Scope-aware вызовы инструментов, аудит</td></tr>
+      <tr><td><strong>Workflow Spec Engine</strong></td><td>Durable-движок долгоживущих workflow с фазами утверждения. Поддерживает human-approval-этапы, может длиться дни/недели</td></tr>
+      <tr><td rowspan="3"><strong>AI</strong></td><td><strong>LLM Gateway</strong></td><td>Единый OpenAI-/Anthropic-совместимый API. Маршрутизация на провайдеров, failover, квоты, контроль стоимости</td></tr>
+      <tr><td><strong>Prompt Management</strong></td><td>Версионируемый реестр промптов с метками (production/staging/canary), кэш в Redis. Langfuse-совместимый</td></tr>
+      <tr><td><strong>Guardrails</strong></td><td>Политики валидации входа и выхода LLM на уровне арендатора. Маскирование, блокировка, эскалация</td></tr>
+      <tr><td rowspan="3"><strong>DATA</strong></td><td><strong>Knowledge / RAG</strong></td><td>Семантический + полнотекстовый поиск (Qdrant + Meilisearch + reranker). Ingestion-конвейер</td></tr>
+      <tr><td><strong>Memory Service</strong></td><td>Типизированная корпоративная память, привязанная к scope <code>tenant/account/project/user</code>. Memory MCP</td></tr>
+      <tr><td><strong>Document Processing</strong></td><td>Извлечение текста из PDF/DOCX/XLSX/PPTX. Единый сервис для RAG ingestion и прикладных приложений</td></tr>
+      <tr><td rowspan="3"><strong>ACCESS</strong></td><td><strong>Identity &amp; RBAC</strong></td><td>OIDC через Authentik, API-токены, AuthScope в каждом вызове. SSO на все продукты</td></tr>
+      <tr><td><strong>Tenancy &amp; Quotas</strong></td><td>Иерархия <code>Tenant → Account → Project → User</code>. Изоляция данных на query layer, квоты по LLM-токенам</td></tr>
+      <tr><td><strong>Credential Pool</strong></td><td>Зашифрованное хранилище ключей LLM-провайдеров. Ротация без переналадки приложений</td></tr>
+      <tr><td rowspan="3"><strong>IO</strong></td><td><strong>Connectors</strong></td><td>Telegram, веб-чат, SIP, MAX, VK Teams, webhook-роутер. Единая абстракция сообщения</td></tr>
+      <tr><td><strong>Event Bus</strong></td><td>Доменные события между подсистемами и приложениями. Pub/sub, retention, replay для аудита</td></tr>
+      <tr><td><strong>Embedded MCP Servers</strong></td><td>First-party MCP-сервера: Excel, Word, PowerPoint, Project, Wiki, Memory, Transcription, Filesystem</td></tr>
+      <tr><td rowspan="2"><strong>OPS</strong></td><td><strong>Observability &amp; Cost</strong></td><td>Span-based трассировка LLM-вызовов, биллинг по LLM-токенам, дашборды стоимости</td></tr>
+      <tr><td><strong>Platform SDK</strong></td><td>Python + TypeScript библиотеки для прикладных приложений. Типизированные клиенты ко всем сервисам</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 5 · Бизнес-эффект</span>
+  <h2>Что заказчик получает</h2>
+  <table>
+    <thead><tr><th>Подсистема</th><th>Что заменяет</th><th>Эффект для бизнеса</th></tr></thead>
+    <tbody>
+      <tr><td>LLM Gateway + Credential Pool</td><td>Прямые SDK провайдеров в каждом приложении</td><td>Один контракт, единый учёт стоимости, безопасная ротация ключей</td></tr>
+      <tr><td>MCP Runtime + Registry</td><td>Локальные <code>.mcp.json</code> в каждом проекте</td><td>Каталог MCP-серверов как сервис арендатора, audit-trail вызовов</td></tr>
+      <tr><td>Identity &amp; RBAC</td><td>Отдельная аутентификация в каждом приложении</td><td>Один SSO; единый источник истины по пользователям</td></tr>
+      <tr><td>Tenancy &amp; Quotas</td><td>Самописная мультитенантность в каждом приложении</td><td>Один контракт изоляции данных, обязательное условие SaaS-поставки</td></tr>
+      <tr><td>RAG / Knowledge</td><td>Точечные интеграции с Qdrant в каждом приложении</td><td>Единый индексатор корпоративного контента</td></tr>
+      <tr><td>Memory Service</td><td>Отсутствует / ad-hoc</td><td>Корпоративная память с правами по scope</td></tr>
+      <tr><td><strong>Agent Runtime + Workflow Spec Engine</strong></td><td>Локальные обвязки LangGraph в каждом приложении + ручные workflow</td><td>Один движок диалогов и один движок workflow; приложение описывает граф/сценарий/workflow как <em>декларативный манифест</em></td></tr>
+      <tr><td>Event Bus</td><td>Прямые вызовы между приложениями или их отсутствие</td><td>Cross-app коммуникация по доменным событиям; audit/replay; loose coupling</td></tr>
+      <tr><td>Embedded MCP Servers</td><td>Каждое приложение пишет свои парсеры Office/Wiki</td><td>Готовый набор tool-инструментов «из коробки» доступен всем приложениям</td></tr>
+      <tr><td>Observability &amp; Cost</td><td>Логи в файлах, ручной подсчёт</td><td>Один источник правды по затратам на LLM и качеству генерации</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Сводный эффект:</strong> время вывода нового AI-приложения сокращается с 3–4 месяцев на инфраструктуру до 2–4 недель.</p>
+  <div class="note">Прикладные приложения <em>запрещают себе</em> прямые вызовы LLM-провайдеров, локальное хранение ключей, собственную мультитенантность, собственный OIDC, локальные MCP-сервера. Эти конструктивные ограничения и делают платформу платформой.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 6 · Reg-ready</span>
+  <h2>Соответствие требованиям 2026 года</h2>
+  <table>
+    <thead><tr><th>Норма</th><th>Требование</th><th>Как закрывает Tacticum Platform</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ПП РФ № 1236</strong> (ред. от 09.12.2025)</td><td>Включение в Единый реестр российских программ для ЭВМ и БД</td><td>Поданы документы по классу 04.13; правообладатель — ООО «Тактикум» (РФ)</td></tr>
+      <tr><td><strong>ПП РФ № 1937 от 28.11.2025</strong></td><td>Подкласс «доверенного ПО»; приоритет в закупках 44-ФЗ/223-ФЗ</td><td>Поддерживается сертификация ФСТЭК/ФСБ; правило двух доверенных ОС</td></tr>
+      <tr><td><strong>ПП РФ № 1936 от 28.11.2025</strong></td><td>Реестр ПО для собственных нужд КИИ</td><td>Дистрибутив пригоден для самостоятельной разработки субъектов КИИ</td></tr>
+      <tr><td><strong>ПП РФ № 2001 от 09.12.2025</strong></td><td>Спецтребования к ПО на генеративных LLM в составе ПАК</td><td>Поддерживается сборка в виде ПАК</td></tr>
+      <tr><td><strong>ФЗ № 152-ФЗ</strong></td><td>Защита персональных данных</td><td>On-prem-развёртывание, тенантная изоляция, аудит</td></tr>
+      <tr><td><strong>ФЗ № 187-ФЗ</strong></td><td>Безопасность объектов КИИ</td><td>Совместимость с доверенными ОС, локальные LLM</td></tr>
+      <tr><td><strong>Правило двух ОС</strong> (дедлайн 01.06.2027)</td><td>Совместимость с двумя доверенными ОС</td><td>Astra Linux Special Edition + РЕД ОС (нативная поддержка)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 7 · Sovereign LLM</span>
+  <h2>Работа с тремя категориями моделей через единый шлюз</h2>
+  <table>
+    <thead><tr><th>Категория</th><th>Примеры</th><th>Где исполняется</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Российские облачные</strong></td><td>GigaChat (Сбер), YandexGPT, MTS AI, T-Bank LM</td><td>В контуре провайдера РФ</td></tr>
+      <tr><td><strong>Open-source в контуре заказчика</strong></td><td>Qwen, Kimi, DeepSeek, Llama, Mistral</td><td>На серверах заказчика (vLLM/SGLang)</td></tr>
+      <tr><td><strong>Зарубежные облачные (опционально)</strong></td><td>OpenAI, Anthropic, Google</td><td>Только если разрешено политикой арендатора</td></tr>
+    </tbody>
+  </table>
+  <p>Маршрутизация настраивается на уровне арендатора. Для контуров с ограничениями на трансграничный трафик зарубежные облачные модели запрещаются на уровне политики; шлюз отказывает в обращении до сетевого вызова.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 8 · On-prem</span>
+  <h2>Поставка в контуре заказчика</h2>
+  <p>Дистрибутив поставляется в виде набора контейнерных образов и манифестов оркестрации.</p>
+  <table>
+    <tbody>
+      <tr><td><strong>Поддерживаемые серверные ОС</strong></td><td>Astra Linux Special Edition / Common Edition, РЕД ОС, ОС «Альт»</td></tr>
+      <tr><td><strong>Архитектура процессора</strong></td><td>x86-64; ARM64 — по запросу</td></tr>
+      <tr><td><strong>Минимальные требования пилотного контура</strong></td><td>16 ядер CPU, 64 ГБ RAM, 500 ГБ SSD, GPU опционально для inference open-source LLM</td></tr>
+      <tr><td><strong>Среда оркестрации</strong></td><td>Docker Compose (для пилотов), Kubernetes (для продакшен-нагрузок)</td></tr>
+      <tr><td><strong>Хранилища</strong></td><td>PostgreSQL, ClickHouse, Redis, Qdrant, Meilisearch, MinIO — все open-source</td></tr>
+      <tr><td><strong>Идентификация</strong></td><td>Authentik (OIDC), интеграция с корпоративным AD/Keycloak/ESIA</td></tr>
+      <tr><td><strong>Аудит</strong></td><td>Полный журнал вызовов LLM, MCP-инструментов, обращений к данным</td></tr>
+    </tbody>
+  </table>
+  <p>Развёртывание в изолированном контуре заказчика без обращения к зарубежным сервисам поддерживается полностью.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 9 · Доказательство</span>
+  <h2>На платформе уже работают прикладные продукты</h2>
+  <p>Платформа не «строится в надежде на пользователей». Она — рабочая основа для трёх собственных прикладных продуктов правообладателя:</p>
+  <ul>
+    <li><strong>Tacticum Agents</strong> — мультиагентные ассистенты для HR/юр/бух/саппорт. Описывает свои графы как Agent Manifest, исполняется на Platform Agent Runtime. Использует LLM Gateway, MCP Runtime, Memory, Connectors.</li>
+    <li><strong>Tacticum Dev</strong> — agentic development lifecycle. Использует Identity &amp; RBAC, MCP Runtime (хостит свои Stack-Specific MCP Bundles и Design Token Layer), Knowledge как backbone для RE Knowledge DSL, Workflow Spec Engine для Feature Lifecycle.</li>
+    <li><strong>Tacticum Forum</strong> — диалоговые сценарные боты для контакт-центров. Описывает сценарии как Scenario Manifest (расширенный DSL поверх Agent Manifest), исполняется на том же Platform Agent Runtime. Использует LLM Gateway, RAG, Connectors.</li>
+  </ul>
+  <div class="note">Один Agent Runtime обслуживает Agents (мультиагентность), Forum (real-time клиентский диалог), Dev (analysis-subagents). Это и есть «платформенный эффект» — повторное использование, проверенное тремя разными нагрузками.</div>
+  <p>Каждый продукт — отдельная запись в Реестре отечественного ПО. Платформа — общая основа.</p>
+  <p><strong>Что это значит для заказчика:</strong> инфраструктура валидирована на трёх production-нагрузках с разными профилями. Нет «hello world» в качестве референса.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 10 · Старт</span>
+  <h2>Модель поставки и lifecycle</h2>
+  <table>
+    <thead><tr><th>Этап</th><th>Срок</th><th>Что внутри</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Discovery</strong></td><td>1–2 недели</td><td>Аудит текущего AI-стека, оценка готовности к платформе, целевая архитектура</td></tr>
+      <tr><td><strong>PoC</strong></td><td>4–6 недель</td><td>Развёртывание ядра в стенде заказчика; перенос 1 приложения на платформу как референс</td></tr>
+      <tr><td><strong>Pilot</strong></td><td>2–3 месяца</td><td>Production-перевод 2–3 приложений, обучение команды, передача SDK</td></tr>
+      <tr><td><strong>Production rollout</strong></td><td>4–6 месяцев</td><td>Перевод оставшегося AI-стека, выход на единые SSO/учёт стоимости/аудит</td></tr>
+    </tbody>
+  </table>
+  <h3>Модели коммерческой поставки</h3>
+  <ul>
+    <li><strong>On-prem лицензия</strong> — постоянное право использования + ежегодная поддержка.</li>
+    <li><strong>SaaS подписка</strong> — для пилотных контуров и небольших арендаторов.</li>
+    <li><strong>ПАК</strong> — дистрибутив с предустановленным окружением для субъектов КИИ.</li>
+  </ul>
+  <h3>Что нужно от заказчика для старта</h3>
+  <ol>
+    <li>Уточнить целевой сценарий (новое AI-приложение / консолидация существующих).</li>
+    <li>Назначить владельца со стороны заказчика (CIO / руководитель AI-направления).</li>
+    <li>Подготовить пилотный стенд (виртуальная инфраструктура или dedicated hardware).</li>
+  </ol>
+</section>
+
+<div class="footer">
+  <span class="brand-mark">TACTICUM PLATFORM</span> · Российская AI-инфраструктура · 2026
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tacticum — российская экосистема AI-программ</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #161922; --panel-2: #1c2030; --border: #2a2f40;
+    --accent: #36d6aa; --accent-2: #bb9af7;
+    --ok: #9ece6a; --warn: #e0af68; --err: #f7768e;
+    --text: #c0caf5; --muted: #565f89; --strong: #ffffff; --brand: #36d6aa;
+    --platform: #7aa2f7; --agents: #e0af68; --dev: #bb9af7; --forum: #f7768e;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto", sans-serif;
+    line-height: 1.55; font-size: 16px; -webkit-font-smoothing: antialiased; overflow-x: hidden; word-wrap: break-word; }
+  body { width: 100%; max-width: 100vw; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  .header .brand { display: inline-block; padding: 6px 12px; background: rgba(54,214,170,0.12); color: var(--brand);
+    border: 1px solid rgba(54,214,170,0.4); border-radius: 6px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+  .header h1 { font-size: 34px; margin: 0 0 10px 0; color: var(--strong); letter-spacing: -0.02em; line-height: 1.2; }
+  .header .sub { color: var(--muted); font-size: 15px; max-width: 720px; }
+  .slide { background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 32px 32px 28px; margin: 24px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.02); }
+  .slide-num { display: inline-block; background: var(--panel-2); color: var(--accent); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 16px;
+    letter-spacing: 0.1em; text-transform: uppercase; }
+  .slide h2 { font-size: 24px; color: var(--strong); margin: 0 0 16px 0; letter-spacing: -0.01em; line-height: 1.3; }
+  .slide h3 { font-size: 18px; color: var(--accent); margin: 22px 0 12px 0; }
+  .slide h4 { font-size: 15px; color: var(--accent-2); margin: 16px 0 8px 0; }
+  .slide p { margin: 10px 0; }
+  .slide ul, .slide ol { padding-left: 24px; margin: 10px 0; }
+  .slide li { margin: 6px 0; }
+  .slide strong { color: var(--strong); font-weight: 600; }
+  .slide em { color: var(--accent-2); font-style: normal; font-weight: 500; }
+  .slide hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+  .quote { border-left: 3px solid var(--accent); background: var(--panel-2); padding: 14px 18px; margin: 16px 0;
+    border-radius: 0 8px 8px 0; color: var(--text); font-style: italic; }
+  .note { border-left: 3px solid var(--accent-2); background: rgba(187,154,247,0.05); padding: 14px 18px;
+    margin: 16px 0; border-radius: 0 8px 8px 0; color: var(--text); font-size: 14.5px; }
+  .note::before { content: "Примечание · "; color: var(--accent-2); font-weight: 600; }
+  table { display: block; width: 100%; max-width: 100%; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  table tbody { display: table; width: 100%; min-width: 100%; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--strong); font-weight: 600; font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:hover td { background: rgba(54,214,170,0.03); }
+  pre { background: #0a0d14; color: #c0caf5; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 12.5px; line-height: 1.55;
+    margin: 14px 0; max-width: 100%; white-space: pre; }
+  code { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 13px; color: var(--accent-2);
+    background: rgba(187,154,247,0.08); padding: 1px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .product-tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 6px; }
+  .product-tag.platform { background: rgba(122,162,247,0.15); color: var(--platform); border: 1px solid rgba(122,162,247,0.3); }
+  .product-tag.agents { background: rgba(224,175,104,0.15); color: var(--agents); border: 1px solid rgba(224,175,104,0.3); }
+  .product-tag.dev { background: rgba(187,154,247,0.15); color: var(--dev); border: 1px solid rgba(187,154,247,0.3); }
+  .product-tag.forum { background: rgba(247,118,142,0.15); color: var(--forum); border: 1px solid rgba(247,118,142,0.3); }
+  .onepager-row { display: flex; align-items: center; gap: 14px; margin: 18px 0 6px 0; flex-wrap: wrap; }
+  .onepager-row h2 { margin: 0; flex: 1; min-width: 200px; }
+  .footer { color: var(--muted); font-size: 13px; text-align: center; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer .brand-mark { color: var(--brand); font-weight: 700; letter-spacing: 0.14em; }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+  @media (max-width: 720px) {
+    .container { padding: 20px 14px 60px; }
+    .slide { padding: 22px 18px 20px; border-radius: 10px; }
+    .header h1 { font-size: 26px; } .slide h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <span class="brand">Tacticum</span>
+  <h1>Российская экосистема AI-программ</h1>
+  <div class="sub">Платформа-ядро + три прикладных продукта для разных бизнес-функций. Все четыре программных продукта подаются в Единый реестр российских программ для ЭВМ и БД.</div>
+</div>
+
+<section class="slide">
+  <span class="slide-num">Slide 1 · Title</span>
+  <h2>Tacticum</h2>
+  <p>Российская экосистема программного обеспечения для систем искусственного интеллекта.</p>
+  <p><strong>Platform · Dev · Agents · Forum.</strong> On-prem · Sovereign LLM · Реестр Минцифры · Astra Linux · РЕД ОС · готово к ПП №1937.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 2 · Манифест</span>
+  <h2>Эра AI пришла не как монолит — как семейство</h2>
+  <p><strong>Эра AI не наступила в виде одного гигантского монолита, которым можно купить «всё AI».</strong></p>
+  <p>Она наступила как <strong>семейство специализированных программ</strong>, разделяющих общую инфраструктуру: один LLM-шлюз, одни тенансы, одна память, один аудит. И на этой инфраструктуре — свои продукты для разных задач.</p>
+  <p>В РФ к 2026 году к этой архитектурной правде добавилась регуляторная: только программы из Реестра отечественного ПО допускаются к госзакупкам и КИИ; со статусом «доверенного ПО» — приоритет даже над обычными реестровыми. Импортные платформы выбывают.</p>
+  <p><strong>Tacticum — это российский ответ:</strong></p>
+  <ul>
+    <li>Не вендор-локин на одной модели.</li>
+    <li>Не «AI-обёртка» над OpenAI API.</li>
+    <li>Не enterprise-копилот от Microsoft.</li>
+  </ul>
+  <p>Это <strong>программная экосистема</strong> на собственном инфраструктурном ядре, с прикладными продуктами для трёх типичных бизнес-задач — разработки ПО, бизнес-ассистентов, клиентских коммуникаций.</p>
+  <div class="quote">Один поставщик. Один контракт. Одно ядро. Четыре программы в Реестре.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 3 · Линейка</span>
+  <h2>Одной картинкой</h2>
+<pre>┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│   ┌────────────────┐  ┌────────────────┐  ┌────────────────────┐     │
+│   │ TACTICUM       │  │ TACTICUM       │  │ TACTICUM           │     │
+│   │ AGENTS         │  │ DEV            │  │ FORUM              │     │
+│   │                │  │                │  │                    │     │
+│   │ Мульти-        │  │ Agentic        │  │ Диалоговые         │     │
+│   │ агентные       │  │ development    │  │ сценарные          │     │
+│   │ ассистенты     │  │ lifecycle      │  │ боты               │     │
+│   │                │  │                │  │                    │     │
+│   │ HR · юр · бух  │  │ Профили под    │  │ Контакт-центры     │     │
+│   │ саппорт · KB   │  │ стек · KB · QG │  │ e-com · fintech    │     │
+│   │                │  │                │  │ телеком · госуслуги│     │
+│   │ Класс 04.13    │  │ Класс 06.07    │  │ Класс 04.13        │     │
+│   └────────┬───────┘  └────────┬───────┘  └────────┬───────────┘     │
+│            │                   │                   │                 │
+│   Agent Manifest        Profile + Workflow     Scenario Manifest     │
+│   (декларация)          Manifest (декларация)  (декларация)          │
+│            │                   │                   │                 │
+│            └───────────────────┼───────────────────┘                 │
+│                                │                                     │
+│             ┌──────────────────▼─────────────────┐                   │
+│             │       TACTICUM PLATFORM            │                   │
+│             │                                    │                   │
+│             │  17 модулей в 6 группах:           │                   │
+│             │  RUNTIME · AI · DATA · ACCESS ·    │                   │
+│             │  IO · OPS                          │                   │
+│             │                                    │                   │
+│             │  Один Agent Runtime — три DSL.     │                   │
+│             │  Workflow Spec Engine — для        │                   │
+│             │  durable-процессов.                │                   │
+│             │                                    │                   │
+│             │  Класс 04.13 (основной)            │                   │
+│             │  + 04.10 · 02.13 · 02.09           │                   │
+│             └────────────────────────────────────┘                   │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘</pre>
+  <p><strong>Платформа внизу — общая инфраструктура. Продукты наверху — тонкие доменные приложения, описывающие свою специфику как декларативные манифесты.</strong></p>
+  <div class="note">Приложения <em>не реализуют движки</em>. Agents даёт манифест графа агента, Forum — манифест сценария, Dev — workflow-манифест. Платформа исполняет.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 4 · One-pager</span>
+  <div class="onepager-row">
+    <span class="product-tag platform">Platform</span>
+    <h2>Tacticum Platform</h2>
+  </div>
+  <p><em>Программная платформа-ядро для построения, развёртывания и эксплуатации систем искусственного интеллекта на основе больших языковых моделей.</em></p>
+  <table>
+    <tbody>
+      <tr><td><strong>Класс по Минцифре</strong></td><td>04.13 «Системы искусственного интеллекта» (основной), 04.10, 02.13, 02.09</td></tr>
+      <tr><td><strong>Для кого</strong></td><td>Крупные организации, строящие или консолидирующие собственный AI-стек; госкорпорации, банки, телеком, интеграторы</td></tr>
+      <tr><td><strong>Когда подходит</strong></td><td>Есть 2+ AI-приложения с дублирующей инфраструктурой; нужен on-prem с двумя доверенными ОС; требуется единый учёт стоимости LLM</td></tr>
+      <tr><td><strong>Что внутри</strong></td><td>17 модулей в 6 группах: RUNTIME (Agent Runtime, MCP Runtime, Workflow Spec Engine), AI (LLM Gateway, Prompt Mgmt, Guardrails), DATA (RAG, Memory, Doc Processing), ACCESS (Identity/RBAC, Tenancy, Credential Pool), IO (Connectors, Event Bus, Embedded MCP Servers), OPS (Observability, SDK)</td></tr>
+      <tr><td><strong>Чем заменяет</strong></td><td>Прямые SDK провайдеров в каждом приложении; самописная мультитенантность; локальные <code>.mcp.json</code>; разрозненная наблюдаемость; ручной orchestration durable-workflow</td></tr>
+      <tr><td><strong>Бизнес-эффект</strong></td><td>Время вывода нового AI-приложения с 3–4 месяцев на инфраструктуру до 2–4 недель</td></tr>
+      <tr><td><strong>Поставка</strong></td><td>On-prem лицензия, SaaS подписка, ПАК</td></tr>
+      <tr><td><strong>Доказательство</strong></td><td>На платформе уже работают Tacticum Agents, Dev, Forum как прикладные продукты</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Детально:</strong> <a href="platform.html" style="color: var(--platform);">platform.html</a></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 5 · One-pager</span>
+  <div class="onepager-row">
+    <span class="product-tag agents">Agents</span>
+    <h2>Tacticum Agents</h2>
+  </div>
+  <p><em>Мультиагентные ассистенты для HR, юридического, бухгалтерского, клиентского и корпоративного контуров.</em></p>
+  <table>
+    <tbody>
+      <tr><td><strong>Класс по Минцифре</strong></td><td>04.13 «Системы искусственного интеллекта», 04.10, 02.13</td></tr>
+      <tr><td><strong>Для кого</strong></td><td>HR-, юр-, бух-, CFO-, CCO-департаменты в средних и крупных организациях; внутренние IT-команды, строящие корп-копилотов; интеграторы как канал</td></tr>
+      <tr><td><strong>Когда подходит</strong></td><td>Нужно 3+ ассистента для разных бизнес-функций; требуется on-prem или sovereign LLM; нужны интеграции с 1С/СПАРК/CRM/BI</td></tr>
+      <tr><td><strong>Что внутри</strong></td><td>Agent Catalog, Business-Function Templates, Multi-Channel Admin UI, ACP-Adapter, Agent-Domain Analytics. Графы агентов описываются как декларативные манифесты и исполняются на Platform Agent Runtime</td></tr>
+      <tr><td><strong>Типовые сценарии</strong></td><td>HR-онбординг, предчтение резюме, юр-предчтение договоров, бух-FAQ, корп-KB, клиентский саппорт, IT helpdesk</td></tr>
+      <tr><td><strong>Бизнес-эффект</strong></td><td>Снижение нагрузки HR на 40–60%, юр на 50–60% типовых проверок, бух-FAQ на 50–70%, IT helpdesk на 40–60%</td></tr>
+      <tr><td><strong>Поставка</strong></td><td>On-prem, SaaS, гибрид</td></tr>
+      <tr><td><strong>Reg-ready</strong></td><td>Реестр Минцифры, ФЗ-152, ФЗ-187, две доверенные ОС</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Детально:</strong> <a href="agents.html" style="color: var(--agents);">agents.html</a></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 6 · One-pager</span>
+  <div class="onepager-row">
+    <span class="product-tag dev">Dev</span>
+    <h2>Tacticum Dev</h2>
+  </div>
+  <p><em>Платформа управления жизненным циклом разработки ПО с применением AI-агентов. Vibe-coding без потери архитектуры.</em></p>
+  <table>
+    <tbody>
+      <tr><td><strong>Класс по Минцифре</strong></td><td>06.07 «Системы управления жизненным циклом ПО» (основной), 06.06, 05.05</td></tr>
+      <tr><td><strong>Для кого</strong></td><td>CIO/CTO инженерных организаций от 50 FTE; компании, столкнувшиеся с «vibe-coding потолком» на 100+ инженерах</td></tr>
+      <tr><td><strong>Когда подходит</strong></td><td>Vibe-coding даёт +30% и регресс в legacy вместо обещанных +400%; нужна governance и architecture compliance; planned workforce-трансформация</td></tr>
+      <tr><td><strong>Что внутри</strong></td><td>Profile Catalog, Ingredient Specification (9 типов), Feature Lifecycle Workflow (на Platform Workflow Spec Engine), RE Knowledge DSL (поверх Platform RAG), Design Token Layer (Dev MCP-сервер в Platform MCP Runtime), Stack-Specific MCP Bundles (Qt/Compose/iOS/Go/RN/Backend — code от Dev, hosting в Platform), Multi-CLI Adapter, Quality Gates Registry, Subscription &amp; Licensing</td></tr>
+      <tr><td><strong>Чем заменяет</strong></td><td>Cursor / Copilot enterprise как «голый vibe» без architecture compliance; manual code review как единственный gate</td></tr>
+      <tr><td><strong>Бизнес-эффект</strong></td><td>Lead time −70%, output на разработчика ×2.5, design violations −100% (по reference-пилоту); cellular workforce-трансформация 100 FTE → 50 FTE</td></tr>
+      <tr><td><strong>Поставка</strong></td><td>SaaS подписка с premium-gating; on-prem в рамках strategic partnership</td></tr>
+      <tr><td><strong>Дополнительно</strong></td><td>Training-as-service: cohort-программа re-skilling под стек заказчика</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Детально:</strong> <a href="dev.html" style="color: var(--dev);">dev.html</a></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 7 · One-pager</span>
+  <div class="onepager-row">
+    <span class="product-tag forum">Forum</span>
+    <h2>Tacticum Forum</h2>
+  </div>
+  <p><em>Импортонезависимая диалоговая платформа для автоматизации обработки клиентских обращений. Сценарии + LLM, без иллюзий.</em></p>
+  <table>
+    <tbody>
+      <tr><td><strong>Класс по Минцифре</strong></td><td>04.13 «Системы управления процессами организации», 04.11, 02.09</td></tr>
+      <tr><td><strong>Для кого</strong></td><td>Контакт-центры и CX-департаменты в e-commerce, fintech, страховании, телекоме, госуслугах; организации, мигрирующие с Twilio Flex/Genesys/Salesforce</td></tr>
+      <tr><td><strong>Когда подходит</strong></td><td>60–80% обращений — типовые; нужна замена импортной CX-платформы; требуется регуляторно-доказуемая traceability ответов</td></tr>
+      <tr><td><strong>Что внутри</strong></td><td>Needs Catalog, Scenario DSL (расширение Agent Manifest узлами Message/Input/Condition/Interrupt/Checkpoint), Visual Scenario Editor, Scenario Routing, A/B Experiment Engine, Need Discovery Engine, Funnel Analytics, Dialog Journal, Reports Engine. Сценарии исполняются на Platform Agent Runtime (тот же движок, что и у Agents)</td></tr>
+      <tr><td><strong>Бизнес-эффект</strong></td><td>Automation rate 40–70%, drop-off −20–40%, time-to-resolution −50–70%, cost per contact −30–60%</td></tr>
+      <tr><td><strong>Каналы</strong></td><td>Telegram, веб-чат, SIP-телефония, MAX, VK Teams, мобильное приложение, REST API</td></tr>
+      <tr><td><strong>Поставка</strong></td><td>On-prem (полностью изолированный контур), SaaS</td></tr>
+      <tr><td><strong>Reg-ready</strong></td><td>Реестр Минцифры, ФЗ-152, ФЗ-187 (КИИ), две доверенные ОС</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Детально:</strong> <a href="forum.html" style="color: var(--forum);">forum.html</a></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 8 · Reg-ready</span>
+  <h2>Что это даёт заказчику в 2026 году</h2>
+  <p>К 2026 году нормативный пейзаж для AI-ПО в РФ устоялся. Ключевые ограничения и преимущества зафиксированы в обновлённых правилах Минцифры (ПП РФ № 1937 от 28.11.2025) и налоговом кодексе.</p>
+  <table>
+    <thead><tr><th>Норма / эффект</th><th>Что это значит</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Реестр Минцифры (ПП № 1236)</strong></td><td>Только программы из Реестра допускаются к госзакупкам по 44-ФЗ и приоритетным закупкам по 223-ФЗ</td></tr>
+      <tr><td><strong>Статус «доверенного ПО» (ПП № 1937)</strong></td><td>С 01.03.2026 — абсолютный приоритет в закупках. Не-доверенные предложения приравниваются к иностранным</td></tr>
+      <tr><td><strong>Правило двух доверенных ОС</strong></td><td>С 01.06.2027 для прикладного ПО — обязательная совместимость с Astra Linux и РЕД ОС</td></tr>
+      <tr><td><strong>Освобождение от НДС</strong> (пп. 26 п. 2 ст. 149 НК)</td><td>При реализации прав на реестровое ПО НДС не начисляется</td></tr>
+      <tr><td><strong>Налог на прибыль 5%</strong> (п. 1.15 ст. 284 НК)</td><td>Для аккредитованных IT-компаний с ≥70% профильных доходов от реестрового ПО</td></tr>
+    </tbody>
+  </table>
+  <h3>Где Tacticum закрывает требования</h3>
+  <table>
+    <thead><tr><th>Продукт</th><th>Поданный класс</th><th>Заявка в Реестр</th></tr></thead>
+    <tbody>
+      <tr><td>Tacticum Platform</td><td>04.13 + 04.10 + 02.13 + 02.09</td><td>Готова к подаче</td></tr>
+      <tr><td>Tacticum Agents</td><td>04.13 + 04.10 + 02.13</td><td>Готова к подаче</td></tr>
+      <tr><td>Tacticum Dev</td><td>06.07 + 06.06 + 05.05</td><td>Готова к подаче</td></tr>
+      <tr><td>Tacticum Forum</td><td>04.13 + 04.11 + 02.09</td><td>Готова к подаче</td></tr>
+    </tbody>
+  </table>
+  <p>Все четыре продукта совместимы с Astra Linux и РЕД ОС нативно; правообладатель — российское юридическое лицо без долей иностранного контроля.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 9 · Поставка</span>
+  <h2>Модели и lifecycle</h2>
+  <h3>Модели коммерческой поставки</h3>
+  <table>
+    <thead><tr><th>Модель</th><th>Подходит для</th><th>Что включает</th></tr></thead>
+    <tbody>
+      <tr><td><strong>SaaS подписка</strong></td><td>Пилотные контуры, средние арендаторы</td><td>Multi-tenant SaaS в облаке Tacticum, ежемесячная подписка</td></tr>
+      <tr><td><strong>On-prem лицензия</strong></td><td>Крупные enterprise, банки, телеком, ритейл</td><td>Постоянное право использования + ежегодная поддержка</td></tr>
+      <tr><td><strong>ПАК</strong></td><td>Субъекты КИИ, госкорпорации, ведомства</td><td>Дистрибутив с предустановленным окружением, сертификация</td></tr>
+      <tr><td><strong>Strategic equity partnership</strong></td><td>Стратегические заказчики</td><td>Совместная разработка, equity stake, on-prem + co-governance</td></tr>
+    </tbody>
+  </table>
+  <h3>Lifecycle: пилот → production</h3>
+  <table>
+    <thead><tr><th>Этап</th><th>Срок (типовой)</th><th>Что внутри</th></tr></thead>
+    <tbody>
+      <tr><td>Discovery</td><td>1–2 недели</td><td>Аудит существующего стека, выбор пилотных сценариев</td></tr>
+      <tr><td>Pilot</td><td>4–6 недель</td><td>Один продукт / сценарий в production на ограниченной аудитории</td></tr>
+      <tr><td>Integration</td><td>1–3 месяца</td><td>Подключение к корп-системам, развёртывание в контуре заказчика</td></tr>
+      <tr><td>Production rollout</td><td>2–6 месяцев</td><td>Раскатка на полную аудиторию, передача наблюдаемости и поддержки</td></tr>
+      <tr><td>Continuous optimization</td><td>бесконечно</td><td>A/B-тесты, обновление сценариев, новые продукты экосистемы</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 10 · Старт</span>
+  <h2>С чего начать</h2>
+  <h3>Cascade-ask</h3>
+<pre>1️⃣  DISCOVERY-ЗВОНОК (60-90 минут)
+    └─ Какой из 4 продуктов адресует ваш сильнейший pain
+       Возможные комбинации (если их несколько)
+       Контур развёртывания
+
+2️⃣  PILOT (4-6 недель)
+    └─ Один продукт в production на ограниченной аудитории
+       Реальные метрики, фиксация baseline
+
+3️⃣  PRODUCTION INTEGRATION (1-3 месяца)
+    └─ Подключение к корп-системам
+       Полная раскатка
+
+4️⃣  ECOSYSTEM CONSOLIDATION (опционально, по результатам)
+    └─ Расширение на другие продукты Tacticum
+       Если рассматривается несколько — переход на Platform как ядро
+
+5️⃣  STRATEGIC PARTNERSHIP (опционально)
+    └─ Equity / co-development / on-prem deployment c co-governance</pre>
+  <h3>Что нужно от заказчика для старта</h3>
+  <ol>
+    <li><strong>Уточнить целевой сценарий.</strong> Какой из четырёх продуктов наиболее остро адресует текущий pain. Если несколько — какой первый.</li>
+    <li><strong>Назначить владельца со стороны заказчика.</strong> CIO / руководитель бизнес-функции / CX-директор — в зависимости от продукта.</li>
+    <li><strong>Подготовить пилотный стенд.</strong> Виртуальная инфраструктура или dedicated hardware для on-prem пилота.</li>
+    <li><strong>Согласовать модель поставки.</strong> SaaS / on-prem / ПАК — на discovery-этапе.</li>
+  </ol>
+</section>
+
+<div class="footer">
+  <p><span class="brand-mark">TACTICUM</span> · Российская экосистема AI-программ · 2026</p>
+  <p>Детальные питч-деки по продуктам:
+    <a href="platform.html" style="color: var(--platform);">Platform</a> ·
+    <a href="agents.html" style="color: var(--agents);">Agents</a> ·
+    <a href="dev.html" style="color: var(--dev);">Dev</a> ·
+    <a href="forum.html" style="color: var(--forum);">Forum</a>
+  </p>
+</div>
+
+</div>
+</body>
+</html>
