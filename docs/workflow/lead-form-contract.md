@@ -98,13 +98,17 @@ AI sale path берётся из config `ai.endpoint_paths.*`: обычные л
 
 | Page / context | `form_id` | Primary promise | Context |
 |---|---|---|---|
-| `/` | `home-cta` | Получить следующий шаг после выбора commercial entry | `lead_entry=home`, `lead_page_role=main-router` |
-| `/services/` | `services-cta` | Обсудить внедрение AI-решения | `lead_entry=services`, `lead_page_role=implementation-entry` |
-| `/price/` | `price-cta` | Подобрать команду под задачу | `lead_entry=price`, `lead_page_role=team-entry` |
-| `/calculator/` | `calculator-cta` | Уточнить предварительную оценку | `lead_entry=calculator`, `lead_page_role=estimate-entry` |
+| `/` | `home-cta` | Получить следующий шаг после выбора product или commercial entry | `lead_entry=home`, `lead_page_role=ecosystem-router`, `lead_product=ecosystem`, `lead_scenario=product-routing` |
+| `/services/` | `services-cta` | Обсудить внедрение AI-решения или product-delivery пилот | `lead_entry=services`, `lead_page_role=implementation-entry`, `lead_product=ecosystem`, `lead_scenario=product-delivery` |
+| `/price/` | `price-cta` | Подобрать команду под задачу или product workstream | `lead_entry=price`, `lead_page_role=team-entry`, `lead_product=ecosystem`, `lead_scenario=product-team` |
+| `/calculator/` | `calculator-cta` | Уточнить предварительную оценку по product-aware задаче | `lead_entry=calculator`, `lead_page_role=estimate-entry`, `lead_product=ecosystem`, `lead_scenario=product-estimate` |
 | `/contacts/` | `contacts-cta` | Направить обращение к нужному следующему шагу | `lead_entry=contacts`, `lead_page_role=contact-entry` |
-| `/offer/<code>/` | `offer-cta` | Получить персональную оценку по похожей задаче | `lead_entry=offer-detail`, `lead_offer_code`, `lead_offer_title` |
-| `/aiagents/` | `aiagents-inline` | Запросить бот-прототип | `lead_entry=aiagents`, `lead_page_role=telegram-bot-entry` |
+| `/offer/<code>/` | `offer-cta` | Получить персональную оценку по похожей задаче | `lead_entry=offer-detail`, `lead_product=ecosystem`, `lead_offer_code`, `lead_offer_title` |
+| `/aiagents/` | `aiagents-inline` | Запросить бот-прототип как первый Agents-сценарий | `lead_entry=aiagents`, `lead_page_role=telegram-bot-entry`, `lead_product=agents` |
+| `/platform/` | `platform-cta` | Обсудить платформенный assessment или пилот | `lead_entry=platform`, `lead_page_role=product-page`, `lead_product=platform` |
+| `/agents/` | `agents-cta` | Выбрать бизнес-сценарий для Agents-пилота | `lead_entry=agents`, `lead_page_role=product-page`, `lead_product=agents` |
+| `/dev/` | `dev-cta` | Оценить готовность команды к AI-assisted workflow | `lead_entry=dev`, `lead_page_role=product-page`, `lead_product=dev` |
+| `/forum/` | `forum-cta` | Разобрать поток клиентских обращений | `lead_entry=forum`, `lead_page_role=product-page`, `lead_product=forum` |
 
 ## Consent И CSRF
 

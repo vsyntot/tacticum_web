@@ -2,7 +2,7 @@
 <div id="footer">
     <footer class="bg-secondary text-white py-12">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
                 <div>
                     <div class="flex items-center gap-2 text-2xl font-bold mb-6">
                         <a href="/"><img src="<?=SITE_TEMPLATE_PATH?>/images/logo2.png" width="181" height="50" alt="Tacticum"></a>

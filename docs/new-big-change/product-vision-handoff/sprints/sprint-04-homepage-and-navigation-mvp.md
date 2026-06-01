@@ -2,7 +2,7 @@
 
 Suggested window: 20.07.2026 - 31.07.2026
 
-Status: planned
+Status: in-progress - first implementation slice added 01.06.2026
 
 ## Sprint Goal
 
@@ -36,14 +36,14 @@ Full Feature Lane.
 
 | Item | Description | Owner | Priority | Status |
 |---|---|---|---|---|
-| S04-001 | Update homepage hero to ecosystem positioning | Frontend + Editor | P1 | planned |
-| S04-002 | Add ecosystem map: Platform + Agents + Dev + Forum | Frontend + Designer | P1 | planned |
-| S04-003 | Add product cards and delivery entry paths | Frontend + PM | P1 | planned |
-| S04-004 | Update header navigation to product-first model | Frontend + SEO + QA | P1 | planned |
-| S04-005 | Update footer product/service hierarchy | Frontend + PM | P2 | planned |
-| S04-006 | Add product-aware CTA context on homepage | Frontend + Backend + QA | P1 | planned |
-| S04-007 | Preserve existing form, modal, chat and FAQ contracts | Frontend + QA | P1 | planned |
-| S04-008 | Add homepage SEO metadata for ecosystem positioning | SEO + Dev | P1 | planned |
+| S04-001 | Update homepage hero to ecosystem positioning | Frontend + Editor | P1 | done-first-slice |
+| S04-002 | Add ecosystem map: Platform + Agents + Dev + Forum | Frontend + Designer | P1 | done-first-slice |
+| S04-003 | Add product cards and delivery entry paths | Frontend + PM | P1 | done-first-slice |
+| S04-004 | Update header navigation to product-first model | Frontend + SEO + QA | P1 | done-first-slice |
+| S04-005 | Update footer product/service hierarchy | Frontend + PM | P2 | done-first-slice |
+| S04-006 | Add product-aware CTA context on homepage | Frontend + Backend + QA | P1 | done-first-slice |
+| S04-007 | Preserve existing form, modal, chat and FAQ contracts | Frontend + QA | P1 | preserved |
+| S04-008 | Add homepage SEO metadata for ecosystem positioning | SEO + Dev | P1 | done-first-slice |
 | S04-009 | Run desktop/mobile browser and visual smoke | QA + Dev | P1 | planned |
 
 ## Out Of Scope
@@ -120,12 +120,19 @@ npm run seo:check:prod
 
 ### Done
 
-- To be filled at sprint end.
+- 01.06.2026 first implementation slice:
+  - homepage hero reframed to ecosystem positioning;
+  - first screen links to `/platform/`, `/agents/`, `/dev/`, `/forum/`;
+  - ecosystem map added under hero;
+  - commercial entry paths `/offer/`, `/services/`, `/price/`, `/aiagents/` preserved;
+  - `home-cta` context updated through existing `tacticum:lead.cta`;
+  - header/footer product navigation implemented in Product layer MVP.
 
 ### Not Done
 
-- To be filled at sprint end.
+- Desktop/mobile visual smoke against the changed homepage still requires local Bitrix/PHP runtime or post-deploy smoke.
 
 ### Follow-Up
 
-- To be filled at sprint end.
+- Decide whether to add a separate `/products/` catalog later or keep `/platform/` as the product-menu landing.
+- Continue with `/aiagents/` vs `/agents/` canonical/migration decision before SEO consolidation.
