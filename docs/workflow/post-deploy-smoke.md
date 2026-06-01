@@ -2,7 +2,7 @@
 
 Использовать после deploy в production или staging. PM не закрывает Issue, пока релевантные пункты не подтверждены.
 
-`deploy.yml` автоматически выполняет `health_config`, `npm run js:check`, `npm run css:check`, `npm run css:syntax`, `npm run seo:check`, `npm run visual:smoke`, `npm run browser:console` и `npm run seo:check:prod` против `https://tacticum.ru` после очистки Bitrix cache. Очистка должна включать managed cache, component HTML cache для `news.list`/`news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона, иначе production может отдать новый JS/CSS поверх старого component HTML. В deploy `visual:smoke` запускается с `TACTICUM_EXPECT_SEO_HEAD=1`, сохраняет rendered SEO head в `manifest.json` и падает при отсутствующих/дублирующихся title, description, canonical, OpenGraph meta, выпадении money/product pages из rendered navigation или отсутствии product `SoftwareApplication` + `FAQPage` schema на `/platform/`, `/agents/`, `/dev/`, `/forum/`. `browser:console` в deploy запускается с `TACTICUM_VISUAL_FAIL_ON_WARNINGS=1`, product scenario select checks, product FAQ toggle checks и обязательной проверкой `/price/` team presets. `seo:check:prod` дополнительно проверяет production sitemap governance и `X-Robots-Tag` на JSON endpoints.
+`deploy.yml` автоматически выполняет `health_config`, `npm run js:check`, `npm run css:check`, `npm run css:syntax`, `npm run seo:check`, `npm run visual:smoke`, `npm run browser:console` и `npm run seo:check:prod` против `https://tacticum.ru` после очистки Bitrix cache. Очистка должна включать managed cache, component HTML cache для `news.list`/`news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона, иначе production может отдать новый JS/CSS поверх старого component HTML. В deploy `visual:smoke` запускается с `TACTICUM_EXPECT_SEO_HEAD=1`, сохраняет rendered SEO head and product block inventory в `manifest.json` и падает при отсутствующих/дублирующихся title, description, canonical, OpenGraph meta, выпадении money/product pages из rendered navigation, отсутствии product `SoftwareApplication` + `FAQPage` schema или отсутствии required `data-product-block` на `/platform/`, `/agents/`, `/dev/`, `/forum/`. `browser:console` в deploy запускается с `TACTICUM_VISUAL_FAIL_ON_WARNINGS=1`, product scenario select checks, product FAQ toggle checks и обязательной проверкой `/price/` team presets. `seo:check:prod` дополнительно проверяет production sitemap governance и `X-Robots-Tag` на JSON endpoints.
 
 Этот чеклист остаётся ручной матрицей для staging, локальных выкладок и real success-flow, которые нельзя безопасно автоматизировать в production без создания лидов.
 
@@ -16,15 +16,24 @@ npm run release:product-first:prod-check
 
 Команда объединяет `seo:check:prod`, rendered SEO smoke with product schema checks, warning-aware browser action smoke, focused `/price/` smoke, product-first draft validation and `gaps:known` summary for the product-first sign-off draft.
 
+Для AS IS screenshot handoff по product blocks:
+
+```bash
+npm run product:block-previews:prod
+```
+
+Команда пишет full-page screenshots, `manifest.json` and `product-blocks/*.png`; подробности в `docs/workflow/product-block-preview-workflow.md`.
+
 ## Общие Проверки
 
 - [ ] Production URL открывается.
 - [ ] Header/menu/footer отображаются.
 - [ ] Console без новых критичных JS errors.
-- [ ] `npm run visual:smoke` проходит для затронутых публичных страниц; manifest не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors` и `seoErrors`; для product pages `seoHead.productSchemaSummary` содержит `SoftwareApplication` and `FAQPage`.
+- [ ] `npm run visual:smoke` проходит для затронутых публичных страниц; manifest не содержит `pageErrors`, `consoleErrors`, first-party `networkErrors`, `seoErrors` и `productBlockErrors`; для product pages `seoHead.productSchemaSummary` содержит `SoftwareApplication` and `FAQPage`, а `productBlocks.found` содержит required `data-product-block` taxonomy.
 - [ ] `npm run browser:console` проходит для non-network UI actions и browser console cleanliness: меню, модалки, пустая валидация форм, empty-send чатов, `/price/` filters/modal; manifest не содержит `consoleWarnings`.
 - [ ] Для полной production CSS/JS e2e readiness проходит `npm run e2e:css-js:prod`; manifest не содержит runtime/action/browser blockers.
 - [ ] Для product-first release после deploy/cache refresh проходит `npm run release:product-first:prod-check`; pending ручные gates остаются pending до отдельной evidence.
+- [ ] Для design/QA AS IS handoff по product pages при необходимости проходит `npm run product:block-previews:prod`; manifest содержит `productBlockScreenshots[]`, а `productBlockErrors=[]`.
 - [ ] При CSS-правках проходит `npm run visual:smoke:css-local`; при изменении интерактивных CSS-состояний также `npm run browser:smoke:css-local`.
 - [ ] При CSS/JS PR до deploy проходит `npm run e2e:css-js:local`; для локальной JS-проверки конкретного компонента используется `TACTICUM_VISUAL_INJECT_JS=<path> npm run browser:smoke`.
 - [ ] `/price/` action smoke подтверждает team presets, persistent summary и расчёт месячного бюджета: `npm run browser:smoke:price`; в manifest action `price team presets/summary` имеет `status=ok` для desktop/mobile.
@@ -130,7 +139,7 @@ npm run release:product-first:prod-check
 - [ ] 404 URL отдаёт HTTP 404, title `Страница не найдена - Тактикум`, один H1 и `noindex` в meta/header.
 - [ ] Rendered head подтверждён автоматикой: `npm run seo:smoke` прошёл, а в manifest для затронутых URL `seoErrors=[]`.
 - [ ] Manifest `seoHead` содержит один `title`, одну `description`, один HTTPS `canonical` с path текущей страницы, top navigation links `/price/`, `/offer/`, `/calculator/`, `/aiagents/` и OpenGraph `og:site_name`, `og:type`, `og:url`, `og:title`, `og:description`, `og:image` без дублей.
-- [ ] Manifest/rendered HTML содержит Twitter Card, `og:image:width/height/type` и JSON-LD graph на публичных URL; `/platform/`, `/agents/`, `/dev/`, `/forum/` содержат rendered `SoftwareApplication` + `FAQPage`.
+- [ ] Manifest/rendered HTML содержит Twitter Card, `og:image:width/height/type` и JSON-LD graph на публичных URL; `/platform/`, `/agents/`, `/dev/`, `/forum/` содержат rendered `SoftwareApplication` + `FAQPage` and required product `data-product-block` inventory.
 - [ ] Страницы без page-specific social image используют `og-default.jpg` 1200x630.
 - [ ] Если SEO head проверяется вручную на staging, результат перенесён в release issue по `release-signoff-gates.md`.
 

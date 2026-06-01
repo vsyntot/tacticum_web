@@ -405,10 +405,26 @@ function assertOfferCatalogRouting() {
 
 function assertPublicPageComponentization() {
   const productPages = [
-    'platform/index.php',
-    'agents/index.php',
-    'dev/index.php',
-    'forum/index.php'
+    {
+      file: 'platform/index.php',
+      key: 'platform',
+      dataFile: 'local/php_interface/include/product_data/platform.php'
+    },
+    {
+      file: 'agents/index.php',
+      key: 'agents',
+      dataFile: 'local/php_interface/include/product_data/agents.php'
+    },
+    {
+      file: 'dev/index.php',
+      key: 'dev',
+      dataFile: 'local/php_interface/include/product_data/dev.php'
+    },
+    {
+      file: 'forum/index.php',
+      key: 'forum',
+      dataFile: 'local/php_interface/include/product_data/forum.php'
+    }
   ];
   const ctaPages = [
     'index.php',
@@ -474,15 +490,97 @@ function assertPublicPageComponentization() {
     '404.php',
     'local/components/tacticum/aiagents/templates/.default/template.php'
   ];
-  const productRendererSource = read('local/php_interface/include/product_page.php');
+  const productPageBlockFiles = [
+    'local/php_interface/include/product_page_blocks/common.php',
+    'local/php_interface/include/product_page_blocks/architecture.php',
+    'local/php_interface/include/product_page_blocks/use_cases.php',
+    'local/php_interface/include/product_page_blocks/procurement.php',
+    'local/php_interface/include/product_page_blocks/comparison.php',
+    'local/php_interface/include/product_page_blocks/rollout.php',
+    'local/php_interface/include/product_page_blocks/proof.php',
+    'local/php_interface/include/product_page_blocks/faq.php',
+    'local/php_interface/include/product_page_blocks/page.php'
+  ];
+  const productRendererBootstrapSource = read('local/php_interface/include/product_page.php');
+  const productRendererSource = [
+    productRendererBootstrapSource,
+    ...productPageBlockFiles.map((file) => read(file))
+  ].join('\n');
+  const homepageSource = read('index.php');
   const leadCtaComponentSource = read('local/components/tacticum/lead.cta/component.php');
   const leadCtaFormTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/form.php');
   const formEndpointSource = read('local/rest/tacticum_form.php');
+  const analyticsSource = read('local/templates/tacticum/js/analytics.js');
+  const formsSource = read('local/templates/tacticum/js/forms.js');
+  const visualSmokeSource = read('tools/visual-smoke.mjs');
+  const releaseSignoffCheckSource = read('tools/release-signoff-check.mjs');
+  const releaseSignoffSelfTestSource = read('tools/release-signoff-self-test.mjs');
+  const packageSource = read('package.json');
+  const productBlockPreviewWorkflow = read('docs/workflow/product-block-preview-workflow.md');
 
   assertLocalComponentMetadata();
 
   if (!productRendererSource.includes("'SCENARIO_OPTIONS'")) {
     fail('product page renderer must pass product scenario options into tacticum:lead.cta');
+  }
+  if (!productRendererBootstrapSource.includes('/local/php_interface/include/product_page_blocks/page.php')) {
+    fail('product_page.php must load product page renderer blocks from local/php_interface/include/product_page_blocks');
+  }
+  if (productRendererBootstrapSource.includes('function tacticum_product_page_render_') || productRendererBootstrapSource.includes('function tacticum_render_product_page')) {
+    fail('product_page.php must stay a bootstrap/helpers file; visual render functions belong in product_page_blocks');
+  }
+  for (const blockFile of productPageBlockFiles) {
+    if (!fs.existsSync(blockFile)) {
+      fail(`${blockFile} is missing`);
+    }
+  }
+  const productBlockNames = [
+    'hero',
+    'fit-guide',
+    'content-section',
+    'architecture',
+    'use-cases',
+    'comparison',
+    'procurement',
+    'rollout',
+    'proof',
+    'faq',
+    'lead-cta'
+  ];
+  for (const blockName of productBlockNames) {
+    if (!productRendererSource.includes(`data-product-block="${blockName}"`)) {
+      fail(`product page renderer must expose data-product-block="${blockName}" for design-system QA and handoff`);
+    }
+  }
+  if (!visualSmokeSource.includes('expectProductBlocks') || !visualSmokeSource.includes('captureProductBlocks') || !visualSmokeSource.includes('captureProductBlockPreviews') || !visualSmokeSource.includes('productBlocks') || !visualSmokeSource.includes('productBlockErrors') || !visualSmokeSource.includes('productBlockScreenshots')) {
+    fail('visual-smoke must expose rendered product block inventory and errors for product pages');
+  }
+  if (!packageSource.includes('"product:block-previews"') || !packageSource.includes('TACTICUM_CAPTURE_PRODUCT_BLOCKS=1')) {
+    fail('package.json must expose a product:block-previews script for design/QA screenshot handoff');
+  }
+  if (!productBlockPreviewWorkflow.includes('npm run product:block-previews') || !productBlockPreviewWorkflow.includes('product-blocks/*.png')) {
+    fail('product block preview workflow runbook must document command and screenshot outputs');
+  }
+  if (!releaseSignoffCheckSource.includes('requiredProductBlocks') || !releaseSignoffCheckSource.includes('validateProductBlocks')) {
+    fail('release sign-off checker must validate rendered product block inventory for product SEO evidence');
+  }
+  if (!releaseSignoffSelfTestSource.includes('productSeoWithoutBlocksManifest')) {
+    fail('release sign-off self-test must cover missing product block inventory');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_data') || !productRendererSource.includes('/local/php_interface/include/product_data/')) {
+    fail('product page renderer must load product page data from local/php_interface/include/product_data');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_render_fit_guide')) {
+    fail('product page renderer must support product fit guide decision-support blocks');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_render_procurement')) {
+    fail('product page renderer must support security/procurement decision-support blocks');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_render_use_cases')) {
+    fail('product page renderer must support use-case anatomy decision-support blocks');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_render_comparison')) {
+    fail('product page renderer must support product comparison decision-support blocks');
   }
   if (!productRendererSource.includes('tacticum_product_page_render_rollout')) {
     fail('product page renderer must support the product rollout delivery model block');
@@ -505,19 +603,55 @@ function assertPublicPageComponentization() {
   if (!leadCtaFormTemplateSource.includes('name="lead_scenario"')) {
     fail('tacticum:lead.cta template must render optional lead_scenario select');
   }
+  if (!homepageSource.includes('Как выбрать продукт') || !homepageSource.includes('Начните с ситуации') || !homepageSource.includes('Старт: architecture assessment')) {
+    fail('homepage must include product fit matrix decision-support block');
+  }
   for (const scenarioValue of expectedProductScenarioValues) {
     if (!formEndpointSource.includes(`'${scenarioValue}'`)) {
       fail(`tacticum_form.php must map product lead_scenario value ${scenarioValue}`);
     }
   }
+  if (
+    !formEndpointSource.includes('tacticum_form_build_lead_profile')
+    || !formEndpointSource.includes("'product_interest'")
+    || !formEndpointSource.includes("'use_case_interest'")
+    || !formEndpointSource.includes("'deployment_interest'")
+  ) {
+    fail('tacticum_form.php must normalize product lead fields into a canonical lead qualification profile before task fallback');
+  }
+  for (const structuredLeadField of ['product_interest', 'use_case_interest', 'deployment_interest']) {
+    if (formEndpointSource.includes(`$payload['${structuredLeadField}']`)) {
+      fail(`tacticum_form.php must not forward structured lead field ${structuredLeadField} to upstream before CRM/upstream contract approval`);
+    }
+  }
+  for (const productEvent of [
+    'tacticum_product_view',
+    'tacticum_product_cta_click',
+    'tacticum_product_form_submit',
+    'tacticum_product_form_success',
+    'tacticum_product_form_error'
+  ]) {
+    if (!analyticsSource.includes(productEvent) && !formsSource.includes(productEvent)) {
+      fail(`product funnel analytics event ${productEvent} is missing`);
+    }
+  }
+  if (!formsSource.includes('productAnalyticsValues') || !formsSource.includes('normalizeControlledValue')) {
+    fail('forms.js must allowlist product analytics values before sending product funnel events');
+  }
+  for (const forbiddenProductAnalyticsParam of ['lead_budget', 'lead_timeline', 'lead_offer_title', 'message', 'email', 'phone']) {
+    if (analyticsSource.includes(`tacticum_product_${forbiddenProductAnalyticsParam}`)) {
+      fail(`analytics.js must not send ${forbiddenProductAnalyticsParam} in product funnel analytics`);
+    }
+  }
 
-  for (const file of productPages) {
+  for (const { file, key, dataFile } of productPages) {
     const source = read(file);
-    const productDataIndex = source.indexOf('$tacticumProductPage =');
+    const dataSource = read(dataFile);
+    const productDataIndex = source.indexOf(`$tacticumProductPage = tacticum_product_page_data('${key}')`);
     const seoIndex = source.indexOf('tacticum_apply_seo_defaults');
     const renderIndex = source.indexOf('tacticum_render_product_page($tacticumProductPage)');
     if (productDataIndex < 0) {
-      fail(`${file} must define one product page data array before SEO and render`);
+      fail(`${file} must load product page data through tacticum_product_page_data('${key}') before SEO and render`);
     }
     if (seoIndex < 0 || (productDataIndex >= 0 && seoIndex < productDataIndex)) {
       fail(`${file} must build SEO schema after product page data is defined`);
@@ -528,26 +662,58 @@ function assertPublicPageComponentization() {
     if (!source.includes('tacticum_render_product_page')) {
       fail(`${file} must render through the shared product page renderer`);
     }
+    if (source.includes('$tacticumProductPage = [')) {
+      fail(`${file} must stay thin and must not inline the product page data array`);
+    }
+    if (!dataSource.includes('return [') || !dataSource.includes("'eyebrow'") || !dataSource.includes("'cta'")) {
+      fail(`${dataFile} must return the product page data array`);
+    }
     if (!/SetPageProperty\s*\(\s*["']tacticum_page_assets["']\s*,\s*["'][^"']*\bfaq\b/.test(source)) {
       fail(`${file} must request faq.js through tacticum_page_assets=faq`);
     }
-    if (!source.includes("'scenario_options'") && !source.includes('"scenario_options"')) {
-      fail(`${file} must provide product scenario options for CTA qualification`);
+    if (!dataSource.includes("'scenario_options'") && !dataSource.includes('"scenario_options"')) {
+      fail(`${dataFile} must provide product scenario options for CTA qualification`);
     }
-    if (!source.includes("'rollout'") && !source.includes('"rollout"')) {
-      fail(`${file} must include product rollout/delivery model steps`);
+    if (!dataSource.includes("'fit_guide'") && !dataSource.includes('"fit_guide"')) {
+      fail(`${dataFile} must include product fit guide decision-support items`);
     }
-    if (!source.includes("'proof'") && !source.includes('"proof"')) {
-      fail(`${file} must include product proof readiness items`);
+    if (!dataSource.includes("'procurement'") && !dataSource.includes('"procurement"')) {
+      fail(`${dataFile} must include security/procurement decision-support items`);
+    }
+    if (!dataSource.includes("'use_cases'") && !dataSource.includes('"use_cases"')) {
+      fail(`${dataFile} must include use-case anatomy decision-support items`);
+    }
+    if (!dataSource.includes("'comparison'") && !dataSource.includes('"comparison"')) {
+      fail(`${dataFile} must include product comparison decision-support items`);
+    }
+    for (const useCaseField of ['trigger', 'owner', 'pilot_input', 'pilot_output', 'limitation']) {
+      if (!dataSource.includes(`'${useCaseField}'`) && !dataSource.includes(`"${useCaseField}"`)) {
+        fail(`${dataFile} use-case anatomy must include ${useCaseField}`);
+      }
+    }
+    if (!dataSource.includes("'rollout'") && !dataSource.includes('"rollout"')) {
+      fail(`${dataFile} must include product rollout/delivery model steps`);
+    }
+    if (!dataSource.includes("'proof'") && !dataSource.includes('"proof"')) {
+      fail(`${dataFile} must include product proof readiness items`);
     }
     if (!source.includes("'schema' => tacticum_product_page_schema(")) {
       fail(`${file} must add SoftwareApplication and FAQPage JSON-LD through tacticum_product_page_schema`);
     }
     for (const forbiddenField of forbiddenProductSchemaFields) {
-      if (source.includes(`'${forbiddenField}'`) || source.includes(`"${forbiddenField}"`)) {
-        fail(`${file} product schema must not include risky commercial field ${forbiddenField}`);
+      if (source.includes(`'${forbiddenField}'`) || source.includes(`"${forbiddenField}"`) || dataSource.includes(`'${forbiddenField}'`) || dataSource.includes(`"${forbiddenField}"`)) {
+        fail(`${file} / ${dataFile} product schema must not include risky commercial field ${forbiddenField}`);
       }
     }
+  }
+
+  const agentsPageSource = `${read('agents/index.php')}\n${read('local/php_interface/include/product_data/agents.php')}`;
+  const forumPageSource = `${read('forum/index.php')}\n${read('local/php_interface/include/product_data/forum.php')}`;
+  if (!agentsPageSource.includes('Сравнить с Forum') || !agentsPageSource.includes('/forum/')) {
+    fail('agents page must explicitly link and compare against Forum');
+  }
+  if (!forumPageSource.includes('Смотреть Agents') || !forumPageSource.includes('/agents/')) {
+    fail('forum page must explicitly link and compare against Agents');
   }
 
   for (const file of ctaPages) {

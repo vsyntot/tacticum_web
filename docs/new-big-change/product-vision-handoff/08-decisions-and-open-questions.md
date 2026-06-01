@@ -25,6 +25,8 @@
 - 01.06.2026: delivery model для product pages реализован как safe rollout sequence, а не как публичный pricing/licensing/SLA matrix; конкретные deployment, ПАК, SLA and registry claims остаются в evidence backlog.
 - 01.06.2026: proof на product pages реализован как proof readiness model: публично показываем, что проверяется на пилоте, но реальные metrics, logos, testimonials, benchmark and regulatory proof остаются закрытыми до evidence/sign-off.
 - 01.06.2026: product structured data реализована как минимальная `SoftwareApplication` schema без offers/pricing/reviews/ratings; коммерческие и proof claims не кодируются в JSON-LD до evidence/sign-off.
+- 01.06.2026: product page content вынесен из публичных `index.php` в shared Git data files `local/php_interface/include/product_data/*.php`; вопрос Bitrix/hybrid content ownership остается открытым для Q-012.
+- 01.06.2026: lead qualification имеет backend canonical profile, но внешний upstream contract пока не меняется; structured CRM/upstream fields остаются открытым вопросом Q-011.
 
 ## Open Product Questions
 
@@ -59,7 +61,7 @@
 
 ## Decisions Needed Before Development
 
-1. Static pages vs content-backed products.
+1. Shared Git data files vs Bitrix/hybrid content-backed products.
 2. New/changed form fields.
 3. Component boundaries.
 4. Asset loading strategy for new interactions.

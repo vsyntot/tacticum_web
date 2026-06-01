@@ -42,6 +42,20 @@ const forbiddenManualEvidenceKeys = [
   'token',
 ];
 const allowedStatuses = new Set(allowPending ? ['passed', 'not_applicable', 'pending'] : ['passed', 'not_applicable']);
+const productPages = new Set(['/platform/', '/agents/', '/dev/', '/forum/']);
+const requiredProductBlocks = [
+  'hero',
+  'fit-guide',
+  'content-section',
+  'architecture',
+  'use-cases',
+  'comparison',
+  'procurement',
+  'rollout',
+  'proof',
+  'faq',
+  'lead-cta',
+];
 const failures = [];
 const pendingGates = [];
 
@@ -376,7 +390,7 @@ function validateSeoResult(gateName, result, label) {
     }
   }
 
-  if (['/platform/', '/agents/', '/dev/', '/forum/'].includes(result.page)) {
+  if (productPages.has(result.page)) {
     const productSchemaSummary = seoHead.productSchemaSummary || {};
     const schemaTypes = Array.isArray(productSchemaSummary.schemaTypes) ? productSchemaSummary.schemaTypes : [];
     if (!schemaTypes.includes('SoftwareApplication') || productSchemaSummary.softwareApplicationCount < 1) {
@@ -384,6 +398,21 @@ function validateSeoResult(gateName, result, label) {
     }
     if (!schemaTypes.includes('FAQPage') || productSchemaSummary.faqPageCount < 1) {
       fail(`${gateName}: ${label} missing product FAQPage schema summary`);
+    }
+    validateProductBlocks(gateName, result, label);
+  }
+}
+
+function validateProductBlocks(gateName, result, label) {
+  if (Array.isArray(result.productBlockErrors) && result.productBlockErrors.length > 0) {
+    fail(`${gateName}: ${label} has productBlockErrors`);
+  }
+
+  const productBlocks = result.productBlocks || {};
+  const foundBlocks = Array.isArray(productBlocks.found) ? productBlocks.found : [];
+  for (const block of requiredProductBlocks) {
+    if (!foundBlocks.includes(block)) {
+      fail(`${gateName}: ${label} missing product block ${block}`);
     }
   }
 }

@@ -146,6 +146,22 @@ Manual smoke:
 - 01.06.2026 structured-data slice:
   - `/dev/` and `/forum/` received minimal `SoftwareApplication` JSON-LD through SEO helper options;
   - schema intentionally excludes offers/pricing/reviews/ratings and proof claims.
+- 01.06.2026 product fit guide slice:
+  - shared product renderer received reusable `fit_guide` decision-support block;
+  - `/dev/` and `/forum/` now explain "подходит / не подходит / с чего начать" before detailed product sections;
+  - Dev fit copy keeps public framing around governance/quality, and Forum fit copy separates customer-dialogue flow from internal Agents scenarios.
+- 01.06.2026 security/procurement path slice:
+  - shared product renderer received reusable `procurement` block;
+  - `/dev/` now covers codebase access, design-system rules and quality gates before pilot;
+  - `/forum/` now covers channels, scenario limits, escalation, journal and data/privacy review before real traffic.
+- 01.06.2026 use-case anatomy slice:
+  - shared product renderer received reusable `use_cases` block;
+  - `/dev/` and `/forum/` now describe 3 pilotable use cases each with trigger, owner, pilot input, pilot output and limitation;
+  - Dev use cases keep public framing around governance/quality, and Forum use cases avoid automation-rate or channel-readiness claims.
+- 01.06.2026 comparison/boundary slice:
+  - shared product renderer received reusable `comparison` block;
+  - `/dev/` now separates Dev from Agents, `/price/` and delivery services;
+  - `/forum/` now explicitly compares Forum with Agents and pure LLM bot category.
 
 ### Not Done
 

@@ -11,6 +11,20 @@ const source = JSON.parse(await readFile(sourceFile, 'utf8'));
 const tempDir = await mkdtemp(join(tmpdir(), 'tacticum-release-signoff-self-test-'));
 const validManifestFile = 'release-signoff-manifest.example.json';
 const productSeoWithoutSchemaManifestFile = 'product-seo-without-schema-summary.json';
+const productSeoWithoutBlocksManifestFile = 'product-seo-without-blocks.json';
+const validProductBlocks = [
+  'hero',
+  'fit-guide',
+  'content-section',
+  'architecture',
+  'use-cases',
+  'comparison',
+  'procurement',
+  'rollout',
+  'proof',
+  'faq',
+  'lead-cta',
+];
 const validManifest = {
   baseUrl: 'https://tacticum.ru/',
   outputDir: '/tmp/tacticum-release-smoke-self-test',
@@ -100,6 +114,56 @@ const validManifest = {
     },
   ],
 };
+const productSeoWithoutBlocksManifest = {
+  ...validManifest,
+  results: [
+    {
+      page: '/platform/',
+      viewport: 'desktop',
+      url: 'https://tacticum.ru/platform/',
+      title: 'Tacticum Platform',
+      status: 200,
+      textLength: 2000,
+      screenshotBytes: 100000,
+      pageErrors: [],
+      consoleErrors: [],
+      consoleWarnings: [],
+      networkErrors: [],
+      actionErrors: [],
+      errors: [],
+      actions: [],
+      seoHead: {
+        title: 'Tacticum Platform',
+        titleCount: 1,
+        descriptions: ['Tacticum Platform product page.'],
+        canonicals: ['https://tacticum.ru/platform/'],
+        openGraph: {
+          'og:site_name': ['Tacticum'],
+          'og:type': ['website'],
+          'og:url': ['https://tacticum.ru/platform/'],
+          'og:title': ['Tacticum Platform'],
+          'og:description': ['Tacticum Platform product page.'],
+          'og:image': ['https://tacticum.ru/local/templates/tacticum/images/hero_bg.jpg'],
+        },
+        duplicateOpenGraphProperties: [],
+        h1Count: 1,
+        productSchemaSummary: {
+          softwareApplicationCount: 1,
+          faqPageCount: 1,
+          schemaTypes: ['SoftwareApplication', 'FAQPage'],
+        },
+      },
+      seoErrors: [],
+      productBlocks: {
+        isProductPage: true,
+        required: validProductBlocks,
+        found: validProductBlocks.filter((block) => block !== 'lead-cta'),
+        missing: ['lead-cta'],
+      },
+      productBlockErrors: ['missing product blocks on /platform: lead-cta'],
+    },
+  ],
+};
 const productSeoWithoutSchemaManifest = {
   ...validManifest,
   results: [
@@ -135,6 +199,13 @@ const productSeoWithoutSchemaManifest = {
         h1Count: 1,
       },
       seoErrors: [],
+      productBlocks: {
+        isProductPage: true,
+        required: validProductBlocks,
+        found: validProductBlocks,
+        missing: [],
+      },
+      productBlockErrors: [],
     },
   ],
 };
@@ -198,6 +269,13 @@ const cases = [
     },
   },
   {
+    name: 'missing product block summary',
+    expected: /missing product block lead-cta|has productBlockErrors/,
+    mutate(payload) {
+      payload.gates['seo-rendered-head'].evidence.seo_smoke_manifest = productSeoWithoutBlocksManifestFile;
+    },
+  },
+  {
     name: 'unknown gate',
     expected: /unknown gate/,
     mutate(payload) {
@@ -254,6 +332,10 @@ try {
   await writeFile(
     join(tempDir, productSeoWithoutSchemaManifestFile),
     `${JSON.stringify(productSeoWithoutSchemaManifest, null, 2)}\n`,
+  );
+  await writeFile(
+    join(tempDir, productSeoWithoutBlocksManifestFile),
+    `${JSON.stringify(productSeoWithoutBlocksManifest, null, 2)}\n`,
   );
 
   for (const testCase of cases) {

@@ -18,6 +18,61 @@ document.addEventListener("DOMContentLoaded", () => {
         form.dataset.tacticumAcceptOfferContext === "true" ||
         form.querySelector('[name^="lead_"]')
     );
+    const productAnalyticsValues = {
+        product: new Set(["ecosystem", "platform", "agents", "dev", "forum"]),
+        pageRole: new Set([
+            "ecosystem-router",
+            "trust-entry",
+            "implementation-entry",
+            "team-entry",
+            "estimate-entry",
+            "contact-entry",
+            "offer-detail",
+            "telegram-bot-entry",
+            "product-page",
+        ]),
+        scenario: new Set([
+            "product-routing",
+            "product-delivery",
+            "product-estimate",
+            "product-team",
+            "contact-routing",
+            "platform-assessment",
+            "platform-pilot",
+            "deployment-readiness",
+            "agent-scenario-selection",
+            "rag-documents-check",
+            "pilot-rollout",
+            "ai-workflow-assessment",
+            "quality-gates-pilot",
+            "design-system-guardrails",
+            "dialog-flow-assessment",
+            "scenario-llm-pilot",
+            "support-analytics-review",
+        ]),
+    };
+
+    const normalizeControlledValue = (value, allowedValues) => {
+        const normalized = String(value || "").trim();
+        return allowedValues.has(normalized) ? normalized : "";
+    };
+
+    const buildProductAnalyticsMeta = (payload) => {
+        const product = normalizeControlledValue(payload.lead_product, productAnalyticsValues.product);
+        if (!product) return null;
+
+        const pageRole = normalizeControlledValue(payload.lead_page_role, productAnalyticsValues.pageRole);
+        const scenario = normalizeControlledValue(payload.lead_scenario, productAnalyticsValues.scenario);
+        const meta = { product };
+        if (pageRole) {
+            meta.page_role = pageRole;
+        }
+        if (scenario) {
+            meta.scenario = scenario;
+        }
+
+        return meta;
+    };
 
     const ensureToastContainer = () => {
         let container = document.getElementById("tacticum-toast-container");
@@ -217,10 +272,17 @@ document.addEventListener("DOMContentLoaded", () => {
             form_id: getFormId(form),
             endpoint: getEndpointKey(endpoint),
         };
+        const productMeta = buildProductAnalyticsMeta(payload);
 
         try {
             setLoadingState(form, true);
             trackEvent("tacticum_form_submit", formMeta);
+            if (productMeta) {
+                trackEvent("tacticum_product_form_submit", {
+                    ...formMeta,
+                    ...productMeta,
+                });
+            }
             const response = await fetch(endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -235,6 +297,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     status: response.status,
                     code: json?.code || "unknown",
                 });
+                if (productMeta) {
+                    trackEvent("tacticum_product_form_error", {
+                        ...formMeta,
+                        ...productMeta,
+                        status: response.status,
+                        code: json?.code || "unknown",
+                    });
+                }
                 showToast(errorMessage, "error");
                 return;
             }
@@ -244,6 +314,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 ...formMeta,
                 status: response.status,
             });
+            if (productMeta) {
+                trackEvent("tacticum_product_form_success", {
+                    ...formMeta,
+                    ...productMeta,
+                    status: response.status,
+                });
+            }
             showToast(successMessage, "success");
             form.reset();
             delete form.dataset.tacticumOfferGroupId;
@@ -254,6 +331,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 status: "network",
                 code: "fetch_error",
             });
+            if (productMeta) {
+                trackEvent("tacticum_product_form_error", {
+                    ...formMeta,
+                    ...productMeta,
+                    status: "network",
+                    code: "fetch_error",
+                });
+            }
             showToast(DEFAULT_ERROR_MESSAGE, "error");
         } finally {
             setLoadingState(form, false);
