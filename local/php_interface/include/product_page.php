@@ -24,6 +24,137 @@ if (!function_exists('tacticum_product_page_html')) {
     }
 }
 
+if (!function_exists('tacticum_product_page_canonical_path')) {
+    function tacticum_product_page_canonical_path(string $canonicalPath): string
+    {
+        $path = trim($canonicalPath);
+        if ($path === '') {
+            return '/';
+        }
+
+        if ($path[0] !== '/') {
+            $path = '/' . $path;
+        }
+
+        return str_ends_with($path, '/') ? $path : $path . '/';
+    }
+}
+
+if (!function_exists('tacticum_product_page_schema_text')) {
+    function tacticum_product_page_schema_text($value): string
+    {
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        if (function_exists('tacticum_json_ld_text')) {
+            return tacticum_json_ld_text((string)$value);
+        }
+
+        return trim(strip_tags(html_entity_decode((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')));
+    }
+}
+
+if (!function_exists('tacticum_product_page_software_schema')) {
+    function tacticum_product_page_software_schema(
+        array $page,
+        string $canonicalPath,
+        string $applicationCategory = 'BusinessApplication',
+        string $description = ''
+    ): array {
+        $path = tacticum_product_page_canonical_path($canonicalPath);
+        $name = tacticum_product_page_string($page, 'eyebrow');
+        if ($name === '') {
+            $name = tacticum_product_page_string($page, 'title', 'Tacticum product');
+        }
+
+        $schemaDescription = tacticum_product_page_schema_text($description);
+        if ($schemaDescription === '') {
+            $schemaDescription = tacticum_product_page_schema_text(tacticum_product_page_string($page, 'lead'));
+        }
+
+        return [
+            '@type' => 'SoftwareApplication',
+            '@id' => tacticum_public_url($path . '#software'),
+            'name' => $name,
+            'applicationCategory' => $applicationCategory !== '' ? $applicationCategory : 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => tacticum_public_url($path),
+            'description' => $schemaDescription,
+            'provider' => [
+                '@id' => tacticum_public_url('/#organization'),
+            ],
+            'isPartOf' => [
+                '@id' => tacticum_public_url('/#website'),
+            ],
+        ];
+    }
+}
+
+if (!function_exists('tacticum_product_page_faq_schema')) {
+    function tacticum_product_page_faq_schema(array $page, string $canonicalPath): ?array
+    {
+        $faq = is_array($page['faq'] ?? null) ? $page['faq'] : [];
+        $items = is_array($faq['items'] ?? null) ? $faq['items'] : [];
+
+        if (empty($items)) {
+            return null;
+        }
+
+        $entities = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $question = tacticum_product_page_schema_text($item['question'] ?? '');
+            $answer = tacticum_product_page_schema_text($item['answer'] ?? '');
+
+            if ($question === '' || $answer === '') {
+                continue;
+            }
+
+            $entities[] = [
+                '@type' => 'Question',
+                'name' => $question,
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => $answer,
+                ],
+            ];
+        }
+
+        if (empty($entities)) {
+            return null;
+        }
+
+        return [
+            '@type' => 'FAQPage',
+            '@id' => tacticum_public_url(tacticum_product_page_canonical_path($canonicalPath) . '#faq'),
+            'mainEntity' => $entities,
+        ];
+    }
+}
+
+if (!function_exists('tacticum_product_page_schema')) {
+    function tacticum_product_page_schema(
+        array $page,
+        string $canonicalPath,
+        string $applicationCategory = 'BusinessApplication',
+        string $description = ''
+    ): array {
+        $schema = [
+            tacticum_product_page_software_schema($page, $canonicalPath, $applicationCategory, $description),
+        ];
+        $faqSchema = tacticum_product_page_faq_schema($page, $canonicalPath);
+        if ($faqSchema !== null) {
+            $schema[] = $faqSchema;
+        }
+
+        return $schema;
+    }
+}
+
 if (!function_exists('tacticum_product_page_render_badges')) {
     function tacticum_product_page_render_badges(array $badges): void
     {
@@ -192,6 +323,171 @@ if (!function_exists('tacticum_product_page_render_architecture')) {
     }
 }
 
+if (!function_exists('tacticum_product_page_render_rollout')) {
+    function tacticum_product_page_render_rollout(array $rollout): void
+    {
+        $steps = is_array($rollout['steps'] ?? null) ? $rollout['steps'] : [];
+
+        if (empty($steps)) {
+            return;
+        }
+
+        $eyebrow = tacticum_product_page_string($rollout, 'eyebrow', 'Внедрение');
+        $title = tacticum_product_page_string($rollout, 'title', 'Как внедряется продукт');
+        $text = tacticum_product_page_string($rollout, 'text', 'Начинаем с ограниченного контура, проверяем пользу и ограничения, затем проектируем production-переход.');
+        ?>
+        <section class="bg-gray-50 py-16">
+            <div class="container mx-auto px-4">
+                <div class="mb-10 max-w-3xl">
+                    <?php if ($eyebrow !== ''): ?>
+                        <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-primary"><?=tacticum_product_page_html($eyebrow)?></p>
+                    <?php endif; ?>
+                    <?php if ($title !== ''): ?>
+                        <h2 class="mb-4 text-3xl font-bold text-secondary md:text-4xl"><?=tacticum_product_page_html($title)?></h2>
+                    <?php endif; ?>
+                    <?php if ($text !== ''): ?>
+                        <p class="text-lg text-gray-600"><?=tacticum_product_page_html($text)?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <?php foreach ($steps as $index => $step): ?>
+                        <?php
+                        if (!is_array($step)) {
+                            continue;
+                        }
+
+                        $stepTitle = tacticum_product_page_string($step, 'title');
+                        $stepText = tacticum_product_page_string($step, 'text');
+                        $stepMeta = tacticum_product_page_string($step, 'meta', str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT));
+                        ?>
+                        <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                            <?php if ($stepMeta !== ''): ?>
+                                <p class="mb-4 text-sm font-semibold text-primary"><?=tacticum_product_page_html($stepMeta)?></p>
+                            <?php endif; ?>
+                            <?php if ($stepTitle !== ''): ?>
+                                <h3 class="mb-3 text-xl font-bold text-secondary"><?=tacticum_product_page_html($stepTitle)?></h3>
+                            <?php endif; ?>
+                            <?php if ($stepText !== ''): ?>
+                                <p class="text-gray-600"><?=tacticum_product_page_html($stepText)?></p>
+                            <?php endif; ?>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+        <?php
+    }
+}
+
+if (!function_exists('tacticum_product_page_render_proof')) {
+    function tacticum_product_page_render_proof(array $proof): void
+    {
+        $items = is_array($proof['items'] ?? null) ? $proof['items'] : [];
+
+        if (empty($items)) {
+            return;
+        }
+
+        $eyebrow = tacticum_product_page_string($proof, 'eyebrow', 'Проверка');
+        $title = tacticum_product_page_string($proof, 'title', 'Что подтверждаем на пилоте');
+        $text = tacticum_product_page_string($proof, 'text', 'До появления публичных метрик фиксируем проверяемые артефакты: что измеряем, кто владелец и какие ограничения остаются после пилота.');
+        ?>
+        <section class="bg-white py-16">
+            <div class="container mx-auto px-4">
+                <div class="mb-10 max-w-3xl">
+                    <?php if ($eyebrow !== ''): ?>
+                        <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-primary"><?=tacticum_product_page_html($eyebrow)?></p>
+                    <?php endif; ?>
+                    <?php if ($title !== ''): ?>
+                        <h2 class="mb-4 text-3xl font-bold text-secondary md:text-4xl"><?=tacticum_product_page_html($title)?></h2>
+                    <?php endif; ?>
+                    <?php if ($text !== ''): ?>
+                        <p class="text-lg text-gray-600"><?=tacticum_product_page_html($text)?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <?php foreach ($items as $item): ?>
+                        <?php
+                        if (!is_array($item)) {
+                            continue;
+                        }
+
+                        $itemMeta = tacticum_product_page_string($item, 'meta', 'Пилот');
+                        $itemTitle = tacticum_product_page_string($item, 'title');
+                        $itemText = tacticum_product_page_string($item, 'text');
+                        ?>
+                        <article class="rounded-xl border border-gray-200 bg-gray-50 p-6">
+                            <?php if ($itemMeta !== ''): ?>
+                                <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-primary"><?=tacticum_product_page_html($itemMeta)?></p>
+                            <?php endif; ?>
+                            <?php if ($itemTitle !== ''): ?>
+                                <h3 class="mb-3 text-xl font-bold text-secondary"><?=tacticum_product_page_html($itemTitle)?></h3>
+                            <?php endif; ?>
+                            <?php if ($itemText !== ''): ?>
+                                <p class="text-gray-600"><?=tacticum_product_page_html($itemText)?></p>
+                            <?php endif; ?>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+        <?php
+    }
+}
+
+if (!function_exists('tacticum_product_page_render_faq')) {
+    function tacticum_product_page_render_faq(array $faq): void
+    {
+        $items = is_array($faq['items'] ?? null) ? $faq['items'] : [];
+
+        if (empty($items)) {
+            return;
+        }
+
+        $title = tacticum_product_page_string($faq, 'title', 'Часто задаваемые вопросы');
+        $text = tacticum_product_page_string($faq, 'text', 'Ответы на вопросы, которые обычно появляются перед пилотом и внедрением.');
+        ?>
+        <section class="bg-white py-16">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 text-center">
+                    <h2 class="mb-4 text-3xl font-bold text-secondary md:text-4xl"><?=tacticum_product_page_html($title)?></h2>
+                    <?php if ($text !== ''): ?>
+                        <p class="mx-auto max-w-3xl text-lg text-gray-600"><?=tacticum_product_page_html($text)?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="mx-auto max-w-3xl">
+                    <?php foreach ($items as $item): ?>
+                        <?php
+                        if (!is_array($item)) {
+                            continue;
+                        }
+
+                        $question = tacticum_product_page_string($item, 'question');
+                        $answer = tacticum_product_page_string($item, 'answer');
+
+                        if ($question === '' || $answer === '') {
+                            continue;
+                        }
+                        ?>
+                        <div class="faq-item py-4">
+                            <button type="button" class="faq-question flex w-full items-center justify-between gap-4 text-left">
+                                <span class="text-xl font-medium text-secondary"><?=tacticum_product_page_html($question)?></span>
+                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                                    <i class="ri-add-line faq-icon text-primary"></i>
+                                </span>
+                            </button>
+                            <div class="faq-answer mt-2 text-gray-600">
+                                <p class="mt-2 leading-relaxed"><?=tacticum_product_page_html($answer)?></p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+        <?php
+    }
+}
+
 if (!function_exists('tacticum_render_product_page')) {
     function tacticum_render_product_page(array $page): void
     {
@@ -207,6 +503,9 @@ if (!function_exists('tacticum_render_product_page')) {
         $heroCards = is_array($page['hero_cards'] ?? null) ? $page['hero_cards'] : [];
         $sections = is_array($page['sections'] ?? null) ? $page['sections'] : [];
         $architecture = is_array($page['architecture'] ?? null) ? $page['architecture'] : [];
+        $rollout = is_array($page['rollout'] ?? null) ? $page['rollout'] : [];
+        $proof = is_array($page['proof'] ?? null) ? $page['proof'] : [];
+        $faq = is_array($page['faq'] ?? null) ? $page['faq'] : [];
         $cta = is_array($page['cta'] ?? null) ? $page['cta'] : [];
         ?>
         <section class="bg-gradient-to-r from-secondary to-primary pt-24 text-white">
@@ -254,6 +553,12 @@ if (!function_exists('tacticum_render_product_page')) {
 
         <?php tacticum_product_page_render_architecture($architecture); ?>
 
+        <?php tacticum_product_page_render_rollout($rollout); ?>
+
+        <?php tacticum_product_page_render_proof($proof); ?>
+
+        <?php tacticum_product_page_render_faq($faq); ?>
+
         <?php
         $APPLICATION->IncludeComponent(
             'tacticum:lead.cta',
@@ -271,6 +576,9 @@ if (!function_exists('tacticum_render_product_page')) {
                 'MESSAGE_PLACEHOLDER' => tacticum_product_page_string($cta, 'message_placeholder', 'Кратко опишите задачу, системы, ограничения и желаемый следующий шаг'),
                 'BUTTON_TEXT' => tacticum_product_page_string($cta, 'button_text', 'Обсудить пилот'),
                 'SHOW_QUALIFICATION' => 'Y',
+                'SCENARIO_LABEL' => tacticum_product_page_string($cta, 'scenario_label', 'Сценарий'),
+                'SCENARIO_EMPTY_LABEL' => tacticum_product_page_string($cta, 'scenario_empty_label', 'Выберите сценарий'),
+                'SCENARIO_OPTIONS' => is_array($cta['scenario_options'] ?? null) ? $cta['scenario_options'] : [],
                 'LEAD_CONTEXT' => is_array($cta['lead_context'] ?? null) ? $cta['lead_context'] : [],
             ],
             false

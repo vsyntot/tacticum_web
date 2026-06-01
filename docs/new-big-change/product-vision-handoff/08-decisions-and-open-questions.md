@@ -17,6 +17,15 @@
 | D-007 | Existing form/JS contracts нужно сохранять или мигрировать явно | AS IS сайт уже стабилизирован через data/id contracts |
 | D-008 | Первый релиз должен быть ограниченным | Лучше выпустить ecosystem + product shell, чем пытаться сразу покрыть все отрасли |
 
+## Implementation Notes
+
+- 01.06.2026: принято рабочее implementation decision для первого среза: `/platform/`, `/agents/`, `/dev/`, `/forum/` добавлены как статические public page entries поверх текущего Bitrix-шаблона.
+- 01.06.2026: `/aiagents/` не редиректится и не меняет canonical; добавлен compatibility bridge к `/agents/`, а финальное SEO-решение по canonical остается открытым вопросом `Q-007`.
+- 01.06.2026: product-aware lead context реализован только через уже allowlisted `lead_*` поля без изменения REST/upstream response shape; product pages дополнительно используют optional controlled `lead_scenario` select в `tacticum:lead.cta`.
+- 01.06.2026: delivery model для product pages реализован как safe rollout sequence, а не как публичный pricing/licensing/SLA matrix; конкретные deployment, ПАК, SLA and registry claims остаются в evidence backlog.
+- 01.06.2026: proof на product pages реализован как proof readiness model: публично показываем, что проверяется на пилоте, но реальные metrics, logos, testimonials, benchmark and regulatory proof остаются закрытыми до evidence/sign-off.
+- 01.06.2026: product structured data реализована как минимальная `SoftwareApplication` schema без offers/pricing/reviews/ratings; коммерческие и proof claims не кодируются в JSON-LD до evidence/sign-off.
+
 ## Open Product Questions
 
 | ID | Question | Why It Matters | Suggested Owner |
@@ -79,4 +88,3 @@ Agenda:
 3. Выбрать URL strategy.
 4. Утвердить first release scope.
 5. Назначить владельцев evidence backlog.
-

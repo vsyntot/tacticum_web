@@ -67,6 +67,50 @@ $normalizeLeadContext = static function ($value): array {
     return $context;
 };
 
+$normalizeScenarioOptions = static function ($value): array {
+    if (!is_array($value)) {
+        $value = preg_split('/\r\n|\r|\n|,/', (string)$value) ?: [];
+    }
+
+    $options = [];
+    foreach ($value as $rawKey => $rawOption) {
+        $optionValue = '';
+        $optionLabel = '';
+
+        if (is_array($rawOption)) {
+            $optionValue = trim((string)($rawOption['VALUE'] ?? $rawOption['value'] ?? $rawKey));
+            $optionLabel = trim((string)($rawOption['LABEL'] ?? $rawOption['label'] ?? $optionValue));
+        } elseif (is_scalar($rawOption)) {
+            $optionText = trim((string)$rawOption);
+            if ($optionText === '') {
+                continue;
+            }
+
+            $parts = array_map('trim', explode('|', $optionText, 2));
+            $optionValue = $parts[0] ?? '';
+            $optionLabel = $parts[1] ?? $optionValue;
+        }
+
+        $optionValue = preg_replace('/[^a-z0-9_.-]+/i', '', $optionValue) ?: '';
+        $optionLabel = trim($optionLabel);
+        if ($optionValue === '' || $optionLabel === '') {
+            continue;
+        }
+
+        $options[$optionValue] = mb_substr($optionLabel, 0, 120);
+    }
+
+    $normalized = [];
+    foreach ($options as $optionValue => $optionLabel) {
+        $normalized[] = [
+            'VALUE' => $optionValue,
+            'LABEL' => $optionLabel,
+        ];
+    }
+
+    return $normalized;
+};
+
 $defaults = [
     'personal-offer' => [
         'SECTION_ID' => 'contact-form',
@@ -137,6 +181,11 @@ $showQualification = TacticumComponentParams::yesNo(
     'SHOW_QUALIFICATION',
     $type === 'personal-offer' ? 'Y' : 'N'
 ) === 'Y';
+$scenarioOptions = $normalizeScenarioOptions($arParams['SCENARIO_OPTIONS'] ?? []);
+$leadContext = $normalizeLeadContext($arParams['LEAD_CONTEXT'] ?? []);
+if (!empty($scenarioOptions)) {
+    unset($leadContext['lead_scenario']);
+}
 
 $arResult = [
     'TYPE' => $type,
@@ -157,8 +206,11 @@ $arResult = [
     'CLOSE_TARGET' => $closeTarget,
     'CLOSE_MODE' => $closeMode,
     'FEATURES' => $features,
-    'LEAD_CONTEXT' => $normalizeLeadContext($arParams['LEAD_CONTEXT'] ?? []),
+    'LEAD_CONTEXT' => $leadContext,
     'SHOW_QUALIFICATION' => $showQualification,
+    'SCENARIO_LABEL' => TacticumComponentParams::string($arParams, 'SCENARIO_LABEL', 'Сценарий'),
+    'SCENARIO_EMPTY_LABEL' => TacticumComponentParams::string($arParams, 'SCENARIO_EMPTY_LABEL', 'Выберите сценарий'),
+    'SCENARIO_OPTIONS' => $scenarioOptions,
 ];
 
 $this->IncludeComponentTemplate();

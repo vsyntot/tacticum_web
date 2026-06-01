@@ -245,8 +245,8 @@ $APPLICATION->IncludeComponent(
                 <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="ri-cloud-line text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-lg font-bold text-secondary mb-2">Облачные технологии</h3>
-                <p class="text-gray-600 text-sm">AWS, Google Cloud, Azure</p>
+                <h3 class="text-lg font-bold text-secondary mb-2">Инфраструктура</h3>
+                <p class="text-gray-600 text-sm">Контейнеры, хранилища, очереди и runtime-сервисы</p>
             </div>
             <div class="bg-white rounded-xl p-6 shadow-sm text-center">
                 <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">

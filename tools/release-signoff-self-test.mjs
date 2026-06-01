@@ -9,6 +9,135 @@ const sourceFile = 'docs/workflow/release-signoff.example.json';
 const checker = 'tools/release-signoff-check.mjs';
 const source = JSON.parse(await readFile(sourceFile, 'utf8'));
 const tempDir = await mkdtemp(join(tmpdir(), 'tacticum-release-signoff-self-test-'));
+const validManifestFile = 'release-signoff-manifest.example.json';
+const productSeoWithoutSchemaManifestFile = 'product-seo-without-schema-summary.json';
+const validManifest = {
+  baseUrl: 'https://tacticum.ru/',
+  outputDir: '/tmp/tacticum-release-smoke-self-test',
+  generatedAt: '2026-06-01T00:00:00.000Z',
+  runActions: true,
+  expectSeoHead: true,
+  expectPriceTeamPresets: true,
+  failOnWarnings: true,
+  results: [
+    {
+      page: '/price/',
+      viewport: 'desktop',
+      url: 'https://tacticum.ru/price/',
+      title: 'Tacticum price',
+      status: 200,
+      textLength: 2000,
+      screenshotBytes: 100000,
+      pageErrors: [],
+      consoleErrors: [],
+      consoleWarnings: [],
+      networkErrors: [],
+      actionErrors: [],
+      errors: [],
+      actions: [
+        {
+          label: 'price team presets/summary',
+          status: 'ok',
+          detail: 'workers=3; budget=present',
+        },
+      ],
+      seoHead: {
+        title: 'Tacticum price',
+        titleCount: 1,
+        descriptions: ['Tacticum price and team presets.'],
+        canonicals: ['https://tacticum.ru/price/'],
+        openGraph: {
+          'og:site_name': ['Tacticum'],
+          'og:type': ['website'],
+          'og:url': ['https://tacticum.ru/price/'],
+          'og:title': ['Tacticum price'],
+          'og:description': ['Tacticum price and team presets.'],
+          'og:image': ['https://tacticum.ru/local/templates/tacticum/images/hero_bg.jpg'],
+        },
+        duplicateOpenGraphProperties: [],
+        h1Count: 1,
+      },
+      seoErrors: [],
+    },
+    {
+      page: '/price/',
+      viewport: 'mobile',
+      url: 'https://tacticum.ru/price/',
+      title: 'Tacticum price',
+      status: 200,
+      textLength: 2000,
+      screenshotBytes: 100000,
+      pageErrors: [],
+      consoleErrors: [],
+      consoleWarnings: [],
+      networkErrors: [],
+      actionErrors: [],
+      errors: [],
+      actions: [
+        {
+          label: 'price team presets/summary',
+          status: 'ok',
+          detail: 'workers=3; budget=present',
+        },
+      ],
+      seoHead: {
+        title: 'Tacticum price',
+        titleCount: 1,
+        descriptions: ['Tacticum price and team presets.'],
+        canonicals: ['https://tacticum.ru/price/'],
+        openGraph: {
+          'og:site_name': ['Tacticum'],
+          'og:type': ['website'],
+          'og:url': ['https://tacticum.ru/price/'],
+          'og:title': ['Tacticum price'],
+          'og:description': ['Tacticum price and team presets.'],
+          'og:image': ['https://tacticum.ru/local/templates/tacticum/images/hero_bg.jpg'],
+        },
+        duplicateOpenGraphProperties: [],
+        h1Count: 1,
+      },
+      seoErrors: [],
+    },
+  ],
+};
+const productSeoWithoutSchemaManifest = {
+  ...validManifest,
+  results: [
+    {
+      page: '/platform/',
+      viewport: 'desktop',
+      url: 'https://tacticum.ru/platform/',
+      title: 'Tacticum Platform',
+      status: 200,
+      textLength: 2000,
+      screenshotBytes: 100000,
+      pageErrors: [],
+      consoleErrors: [],
+      consoleWarnings: [],
+      networkErrors: [],
+      actionErrors: [],
+      errors: [],
+      actions: [],
+      seoHead: {
+        title: 'Tacticum Platform',
+        titleCount: 1,
+        descriptions: ['Tacticum Platform product page.'],
+        canonicals: ['https://tacticum.ru/platform/'],
+        openGraph: {
+          'og:site_name': ['Tacticum'],
+          'og:type': ['website'],
+          'og:url': ['https://tacticum.ru/platform/'],
+          'og:title': ['Tacticum Platform'],
+          'og:description': ['Tacticum Platform product page.'],
+          'og:image': ['https://tacticum.ru/local/templates/tacticum/images/hero_bg.jpg'],
+        },
+        duplicateOpenGraphProperties: [],
+        h1Count: 1,
+      },
+      seoErrors: [],
+    },
+  ],
+};
 
 const cases = [
   {
@@ -59,6 +188,13 @@ const cases = [
     expected: /css-js-e2e-readiness: manifest evidence is missing/,
     mutate(payload) {
       delete payload.gates['css-js-e2e-readiness'].evidence.production_browser_manifest;
+    },
+  },
+  {
+    name: 'missing product schema summary',
+    expected: /missing product SoftwareApplication schema summary/,
+    mutate(payload) {
+      payload.gates['seo-rendered-head'].evidence.seo_smoke_manifest = productSeoWithoutSchemaManifestFile;
     },
   },
   {
@@ -114,6 +250,12 @@ const draftCases = [
 ];
 
 try {
+  await writeFile(join(tempDir, validManifestFile), `${JSON.stringify(validManifest, null, 2)}\n`);
+  await writeFile(
+    join(tempDir, productSeoWithoutSchemaManifestFile),
+    `${JSON.stringify(productSeoWithoutSchemaManifest, null, 2)}\n`,
+  );
+
   for (const testCase of cases) {
     const payload = JSON.parse(JSON.stringify(source));
     testCase.mutate(payload);

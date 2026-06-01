@@ -78,6 +78,15 @@
 - details of proxies/foreign model access;
 - legal/tax advantages without formal review.
 
+## Implementation Notes
+
+- 01.06.2026: публичный `/about/` очищен от неподтвержденного partner/status блока с vendor logo-style presentation. Вместо него используется безопасный technology-contours block без claims о партнерствах, сертификациях или статусах.
+- 01.06.2026: первый product-layer MVP использует safe wording: без registry/trusted software/FSTEC/FSB/customer-logo/performance-percentage/workforce-reduction claims.
+- 01.06.2026: product CTA scenario qualification использует только controlled slugs (`lead_scenario`) и пользовательские labels без метрик, customer logos, regulatory statuses или free-text claims.
+- 01.06.2026: product rollout/delivery blocks описывают только discovery/pilot/integration/rollout decision и не публикуют registry, ПАК, certification, guaranteed SLA, pricing/licensing или automation/performance claims.
+- 01.06.2026: product proof readiness blocks описывают только проверяемые пилотные артефакты и не публикуют numeric metrics, customer logos, testimonials, benchmarks, SLA or regulatory proof.
+- 01.06.2026: product JSON-LD использует только минимальную `SoftwareApplication` identity schema и не добавляет `offers`, `price`, `review`, `aggregateRating` или proof/commercial claims.
+
 ## Evidence Backlog
 
 Нужно собрать:
@@ -92,4 +101,3 @@
 - SLA/tariff documents;
 - connector readiness table;
 - security architecture summary.
-

@@ -1,8 +1,8 @@
 <?php
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
 
-$APPLICATION->SetTitle("О компании - Тактикум");
-$APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт разработки программного обеспечения, внедрения AI-решений и автоматизации бизнеса.");
+$APPLICATION->SetTitle("О компании Tacticum - команда корпоративных AI-продуктов");
+$APPLICATION->SetPageProperty("description", "О компании Tacticum: команда, подход и опыт разработки корпоративных AI-продуктов, внедрения AI-решений, автоматизации и интеграций.");
 tacticum_apply_seo_defaults('/about/', [
     'image' => SITE_TEMPLATE_PATH . '/images/about_hero_bg.jpg',
     'image_width' => 1536,
@@ -24,13 +24,14 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
 <section class="about-hero-bg min-h-[500px] pt-24 flex items-center">
     <div class="container mx-auto px-4 py-20">
         <div class="max-w-3xl">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-secondary">О компании Тактикум</h1>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-secondary">Команда Tacticum развивает корпоративные AI-продукты</h1>
             <p class="text-lg md:text-xl mb-8 text-gray-700">
-                Мы разрабатываем программное обеспечение и помогаем компаниям быстро внедрять инновации с помощью
-                ИИ и автоматизации, превращая технологические возможности в реальные бизнес-результаты.
+                Мы соединяем продуктовую разработку, AI-инженерию и внедрение в бизнес-процессы: от Platform и
+                Agents до Dev, Forum, интеграций, оценки проекта и команды под delivery.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
-                <a href="/calculator/" class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">Познакомиться ближе</a>
+                <a href="/platform/" class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">Смотреть продукты</a>
+                <a href="/calculator/" class="inline-block bg-white text-secondary border border-gray-200 px-8 py-3 rounded-button hover:border-primary hover:text-primary transition-colors whitespace-nowrap text-center">Оценить задачу</a>
             </div>
         </div>
     </div>
@@ -41,13 +42,12 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Кто мы?</h2>
             <div class="bg-primary/5 border-l-4 border-primary p-6 rounded-lg mb-8">
-                <p class="text-xl italic text-gray-700">"Мы разрабатываем программные решения и помогаем компаниям быстро внедрять инновации с помощью ИИ и автоматизации"</p>
+                <p class="text-xl italic text-gray-700">"Мы строим AI-решения так, чтобы они проходили путь от идеи и пилота до рабочего процесса, команды и эксплуатации"</p>
             </div>
             <p class="text-lg text-gray-600">
-                Tacticum — это команда экспертов в области разработки программного обеспечения, искусственного
-                интеллекта и автоматизации бизнес-процессов. Мы фокусируемся на глубокой экспертизе и индивидуальном
-                подходе к каждому клиенту, что позволяет нам создавать решения, которые действительно работают и
-                приносят измеримую пользу.
+                Tacticum — это команда в области разработки программного обеспечения, искусственного интеллекта и
+                автоматизации бизнес-процессов. Мы развиваем собственную продуктовую линейку и сохраняем delivery
+                практику, чтобы помогать компаниям переходить от гипотезы к проверяемому результату.
             </p>
         </div>
 
@@ -105,8 +105,8 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
                     </div>
                     <h4 class="text-xl font-bold text-secondary mb-2">Развитие собственных продуктов</h4>
                     <p class="text-gray-600">
-                        Запуск линейки собственных AI-продуктов для автоматизации бизнес-процессов. Получение
-                        статуса технологического партнера ведущих IT-компаний.
+                        Запуск линейки собственных AI-продуктов для автоматизации бизнес-процессов. Формирование
+                        повторяемых подходов к оценке, пилотированию и внедрению AI-решений.
                     </p>
                 </div>
                 <div class="relative pl-14">
@@ -122,6 +122,59 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
                     </p>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="mb-12 max-w-3xl">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">Vendor trust</p>
+            <h2 class="mb-4 text-3xl md:text-4xl font-bold text-secondary">
+                Почему product-first модель требует сильной delivery-команды
+            </h2>
+            <p class="text-lg text-gray-600">
+                Корпоративный AI-продукт не живет только в презентации или прототипе. Ему нужны архитектура,
+                данные, интеграции, безопасность, эксплуатация, команда и понятный путь от пилота до production.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <a href="/platform/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-stack-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Архитектура</h3>
+                <p class="text-gray-600">
+                    Проектируем общий AI-контур, RAG, интеграции, доступы, аудит и эксплуатационные ограничения.
+                </p>
+            </a>
+            <a href="/services/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-route-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Внедрение</h3>
+                <p class="text-gray-600">
+                    Ведем discovery, пилот, интеграции, запуск и развитие решения короткими управляемыми этапами.
+                </p>
+            </a>
+            <a href="/price/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-team-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Команда</h3>
+                <p class="text-gray-600">
+                    Подбираем роли под product workstream: аналитика, backend, data, integration, QA, PM и DevOps.
+                </p>
+            </a>
+            <a href="/offer/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-file-search-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Оценка</h3>
+                <p class="text-gray-600">
+                    Используем примеры расчетов и калькулятор как безопасный старт для уточнения scope и рисков.
+                </p>
+            </a>
         </div>
     </div>
 </section>
@@ -225,8 +278,8 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Наша команда</h2>
             <p class="text-lg text-gray-600">
-                Познакомьтесь с экспертами, которые делают Tacticum лидером в области AI-решений для бизнеса. Наша
-                команда объединяет профессионалов с многолетним опытом в различных областях.
+                Познакомьтесь с командой, которая развивает продукты Tacticum и помогает компаниям запускать
+                AI-решения в реальных процессах.
             </p>
         </div>
 
@@ -250,35 +303,35 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
         ?>
 
         <div id="partners" class="tacticum-anchor-target bg-gray-50 rounded-2xl p-8 md:p-12">
-            <h3 class="text-2xl font-bold text-secondary mb-8 text-center">Партнерства и сертификации</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 flex items-center justify-center mb-4">
-                        <i class="ri-microsoft-fill text-4xl text-gray-500"></i>
+            <h3 class="text-2xl font-bold text-secondary mb-8 text-center">Технологические контуры</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl p-6 text-center">
+                    <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
+                        <i class="ri-brain-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary">Microsoft</h4>
-                    <p class="text-sm text-gray-500">AI Partner</p>
+                    <h4 class="font-bold text-secondary mb-2">LLM и RAG</h4>
+                    <p class="text-sm text-gray-600">Модели, поиск по знаниям, память и контроль источников</p>
                 </div>
-                <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 flex items-center justify-center mb-4">
-                        <i class="ri-google-fill text-4xl text-gray-500"></i>
+                <div class="bg-white rounded-xl p-6 text-center">
+                    <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
+                        <i class="ri-plug-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary">Google</h4>
-                    <p class="text-sm text-gray-500">Cloud Partner</p>
+                    <h4 class="font-bold text-secondary mb-2">Интеграции</h4>
+                    <p class="text-sm text-gray-600">CRM, ERP, wiki, helpdesk, документы и внутренние API</p>
                 </div>
-                <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 flex items-center justify-center mb-4">
-                        <i class="ri-amazon-fill text-4xl text-gray-500"></i>
+                <div class="bg-white rounded-xl p-6 text-center">
+                    <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
+                        <i class="ri-shield-check-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary">AWS</h4>
-                    <p class="text-sm text-gray-500">Advanced Partner</p>
+                    <h4 class="font-bold text-secondary mb-2">Контроль</h4>
+                    <p class="text-sm text-gray-600">Роли, аудит, журналирование, quality gates и наблюдаемость</p>
                 </div>
-                <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 flex items-center justify-center mb-4">
-                        <i class="ri-openai-fill text-4xl text-gray-500"></i>
+                <div class="bg-white rounded-xl p-6 text-center">
+                    <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
+                        <i class="ri-rocket-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary">OpenAI</h4>
-                    <p class="text-sm text-gray-500">Solution Partner</p>
+                    <h4 class="font-bold text-secondary mb-2">Запуск</h4>
+                    <p class="text-sm text-gray-600">Пилот, production rollout, поддержка и развитие продукта</p>
                 </div>
             </div>
         </div>
@@ -327,8 +380,8 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
                     <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="ri-cloud-line text-3xl text-primary"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Облачные технологии</h3>
-                    <p class="text-gray-600 text-sm">AWS, Google Cloud, Azure</p>
+                    <h3 class="text-lg font-bold text-secondary mb-2">Инфраструктура</h3>
+                    <p class="text-gray-600 text-sm">Контейнеры, хранилища, очереди и runtime-сервисы</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 shadow-sm text-center">
                     <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -373,6 +426,7 @@ $APPLICATION->IncludeComponent(
             "lead_entry" => "about",
             "lead_page_role" => "trust-entry",
             "lead_intent" => "discuss-company-fit",
+            "lead_product" => "ecosystem",
             "lead_cta" => "about-cta",
             "lead_next_step" => "qualification-call",
         ],

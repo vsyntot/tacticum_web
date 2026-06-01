@@ -59,7 +59,11 @@
 | `team_preset` | string | Опциональный пресет команды на `/price/`: `mvp`, `discovery`, `support`, `qa-burst` |
 | `monthly_budget_estimate` | string/number | Ориентировочный месячный бюджет, рассчитанный на frontend по ставке, количеству и загрузке |
 
-Обычные CTA формы могут содержать optional qualification controls `lead_budget` и `lead_timeline`. Они не обязательны и не должны называться `budget`, `timeline`, `duration`, `rate` или `specialist`, чтобы не конфликтовать с legacy/staff-order веткой. `/local/rest/tacticum_form.php` allowlist-ит `lead_*` context, ограничивает служебный блок и добавляет его внутрь существующего upstream поля `task`. Response shape и upstream endpoint path не меняются.
+Обычные CTA формы могут содержать optional qualification controls `lead_budget`, `lead_timeline` и controlled scenario select `lead_scenario`. Они не обязательны и не должны называться `budget`, `timeline`, `duration`, `rate` или `specialist`, чтобы не конфликтовать с legacy/staff-order веткой. `/local/rest/tacticum_form.php` allowlist-ит `lead_*` context, ограничивает служебный блок и добавляет его внутрь существующего upstream поля `task`. Response shape и upstream endpoint path не меняются.
+
+`tacticum:lead.cta` поддерживает scenario select через параметр `SCENARIO_OPTIONS`. Значения должны быть короткими controlled slugs без PII/free text; подписи видны пользователю, но analytics events продолжают отправлять только form-level metadata. Product pages `/platform/`, `/agents/`, `/dev/`, `/forum/` используют этот механизм для уточнения ближайшего следующего шага без изменения REST/upstream contract.
+
+Backend `tacticum_form_build_lead_context(...)` переводит известные `lead_scenario` slugs в человекочитаемые подписи перед добавлением блока `Контекст заявки` в upstream `task`. Unknown slugs не блокируются, но попадают в контекст как короткая строка после общей нормализации.
 
 Light chat handoff на `/calculator/` и `/price/` использует существующий `group_id` / prefill contract без новых upstream fields. После успешного AI-ответа пользователь может передать вводные в CTA: frontend пробует `POST /local/rest/tacticum_prefill.php` с `group_id + sessid`, заполняет только целевую CTA форму внутри `#contact-form`, сохраняет `group_id` в `form.dataset.tacticumOfferGroupId` и не пишет текст сообщения в analytics params. `forms.js` добавляет scoped `group_id` только для этой формы; глобальный `window.tacticum_offer_context` остаётся compatibility path для hero chat и не применяется к формам без `lead_*` context.
 
@@ -99,16 +103,26 @@ AI sale path берётся из config `ai.endpoint_paths.*`: обычные л
 | Page / context | `form_id` | Primary promise | Context |
 |---|---|---|---|
 | `/` | `home-cta` | Получить следующий шаг после выбора product или commercial entry | `lead_entry=home`, `lead_page_role=ecosystem-router`, `lead_product=ecosystem`, `lead_scenario=product-routing` |
+| `/about/` | `about-cta` | Обсудить задачу и fit с командой Tacticum | `lead_entry=about`, `lead_page_role=trust-entry`, `lead_product=ecosystem` |
 | `/services/` | `services-cta` | Обсудить внедрение AI-решения или product-delivery пилот | `lead_entry=services`, `lead_page_role=implementation-entry`, `lead_product=ecosystem`, `lead_scenario=product-delivery` |
 | `/price/` | `price-cta` | Подобрать команду под задачу или product workstream | `lead_entry=price`, `lead_page_role=team-entry`, `lead_product=ecosystem`, `lead_scenario=product-team` |
 | `/calculator/` | `calculator-cta` | Уточнить предварительную оценку по product-aware задаче | `lead_entry=calculator`, `lead_page_role=estimate-entry`, `lead_product=ecosystem`, `lead_scenario=product-estimate` |
-| `/contacts/` | `contacts-cta` | Направить обращение к нужному следующему шагу | `lead_entry=contacts`, `lead_page_role=contact-entry` |
+| `/contacts/` | `contacts-cta` | Направить обращение к продукту, внедрению, оценке или команде | `lead_entry=contacts`, `lead_page_role=contact-entry`, `lead_product=ecosystem`, `lead_scenario=contact-routing` |
 | `/offer/<code>/` | `offer-cta` | Получить персональную оценку по похожей задаче | `lead_entry=offer-detail`, `lead_product=ecosystem`, `lead_offer_code`, `lead_offer_title` |
 | `/aiagents/` | `aiagents-inline` | Запросить бот-прототип как первый Agents-сценарий | `lead_entry=aiagents`, `lead_page_role=telegram-bot-entry`, `lead_product=agents` |
 | `/platform/` | `platform-cta` | Обсудить платформенный assessment или пилот | `lead_entry=platform`, `lead_page_role=product-page`, `lead_product=platform` |
 | `/agents/` | `agents-cta` | Выбрать бизнес-сценарий для Agents-пилота | `lead_entry=agents`, `lead_page_role=product-page`, `lead_product=agents` |
 | `/dev/` | `dev-cta` | Оценить готовность команды к AI-assisted workflow | `lead_entry=dev`, `lead_page_role=product-page`, `lead_product=dev` |
 | `/forum/` | `forum-cta` | Разобрать поток клиентских обращений | `lead_entry=forum`, `lead_page_role=product-page`, `lead_product=forum` |
+
+Product page CTAs дополнительно показывают optional `lead_scenario` select. Текущие controlled values:
+
+| Page | `lead_scenario` values |
+|---|---|
+| `/platform/` | `platform-assessment`, `platform-pilot`, `deployment-readiness` |
+| `/agents/` | `agent-scenario-selection`, `rag-documents-check`, `pilot-rollout` |
+| `/dev/` | `ai-workflow-assessment`, `quality-gates-pilot`, `design-system-guardrails` |
+| `/forum/` | `dialog-flow-assessment`, `scenario-llm-pilot`, `support-analytics-review` |
 
 ## Consent И CSRF
 

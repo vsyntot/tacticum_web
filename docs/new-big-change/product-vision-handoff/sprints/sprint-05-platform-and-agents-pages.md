@@ -2,7 +2,7 @@
 
 Suggested window: 03.08.2026 - 14.08.2026
 
-Status: planned
+Status: in-progress - first implementation slice added 01.06.2026
 
 ## Sprint Goal
 
@@ -36,15 +36,15 @@ Full Feature Lane with SEO and Security / Integration review for claims.
 
 | Item | Description | Owner | Priority | Status |
 |---|---|---|---|---|
-| S05-001 | Implement Platform page shell and content | Frontend + Editor + Architect | P1 | planned |
-| S05-002 | Implement Platform module map | Frontend + Designer + Architect | P1 | planned |
-| S05-003 | Implement Platform deployment/security blocks with safe wording | Frontend + PM + Security | P1 | planned |
-| S05-004 | Implement Agents page or approved `/aiagents/` migration | Frontend + SEO + PM | P1 | planned |
-| S05-005 | Add Agents scenarios: HR, legal, accounting, corporate KB, support, IT helpdesk | Editor + Frontend | P1 | planned |
-| S05-006 | Show Platform relation inside Agents page | Frontend + Architect | P1 | planned |
-| S05-007 | Add product-aware CTAs for Platform and Agents | Frontend + Backend + QA | P1 | planned |
-| S05-008 | Add SEO metadata and sitemap/canonical coverage | SEO + Dev | P1 | planned |
-| S05-009 | Add FAQ blocks or product FAQ content | Editor + Frontend | P2 | planned |
+| S05-001 | Implement Platform page shell and content | Frontend + Editor + Architect | P1 | done-first-slice |
+| S05-002 | Implement Platform module map | Frontend + Designer + Architect | P1 | done-first-slice |
+| S05-003 | Implement Platform deployment/security blocks with safe wording | Frontend + PM + Security | P1 | done-safe-rollout-model |
+| S05-004 | Implement Agents page or approved `/aiagents/` migration | Frontend + SEO + PM | P1 | done-with-compatibility-bridge |
+| S05-005 | Add Agents scenarios: HR, legal, accounting, corporate KB, support, IT helpdesk | Editor + Frontend | P1 | done-first-slice |
+| S05-006 | Show Platform relation inside Agents page | Frontend + Architect | P1 | done-first-slice |
+| S05-007 | Add product-aware CTAs for Platform and Agents | Frontend + Backend + QA | P1 | done-with-scenario-select |
+| S05-008 | Add SEO metadata and sitemap/canonical coverage | SEO + Dev | P1 | done-static-guard-and-product-schema |
+| S05-009 | Add FAQ blocks or product FAQ content | Editor + Frontend | P2 | done-static-faq |
 
 ## Out Of Scope
 
@@ -103,8 +103,8 @@ Manual smoke:
 
 | Scenario | Expected |
 |---|---|
-| Platform CTA | Form opens/submits with Platform context |
-| Agents CTA | Form opens/submits with Agents context |
+| Platform CTA | Form opens/submits with Platform context and controlled scenario select |
+| Agents CTA | Form opens/submits with Agents context and controlled scenario select |
 | Mobile navigation | Product pages reachable and menu closes correctly |
 | Claim blocks | No `needs evidence` wording published |
 
@@ -121,12 +121,39 @@ Manual smoke:
 
 ### Done
 
-- To be filled at sprint end.
+- 01.06.2026 first implementation slice:
+  - `/platform/` page added with product promise, module map, architecture and product-aware CTA;
+  - `/agents/` page added with business-function scenarios, Platform relation and product-aware CTA;
+  - `/aiagents/` preserved as compatibility/money URL and bridged to `/agents/` without redirect/canonical migration;
+  - top/footer product navigation implemented;
+  - static checks passed through product-layer, homepage and compatibility bridge plans.
+- 01.06.2026 FAQ hardening slice:
+  - `/platform/` and `/agents/` received static product FAQ content through the shared product page renderer;
+  - existing `faq.js` is loaded through `tacticum_page_assets=faq`;
+  - FAQ copy uses safe pilot/discovery/deployment wording and avoids unapproved claims.
+- 01.06.2026 CTA qualification slice:
+  - `/platform/` and `/agents/` product forms received optional controlled `lead_scenario` select through shared `tacticum:lead.cta`;
+  - no new required fields, JS/CSS assets, analytics params or REST/upstream contract changes were added.
+- 01.06.2026 rollout/delivery model slice:
+  - shared product renderer received reusable rollout block;
+  - `/platform/` and `/agents/` now explain assessment/discovery, pilot, integration/deployment alignment and rollout decision with safe wording;
+  - no registry, ПАК, certification, SLA tier, guarantee or pricing claims were added.
+- 01.06.2026 proof readiness slice:
+  - shared product renderer received reusable proof readiness block;
+  - `/platform/` and `/agents/` now describe pilot evidence artifacts without publishing metrics, logos, testimonials or regulatory proof;
+  - real case/proof content remains evidence pending.
+- 01.06.2026 structured-data slice:
+  - `/platform/` and `/agents/` received minimal `SoftwareApplication` JSON-LD through SEO helper options;
+  - schema intentionally excludes offers/pricing/reviews/ratings and proof claims.
 
 ### Not Done
 
-- To be filled at sprint end.
+- `/aiagents/` vs `/agents/` canonical/redirect decision is explicitly deferred.
+- Product-specific public metrics/cases remain deferred until evidence and legal approval.
+- Browser/visual smoke still requires local Bitrix runtime or post-deploy smoke.
 
 ### Follow-Up
 
-- To be filled at sprint end.
+- Decide `/aiagents/` canonical strategy after SEO review and production data.
+- If FAQ content later moves to the FAQ iblock, preserve the current static questions as editorial baseline.
+- Extend proof/case relation only after claim and evidence approval.

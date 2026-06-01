@@ -375,6 +375,17 @@ function validateSeoResult(gateName, result, label) {
       fail(`${gateName}: ${label} missing ${property}`);
     }
   }
+
+  if (['/platform/', '/agents/', '/dev/', '/forum/'].includes(result.page)) {
+    const productSchemaSummary = seoHead.productSchemaSummary || {};
+    const schemaTypes = Array.isArray(productSchemaSummary.schemaTypes) ? productSchemaSummary.schemaTypes : [];
+    if (!schemaTypes.includes('SoftwareApplication') || productSchemaSummary.softwareApplicationCount < 1) {
+      fail(`${gateName}: ${label} missing product SoftwareApplication schema summary`);
+    }
+    if (!schemaTypes.includes('FAQPage') || productSchemaSummary.faqPageCount < 1) {
+      fail(`${gateName}: ${label} missing product FAQPage schema summary`);
+    }
+  }
 }
 
 function validatePriceTeamResults(gateName, results) {

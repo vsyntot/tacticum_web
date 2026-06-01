@@ -2,7 +2,7 @@
 
 Дата: 01.06.2026
 
-Статус: planned sprint backlog для перехода от AS IS сайта `tacticum.ru` к TO BE продуктовой модели Tacticum Platform + Agents + Dev + Forum.
+Статус: implementation in progress. Базовый sprint backlog сохранён как маршрут перехода от AS IS сайта `tacticum.ru` к TO BE продуктовой модели Tacticum Platform + Agents + Dev + Forum; первые безопасные MVP-срезы добавлены 01.06.2026.
 
 ## Назначение
 
@@ -31,10 +31,10 @@
 | 01 | `sprint-01-ia-and-messaging.md` | Зафиксировать IA, URL strategy, messaging и page acceptance | planned |
 | 02 | `sprint-02-design-system-and-prototypes.md` | Подготовить TO BE дизайн-систему и прототипы | planned |
 | 03 | `sprint-03-implementation-foundation.md` | Спроектировать Bitrix/component/form foundation | planned |
-| 04 | `sprint-04-homepage-and-navigation-mvp.md` | Реализовать новую главную и продуктовую навигацию | planned |
-| 05 | `sprint-05-platform-and-agents-pages.md` | Реализовать Platform и Agents pages | planned |
-| 06 | `sprint-06-dev-and-forum-pages.md` | Реализовать Dev и Forum pages | planned |
-| 07 | `sprint-07-proof-forms-seo-analytics-hardening.md` | Закрыть proof, forms, SEO, analytics и claim governance | planned |
+| 04 | `sprint-04-homepage-and-navigation-mvp.md` | Реализовать новую главную и продуктовую навигацию | in-progress / first MVP slice |
+| 05 | `sprint-05-platform-and-agents-pages.md` | Реализовать Platform и Agents pages | in-progress / FAQ + scenario + rollout + proof readiness + schema added |
+| 06 | `sprint-06-dev-and-forum-pages.md` | Реализовать Dev и Forum pages | in-progress / FAQ + scenario + rollout + proof readiness + schema added |
+| 07 | `sprint-07-proof-forms-seo-analytics-hardening.md` | Закрыть proof, forms, SEO, analytics и claim governance | in-progress / proof readiness + schema/static guards, external gates pending |
 | 08 | `sprint-08-release-post-launch-and-handoff.md` | Провести release, smoke, sign-off и post-launch handoff | planned |
 
 Общая карта и зависимости: `00-sprint-roadmap.md`.
