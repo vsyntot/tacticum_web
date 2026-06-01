@@ -3,11 +3,9 @@ require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_be
 
 $APPLICATION->SetTitle("Tacticum Dev - управление AI-assisted разработкой");
 $APPLICATION->SetPageProperty("description", "Tacticum Dev помогает инженерным организациям управлять AI-assisted разработкой: профили, knowledge layer, design token compliance, quality gates и traceability.");
-tacticum_apply_seo_defaults('/dev/');
+$APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
 
-require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
-
-tacticum_render_product_page([
+$tacticumProductPage = [
     'eyebrow' => 'Tacticum Dev',
     'title' => 'AI-assisted разработка без потери архитектуры и качества',
     'lead' => 'Governance-слой для инженерных команд, которые уже используют AI-инструменты в разработке и хотят управлять профилями, знаниями, design tokens, quality gates и traceability на уровне процесса.',
@@ -141,6 +139,67 @@ tacticum_render_product_page([
             ],
         ],
     ],
+    'rollout' => [
+        'title' => 'Как внедряется Tacticum Dev',
+        'text' => 'Пилот строится вокруг одной команды, одного стека и одного workflow. Это помогает проверить правила и gates до расширения на весь engineering-контур.',
+        'steps' => [
+            [
+                'title' => 'Диагностика процесса',
+                'text' => 'Смотрим текущий путь задачи от постановки до merge, источники знаний, дизайн-систему, тесты и review practices.',
+            ],
+            [
+                'title' => 'Правила и профили',
+                'text' => 'Фиксируем AI-профили, ограничения codebase, knowledge layer, design token rules и критерии качества.',
+            ],
+            [
+                'title' => 'Пилот workflow',
+                'text' => 'Прогоняем один тип задач через analysis gate, реализацию, тесты и review, отслеживая качество и повторяемость.',
+            ],
+            [
+                'title' => 'Расширение практики',
+                'text' => 'По итогам пилота уточняем gates, ownership, обучение команды и порядок подключения других стеков.',
+            ],
+        ],
+    ],
+    'proof' => [
+        'title' => 'Что подтверждаем в Dev-пилоте',
+        'text' => 'Публично не обещаем проценты ускорения или сокращения ошибок. Сначала проверяем, какие правила реально помогают команде работать с AI управляемо.',
+        'items' => [
+            [
+                'meta' => 'Workflow',
+                'title' => 'Трассировка от задачи до review',
+                'text' => 'Фиксируем, как задача проходит analysis gate, реализацию, тесты и review, и где AI требует дополнительного контроля.',
+            ],
+            [
+                'meta' => 'Rules',
+                'title' => 'Проверка quality gates',
+                'text' => 'Смотрим, какие архитектурные, тестовые и security-проверки должны быть обязательными для выбранного стека.',
+            ],
+            [
+                'meta' => 'Design',
+                'title' => 'Соответствие дизайн-системе',
+                'text' => 'Проверяем, какие design token rules и UI-ограничения нужны, чтобы AI-изменения не расходились с утвержденной системой.',
+            ],
+        ],
+    ],
+    'faq' => [
+        'title' => 'Вопросы по Tacticum Dev',
+        'text' => 'Как рассматривать Dev как governance-слой для AI-assisted разработки, а не просто набор промптов.',
+        'items' => [
+            [
+                'question' => 'Зачем нужен Dev, если команда уже использует AI-инструменты?',
+                'answer' => 'Отдельные инструменты помогают писать код, но не задают общие правила для архитектуры, дизайн-системы, review, тестов и трассируемости. Dev нужен, когда AI-assisted workflow нужно сделать повторяемым и управляемым.',
+            ],
+            [
+                'question' => 'С чего начинать пилот Tacticum Dev?',
+                'answer' => 'Лучше начать с одной команды, одного стека и одного рабочего процесса от задачи до merge request. Затем фиксируются метрики, quality gates и правила, которые действительно нужны в этом контуре.',
+            ],
+            [
+                'question' => 'Как Dev связан с дизайн-системой?',
+                'answer' => 'Design Token Layer и проверки помогают удерживать UI-реализацию в рамках принятой дизайн-системы. Конкретные правила зависят от того, какие токены, компоненты и запреты утверждены в вашей системе.',
+            ],
+        ],
+    ],
     'cta' => [
         'form_id' => 'dev-cta',
         'field_prefix' => 'dev',
@@ -149,6 +208,22 @@ tacticum_render_product_page([
         'form_title' => 'Заявка по Tacticum Dev',
         'button_text' => 'Обсудить Tacticum Dev',
         'message_placeholder' => 'Например: 20 разработчиков, web/mobile, уже используем AI-инструменты, хотим стандартизировать процесс',
+        'scenario_label' => 'Фокус оценки',
+        'scenario_empty_label' => 'Выберите ближайший сценарий',
+        'scenario_options' => [
+            [
+                'VALUE' => 'ai-workflow-assessment',
+                'LABEL' => 'Оценить текущий AI-assisted workflow',
+            ],
+            [
+                'VALUE' => 'quality-gates-pilot',
+                'LABEL' => 'Пилот quality gates на команде',
+            ],
+            [
+                'VALUE' => 'design-system-guardrails',
+                'LABEL' => 'Связать AI-разработку с дизайн-системой',
+            ],
+        ],
         'lead_context' => [
             'lead_entry' => 'dev',
             'lead_page_role' => 'product-page',
@@ -158,7 +233,20 @@ tacticum_render_product_page([
             'lead_next_step' => 'engineering-assessment',
         ],
     ],
+];
+
+tacticum_apply_seo_defaults('/dev/', [
+    'schema' => tacticum_product_page_schema(
+        $tacticumProductPage,
+        '/dev/',
+        'DeveloperApplication',
+        'Governance-слой для AI-assisted разработки: профили, knowledge layer, design token rules, workflow gates, quality gates и traceability.'
+    ),
 ]);
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
+
+tacticum_render_product_page($tacticumProductPage);
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
 ?>

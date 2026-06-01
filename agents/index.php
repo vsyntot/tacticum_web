@@ -3,11 +3,9 @@ require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_be
 
 $APPLICATION->SetTitle("Tacticum Agents - корпоративные AI-ассистенты для бизнес-функций");
 $APPLICATION->SetPageProperty("description", "Tacticum Agents помогает запускать корпоративных AI-ассистентов для HR, юридического, бухгалтерского, клиентского и внутреннего IT-контуров поверх общей AI-платформы.");
-tacticum_apply_seo_defaults('/agents/');
+$APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
 
-require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
-
-tacticum_render_product_page([
+$tacticumProductPage = [
     'eyebrow' => 'Tacticum Agents',
     'title' => 'Корпоративные AI-ассистенты для бизнес-функций',
     'lead' => 'Продуктовый слой для запуска ассистентов в HR, юридическом, бухгалтерском, клиентском и корпоративном контуре. Ассистенты используют общую Platform-инфраструктуру: RAG, память, инструменты, права доступа и аудит.',
@@ -140,6 +138,67 @@ tacticum_render_product_page([
             ],
         ],
     ],
+    'rollout' => [
+        'title' => 'Как запускается Agents-пилот',
+        'text' => 'Сначала выбираем ограниченный бизнес-сценарий и контур знаний. Затем проверяем качество ответов, handoff и интеграции, не обещая production-масштаб без пилотных данных.',
+        'steps' => [
+            [
+                'title' => 'Выбор сценария',
+                'text' => 'Фиксируем подразделение, владельца процесса, типовые вопросы, документы и критерии пользы для первого ассистента.',
+            ],
+            [
+                'title' => 'Knowledge setup',
+                'text' => 'Готовим документы, FAQ, шаблоны, права доступа и правила эскалации для пилотного контура.',
+            ],
+            [
+                'title' => 'Прототип ассистента',
+                'text' => 'Собираем сценарий, RAG, инструменты и безопасный handoff к человеку, затем проверяем ответы на контрольных примерах.',
+            ],
+            [
+                'title' => 'Rollout decision',
+                'text' => 'По итогам пилота решаем, какие интеграции, каналы, роли и правила нужны для промышленного запуска.',
+            ],
+        ],
+    ],
+    'proof' => [
+        'title' => 'Что подтверждаем в Agents-пилоте',
+        'text' => 'До публикации метрик важно проверить не общие обещания про автоматизацию, а конкретное качество сценария, знаний и handoff в выбранном процессе.',
+        'items' => [
+            [
+                'meta' => 'Данные',
+                'title' => 'Контрольный набор вопросов',
+                'text' => 'Собираем типовые запросы, документы, ожидаемые ответы и случаи, где ассистент должен передать диалог человеку.',
+            ],
+            [
+                'meta' => 'Качество',
+                'title' => 'Проверка ответов и источников',
+                'text' => 'Смотрим, где ассистент корректно использует знания, где нужен запрет ответа и какие документы требуют доработки.',
+            ],
+            [
+                'meta' => 'Внедрение',
+                'title' => 'План каналов и интеграций',
+                'text' => 'Фиксируем, какие каналы, системы, роли и правила нужны для следующего этапа после пилота.',
+            ],
+        ],
+    ],
+    'faq' => [
+        'title' => 'Вопросы по Tacticum Agents',
+        'text' => 'Что важно понять перед выбором первого сценария корпоративного ассистента.',
+        'items' => [
+            [
+                'question' => 'Чем Agents отличается от обычного чат-бота?',
+                'answer' => 'Agents рассматривает ассистента как корпоративный продукт: с документами, инструментами, ролями доступа, журналированием и handoff к человеку. Отдельный бот может быть частью сценария, но не заменяет весь контур управления.',
+            ],
+            [
+                'question' => 'Какие сценарии лучше подходят для первого пилота?',
+                'answer' => 'Хороший стартовый сценарий имеет понятного владельца, повторяющиеся вопросы или документы, измеримый критерий пользы и ограниченный контур данных. Часто это HR, юридическая проверка, внутренняя база знаний, support или IT helpdesk.',
+            ],
+            [
+                'question' => 'Можно ли использовать существующие каналы и системы?',
+                'answer' => 'Каналы и интеграции выбираются на discovery. Подключение возможно, если это проходит техническую и security-проверку, а права доступа и журналирование можно реализовать в согласованном контуре.',
+            ],
+        ],
+    ],
     'cta' => [
         'form_id' => 'agents-cta',
         'field_prefix' => 'agents',
@@ -148,6 +207,22 @@ tacticum_render_product_page([
         'form_title' => 'Заявка по Tacticum Agents',
         'button_text' => 'Обсудить Agents',
         'message_placeholder' => 'Например: нужен ассистент для HR, юридической проверки, поддержки клиентов или базы знаний',
+        'scenario_label' => 'Сценарий пилота',
+        'scenario_empty_label' => 'Выберите ближайший сценарий',
+        'scenario_options' => [
+            [
+                'VALUE' => 'agent-scenario-selection',
+                'LABEL' => 'Выбрать первый бизнес-сценарий',
+            ],
+            [
+                'VALUE' => 'rag-documents-check',
+                'LABEL' => 'Проверить документы для RAG',
+            ],
+            [
+                'VALUE' => 'pilot-rollout',
+                'LABEL' => 'Спланировать пилот и rollout',
+            ],
+        ],
         'lead_context' => [
             'lead_entry' => 'agents',
             'lead_page_role' => 'product-page',
@@ -157,7 +232,20 @@ tacticum_render_product_page([
             'lead_next_step' => 'scenario-selection',
         ],
     ],
+];
+
+tacticum_apply_seo_defaults('/agents/', [
+    'schema' => tacticum_product_page_schema(
+        $tacticumProductPage,
+        '/agents/',
+        'BusinessApplication',
+        'Продуктовый слой для корпоративных AI-ассистентов в HR, legal, finance, support, IT helpdesk и базе знаний поверх общей Tacticum Platform.'
+    ),
 ]);
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
+
+tacticum_render_product_page($tacticumProductPage);
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
 ?>

@@ -34,6 +34,9 @@ $arComponentParameters = [
         'TEXT' => ['PARENT' => 'BASE', 'NAME' => 'Text', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'BUTTON_TEXT' => ['PARENT' => 'BASE', 'NAME' => 'Button text', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'LEAD_CONTEXT' => ['PARENT' => 'ADDITIONAL_SETTINGS', 'NAME' => 'Hidden lead context', 'TYPE' => 'STRING', 'DEFAULT' => ''],
+        'SCENARIO_LABEL' => ['PARENT' => 'ADDITIONAL_SETTINGS', 'NAME' => 'Scenario select label', 'TYPE' => 'STRING', 'DEFAULT' => ''],
+        'SCENARIO_EMPTY_LABEL' => ['PARENT' => 'ADDITIONAL_SETTINGS', 'NAME' => 'Scenario empty label', 'TYPE' => 'STRING', 'DEFAULT' => ''],
+        'SCENARIO_OPTIONS' => ['PARENT' => 'ADDITIONAL_SETTINGS', 'NAME' => 'Scenario options value|label', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'SHOW_QUALIFICATION' => [
             'PARENT' => 'ADDITIONAL_SETTINGS',
             'NAME' => 'Show optional qualification fields',

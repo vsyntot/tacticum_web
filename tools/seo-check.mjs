@@ -15,6 +15,10 @@ const HTTP_BASE_URL = (process.env.TACTICUM_SEO_CHECK_BASE_URL || SITE).replace(
 const expectedStaticPages = new Map([
   ['index.php', '/'],
   ['about/index.php', '/about/'],
+  ['platform/index.php', '/platform/'],
+  ['agents/index.php', '/agents/'],
+  ['dev/index.php', '/dev/'],
+  ['forum/index.php', '/forum/'],
   ['aiagents/index.php', '/aiagents/'],
   ['calculator/index.php', '/calculator/'],
   ['contacts/index.php', '/contacts/'],
@@ -47,6 +51,36 @@ const expectedTopMenuUrls = [
   '/offer/',
   '/calculator/',
   '/aiagents/'
+];
+
+const expectedProductMenuUrls = [
+  '/platform/',
+  '/agents/',
+  '/dev/',
+  '/forum/'
+];
+
+const expectedProductScenarioValues = [
+  'platform-assessment',
+  'platform-pilot',
+  'deployment-readiness',
+  'agent-scenario-selection',
+  'rag-documents-check',
+  'pilot-rollout',
+  'ai-workflow-assessment',
+  'quality-gates-pilot',
+  'design-system-guardrails',
+  'dialog-flow-assessment',
+  'scenario-llm-pilot',
+  'support-analytics-review'
+];
+
+const forbiddenProductSchemaFields = [
+  'aggregateRating',
+  'review',
+  'offers',
+  'price',
+  'priceCurrency'
 ];
 
 const errors = [];
@@ -215,7 +249,8 @@ function assertCanonicalPaths() {
 function assertTopMenuProminence() {
   const menuSource = [
     read('.top.menu.php'),
-    read('services/.left.menu.php')
+    read('services/.left.menu.php'),
+    read('platform/.left.menu.php')
   ].join('\n');
   const bottomMenuSource = read('.bottom.menu.php');
   const servicesTemplateSource = read('local/templates/tacticum/components/bitrix/news.list/services/template.php');
@@ -245,10 +280,18 @@ function assertTopMenuProminence() {
       fail(`bottom menu structure is missing money page ${url}`);
     }
   }
+  for (const url of expectedProductMenuUrls) {
+    if (!menuSource.includes(`"${url}"`) && !menuSource.includes(`'${url}'`)) {
+      fail(`top/product menu structure is missing product page ${url}`);
+    }
+    if (!bottomMenuSource.includes(`"${url}"`) && !bottomMenuSource.includes(`'${url}'`)) {
+      fail(`bottom menu structure is missing product page ${url}`);
+    }
+  }
   if (!servicesTemplateSource.includes('href="/offer/"') || !servicesTemplateSource.includes('Расчет проекта')) {
     fail('services block must include /offer/ as Расчет проекта');
   }
-  for (const relativeFooterUrl of ['"services/"', '"price/"', '"offer/"', '"calculator/"', '"aiagents/"']) {
+  for (const relativeFooterUrl of ['"services/"', '"price/"', '"offer/"', '"calculator/"', '"aiagents/"', '"platform/"', '"agents/"', '"dev/"', '"forum/"']) {
     if (bottomMenuSource.includes(relativeFooterUrl)) {
       fail(`bottom menu must use absolute public URLs, found ${relativeFooterUrl}`);
     }
@@ -361,6 +404,12 @@ function assertOfferCatalogRouting() {
 }
 
 function assertPublicPageComponentization() {
+  const productPages = [
+    'platform/index.php',
+    'agents/index.php',
+    'dev/index.php',
+    'forum/index.php'
+  ];
   const ctaPages = [
     'index.php',
     'calculator/index.php',
@@ -389,6 +438,10 @@ function assertPublicPageComponentization() {
     'price/index.php',
     'contacts/index.php',
     'services/index.php',
+    'platform/index.php',
+    'agents/index.php',
+    'dev/index.php',
+    'forum/index.php',
     'aiagents/index.php',
     'offer/index.php',
     'policies/index.php',
@@ -414,11 +467,88 @@ function assertPublicPageComponentization() {
     'aiagents/index.php',
     'offer/index.php',
     'policies/index.php',
+    'platform/index.php',
+    'agents/index.php',
+    'dev/index.php',
+    'forum/index.php',
     '404.php',
     'local/components/tacticum/aiagents/templates/.default/template.php'
   ];
+  const productRendererSource = read('local/php_interface/include/product_page.php');
+  const leadCtaComponentSource = read('local/components/tacticum/lead.cta/component.php');
+  const leadCtaFormTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/form.php');
+  const formEndpointSource = read('local/rest/tacticum_form.php');
 
   assertLocalComponentMetadata();
+
+  if (!productRendererSource.includes("'SCENARIO_OPTIONS'")) {
+    fail('product page renderer must pass product scenario options into tacticum:lead.cta');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_render_rollout')) {
+    fail('product page renderer must support the product rollout delivery model block');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_render_proof')) {
+    fail('product page renderer must support product proof readiness blocks');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_schema') || !productRendererSource.includes('tacticum_product_page_software_schema')) {
+    fail('product page renderer must build product JSON-LD schema from shared product page data');
+  }
+  if (!productRendererSource.includes("'@type' => 'SoftwareApplication'") || !productRendererSource.includes("'@id' => tacticum_public_url") || !productRendererSource.includes("'provider'") || !productRendererSource.includes("'isPartOf'")) {
+    fail('product page schema helper must include stable SoftwareApplication identity, provider and isPartOf references');
+  }
+  if (!productRendererSource.includes('tacticum_product_page_faq_schema') || !productRendererSource.includes("'@type' => 'FAQPage'") || !productRendererSource.includes("'acceptedAnswer'")) {
+    fail('product page schema helper must expose rendered static product FAQ as FAQPage JSON-LD');
+  }
+  if (!leadCtaComponentSource.includes('SCENARIO_OPTIONS') || !leadCtaComponentSource.includes('normalizeScenarioOptions')) {
+    fail('tacticum:lead.cta component must support normalized scenario options');
+  }
+  if (!leadCtaFormTemplateSource.includes('name="lead_scenario"')) {
+    fail('tacticum:lead.cta template must render optional lead_scenario select');
+  }
+  for (const scenarioValue of expectedProductScenarioValues) {
+    if (!formEndpointSource.includes(`'${scenarioValue}'`)) {
+      fail(`tacticum_form.php must map product lead_scenario value ${scenarioValue}`);
+    }
+  }
+
+  for (const file of productPages) {
+    const source = read(file);
+    const productDataIndex = source.indexOf('$tacticumProductPage =');
+    const seoIndex = source.indexOf('tacticum_apply_seo_defaults');
+    const renderIndex = source.indexOf('tacticum_render_product_page($tacticumProductPage)');
+    if (productDataIndex < 0) {
+      fail(`${file} must define one product page data array before SEO and render`);
+    }
+    if (seoIndex < 0 || (productDataIndex >= 0 && seoIndex < productDataIndex)) {
+      fail(`${file} must build SEO schema after product page data is defined`);
+    }
+    if (renderIndex < 0 || (seoIndex >= 0 && renderIndex < seoIndex)) {
+      fail(`${file} must render the same product page data after SEO defaults`);
+    }
+    if (!source.includes('tacticum_render_product_page')) {
+      fail(`${file} must render through the shared product page renderer`);
+    }
+    if (!/SetPageProperty\s*\(\s*["']tacticum_page_assets["']\s*,\s*["'][^"']*\bfaq\b/.test(source)) {
+      fail(`${file} must request faq.js through tacticum_page_assets=faq`);
+    }
+    if (!source.includes("'scenario_options'") && !source.includes('"scenario_options"')) {
+      fail(`${file} must provide product scenario options for CTA qualification`);
+    }
+    if (!source.includes("'rollout'") && !source.includes('"rollout"')) {
+      fail(`${file} must include product rollout/delivery model steps`);
+    }
+    if (!source.includes("'proof'") && !source.includes('"proof"')) {
+      fail(`${file} must include product proof readiness items`);
+    }
+    if (!source.includes("'schema' => tacticum_product_page_schema(")) {
+      fail(`${file} must add SoftwareApplication and FAQPage JSON-LD through tacticum_product_page_schema`);
+    }
+    for (const forbiddenField of forbiddenProductSchemaFields) {
+      if (source.includes(`'${forbiddenField}'`) || source.includes(`"${forbiddenField}"`)) {
+        fail(`${file} product schema must not include risky commercial field ${forbiddenField}`);
+      }
+    }
+  }
 
   for (const file of ctaPages) {
     const source = read(file);

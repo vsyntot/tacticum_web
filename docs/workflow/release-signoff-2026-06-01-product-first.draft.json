@@ -1,0 +1,79 @@
+{
+  "release": {
+    "id": "2026-06-01-product-first",
+    "date": "2026-06-01",
+    "commit": "working-tree-2026-06-01-product-first",
+    "base_url": "https://tacticum.ru"
+  },
+  "gates": {
+    "automated-deploy-smoke": {
+      "status": "pending",
+      "owner": "DevOps + QA",
+      "due": "after-product-first-deploy-cache-refresh",
+      "reason": "Product-first public pages, navigation, CTA contexts and FAQ assets require production/staging smoke after deploy and Bitrix cache refresh."
+    },
+    "seo-rendered-head": {
+      "status": "pending",
+      "owner": "SEO + QA",
+      "due": "after-product-first-deploy-cache-refresh",
+      "reason": "Rendered head, sitemap coverage and product SoftwareApplication/FAQPage schema must be confirmed for /platform/, /agents/, /dev/, /forum/ plus preserved money pages after deploy."
+    },
+    "price-team-presets": {
+      "status": "pending",
+      "owner": "QA + Frontend",
+      "due": "after-product-first-deploy-cache-refresh",
+      "reason": "Product-first release preserved /price/ staff flow; desktop/mobile team presets and persistent summary still need post-deploy smoke."
+    },
+    "css-js-e2e-readiness": {
+      "status": "pending",
+      "owner": "Frontend + QA",
+      "due": "after-product-first-deploy-cache-refresh",
+      "reason": "Product FAQ assets, navigation and public page layout need production visual/browser e2e readiness evidence."
+    },
+    "manual-success-flow": {
+      "status": "pending",
+      "owner": "QA + Backend/Frontend",
+      "due": "before-strict-product-first-release-closure",
+      "reason": "Product-aware CTA contexts were added across product and commercial pages; controlled staging or production success-flow must confirm forms without exposing PII.",
+      "evidence": {
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    },
+    "metrika-goals": {
+      "status": "pending",
+      "owner": "PM/Marketing + QA",
+      "due": "before-strict-product-first-release-closure",
+      "reason": "No new analytics events were added, but affected form/chat goals must be confirmed after product-first CTA/navigation changes.",
+      "evidence": {
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    },
+    "config-sync": {
+      "status": "not_applicable",
+      "owner": "DevOps",
+      "reason": "No config keys or production config values changed in the product-first release scope."
+    },
+    "bitrix-admin": {
+      "status": "pending",
+      "owner": "QA/Admin",
+      "due": "after-product-first-deploy-cache-refresh",
+      "reason": "Public page entries, menu files and template assets changed; authenticated Bitrix admin/public toolbar smoke is required after cache refresh.",
+      "evidence": {
+        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-bitrix-admin",
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+      }
+    },
+    "legacy-sunset": {
+      "status": "not_applicable",
+      "owner": "Architect + Backend",
+      "reason": "No legacy sale aliases or sunset behavior changed in this release scope."
+    },
+    "staff-sale-upstream": {
+      "status": "not_applicable",
+      "owner": "Architect + Backend + QA + DevOps",
+      "reason": "No staff_sale endpoint path, workers_json schema or upstream workers contract changed in this release scope."
+    }
+  }
+}

@@ -16,6 +16,7 @@
 | Процесс | `discovery`, `MVP`, `интеграции`, `тестирование`, `запуск`, `support` | `/services/`, `/calculator/`, `/offer/`, `/price/` | Delivery/PM owner | Использовать как описание этапов, не как гарантию срока |
 | Команда | `подбор ролей под задачу`, `аналитики, инженеры и разработчики`, `управляемая команда` | `/price/`, `/about/`, shared CTA | PM + Delivery owner | Не писать число специалистов без source sign-off |
 | Примеры расчётов | `пример`, `предварительная оценка`, `ориентир`, `не финальная смета` | `/offer/`, `/calculator/`, offer detail | Offer content model; owner Analyst/PM | Обязательно сохранять disclaimer о персональной оценке |
+| Пилотные проверочные артефакты | `что проверяем на пилоте`, `контрольный набор вопросов`, `карта обращений`, `roadmap production-перехода`, `журнал изменений` | `/platform/`, `/agents/`, `/dev/`, `/forum/` | Product/PM owner | Можно описывать как предмет проверки, но не как достигнутый результат |
 | Юридические данные | ООО, ИНН, КПП, ОГРН, ОКВЭД, адрес | `/contacts/`, footer | Public registry/legal owner | Перепроверять при изменении реквизитов |
 | Технологии | Названия стеков, интеграций и AI-сценариев | `/services/`, `/aiagents/`, cases/offers | Delivery/Architect owner | Без claims о superiority/performance без evidence |
 
@@ -41,3 +42,7 @@
 ## Sprint 16 Runtime Decision
 
 В Sprint 16 оставшиеся runtime numeric claims на `/about/` заменены на качественные proof statements. До появления внешнего evidence числовые claims считаются backlog-кандидатами, а не допустимой публичной копией.
+
+## Product-First Runtime Decision
+
+01.06.2026 product pages используют proof readiness wording: публично показывается, какие артефакты проверяются на пилоте, но не публикуются проценты, customer logos, benchmark results, SLA или regulatory statuses. Реальные case metrics можно добавлять только после owner/source/checked_at и release sign-off.

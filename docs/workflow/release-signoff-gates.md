@@ -11,7 +11,7 @@ PM не закрывает release issue, пока для затронутых �
 | Gate | Когда обязателен | Owner | Evidence |
 |---|---|---|---|
 | `automated-deploy-smoke` | Любой production deploy | DevOps | Лог `health_config`, `visual:smoke`, warning-aware `browser:console` из `deploy.yml`; ссылки на оба smoke manifest |
-| `seo-rendered-head` | Изменены публичные страницы, template head, SEO helper, sitemap/robots или assets, влияющие на rendered head | SEO + QA | `visual:smoke` manifest: для затронутых URL `seoErrors=[]`, `seoHead` содержит уникальные title/description/canonical/OpenGraph |
+| `seo-rendered-head` | Изменены публичные страницы, template head, SEO helper, sitemap/robots или assets, влияющие на rendered head | SEO + QA | `visual:smoke` manifest: для затронутых URL `seoErrors=[]`, `seoHead` содержит уникальные title/description/canonical/OpenGraph; product URLs содержат rendered `SoftwareApplication` + `FAQPage` |
 | `price-team-presets` | Изменены `/price/`, price component JS/template/style или staff-order flow | QA + Frontend | `browser:smoke` manifest: action `price team presets/summary` = `ok` для desktop/mobile, detail содержит `workers` и budget |
 | `css-js-e2e-readiness` | Изменены CSS/JS, frontend assets, visual-smoke tooling или deploy/cache behavior | Frontend + QA | `e2e:css-js:prod` passed; при CSS PR также `e2e:css-js:local` passed; manifest не содержит browser/runtime/action blockers или `consoleWarnings` |
 | `manual-success-flow` | Изменены формы, чат, prefill, sale/staff-order или upstream adapter | QA + Backend/Frontend owner | Staging lead ID или controlled production lead с временем проверки |
@@ -27,7 +27,7 @@ PM не закрывает release issue, пока для затронутых �
 
 | Flow | URL / Endpoint | Минимальная проверка |
 |---|---|---|
-| Default lead form | `/local/rest/tacticum_form.php` | Валидная форма возвращает `success=true`, upstream принял лид |
+| Default lead form | `/local/rest/tacticum_form.php` | Валидная форма возвращает `success=true`, upstream принял лид; для product CTA controlled `lead_scenario` select уходит только в lead payload |
 | Modal form | footer modal | Открытие, отправка, success state, закрытие modal |
 | AI chat | `/local/rest/tacticum_chat.php` | Валидное сообщение получает controlled response без raw stack/PII |
 | Prefill | `/local/rest/tacticum_prefill.php` | `group_id + sessid` возвращает ожидаемое заполнение или controlled empty state |
@@ -38,9 +38,9 @@ PM не закрывает release issue, пока для затронутых �
 
 | Evidence | Команда | Что считается passed |
 |---|---|---|
-| Rendered SEO head | `npm run seo:smoke` | В `manifest.json` у затронутых URL нет `seoErrors`; `seoHead` фиксирует один title, одну description, один HTTPS canonical и обязательные OpenGraph meta без дублей |
+| Rendered SEO head | `npm run seo:smoke` | В `manifest.json` у затронутых URL нет `seoErrors`; `seoHead` фиксирует один title, одну description, один HTTPS canonical и обязательные OpenGraph meta без дублей; для `/platform/`, `/agents/`, `/dev/`, `/forum/` manifest фиксирует product `SoftwareApplication` + `FAQPage` schema |
 | `/price/` team presets | `npm run browser:smoke:price` | Для `/price/` desktop/mobile action `price team presets/summary` имеет `status=ok`, а `detail` показывает количество `workers` и рассчитанный monthly budget |
-| CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, `consoleWarnings`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; `/price/` team presets проходят |
+| CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, `consoleWarnings`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; product `lead_scenario` selects and FAQ toggles pass; `/price/` team presets проходят |
 
 ## Sale / Staff Process Rules
 
@@ -53,6 +53,12 @@ PM не закрывает release issue, пока для затронутых �
 
 ```bash
 npm run release:signoff:check -- path/to/release-signoff.json
+```
+
+Product-first draft для релиза `Platform / Agents / Dev / Forum` лежит в `docs/workflow/release-signoff-2026-06-01-product-first.draft.json`. Он намеренно содержит pending gates до deploy/cache refresh and manual evidence closure:
+
+```bash
+npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-06-01-product-first.draft.json
 ```
 
 Regression coverage для самого checker:
@@ -76,7 +82,7 @@ Draft-check не является release closure: перед закрытием
 Если evidence указывает на локальный `manifest.json`, checker парсит его и дополнительно проверяет:
 
 - нет `errors`, `pageErrors`, `consoleErrors`, `networkErrors`, `actionErrors`;
-- для `seo-rendered-head` нет `seoErrors`, есть один title/description/canonical/H1 и обязательные OpenGraph meta;
+- для `seo-rendered-head` нет `seoErrors`, есть один title/description/canonical/H1, обязательные OpenGraph meta and product schema summary for product URLs;
 - для `price-team-presets` action `price team presets/summary` прошёл на desktop/mobile и содержит `workers` + `budget` в detail.
 - для `css-js-e2e-readiness` production visual/browser/price manifests проходят общие browser guards, а `/price/` manifest дополнительно проверяет team presets.
 - release metadata содержит `id`, `date`, `commit`; `date` имеет формат `YYYY-MM-DD`, `base_url` при наличии использует HTTPS, strict mode не принимает `working-tree` commit marker;

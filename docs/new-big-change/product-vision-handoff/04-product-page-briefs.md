@@ -245,3 +245,12 @@ AI-разработка с профилями, knowledge layer, design token com
 - FAQ.
 - Product-aware lead CTA.
 
+## Implementation Notes
+
+- 01.06.2026: первый public slice использует общий renderer `local/php_interface/include/product_page.php`.
+- 01.06.2026: product pages получили reusable rollout block для вопроса "Как это внедряется?" с safe wording: discovery/assessment, pilot, integration/deployment/workflow alignment and rollout/support decision.
+- Публичный rollout block не является pricing/licensing/SLA matrix и не должен включать registry, ПАК, certification, guarantee or hard performance claims без evidence из `07-risk-and-claims-register.md`.
+- 01.06.2026: product pages получили reusable proof readiness block для вопроса "Какие доказательства есть?": он описывает, что проверяется на пилоте и какие артефакты нужны, но не публикует метрики, logos, testimonials, benchmarks or regulatory proof.
+- 01.06.2026: product pages получили минимальную `SoftwareApplication` JSON-LD schema. Она описывает page/product identity, но не содержит offers, pricing, ratings, reviews, logos or proof claims.
+- 01.06.2026: product pages переведены на единый data -> schema -> render flow: `$tacticumProductPage` питает HTML, `SoftwareApplication` and `FAQPage` JSON-LD, поэтому видимый static FAQ и structured data синхронизированы.
+- 01.06.2026: rendered smoke gate проверяет deployed product schema: `/platform/`, `/agents/`, `/dev/`, `/forum/` должны иметь `SoftwareApplication` and `FAQPage` в `seoHead.productSchemaSummary` без risky commercial fields.

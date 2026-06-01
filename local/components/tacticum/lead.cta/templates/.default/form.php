@@ -74,28 +74,41 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
         <?php endif; ?>
     </div>
 
-    <?php if ($arResult['SHOW_QUALIFICATION']): ?>
+    <?php if (!empty($arResult['SCENARIO_OPTIONS']) || $arResult['SHOW_QUALIFICATION']): ?>
         <div class="<?=htmlspecialcharsbx($gridClass)?>">
-            <div class="<?=htmlspecialcharsbx($fieldClass)?>">
-                <label for="<?=htmlspecialcharsbx($budgetId)?>" class="<?=htmlspecialcharsbx($selectLabelClass)?>">Бюджетный ориентир</label>
-                <select id="<?=htmlspecialcharsbx($budgetId)?>" name="lead_budget" class="<?=htmlspecialcharsbx($selectControlClass)?>">
-                    <option value="">Пока не определен</option>
-                    <option value="up-to-1m">до 1 млн руб.</option>
-                    <option value="1-3m">1-3 млн руб.</option>
-                    <option value="3-7m">3-7 млн руб.</option>
-                    <option value="7m-plus">7+ млн руб.</option>
-                </select>
-            </div>
-            <div class="<?=htmlspecialcharsbx($fieldClass)?>">
-                <label for="<?=htmlspecialcharsbx($timelineId)?>" class="<?=htmlspecialcharsbx($selectLabelClass)?>">Желаемый срок</label>
-                <select id="<?=htmlspecialcharsbx($timelineId)?>" name="lead_timeline" class="<?=htmlspecialcharsbx($selectControlClass)?>">
-                    <option value="">Обсуждается</option>
-                    <option value="asap">Нужен быстрый старт</option>
-                    <option value="1-2-months">1-2 месяца</option>
-                    <option value="3-6-months">3-6 месяцев</option>
-                    <option value="6-plus-months">Дольше 6 месяцев</option>
-                </select>
-            </div>
+            <?php if (!empty($arResult['SCENARIO_OPTIONS'])): ?>
+                <div class="<?=htmlspecialcharsbx($fieldClass)?>">
+                    <label for="<?=htmlspecialcharsbx($scenarioId)?>" class="<?=htmlspecialcharsbx($selectLabelClass)?>"><?=htmlspecialcharsbx($arResult['SCENARIO_LABEL'])?></label>
+                    <select id="<?=htmlspecialcharsbx($scenarioId)?>" name="lead_scenario" class="<?=htmlspecialcharsbx($selectControlClass)?>">
+                        <option value=""><?=htmlspecialcharsbx($arResult['SCENARIO_EMPTY_LABEL'])?></option>
+                        <?php foreach ($arResult['SCENARIO_OPTIONS'] as $scenarioOption): ?>
+                            <option value="<?=htmlspecialcharsbx($scenarioOption['VALUE'])?>"><?=htmlspecialcharsbx($scenarioOption['LABEL'])?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            <?php endif; ?>
+            <?php if ($arResult['SHOW_QUALIFICATION']): ?>
+                <div class="<?=htmlspecialcharsbx($fieldClass)?>">
+                    <label for="<?=htmlspecialcharsbx($budgetId)?>" class="<?=htmlspecialcharsbx($selectLabelClass)?>">Бюджетный ориентир</label>
+                    <select id="<?=htmlspecialcharsbx($budgetId)?>" name="lead_budget" class="<?=htmlspecialcharsbx($selectControlClass)?>">
+                        <option value="">Пока не определен</option>
+                        <option value="up-to-1m">до 1 млн руб.</option>
+                        <option value="1-3m">1-3 млн руб.</option>
+                        <option value="3-7m">3-7 млн руб.</option>
+                        <option value="7m-plus">7+ млн руб.</option>
+                    </select>
+                </div>
+                <div class="<?=htmlspecialcharsbx($fieldClass)?>">
+                    <label for="<?=htmlspecialcharsbx($timelineId)?>" class="<?=htmlspecialcharsbx($selectLabelClass)?>">Желаемый срок</label>
+                    <select id="<?=htmlspecialcharsbx($timelineId)?>" name="lead_timeline" class="<?=htmlspecialcharsbx($selectControlClass)?>">
+                        <option value="">Обсуждается</option>
+                        <option value="asap">Нужен быстрый старт</option>
+                        <option value="1-2-months">1-2 месяца</option>
+                        <option value="3-6-months">3-6 месяцев</option>
+                        <option value="6-plus-months">Дольше 6 месяцев</option>
+                    </select>
+                </div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 

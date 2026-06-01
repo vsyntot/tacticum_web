@@ -57,6 +57,7 @@ $companyId = $arResult['FIELD_PREFIX'] . '-company';
 $emailId = $arResult['FIELD_PREFIX'] . '-email';
 $phoneId = $arResult['FIELD_PREFIX'] . '-phone';
 $messageId = $arResult['FIELD_PREFIX'] . '-message';
+$scenarioId = $arResult['FIELD_PREFIX'] . '-scenario';
 $budgetId = $arResult['FIELD_PREFIX'] . '-budget';
 $timelineId = $arResult['FIELD_PREFIX'] . '-timeline';
 $agreementId = $arResult['FIELD_PREFIX'] . '-agreement';

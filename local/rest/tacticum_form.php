@@ -47,6 +47,25 @@ function tacticum_form_build_lead_context(array $data): string
             '3-6-months' => '3-6 месяцев',
             '6-plus-months' => 'дольше 6 месяцев',
         ],
+        'lead_scenario' => [
+            'product-routing' => 'маршрутизация по продуктовой экосистеме',
+            'product-delivery' => 'внедрение продуктового сценария',
+            'product-estimate' => 'уточнение продуктовой оценки',
+            'product-team' => 'подбор команды под продуктовый поток',
+            'contact-routing' => 'маршрутизация обращения',
+            'platform-assessment' => 'assessment текущего AI-контура',
+            'platform-pilot' => 'пилот платформенного ядра',
+            'deployment-readiness' => 'проверка deployment-модели',
+            'agent-scenario-selection' => 'выбор первого бизнес-сценария',
+            'rag-documents-check' => 'проверка документов для RAG',
+            'pilot-rollout' => 'планирование пилота и rollout',
+            'ai-workflow-assessment' => 'оценка AI-assisted workflow',
+            'quality-gates-pilot' => 'пилот quality gates на команде',
+            'design-system-guardrails' => 'связь AI-разработки с дизайн-системой',
+            'dialog-flow-assessment' => 'разбор потока обращений',
+            'scenario-llm-pilot' => 'пилот сценариев с LLM-обогащением',
+            'support-analytics-review' => 'проверка аналитики и эскалаций',
+        ],
     ];
 
     $lines = [];

@@ -10,6 +10,10 @@ import { tmpdir } from 'node:os';
 const DEFAULT_PAGES = [
   '/',
   '/about/',
+  '/platform/',
+  '/agents/',
+  '/dev/',
+  '/forum/',
   '/services/',
   '/price/',
   '/calculator/',
@@ -323,6 +327,38 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
             return null;
           }
         };
+        const normalizeSchemaTypes = (value) => Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+        const collectSchemaItems = (parsed) => {
+          if (Array.isArray(parsed)) {
+            return parsed.flatMap((item) => collectSchemaItems(item));
+          }
+
+          if (!parsed || typeof parsed !== 'object') {
+            return [];
+          }
+
+          const items = [];
+          if (parsed['@type']) {
+            items.push(parsed);
+          }
+          if (Array.isArray(parsed['@graph'])) {
+            items.push(...parsed['@graph'].filter((item) => item && typeof item === 'object'));
+          }
+
+          return items;
+        };
+        const schemaHasField = (value, field) => {
+          if (Array.isArray(value)) {
+            return value.some((item) => schemaHasField(item, field));
+          }
+          if (!value || typeof value !== 'object') {
+            return false;
+          }
+          if (Object.prototype.hasOwnProperty.call(value, field)) {
+            return true;
+          }
+          return Object.values(value).some((item) => schemaHasField(item, field));
+        };
         const head = document.head || document.documentElement;
         const titleElements = Array.from(head.querySelectorAll('title'));
         const descriptions = Array.from(head.querySelectorAll('meta[name]'))
@@ -364,14 +400,15 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         const duplicateTwitterProperties = Object.entries(twitter)
           .filter(([, values]) => values.length > 1)
           .map(([name]) => name);
+        const schemaItems = [];
         const jsonLdScripts = Array.from(head.querySelectorAll('script[type="application/ld+json"]'));
         const jsonLd = jsonLdScripts.map((script) => {
           try {
             const parsed = JSON.parse(script.textContent || '{}');
-            const graph = Array.isArray(parsed?.['@graph']) ? parsed['@graph'] : [];
-            const types = graph
-              .map((item) => item?.['@type'])
-              .filter(Boolean)
+            const items = collectSchemaItems(parsed);
+            schemaItems.push(...items);
+            const types = items
+              .flatMap((item) => normalizeSchemaTypes(item?.['@type']))
               .flat();
             return {
               valid: true,
@@ -384,6 +421,19 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
             };
           }
         });
+        const schemaTypes = schemaItems
+          .flatMap((item) => normalizeSchemaTypes(item?.['@type']))
+          .filter((type, index, types) => type && types.indexOf(type) === index);
+        const currentPath = normalizePath(window.location.pathname);
+        const productPaths = ['/platform', '/agents', '/dev', '/forum'];
+        const isProductPage = productPaths.includes(currentPath);
+        const softwareSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('SoftwareApplication'));
+        const faqSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('FAQPage'));
+        const productSchemaSummary = {
+          softwareApplicationCount: softwareSchemas.length,
+          faqPageCount: faqSchemas.length,
+          schemaTypes
+        };
         const navLinks = Array.from(document.querySelectorAll('header nav a[href], #tacticum-mobile-menu nav a[href]'))
           .map((link) => absoluteUrl(link.href || link.getAttribute('href') || ''))
           .filter(Boolean)
@@ -400,6 +450,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           duplicateTwitterProperties,
           jsonLdCount: jsonLdScripts.length,
           jsonLd,
+          productSchemaSummary,
           navLinks,
           h1Count: document.querySelectorAll('h1').length
         };
@@ -469,6 +520,52 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         if (invalidJsonLd.length > 0) {
           pushSeoError('invalid JSON-LD: ' + invalidJsonLd.map((item) => item.error).join(', '));
         }
+        if (isProductPage) {
+          const currentSoftwareSchemas = softwareSchemas.filter((item) => {
+            const url = absoluteUrl(String(item.url || ''));
+            const id = absoluteUrl(String(item['@id'] || ''));
+            return url
+              && id
+              && normalizePath(url.pathname) === currentPath
+              && normalizePath(id.pathname) === currentPath
+              && id.hash === '#software';
+          });
+          if (currentSoftwareSchemas.length !== 1) {
+            pushSeoError('expected exactly one product SoftwareApplication schema for ' + currentPath + ', got ' + currentSoftwareSchemas.length);
+          } else {
+            const schema = currentSoftwareSchemas[0];
+            if (!schema.name || !schema.description || schema.operatingSystem !== 'Web') {
+              pushSeoError('product SoftwareApplication schema is missing name, description or operatingSystem=Web');
+            }
+            if (!schema.provider?.['@id'] || !schema.isPartOf?.['@id']) {
+              pushSeoError('product SoftwareApplication schema is missing provider or isPartOf reference');
+            }
+            for (const field of ['aggregateRating', 'review', 'offers', 'price', 'priceCurrency']) {
+              if (schemaHasField(schema, field)) {
+                pushSeoError('product SoftwareApplication schema contains forbidden field ' + field);
+              }
+            }
+          }
+
+          const currentFaqSchemas = faqSchemas.filter((item) => {
+            const id = absoluteUrl(String(item['@id'] || ''));
+            return id && normalizePath(id.pathname) === currentPath && id.hash === '#faq';
+          });
+          if (currentFaqSchemas.length !== 1) {
+            pushSeoError('expected exactly one product FAQPage schema for ' + currentPath + ', got ' + currentFaqSchemas.length);
+          } else {
+            const entities = Array.isArray(currentFaqSchemas[0].mainEntity) ? currentFaqSchemas[0].mainEntity : [];
+            if (entities.length < 1) {
+              pushSeoError('product FAQPage schema has no mainEntity questions');
+            }
+            for (const entity of entities) {
+              if (!normalizeSchemaTypes(entity?.['@type']).includes('Question') || !entity.name || !entity.acceptedAnswer?.text) {
+                pushSeoError('product FAQPage schema has an incomplete question/answer entity');
+                break;
+              }
+            }
+          }
+        }
         const ogUrl = absoluteUrl((og['og:url'] || [])[0] || '');
         if (ogUrl) {
           if (ogUrl.protocol !== 'https:') {
@@ -482,10 +579,19 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         if (ogImage && ogImage.protocol !== 'https:') {
           pushSeoError('og:image is not HTTPS');
         }
-        const requiredNavigationPaths = ['/price/', '/offer/', '/calculator/', '/aiagents/'].map(normalizePath);
+        const requiredNavigationPaths = [
+          '/price/',
+          '/offer/',
+          '/calculator/',
+          '/aiagents/',
+          '/platform/',
+          '/agents/',
+          '/dev/',
+          '/forum/'
+        ].map(normalizePath);
         for (const path of requiredNavigationPaths) {
           if (!navLinks.includes(path)) {
-            pushSeoError('top navigation is missing money page ' + path);
+            pushSeoError('rendered navigation is missing required page ' + path);
           }
         }
         return {
@@ -686,6 +792,33 @@ async function runActionSmoke(cdp) {
           });
           return forms.length + ' forms';
         });
+
+        await run('product scenario select', async () => {
+          const select = find('select[name="lead_scenario"]');
+          if (!select) return false;
+          const option = Array.from(select.options || []).find((candidate) => candidate.value);
+          if (!option) {
+            throw new Error('lead_scenario select has no controlled options');
+          }
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          if (select.value !== option.value) {
+            throw new Error('lead_scenario select did not keep selected value');
+          }
+          return option.value;
+        }, ['/platform/', '/agents/', '/dev/', '/forum/'].includes(path));
+
+        await run('product faq toggle', async () => {
+          const item = find('.faq-item');
+          const question = item?.querySelector('.faq-question');
+          if (!item || !question) return false;
+          activate(question);
+          await sleep(120);
+          if (!item.classList.contains('active')) {
+            throw new Error('FAQ item did not become active after click');
+          }
+          return 'faq opened';
+        }, ['/platform/', '/agents/', '/dev/', '/forum/'].includes(path));
 
         await run('contacts message label clearance', async () => {
           const form = find('#contacts-cta-form');

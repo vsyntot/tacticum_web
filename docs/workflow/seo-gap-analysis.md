@@ -50,6 +50,10 @@ Post-deploy закрыты `SEO-001` - `SEO-008`; `SEO-009` принят как 
 - Динамический `/offer/sitemap.php` дедуплицирует offer canonical URL и проверяется `seo:check:prod`.
 - Alt baseline на проверенных production страницах не выявил пропущенных `alt`.
 
+## Product-First Structured Data Update
+
+01.06.2026 product pages `/platform/`, `/agents/`, `/dev/`, `/forum/` получили минимальную page-specific `SoftwareApplication` schema через `tacticum_apply_seo_defaults(...)`. Follow-up hardening перевёл product structured data на `tacticum_product_page_schema(...)`: тот же `$tacticumProductPage`, который рендерит HTML, теперь отдаёт `SoftwareApplication` and `FAQPage` для реально видимого static FAQ. Это не коммерческий proof: schema не содержит `Offer`, pricing, reviews, ratings, customer logos or benchmark fields. `npm run seo:check` фиксирует presence product schema, ordering data -> schema -> render and forbids risky commercial schema fields; rendered `visual-smoke` with `TACTICUM_EXPECT_SEO_HEAD=1` additionally validates deployed product schema and records `productSchemaSummary` in the manifest.
+
 ## Proposed Closure Plan
 
 ### Phase 1 - Indexability And 404

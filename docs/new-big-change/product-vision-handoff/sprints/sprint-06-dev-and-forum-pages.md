@@ -2,7 +2,7 @@
 
 Suggested window: 17.08.2026 - 28.08.2026
 
-Status: planned
+Status: in-progress - first implementation slice added 01.06.2026
 
 ## Sprint Goal
 
@@ -35,15 +35,15 @@ Full Feature Lane with Design, SEO and claim review.
 
 | Item | Description | Owner | Priority | Status |
 |---|---|---|---|---|
-| S06-001 | Implement Tacticum Dev page with safe governance/productivity framing | Frontend + Editor + PM | P1 | planned |
-| S06-002 | Remove or rewrite public workforce reduction language | PM + Legal + Editor | P0 | planned |
-| S06-003 | Show Dev layers: profiles, RE knowledge, design tokens, gates, MCP bundles | Frontend + Architect | P1 | planned |
-| S06-004 | Implement Tacticum Forum page | Frontend + Editor + PM | P1 | planned |
-| S06-005 | Show Forum model: scenario + LLM, Needs Catalog, A/B tests, analytics, journal | Frontend + Designer | P1 | planned |
-| S06-006 | Add product-aware CTAs for Dev and Forum | Frontend + Backend + QA | P1 | planned |
-| S06-007 | Add safe proof/benchmark sections | PM + Editor + Legal | P1 | planned |
-| S06-008 | Add SEO metadata and canonical/sitemap coverage | SEO + Dev | P1 | planned |
-| S06-009 | Add product FAQs | Editor + Frontend | P2 | planned |
+| S06-001 | Implement Tacticum Dev page with safe governance/productivity framing | Frontend + Editor + PM | P1 | done-first-slice |
+| S06-002 | Remove or rewrite public workforce reduction language | PM + Legal + Editor | P0 | done-first-slice |
+| S06-003 | Show Dev layers: profiles, RE knowledge, design tokens, gates, MCP bundles | Frontend + Architect | P1 | done-first-slice |
+| S06-004 | Implement Tacticum Forum page | Frontend + Editor + PM | P1 | done-first-slice |
+| S06-005 | Show Forum model: scenario + LLM, Needs Catalog, A/B tests, analytics, journal | Frontend + Designer | P1 | done-first-slice |
+| S06-006 | Add product-aware CTAs for Dev and Forum | Frontend + Backend + QA | P1 | done-with-scenario-select |
+| S06-007 | Add safe proof/benchmark sections | PM + Editor + Legal | P1 | proof-readiness-added-evidence-pending |
+| S06-008 | Add SEO metadata and canonical/sitemap coverage | SEO + Dev | P1 | done-static-guard-and-product-schema |
+| S06-009 | Add product FAQs | Editor + Frontend | P2 | done-static-faq |
 
 ## Out Of Scope
 
@@ -104,8 +104,8 @@ Manual smoke:
 
 | Scenario | Expected |
 |---|---|
-| Dev CTA | Form carries Dev context |
-| Forum CTA | Form carries Forum context |
+| Dev CTA | Form carries Dev context and controlled scenario select |
+| Forum CTA | Form carries Forum context and controlled scenario select |
 | Dev claim scan | No workforce reduction public claim |
 | Forum metrics scan | No unapproved hard performance promise |
 | Mobile product pages | Text/cards/tables do not overlap |
@@ -123,12 +123,37 @@ Manual smoke:
 
 ### Done
 
-- To be filled at sprint end.
+- 01.06.2026 first implementation slice:
+  - `/dev/` page added with safe governance/productivity framing and no public workforce reduction claims;
+  - `/forum/` page added with scenario + LLM framing, analytics/journal modules and product-aware CTA;
+  - both pages show Platform relation and have unique SEO metadata;
+  - navigation and footer expose both URLs.
+- 01.06.2026 FAQ hardening slice:
+  - `/dev/` and `/forum/` received static product FAQ content through the shared product page renderer;
+  - existing `faq.js` is loaded through `tacticum_page_assets=faq`;
+  - FAQ copy stays within safe governance/pilot/integration wording and avoids unapproved benchmarks.
+- 01.06.2026 CTA qualification slice:
+  - `/dev/` and `/forum/` product forms received optional controlled `lead_scenario` select through shared `tacticum:lead.cta`;
+  - no new required fields, JS/CSS assets, analytics params or REST/upstream contract changes were added.
+- 01.06.2026 rollout/delivery model slice:
+  - shared product renderer received reusable rollout block;
+  - `/dev/` now explains one-team/one-stack workflow rollout, and `/forum/` explains one-dialog-flow rollout;
+  - no workforce reduction, benchmark, automation-rate, SLA, guarantee or channel-readiness claims were added.
+- 01.06.2026 proof readiness slice:
+  - shared product renderer received reusable proof readiness block;
+  - `/dev/` and `/forum/` now describe pilot evidence artifacts without publishing workforce, benchmark, automation-rate or channel-readiness claims;
+  - real benchmark/proof content remains evidence pending.
+- 01.06.2026 structured-data slice:
+  - `/dev/` and `/forum/` received minimal `SoftwareApplication` JSON-LD through SEO helper options;
+  - schema intentionally excludes offers/pricing/reviews/ratings and proof claims.
 
 ### Not Done
 
-- To be filled at sprint end.
+- Public benchmark/metric proof remains deferred until evidence and legal status are approved.
+- Browser/visual smoke still requires local Bitrix runtime or post-deploy smoke.
 
 ### Follow-Up
 
-- To be filled at sprint end.
+- Add verified proof only through the claim register.
+- Add product FAQ content when FAQ section keys and content are ready.
+- Keep Dev public language focused on governance, quality, architecture and team maturity.
