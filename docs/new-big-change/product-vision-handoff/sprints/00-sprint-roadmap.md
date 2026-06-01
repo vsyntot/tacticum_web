@@ -34,6 +34,22 @@
 | `PV-006`, `PV-007`, `PV-012`, `PV-013`, `PV-014`, `PV-016`, `PV-018`, `PV-019` | Sprint 07 |
 | All release gates | Sprint 08 |
 
+Detailed crosswalk for `PTC-*`, `PB-*`, `CJM-*`, `UI-*`, `ARCH-*`, `SEO-TOBE-*` and `REL-*` lives in `99-gap-to-sprint-traceability.md`.
+
+## Challenge Backlog Coverage
+
+| Sprint | Challenge / Backlog Focus |
+|---|---|
+| 00 | `PTC-001`, `PTC-002`, `PTC-008`, `PTC-009`, `PB-001` - `PB-008` |
+| 01 | `PTC-002` - `PTC-006`, `CJM-001` - `CJM-006`, `SEO-TOBE-001`, `SEO-TOBE-002` |
+| 02 | `PTC-010`, `PTC-011`, `PTC-016`, `UI-001` - `UI-008`, `UIX-001` - `UIX-010` |
+| 03 | `PTC-012` - `PTC-015`, `PTC-017`, `ARCH-001` - `ARCH-005` |
+| 04 | `PTC-001`, `PTC-004`, `CJM-001`, homepage/navigation parts of `UIX-001` |
+| 05 | `PTC-003`, `PTC-005`, `PTC-006`, Platform/Agents parts of `PB-002`, `PB-003`, `CJM-003` |
+| 06 | `PTC-003`, `PTC-006`, `PTC-007`, Dev/Forum parts of `PB-004`, `CJM-006` |
+| 07 | `PTC-008`, `PTC-009`, `PTC-012`, `PTC-013`, `PTC-018`, `ARCH-003`, `ARCH-004`, `REL-001` - `REL-006` |
+| 08 | Strict release sign-off, post-deploy smoke and post-launch ownership for all remaining `REL-*` |
+
 ## Critical Path
 
 1. Product decisions and claim evidence.
@@ -44,6 +60,10 @@
 6. Product pages.
 7. Product-aware forms, analytics, SEO, proof hardening.
 8. Release smoke and post-launch measurement.
+
+## Current State Overlay
+
+На 01.06.2026 часть Sprint 03-07 уже реализована как safe MVP slice: shared product data layer, product pages, product navigation, product-aware CTA context, FAQ, rollout, proof readiness and product schema. Это не закрывает Sprint 00-03 задним числом и не отменяет TO BE gaps по evidence, CJM, design system, structured lead fields, content ownership and external release gates.
 
 ## Release Scope Recommendation
 
@@ -80,4 +100,3 @@ Deferrable after first release:
 | Dev page contains workforce reduction claims | Reputation/legal risk | Sprint 00 and Sprint 06 enforce public tone guardrail |
 | Customer proof lacks approval | Legal/reputation risk | Sprint 07 claim register must be closed before release |
 | New pages miss SEO/sitemap rules | Indexing/canonical issues | Sprint 01, 07 and 08 include SEO gates |
-

@@ -41,7 +41,7 @@ Full Feature Lane with Security / Integration and SEO gates.
 | S07-002 | Replace/remove unapproved customer logos, testimonials, metrics | PM + Sales + Legal | P0 | partial-about-cleanup |
 | S07-003 | Finalize product-aware lead fields and backend handling | Backend + QA + PM | P1 | done-with-existing-allowlist-and-scenario-select |
 | S07-004 | Update lead form contract | Backend + PM + QA | P1 | done-first-slice |
-| S07-005 | Update analytics taxonomy and no-PII event rules | PM + Frontend + Analytics | P1 | not-needed-no-new-events |
+| S07-005 | Update analytics taxonomy and no-PII event rules | PM + Frontend + Analytics | P1 | partial-code-events |
 | S07-006 | Verify SEO metadata, canonical, sitemap and robots for all new URLs | SEO + Dev | P1 | done-static-product-guard-and-schema |
 | S07-007 | Verify browser/visual behavior desktop/mobile | QA + Frontend | P1 | tooling-ready-pending-runtime-smoke |
 | S07-008 | Update current-state/gap-analysis docs after implementation | PM + Dev | P1 | done-first-slice |
@@ -147,6 +147,14 @@ Additional manual checks:
   - deploy lifecycle guard uses `gaps:known` for the existing external handoff and validates product-first draft sign-off;
   - `seo:check` validates product canonical paths and product navigation/footer links;
   - `visual-smoke` includes product pages by default and runs required FAQ toggle action on product pages during browser/action smoke.
+- 01.06.2026 rendered product block evidence slice:
+  - `visual-smoke` records product page `data-product-block` inventory as `productBlocks` / `productBlockErrors`;
+  - `seo:smoke` requires the inventory together with product schema under `TACTICUM_EXPECT_SEO_HEAD=1`;
+  - release sign-off validation blocks `seo-rendered-head` evidence if `/platform/`, `/agents/`, `/dev/` or `/forum/` misses a required product block.
+- 01.06.2026 product block screenshot preview slice:
+  - `visual-smoke` supports `TACTICUM_CAPTURE_PRODUCT_BLOCKS=1` and writes block screenshots to `product-blocks/*.png`;
+  - npm scripts `product:block-previews` and `product:block-previews:prod` capture `/platform/`, `/agents/`, `/dev/`, `/forum/`;
+  - workflow runbook added in `docs/workflow/product-block-preview-workflow.md`.
 - 01.06.2026 rollout/delivery model slice:
   - product renderer and product pages now include a safe rollout/delivery model block;
   - `seo:check` guards that product pages keep rollout steps alongside FAQ and CTA qualification.
@@ -157,6 +165,32 @@ Additional manual checks:
 - 01.06.2026 structured-data slice:
   - product pages now include minimal `SoftwareApplication` JSON-LD via SEO helper options;
   - `seo:check` guards product schema presence and blocks risky commercial schema fields.
+- 01.06.2026 product data layer slice:
+  - product page entries stay thin and load allowlisted data through `tacticum_product_page_data(...)`;
+  - core product content moved to `local/php_interface/include/product_data/*.php`;
+  - `seo:check` guards shared data files as the source for CTA scenario options, fit guide, procurement, use-case anatomy, comparison, rollout, proof and safe schema inputs.
+- 01.06.2026 product fit guide slice:
+  - product renderer and all four product pages now include `fit_guide` decision-support blocks;
+  - homepage now includes product fit matrix for first-level product routing;
+  - `seo:check` guards that product pages keep fit guide items alongside rollout, proof, FAQ and CTA qualification, and that homepage keeps the product fit matrix;
+  - the slice advances CJM/product fit without changing REST/upstream/forms/analytics contracts.
+- 01.06.2026 security/procurement path slice:
+  - product renderer and all four product pages now include `procurement` blocks;
+  - `seo:check` guards that product pages keep procurement items alongside fit guide, rollout, proof, FAQ and CTA qualification;
+  - the slice advances security/procurement CJM without adding downloads, new forms, REST endpoints, analytics params or risky public claims.
+- 01.06.2026 use-case anatomy slice:
+  - product renderer and all four product pages now include `use_cases` blocks;
+  - `seo:check` guards that product pages keep use-case anatomy fields: `trigger`, `owner`, `pilot_input`, `pilot_output`, `limitation`;
+  - the slice advances pilotable use-case CJM without adding new form fields, REST/upstream changes, analytics params or public metrics.
+- 01.06.2026 comparison/boundary slice:
+  - product renderer and all four product pages now include `comparison` blocks;
+  - `seo:check` guards comparison presence and mutual Agents/Forum links;
+  - the slice advances product-boundary clarity without changing URL/canonical/REST/forms/analytics behavior.
+- 01.06.2026 product analytics slice:
+  - `analytics.js` emits product view and product CTA click events;
+  - `forms.js` emits product form submit/success/error mirrors with allowlisted `product`, `page_role` and controlled `scenario`;
+  - budget, timeline, offer title/code, industry, free text and contact fields remain excluded from analytics;
+  - `seo:check` guards event presence and controlled-value allowlist.
 
 ### Not Done
 
@@ -164,6 +198,8 @@ Additional manual checks:
 - Public metrics/logos/testimonials/benchmarks remain blocked until evidence and legal approval.
 - Browser/visual smoke still requires local Bitrix runtime or post-deploy smoke.
 - Product-first strict release sign-off is not closed while draft gates remain pending.
+- Метрика goal configuration and product funnel evidence remain external release gates.
+- Isolated Storybook-like component previews are not implemented; current preview workflow is rendered-page screenshots by block.
 
 ### Follow-Up
 

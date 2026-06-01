@@ -44,12 +44,15 @@ const injectedJs = injectedJsFiles.length > 0
   : '';
 const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
 const expectSeoHead = isTruthy(process.env.TACTICUM_EXPECT_SEO_HEAD);
+const expectProductBlocks = expectSeoHead || isTruthy(process.env.TACTICUM_EXPECT_PRODUCT_BLOCKS);
+const captureProductBlocks = isTruthy(process.env.TACTICUM_CAPTURE_PRODUCT_BLOCKS);
 const expectPriceTeamPresets = isTruthy(process.env.TACTICUM_EXPECT_PRICE_TEAM_PRESETS);
 const failOnWarnings = isTruthy(process.env.TACTICUM_VISUAL_FAIL_ON_WARNINGS);
 
 const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10);
 const minScreenshotBytes = Number.parseInt(process.env.TACTICUM_VISUAL_MIN_BYTES || '50000', 10);
 const maxHorizontalOverflow = Number.parseInt(process.env.TACTICUM_VISUAL_MAX_OVERFLOW || '8', 10);
+const maxProductBlockPreviewHeight = Number.parseInt(process.env.TACTICUM_PRODUCT_BLOCK_MAX_HEIGHT || '2600', 10);
 
 let chrome;
 let userDataDir;
@@ -94,7 +97,7 @@ try {
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectPriceTeamPresets, failOnWarnings, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectProductBlocks, captureProductBlocks, expectPriceTeamPresets, failOnWarnings, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -145,6 +148,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     actions: [],
     seoHead: null,
     seoErrors: [],
+    productBlocks: null,
+    productBlockErrors: [],
+    productBlockScreenshots: [],
     screenshotPath,
     screenshotBytes: 0,
     errors,
@@ -315,6 +321,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         const body = document.body;
         const viewportWidth = Math.max(doc.clientWidth, window.innerWidth || 0);
         const expectSeoHead = ${expectSeoHead ? 'true' : 'false'};
+        const expectProductBlocks = ${expectProductBlocks ? 'true' : 'false'};
         const normalizePath = (value) => {
           const normalized = value || '/';
           if (normalized === '/') return '/';
@@ -427,6 +434,36 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         const currentPath = normalizePath(window.location.pathname);
         const productPaths = ['/platform', '/agents', '/dev', '/forum'];
         const isProductPage = productPaths.includes(currentPath);
+        const requiredProductBlocks = [
+          'hero',
+          'fit-guide',
+          'content-section',
+          'architecture',
+          'use-cases',
+          'comparison',
+          'procurement',
+          'rollout',
+          'proof',
+          'faq',
+          'lead-cta'
+        ];
+        const foundProductBlocks = Array.from(document.querySelectorAll('[data-product-block]'))
+          .map((element) => (element.getAttribute('data-product-block') || '').trim())
+          .filter(Boolean)
+          .filter((block, index, blocks) => blocks.indexOf(block) === index);
+        const missingProductBlocks = isProductPage
+          ? requiredProductBlocks.filter((block) => !foundProductBlocks.includes(block))
+          : [];
+        const productBlocks = {
+          isProductPage,
+          required: isProductPage ? requiredProductBlocks : [],
+          found: foundProductBlocks,
+          missing: missingProductBlocks
+        };
+        const productBlockErrors = [];
+        if (isProductPage && expectProductBlocks && missingProductBlocks.length > 0) {
+          productBlockErrors.push('missing product blocks on ' + currentPath + ': ' + missingProductBlocks.join(', '));
+        }
         const softwareSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('SoftwareApplication'));
         const faqSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('FAQPage'));
         const productSchemaSummary = {
@@ -623,7 +660,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
             .map((img) => img.currentSrc || img.src || img.alt || '')
             .slice(0, 20),
           seoHead,
-          seoErrors
+          seoErrors,
+          productBlocks,
+          productBlockErrors
         };
       })()`,
     });
@@ -638,6 +677,10 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     const png = Buffer.from(screenshot.data, 'base64');
     await writeFile(screenshotPath, png);
     result.screenshotBytes = png.length;
+
+    if (captureProductBlocks && result.productBlocks?.isProductPage) {
+      await captureProductBlockPreviews(cdp, result, screenshotPath);
+    }
 
     if (!result.status || result.status >= 400) {
       errors.push(`document status ${result.status || 'unknown'}`);
@@ -674,6 +717,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     if (result.seoErrors.length > 0) {
       errors.push(`seo head errors: ${result.seoErrors.slice(0, 3).join(' | ')}`);
     }
+    if (result.productBlockErrors.length > 0) {
+      errors.push(`product block errors: ${result.productBlockErrors.slice(0, 3).join(' | ')}`);
+    }
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
   } finally {
@@ -682,6 +728,76 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
   }
 
   return result;
+}
+
+async function captureProductBlockPreviews(cdp, result, screenshotPath) {
+  const response = await cdp.send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `(() => {
+      const maxHeight = ${Number.isFinite(maxProductBlockPreviewHeight) ? maxProductBlockPreviewHeight : 2600};
+      return Array.from(document.querySelectorAll('[data-product-block]'))
+        .map((element, index) => {
+          const rect = element.getBoundingClientRect();
+          const block = (element.getAttribute('data-product-block') || '').trim();
+          const width = Math.ceil(rect.width);
+          const height = Math.ceil(rect.height);
+          const clippedHeight = Math.min(height, maxHeight);
+          return {
+            block,
+            index,
+            x: Math.max(0, Math.floor(rect.left + window.scrollX)),
+            y: Math.max(0, Math.floor(rect.top + window.scrollY)),
+            width,
+            height,
+            clipHeight: Math.max(1, clippedHeight),
+            clipped: height > clippedHeight
+          };
+        })
+        .filter((item) => item.block && item.width > 0 && item.height > 0);
+    })()`,
+  });
+  const blocks = Array.isArray(response?.result?.value) ? response.result.value : [];
+  if (blocks.length === 0) {
+    result.productBlockErrors.push('product block previews requested but no visible product blocks were found');
+    return;
+  }
+
+  const previewDir = join(dirname(screenshotPath), 'product-blocks');
+  await mkdir(previewDir, { recursive: true });
+  const pageLabel = `${slugify(result.page || '/')}-${result.viewport}`;
+
+  for (const item of blocks) {
+    const fileName = `${pageLabel}-${String(item.index + 1).padStart(2, '0')}-${slugify(item.block)}.png`;
+    const previewPath = join(previewDir, fileName);
+
+    try {
+      const preview = await cdp.send('Page.captureScreenshot', {
+        format: 'png',
+        fromSurface: true,
+        clip: {
+          x: item.x,
+          y: item.y,
+          width: Math.max(1, item.width),
+          height: Math.max(1, item.clipHeight),
+          scale: 1,
+        },
+      });
+      const buffer = Buffer.from(preview.data, 'base64');
+      await writeFile(previewPath, buffer);
+      result.productBlockScreenshots.push({
+        block: item.block,
+        index: item.index,
+        path: previewPath,
+        width: item.width,
+        height: item.height,
+        clipHeight: item.clipHeight,
+        clipped: Boolean(item.clipped),
+        bytes: buffer.length,
+      });
+    } catch (error) {
+      result.productBlockErrors.push(`product block preview failed for ${item.block}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 }
 
 async function getDocumentReadyState(cdp) {
@@ -1294,10 +1410,14 @@ function formatResult(result) {
   const runtimeIssues = result.pageErrors.length + result.consoleErrors.length + result.networkErrors.length;
   const warningSummary = result.consoleWarnings.length > 0 ? ` warnings=${result.consoleWarnings.length}` : '';
   const seoSummary = result.seoHead ? ` seo=${result.seoErrors.length > 0 ? 'bad' : 'ok'}` : '';
+  const missingProductBlocks = result.productBlocks?.missing?.length || 0;
+  const blockSummary = result.productBlocks?.isProductPage
+    ? ` blocks=${result.productBlockErrors.length > 0 ? 'bad' : missingProductBlocks > 0 ? 'missing' : 'ok'}`
+    : '';
   const actionSummary = result.actions.length > 0
     ? ` actions=${result.actions.filter((action) => action.status === 'ok').length}/${result.actions.length}`
     : '';
-  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${warningSummary}${seoSummary}${actionSummary}`;
+  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${warningSummary}${seoSummary}${blockSummary}${actionSummary}`;
 }
 
 function addUnique(items, item) {

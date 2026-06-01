@@ -17,6 +17,11 @@
 - `../07-risk-and-claims-register.md`;
 - `../08-decisions-and-open-questions.md`;
 - `../09-as-is-to-be-preservation-migration-map.md`;
+- `../10-product-tech-challenge.md`;
+- `../11-use-cases-and-cjm-target.md`;
+- `../12-ux-ui-component-target.md`;
+- `../13-architecture-components-stack-target.md`;
+- `../14-gap-backlog-and-decision-register.md`;
 - `../../../design-system-handoff/`;
 - `../../../workflow/current-state.md`;
 - `../../../workflow/gap-analysis.md`.
@@ -39,6 +44,13 @@
 
 Общая карта и зависимости: `00-sprint-roadmap.md`.
 
+## Контрольные Документы
+
+| Документ | Назначение |
+|---|---|
+| `99-gap-to-sprint-traceability.md` | Показывает, какие AS IS / TO BE gaps, challenge IDs и decision backlog IDs закрывает каждый спринт |
+| `99-sprint-execution-board.md` | Дает PM/lead-level execution board: work packages, blockers, gates, verification and release readiness |
+
 ## Принцип Планирования
 
 Спринты идут в строгой зависимости:
@@ -50,6 +62,8 @@ Sprint 00 -> Sprint 01 -> Sprint 02 -> Sprint 03
 ```
 
 `Sprint 00` нельзя пропускать: без него дизайн и разработка начнут опираться на неподтвержденные regulatory, customer и metric claims.
+
+MVP-срезы, уже добавленные 01.06.2026 в Sprint 03-07, считаются безопасным product-first layer, но не закрывают весь TO BE scope. Они сохраняют AS IS лидогенерацию, добавляют shared product data layer and product pages, однако vendor-grade TO BE требует evidence, CJM, design system, structured qualification, content ownership decision and release gates.
 
 ## Workflow Lane
 

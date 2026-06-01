@@ -11,6 +11,8 @@
     "dev:preflight": "node ./tools/dev-env-preflight.mjs",
     "visual:smoke": "node ./tools/visual-smoke.mjs",
     "visual:smoke:prod": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru node ./tools/visual-smoke.mjs",
+    "product:block-previews": "TACTICUM_VISUAL_PAGES=/platform/,/agents/,/dev/,/forum/ TACTICUM_EXPECT_PRODUCT_BLOCKS=1 TACTICUM_CAPTURE_PRODUCT_BLOCKS=1 node ./tools/visual-smoke.mjs",
+    "product:block-previews:prod": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_PAGES=/platform/,/agents/,/dev/,/forum/ TACTICUM_EXPECT_PRODUCT_BLOCKS=1 TACTICUM_CAPTURE_PRODUCT_BLOCKS=1 node ./tools/visual-smoke.mjs",
     "seo:check": "node ./tools/seo-check.mjs",
     "seo:check:prod": "TACTICUM_SEO_CHECK_BASE_URL=https://tacticum.ru TACTICUM_SEO_CHECK_HTTP=1 node ./tools/seo-check.mjs",
     "seo:smoke": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_EXPECT_SEO_HEAD=1 node ./tools/visual-smoke.mjs",

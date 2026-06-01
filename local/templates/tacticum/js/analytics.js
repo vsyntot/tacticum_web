@@ -60,4 +60,45 @@
             }));
         } catch (error) {}
     };
+
+    const productPageContexts = {
+        "/": { product: "ecosystem", page_role: "ecosystem-router" },
+        "/platform/": { product: "platform", page_role: "product-page" },
+        "/agents/": { product: "agents", page_role: "product-page" },
+        "/dev/": { product: "dev", page_role: "product-page" },
+        "/forum/": { product: "forum", page_role: "product-page" },
+    };
+
+    const normalizePath = (path) => {
+        const cleanPath = String(path || "/").split("?")[0].split("#")[0];
+        if (cleanPath === "" || cleanPath === "/") return "/";
+        return cleanPath.endsWith("/") ? cleanPath : `${cleanPath}/`;
+    };
+
+    const getProductPageContext = () => productPageContexts[normalizePath(window.location.pathname)] || null;
+
+    const trackProductView = () => {
+        const context = getProductPageContext();
+        if (!context) return;
+        window.tacticumTrackEvent("tacticum_product_view", context);
+    };
+
+    document.addEventListener("click", (event) => {
+        const context = getProductPageContext();
+        if (!context) return;
+
+        const link = event.target?.closest?.("a[href]");
+        if (!link || link.getAttribute("href") !== "#contact-form") return;
+
+        window.tacticumTrackEvent("tacticum_product_cta_click", {
+            ...context,
+            cta: "contact-form",
+        });
+    });
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", trackProductView, { once: true });
+    } else {
+        trackProductView();
+    }
 })();

@@ -43,15 +43,31 @@ PDF-файлы в `docs/new-big-change/` рассматриваются как �
 7. `07-risk-and-claims-register.md` - реестр рискованных claim'ов и правил публикации.
 8. `08-decisions-and-open-questions.md` - зафиксированные решения и открытые вопросы.
 9. `09-as-is-to-be-preservation-migration-map.md` - карта сохранения и миграции AS IS возможностей в TO BE.
-10. `sprints/README.md` - детализированный sprint backlog для перехода AS IS -> TO BE.
+10. `10-product-tech-challenge.md` - продуктово-технологический challenge текущего решения.
+11. `11-use-cases-and-cjm-target.md` - целевые use cases и CJM по ролям.
+12. `12-ux-ui-component-target.md` - целевая UX/UI и компонентная модель для дизайна.
+13. `13-architecture-components-stack-target.md` - целевая архитектура, компоненты и stack decisions.
+14. `14-gap-backlog-and-decision-register.md` - backlog гэпов и решений после challenge.
+15. `sprints/README.md` - детализированный sprint backlog для перехода AS IS -> TO BE.
 
 ## Как Читать
 
-Для продуктовой синхронизации начать с `01-target-product-vision.md`, затем перейти к `02-as-is-to-be-gap-analysis.md`.
+Для продуктовой синхронизации начать с `01-target-product-vision.md`, затем перейти к `02-as-is-to-be-gap-analysis.md` и `10-product-tech-challenge.md`.
 
-Для дизайнера начать с `03-information-architecture-to-be.md`, `04-product-page-briefs.md` и `05-design-and-content-brief.md`, параллельно держа открытым `../../design-system-handoff/README.md`.
+Для дизайнера начать с `03-information-architecture-to-be.md`, `04-product-page-briefs.md`, `05-design-and-content-brief.md`, `11-use-cases-and-cjm-target.md` и `12-ux-ui-component-target.md`, параллельно держа открытым `../../design-system-handoff/README.md`.
 
-Для разработки и PM начать с `02-as-is-to-be-gap-analysis.md`, `06-roadmap-and-workstreams.md`, `07-risk-and-claims-register.md` и `09-as-is-to-be-preservation-migration-map.md`.
+Для разработки и PM начать с `02-as-is-to-be-gap-analysis.md`, `06-roadmap-and-workstreams.md`, `07-risk-and-claims-register.md`, `09-as-is-to-be-preservation-migration-map.md`, `13-architecture-components-stack-target.md` и `14-gap-backlog-and-decision-register.md`.
+
+## Challenge Layer
+
+Документы `10-14` добавлены после отдельного challenge текущего product-first MVP. Они не заменяют исходное видение `01-09`, а уточняют:
+
+- где MVP уже достаточно безопасен;
+- где TO BE всё ещё не доказан продуктово;
+- какие use cases и CJM нужны до полноценного редизайна;
+- какие компоненты и состояния нужны дизайнеру;
+- какие архитектурные решения нужно принять до масштабирования;
+- какие gaps нельзя считать закрытыми без внешней evidence.
 
 ## Уровни Уверенности
 

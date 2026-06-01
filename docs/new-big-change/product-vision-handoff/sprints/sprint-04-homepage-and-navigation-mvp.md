@@ -127,6 +127,10 @@ npm run seo:check:prod
   - commercial entry paths `/offer/`, `/services/`, `/price/`, `/aiagents/` preserved;
   - `home-cta` context updated through existing `tacticum:lead.cta`;
   - header/footer product navigation implemented in Product layer MVP.
+- 01.06.2026 homepage product fit matrix slice:
+  - homepage now includes a decision-support block that maps buyer situations to Platform, Agents, Dev or Forum;
+  - commercial entry paths remain separate and visible after the product fit matrix;
+  - no form, REST, analytics, URL or upstream behavior changed.
 
 ### Not Done
 

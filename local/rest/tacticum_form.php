@@ -18,36 +18,36 @@ function tacticum_form_response(bool $success, ?string $error, string $code, arr
     exit;
 }
 
-function tacticum_form_build_lead_context(array $data): string
+function tacticum_form_normalize_lead_value($value, int $maxLength = 180): string
 {
-    $labels = [
-        'lead_entry' => 'Вход',
-        'lead_page_role' => 'Роль страницы',
-        'lead_intent' => 'Интент',
-        'lead_cta' => 'CTA',
-        'lead_next_step' => 'Ожидаемый следующий шаг',
-        'lead_product' => 'Продуктовый сценарий',
-        'lead_scenario' => 'Сценарий',
-        'lead_industry' => 'Отрасль',
-        'lead_budget' => 'Бюджетный ориентир',
-        'lead_timeline' => 'Срок',
-        'lead_offer_code' => 'Код примера расчета',
-        'lead_offer_title' => 'Пример расчета',
-    ];
-    $valueLabels = [
-        'lead_budget' => [
+    if (is_array($value)) {
+        return '';
+    }
+
+    $normalized = trim(preg_replace('/\s+/u', ' ', (string)$value) ?: '');
+    if ($normalized === '') {
+        return '';
+    }
+
+    return mb_substr($normalized, 0, $maxLength);
+}
+
+function tacticum_form_lead_value_labels(): array
+{
+    return [
+        'budget_band' => [
             'up-to-1m' => 'до 1 млн руб.',
             '1-3m' => '1-3 млн руб.',
             '3-7m' => '3-7 млн руб.',
             '7m-plus' => '7+ млн руб.',
         ],
-        'lead_timeline' => [
+        'timeline_band' => [
             'asap' => 'нужен быстрый старт',
             '1-2-months' => '1-2 месяца',
             '3-6-months' => '3-6 месяцев',
             '6-plus-months' => 'дольше 6 месяцев',
         ],
-        'lead_scenario' => [
+        'use_case_interest' => [
             'product-routing' => 'маршрутизация по продуктовой экосистеме',
             'product-delivery' => 'внедрение продуктового сценария',
             'product-estimate' => 'уточнение продуктовой оценки',
@@ -67,24 +67,72 @@ function tacticum_form_build_lead_context(array $data): string
             'support-analytics-review' => 'проверка аналитики и эскалаций',
         ],
     ];
+}
+
+function tacticum_form_build_lead_profile(array $data): array
+{
+    $fieldMap = [
+        'product_interest' => ['lead_product'],
+        'use_case_interest' => ['lead_scenario'],
+        'deployment_interest' => ['lead_next_step'],
+        'funnel_entry' => ['lead_entry'],
+        'funnel_stage' => ['lead_page_role'],
+        'lead_intent' => ['lead_intent'],
+        'cta_id' => ['lead_cta', 'form_id'],
+        'budget_band' => ['lead_budget'],
+        'timeline_band' => ['lead_timeline'],
+        'industry' => ['lead_industry'],
+        'offer_code' => ['lead_offer_code'],
+        'offer_title' => ['lead_offer_title'],
+    ];
+
+    $profile = [];
+    foreach ($fieldMap as $profileKey => $sourceKeys) {
+        foreach ($sourceKeys as $sourceKey) {
+            $value = tacticum_form_normalize_lead_value($data[$sourceKey] ?? '');
+            if ($value === '') {
+                continue;
+            }
+
+            $profile[$profileKey] = $value;
+            break;
+        }
+    }
+
+    return $profile;
+}
+
+function tacticum_form_build_lead_context(array $data): string
+{
+    $labels = [
+        'product_interest' => 'Продуктовый интерес',
+        'use_case_interest' => 'Сценарий / use case',
+        'deployment_interest' => 'Ожидаемый следующий шаг',
+        'funnel_entry' => 'Вход',
+        'funnel_stage' => 'Стадия funnel',
+        'lead_intent' => 'Интент',
+        'cta_id' => 'CTA',
+        'budget_band' => 'Бюджетный ориентир',
+        'timeline_band' => 'Срок',
+        'industry' => 'Отрасль',
+        'offer_code' => 'Код примера расчета',
+        'offer_title' => 'Пример расчета',
+    ];
+    $valueLabels = tacticum_form_lead_value_labels();
+    $leadProfile = tacticum_form_build_lead_profile($data);
 
     $lines = [];
-    foreach ($labels as $key => $label) {
-        $value = $data[$key] ?? '';
-        if (is_array($value)) {
-            continue;
-        }
-
-        $value = trim(preg_replace('/\s+/u', ' ', (string)$value) ?: '');
+    foreach ($labels as $profileKey => $label) {
+        $value = $leadProfile[$profileKey] ?? '';
         if ($value === '') {
             continue;
         }
 
-        if (isset($valueLabels[$key][$value])) {
-            $value = $valueLabels[$key][$value];
+        if (isset($valueLabels[$profileKey][$value])) {
+            $value = $valueLabels[$profileKey][$value];
         }
 
-        $lines[] = $label . ': ' . mb_substr($value, 0, 180);
+        $lines[] = $label . ': ' . $value;
     }
 
     if ($lines === []) {

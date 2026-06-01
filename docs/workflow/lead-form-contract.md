@@ -59,11 +59,32 @@
 | `team_preset` | string | Опциональный пресет команды на `/price/`: `mvp`, `discovery`, `support`, `qa-burst` |
 | `monthly_budget_estimate` | string/number | Ориентировочный месячный бюджет, рассчитанный на frontend по ставке, количеству и загрузке |
 
-Обычные CTA формы могут содержать optional qualification controls `lead_budget`, `lead_timeline` и controlled scenario select `lead_scenario`. Они не обязательны и не должны называться `budget`, `timeline`, `duration`, `rate` или `specialist`, чтобы не конфликтовать с legacy/staff-order веткой. `/local/rest/tacticum_form.php` allowlist-ит `lead_*` context, ограничивает служебный блок и добавляет его внутрь существующего upstream поля `task`. Response shape и upstream endpoint path не меняются.
+Обычные CTA формы могут содержать optional qualification controls `lead_budget`, `lead_timeline` и controlled scenario select `lead_scenario`. Они не обязательны и не должны называться `budget`, `timeline`, `duration`, `rate` или `specialist`, чтобы не конфликтовать с legacy/staff-order веткой. `/local/rest/tacticum_form.php` allowlist-ит `lead_*` context, нормализует его в canonical lead qualification profile and добавляет человекочитаемый fallback внутрь существующего upstream поля `task`. Response shape и upstream endpoint path не меняются.
+
+## Canonical Lead Qualification Profile
+
+Backend строит внутренний canonical profile через `tacticum_form_build_lead_profile(...)`. На текущем этапе профиль не отправляется отдельными upstream JSON fields, потому что внешний sale/CRM contract не подтвержден. Он используется как нормализованный источник для блока `Контекст заявки` внутри `task`.
+
+| Canonical field | Source field(s) | Meaning |
+|---|---|---|
+| `product_interest` | `lead_product` | Product line or ecosystem interest |
+| `use_case_interest` | `lead_scenario` | Controlled scenario / use case slug |
+| `deployment_interest` | `lead_next_step` | Expected next step or deployment/procurement path |
+| `funnel_entry` | `lead_entry` | Entry page/context |
+| `funnel_stage` | `lead_page_role` | Funnel role of the page |
+| `lead_intent` | `lead_intent` | Non-PII intent hint |
+| `cta_id` | `lead_cta`, fallback `form_id` | CTA/source identifier |
+| `budget_band` | `lead_budget` | Controlled budget band |
+| `timeline_band` | `lead_timeline` | Controlled timeline band |
+| `industry` | `lead_industry` | Controlled industry/sector hint |
+| `offer_code` | `lead_offer_code` | Offer example code |
+| `offer_title` | `lead_offer_title` | Offer example title |
+
+Migration rule: до подтверждения CRM/upstream support нельзя отправлять `product_interest`, `use_case_interest`, `deployment_interest` or other canonical fields as top-level upstream JSON fields. Они остаются approved text fallback in `task`. Если upstream/CRM готов принимать structured fields, это новая Security / Integration задача с обновлением этого документа, smoke cases and release evidence.
 
 `tacticum:lead.cta` поддерживает scenario select через параметр `SCENARIO_OPTIONS`. Значения должны быть короткими controlled slugs без PII/free text; подписи видны пользователю, но analytics events продолжают отправлять только form-level metadata. Product pages `/platform/`, `/agents/`, `/dev/`, `/forum/` используют этот механизм для уточнения ближайшего следующего шага без изменения REST/upstream contract.
 
-Backend `tacticum_form_build_lead_context(...)` переводит известные `lead_scenario` slugs в человекочитаемые подписи перед добавлением блока `Контекст заявки` в upstream `task`. Unknown slugs не блокируются, но попадают в контекст как короткая строка после общей нормализации.
+Backend `tacticum_form_build_lead_profile(...)` сначала переводит входные `lead_*` fields в canonical profile, а `tacticum_form_build_lead_context(...)` переводит известные `lead_scenario`, budget and timeline slugs в человекочитаемые подписи перед добавлением блока `Контекст заявки` в upstream `task`. Unknown slugs не блокируются, но попадают в контекст как короткая строка после общей нормализации.
 
 Light chat handoff на `/calculator/` и `/price/` использует существующий `group_id` / prefill contract без новых upstream fields. После успешного AI-ответа пользователь может передать вводные в CTA: frontend пробует `POST /local/rest/tacticum_prefill.php` с `group_id + sessid`, заполняет только целевую CTA форму внутри `#contact-form`, сохраняет `group_id` в `form.dataset.tacticumOfferGroupId` и не пишет текст сообщения в analytics params. `forms.js` добавляет scoped `group_id` только для этой формы; глобальный `window.tacticum_offer_context` остаётся compatibility path для hero chat и не применяется к формам без `lead_*` context.
 
@@ -167,7 +188,7 @@ Product page CTAs дополнительно показывают optional `lead
 
 Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call and retry policy. `tacticum_offer.php` and `tacticum_sale.php` are legacy aliases: they preserve response shape, but return `Deprecation`, `Sunset` target `30.09.2026` and `Link: rel="successor-version"` headers pointing to `/local/rest/tacticum_form.php`. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
 
-For default lead forms, allowlisted `lead_*` fields are appended to upstream `task` as a short `Контекст заявки` block. Unknown request fields are not forwarded. Contact data and free-form `message` remain subject to existing validation and masking/logging rules.
+For default lead forms, allowlisted `lead_*` fields are normalized into the canonical lead profile and appended to upstream `task` as a short `Контекст заявки` block. Unknown request fields are not forwarded. Contact data and free-form `message` remain subject to existing validation and masking/logging rules.
 
 `tacticum_sale_staff.php` возвращает тот же формат успешного ответа. Если передан `workers_json` / `workers`, endpoint валидирует до 20 позиций и суммарно до 100 специалистов; legacy-поля `specialist`, `level`, `rate`, `amount_of_workers` остаются fallback для одиночного заказа. Детали состава команды, выбранный пресет и ориентировочный месячный бюджет передаются upstream внутри `task`; файловое runtime-логирование payload/response в кастомном коде отключено.
 
@@ -201,6 +222,7 @@ Frontend не должен показывать пользователю raw ups
 - Невалидный JSON: endpoint возвращает `400 invalid_json`.
 - Слишком длинные `name`, `company`, `message`, `page_url`, `group_id`: endpoint возвращает `400 validation_error`.
 - Optional `lead_budget` / `lead_timeline` на shared CTA: форма отправляется без обязательности этих полей; backend добавляет человекочитаемый context в `task`, если значения выбраны.
+- Product lead qualification profile: `lead_product`, `lead_scenario`, `lead_next_step`, `lead_entry`, `lead_page_role`, `lead_cta`, `lead_budget`, `lead_timeline` нормализуются в canonical profile, но top-level `product_interest` / `use_case_interest` / `deployment_interest` не отправляются upstream до отдельного CRM/upstream approval.
 - Offer detail context: `offer-cta` отправляет `lead_offer_code`, `lead_offer_title`, safe industry/scenario/budget/timeline context; analytics events не содержат эти values.
 - Calculator/price light chat handoff: после AI-ответа кнопка handoff заполняет CTA message, скроллит к `#contact-form`, сохраняет scoped `group_id` на форме и отправляет analytics `tacticum_chat_lead_handoff` только с boolean flags.
 - Prefilled chat form with a valid lead payload but upstream failure on `group_id`: endpoint retries without `group_id` and returns success if the plain lead is accepted.

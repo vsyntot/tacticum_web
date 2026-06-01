@@ -145,6 +145,22 @@ Manual smoke:
 - 01.06.2026 structured-data slice:
   - `/platform/` and `/agents/` received minimal `SoftwareApplication` JSON-LD through SEO helper options;
   - schema intentionally excludes offers/pricing/reviews/ratings and proof claims.
+- 01.06.2026 product fit guide slice:
+  - shared product renderer received reusable `fit_guide` decision-support block;
+  - `/platform/` and `/agents/` now explain "подходит / не подходит / с чего начать" before detailed product sections;
+  - no form, REST, upstream, analytics or URL behavior changed.
+- 01.06.2026 security/procurement path slice:
+  - shared product renderer received reusable `procurement` block;
+  - `/platform/` and `/agents/` now expose safe architecture/security/procurement review topics before rollout;
+  - no downloads, new forms, REST endpoints, analytics params or registry/certification/SLA/guarantee claims were added.
+- 01.06.2026 use-case anatomy slice:
+  - shared product renderer received reusable `use_cases` block;
+  - `/platform/` and `/agents/` now describe 3 pilotable use cases each with trigger, owner, pilot input, pilot output and limitation;
+  - no new CTA fields, REST/upstream behavior, analytics params or public proof metrics were added.
+- 01.06.2026 comparison/boundary slice:
+  - shared product renderer received reusable `comparison` block;
+  - `/platform/` now separates Platform from application products and delivery entries;
+  - `/agents/` now explicitly compares Agents with Forum and `/aiagents/` demo flow.
 
 ### Not Done
 
