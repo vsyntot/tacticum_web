@@ -31,7 +31,7 @@
 
 | Зона | Файлы | Назначение |
 |---|---|---|
-| Публичные страницы | `index.php`, `about/`, `services/`, `price/`, `calculator/`, `offer/`, `aiagents/`, `contacts/`, `policies/` | Основные страницы сайта |
+| Публичные страницы | `index.php`, `platform/`, `agents/`, `dev/`, `forum/`, `about/`, `services/`, `price/`, `calculator/`, `offer/`, `aiagents/`, `contacts/`, `policies/` | Основные страницы сайта |
 | GET API | `local/api/cases.php`, `faq.php`, `rates.php`, `services.php` | JSON-выдача активных элементов инфоблоков |
 | POST REST | `local/rest/tacticum_form.php`, `tacticum_chat.php`, `tacticum_offer.php`, `tacticum_sale.php`, `tacticum_sale_staff.php`, `tacticum_prefill.php`, `resolve_telegram_link.php` | Формы, чат, AI-service, prefill, Telegram resolver |
 | Shared REST helpers | `local/rest/rest_helpers.php` | Config, CORS/origin, IP allowlist, rate limit, CSRF, curl defaults, masking |
@@ -154,6 +154,19 @@ FAQ presentation задаётся параметром wrapper-компонен�
 Статический detail-контент `/policies/` вызывается через wrapper-компонент `tacticum:content.detail`: публичная страница передаёт `IBLOCK_KEY=policies` и template, а numeric `ELEMENT_ID` не хардкодится в page entry.
 
 Sprint 15 product marketing architecture: публичный сайт упакован в 4 коммерческих входа: рассчитать проект (`/offer/`, `/calculator/`), внедрить AI-решение (`/services/`), собрать команду (`/price/`), запустить AI-бота (`/aiagents/`). Главная работает как router этих входов; `/services/`, `/price/`, `/calculator/`, `/offer/` и `/aiagents/` получили page-specific promise, next-step CTA и безопасный proof copy без спорных claims вроде `98%`, `15+ лет` или “гарантия результата”. Меню `services/.left.menu.php` и footer labels отражают product ladder, при этом URL inventory и SEO guard по money pages сохранены.
+
+Product layer MVP 01.06.2026: добавлен безопасный product-first слой поверх текущих коммерческих входов: `/platform/`, `/agents/`, `/dev/`, `/forum/`. Страницы используют общий renderer `local/php_interface/include/product_page.php`, текущий шаблон, `tacticum:lead.cta` и allowlisted `lead_*` context без изменения REST/upstream contracts. Верхнее меню получило группу `Продукты` с дочерними product links через `platform/.left.menu.php`; footer разделён на `Продукты`, `Внедрение`, `Компания`. `/aiagents/` остаётся рабочим legacy/current AI-bot entry и не редиректится.
+
+Homepage ecosystem MVP 01.06.2026: главная переупакована из general AI/delivery router в ecosystem router. Первый экран теперь показывает `Platform`, `Agents`, `Dev`, `Forum`, chat intro объясняет выбор продуктового входа, ниже добавлена карта `Platform core -> Agents/Dev/Forum`. Текущий commercial layer сохранён отдельным блоком: `/offer/`, `/services/`, `/price/`, `/aiagents/`. `home-cta` продолжает использовать `tacticum:lead.cta`, но контекст уточнён как `lead_page_role=ecosystem-router`, `lead_product=ecosystem`, `lead_scenario=product-routing`.
+
+Services delivery layer MVP 01.06.2026: `/services/` сохранён как страница внедрения, но получил product-delivery блок для `Platform assessment`, `Agents pilot`, `Dev workflow`, `Forum launch`. Текущие entry cards `/offer/`, `/price/`, `/calculator/`, content list услуг, process, cases, FAQ и `services-cta` сохранены. Контекст `services-cta` дополнен `lead_product=ecosystem`, `lead_scenario=product-delivery` без изменения endpoint/upstream behavior.
+
+Estimate/proof product context MVP 01.06.2026: `/calculator/` получил product-aware estimate paths для `Platform`, `Agents`, `Dev`, `Forum`, обновленные quick replies и контекст `calculator-cta` (`lead_product=ecosystem`, `lead_scenario=product-estimate`). `/offer/` catalog получил proof-layer блок, который связывает примеры расчетов с продуктовой линейкой, а offer detail получил product relation block и `lead_product=ecosystem` в существующей форме `offer-cta`. Offer filters, pagination, list/detail route behavior, canonical/noindex decisions and chat-to-lead contract не менялись.
+
+Price product team context MVP 01.06.2026: `/price/` сохранён как team/staff configurator, но получил блок product workstreams (`Platform team`, `Agents pilot`, `Dev workflow`, `Forum launch`), обновленные light-chat quick replies и контекст `price-cta` (`lead_product=ecosystem`, `lead_scenario=product-team`). Сложный `price-specialist` modal, `workers_json`, team presets, `news.list/price/script.js` and `/local/rest/tacticum_sale_staff.php` не менялись.
+
+AIAgents compatibility bridge 01.06.2026: `/aiagents/` сохранён как текущий Telegram-bot money/SEO entry без redirect/canonical изменений. В компонент `tacticum:aiagents` добавлен bridge к `/agents/`: Telegram-бот описан как первый сценарий Tacticum Agents, а пользователь может перейти на product page или остаться в demo/prototype flow. Форма `aiagents-inline` получила безопасный context `lead_product=agents`.
+
 Автоматическая проверка Sprint 15 прошла 25.05.2026: SEO/static guards, CSS build/check, Bitrix architecture check, browser smoke, price smoke, CSS-local visual/action smoke и production SEO check зелёные. PHP CLI локально недоступен, поэтому PHP lint остаётся CI/deploy fallback; production deploy и post-deploy smoke остаются release gates.
 Final stabilization challenge 25.05.2026 зафиксирован в `docs/workflow/final-stabilization-challenge-gap-analysis-2026-05-25.md`. Sprint 16 закрыл локальные code/docs gaps по карте `/contacts/`, offer detail estimate contrast, calculator/price chat-to-lead handoff, CTA image cleanup, contact/legal hierarchy, proof matrix, industry/scenario SEO decision и CSP target-state decision. Production deploy/cache smoke, real success-flow/staff upstream и Metrika goals остаются внешними release gates и не считаются закрытыми без evidence.
 

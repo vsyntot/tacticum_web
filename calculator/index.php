@@ -49,10 +49,10 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
                         "INTRO" => "Здравствуйте! Расскажите о задаче, отрасли, текущих системах и сроке. Я подготовлю предварительную структуру оценки, а команда Tacticum уточнит ее по требованиям.",
                         "PLACEHOLDER" => "Опишите вашу задачу...",
                         "QUICK_REPLIES" => [
-                            "AI-бот для продаж",
-                            "OCR документов",
-                            "Прогноз спроса",
-                            "Интеграция с CRM",
+                            "Platform для RAG и доступа к данным",
+                            "Agents для HR или поддержки",
+                            "Dev workflow для инженерной команды",
+                            "Forum для клиентских диалогов",
                         ],
                     ],
                     false
@@ -137,6 +137,59 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
     </div>
 </section>
 
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="mb-10 max-w-3xl">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">Product-aware estimate</p>
+            <h2 class="mb-4 text-3xl md:text-4xl font-bold text-secondary">
+                Что можно оценить через AI-калькулятор
+            </h2>
+            <p class="text-lg text-gray-600">
+                Калькулятор остается быстрым entry point для сметы, но теперь помогает привязать задачу к продуктовой
+                модели Tacticum: платформенному ядру, ассистентам, инженерному workflow или клиентским диалогам.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <a href="/platform/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-stack-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Platform</h3>
+                <p class="text-gray-600">
+                    Оценка общего AI-контура: LLM Gateway, RAG, память, инструменты, доступы, аудит и эксплуатация.
+                </p>
+            </a>
+            <a href="/agents/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-robot-2-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Agents</h3>
+                <p class="text-gray-600">
+                    Проверка ассистента для HR, юридического, бухгалтерии, поддержки, IT helpdesk или базы знаний.
+                </p>
+            </a>
+            <a href="/dev/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-git-branch-line text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Dev</h3>
+                <p class="text-gray-600">
+                    Оценка пилота AI-assisted workflow: профили, knowledge layer, rules, quality gates и метрики.
+                </p>
+            </a>
+            <a href="/forum/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <i class="ri-flow-chart text-2xl"></i>
+                </div>
+                <h3 class="mb-2 text-xl font-bold text-secondary">Forum</h3>
+                <p class="text-gray-600">
+                    Оценка потока обращений: сценарный граф, LLM-обогащение, аналитика, журнал и интеграции.
+                </p>
+            </a>
+        </div>
+    </div>
+</section>
+
 <?php
 $APPLICATION->IncludeComponent(
     "tacticum:faq.section",
@@ -165,6 +218,8 @@ $APPLICATION->IncludeComponent(
             "lead_entry" => "calculator",
             "lead_page_role" => "estimate-entry",
             "lead_intent" => "clarify-budget-timeline-team",
+            "lead_product" => "ecosystem",
+            "lead_scenario" => "product-estimate",
             "lead_cta" => "calculator-cta",
             "lead_next_step" => "estimate-review",
         ],
