@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tacticum Dev — agentic-трансформация разработки</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #161922; --panel-2: #1c2030; --border: #2a2f40;
+    --accent: #bb9af7; --accent-2: #7aa2f7;
+    --ok: #9ece6a; --warn: #e0af68; --err: #f7768e;
+    --text: #c0caf5; --muted: #565f89; --strong: #ffffff; --brand: #36d6aa;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto", sans-serif;
+    line-height: 1.55; font-size: 16px; -webkit-font-smoothing: antialiased; overflow-x: hidden; word-wrap: break-word; }
+  body { width: 100%; max-width: 100vw; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  .header .brand { display: inline-block; padding: 6px 12px; background: rgba(54,214,170,0.1); color: var(--brand);
+    border: 1px solid rgba(54,214,170,0.3); border-radius: 6px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+  .header h1 { font-size: 34px; margin: 0 0 10px 0; color: var(--strong); letter-spacing: -0.02em; line-height: 1.2; }
+  .header .sub { color: var(--muted); font-size: 15px; max-width: 720px; }
+  .slide { background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 32px 32px 28px; margin: 24px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.02); }
+  .slide-num { display: inline-block; background: var(--panel-2); color: var(--accent); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 16px;
+    letter-spacing: 0.1em; text-transform: uppercase; }
+  .slide h2 { font-size: 24px; color: var(--strong); margin: 0 0 16px 0; letter-spacing: -0.01em; line-height: 1.3; }
+  .slide h3 { font-size: 18px; color: var(--accent); margin: 22px 0 12px 0; }
+  .slide h4 { font-size: 15px; color: var(--accent-2); margin: 16px 0 8px 0; }
+  .slide p { margin: 10px 0; }
+  .slide ul, .slide ol { padding-left: 24px; margin: 10px 0; }
+  .slide li { margin: 6px 0; }
+  .slide strong { color: var(--strong); font-weight: 600; }
+  .slide em { color: var(--accent-2); font-style: normal; font-weight: 500; }
+  .slide hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+  .quote { border-left: 3px solid var(--accent); background: var(--panel-2); padding: 14px 18px; margin: 16px 0;
+    border-radius: 0 8px 8px 0; color: var(--text); font-style: italic; }
+  .note { border-left: 3px solid var(--accent-2); background: rgba(122,162,247,0.05); padding: 14px 18px;
+    margin: 16px 0; border-radius: 0 8px 8px 0; color: var(--text); font-size: 14.5px; }
+  .note::before { content: "Примечание · "; color: var(--accent-2); font-weight: 600; }
+  table { display: block; width: 100%; max-width: 100%; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  table tbody { display: table; width: 100%; min-width: 100%; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--strong); font-weight: 600; font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:hover td { background: rgba(187,154,247,0.03); }
+  pre { background: #0a0d14; color: #c0caf5; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 12.5px; line-height: 1.55;
+    margin: 14px 0; max-width: 100%; white-space: pre; }
+  code { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 13px; color: var(--accent-2);
+    background: rgba(122,162,247,0.08); padding: 1px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .footer { color: var(--muted); font-size: 13px; text-align: center; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer .brand-mark { color: var(--brand); font-weight: 600; letter-spacing: 0.1em; }
+  @media (max-width: 720px) {
+    .container { padding: 20px 14px 60px; }
+    .slide { padding: 22px 18px 20px; border-radius: 10px; }
+    .header h1 { font-size: 26px; } .slide h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <span class="brand">Tacticum Dev</span>
+  <h1>Agentic-трансформация разработки. Vibe-coding для команд от 50 инженеров</h1>
+  <div class="sub">Enterprise profile orchestrator для agentic CLI. Профили под стек · RE Knowledge · Design tokens · BRD → ADR → PIN → TESTS · Quality gates · Multi-CLI.</div>
+</div>
+
+<section class="slide">
+  <span class="slide-num">Slide 1 · Title</span>
+  <h2>Tacticum Dev</h2>
+  <p>Платформа управления жизненным циклом разработки ПО с применением AI-агентов. Vibe-coding без потери архитектуры. Класс 06.07 «Системы управления жизненным циклом ПО».</p>
+  <p><strong>Профили под стек · RE Knowledge · Design tokens · BRD → ADR → PIN → TESTS · Quality gates · Multi-CLI.</strong></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 2 · Vibe-revolution</span>
+  <h2>Вы её уже видели</h2>
+  <p><strong>Vibe-coding изменил правила игры:</strong></p>
+  <ul>
+    <li>Один инженер делает за неделю то, что 5 делали за месяц.</li>
+    <li>Greenfield-проект MVP — за выходные.</li>
+    <li>Personal productivity растёт в 3–5 раз там, где scope понятен и стек чистый.</li>
+  </ul>
+  <p>И это правда. Founder'ы, CTO и senior-разработчики это видели — каждый сам.</p>
+  <div class="quote">Vibe-coding — это новый baseline для одиночного разработчика. Вопрос не <em>работает ли это</em>, а <em>что происходит когда мы это масштабируем на 100+ человек в живой кодовой базе</em>.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 3 · Vibe-потолок</span>
+  <h2>Что ломается на enterprise</h2>
+  <p><strong>Что vibe-coding делает блестяще:</strong></p>
+  <ul>
+    <li>✅ Один разработчик, чистый стек, понятный scope</li>
+    <li>✅ Прототипы, экспериментальные фичи, greenfield</li>
+  </ul>
+  <p><strong>Что ломается, когда vibe масштабируется на 100+ FTE:</strong></p>
+  <table>
+    <thead><tr><th>Проблема</th><th>Что происходит без дисциплины</th></tr></thead>
+    <tbody>
+      <tr><td>🔴 <strong>Architecture drift</strong></td><td>Каждый разработчик решает локально. Через 3 месяца — 5 разных подходов к одной задаче</td></tr>
+      <tr><td>🔴 <strong>Design system violations</strong></td><td>Hardcoded <code>#FF0000</code> вместо токена. UI разваливается в темах и брендинге</td></tr>
+      <tr><td>🔴 <strong>Regression на legacy</strong></td><td>Vibe-агент не знает ownership/threading C++/Qt → ломает signal/slot lifecycle. Не знает Compose state → утечки в Android</td></tr>
+      <tr><td>🔴 <strong>Knowledge fragmentation</strong></td><td>Знание «как мы делаем X» живёт в чатах конкретного разработчика. Уволился — знание потеряно</td></tr>
+      <tr><td>🔴 <strong>No traceability</strong></td><td>Где ADR? Где BRD? Что было запрошено vs что реализовано? Невозможно пройти security/compliance аудит</td></tr>
+      <tr><td>🔴 <strong>Onboarding не работает</strong></td><td>«Сядь, попробуй вайбить» — не воспроизводимо. Junior рост залипает</td></tr>
+      <tr><td>🔴 <strong>Quality drift</strong></td><td>Красивый код, который рушится в проде</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Итог:</strong> vibe сам по себе на 100+ FTE даёт не +400% velocity, а +30% + регресс в legacy. И добавляет 6 новых классов багов, которые раньше отлавливал code review.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 4 · Решение</span>
+  <h2>Tacticum Dev = vibe + дисциплина</h2>
+  <p>Tacticum Dev — это <strong>enterprise profile orchestrator</strong> для agentic CLI. Он не заменяет vibe-coding. Он <em>окружает</em> его дисциплиной, без которой vibe не масштабируется.</p>
+<pre>┌─────────────────────────────────────────────────────────────┐
+│  TACTICUM PROFILE (per stack / per team)                    │
+│                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │ Market MCP  │  │ Tacticum RE │  │  Tacticum Design    │  │
+│  │  Bundle     │  │  Knowledge  │  │  Token Layer        │  │
+│  │             │  │   Layer     │  │                     │  │
+│  │ • Context7  │  │ • topology  │  │ • design_list_      │  │
+│  │ • Serena    │  │ • behaviour │  │   systems           │  │
+│  │ • GitLab    │  │ • ADR       │  │ • design_get_       │  │
+│  │ • Sentry    │  │ • use cases │  │   theme_tokens      │  │
+│  │ • Semgrep   │  │ • SBOM      │  │ • design_resolve_   │  │
+│  │ • Playwright│  │ • SCIP      │  │   token             │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │           Analysis Subagents                         │   │
+│  │  BRD → ADR → PIN → TESTS → Traceability             │   │
+│  │  Утверждение ДО реализации.                          │   │
+│  │  Кодирование не стартует без approval.               │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │           Quality Gates                              │   │
+│  │  Tests · Coverage · Lint · SAST · Design compliance │   │
+│  │  · A11y · Performance · Docs · Traceability         │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘</pre>
+  <p><strong>5 слоёв, которые отличают Tacticum Dev от голого vibe-CLI:</strong></p>
+  <ol>
+    <li><strong>Профили вместо «каждый сам себе»</strong> — каждый dev получает идентичный, отревьюенный набор инструментов под свой стек.</li>
+    <li><strong>RE Knowledge Layer</strong> — агент <em>видит</em> архитектуру вашего проекта: topology-map, ADR, use cases, behaviour blocks. Не выдумывает. Реализован как DSL поверх Tacticum Platform RAG.</li>
+    <li><strong>Design Token Layer</strong> — <code>design_resolve_token</code> физически делает hardcoded <code>#FF0000</code> невозможным. Поставляется как Dev MCP-сервер, хостящийся в Tacticum Platform MCP Runtime арендатора.</li>
+    <li><strong>Analysis Gate</strong> — BRD/ADR/PIN/TESTS обязательно ДО кода. Feature Lifecycle исполняется на Tacticum Platform Workflow Spec Engine (durable, переживает перезапуски, поддерживает human-approval-этапы).</li>
+    <li><strong>Quality Gates</strong> — автоматические проверки на каждом MR. Без green-gate агент не предлагает merge.</li>
+  </ol>
+  <div class="note">Tacticum Dev — не самостоятельный монолит. Это прикладное приложение поверх Tacticum Platform. Те же quality-инварианты (multi-tenancy, AuthScope, sovereign-LLM, on-prem) — наследуются от платформы.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 5 · MCP + профили</span>
+  <h2>Tacticum-mcp и profile в workspace</h2>
+  <p><strong>Один MCP-сервер — много инструментов. Profile = подписка на каталог.</strong></p>
+<pre>┌──────────────────────────────────────────────────────────────┐
+│              TACTICUM-MCP (HTTP, bearer auth)                │
+│              https://mcp.tacticum.dev/catalog                │
+│                                                              │
+│  Catalog tools          Workspace tools     Design tools     │
+│  ─────────────────      ──────────────      ─────────────    │
+│  list_profiles          install_profile     design_list_     │
+│  get_profile            apply_profile         systems        │
+│  get_manifest           list_installed      design_get_      │
+│  list_ingredients                             theme_tokens   │
+│                                             design_get_      │
+│                                               tokens         │
+│                                             design_resolve_  │
+│                                               token          │
+└──────────────────────────────────────────────────────────────┘
+                              │
+            ┌─────────────────┴───────────────────┐
+            │                                     │
+   ┌────────▼─────────┐                ┌─────────▼─────────┐
+   │  Workspace #1    │                │  Workspace #2     │
+   │  Mail team       │                │  Connect team     │
+   │  profile:        │                │  profile:         │
+   │  android-        │                │  cpp-qt-          │
+   │  brownfield      │                │  enterprise       │
+   └──────────────────┘                └───────────────────┘</pre>
+  <ul>
+    <li><strong>Multi-CLI:</strong> Claude Code, Codex, VS Code Copilot — один профиль работает везде. Multi-CLI Adapter транслирует канонический ingredient-формат в CLI-специфичные артефакты.</li>
+    <li><strong>Premium-gating:</strong> design-tools и расширенные KB-tools — premium-tier. Базовый workflow — trial-tier для evaluation.</li>
+    <li><strong>Sovereign-LLM:</strong> Qwen, Kimi, GigaChat через локальный прокси. Реализуется через Tacticum Platform LLM Gateway.</li>
+  </ul>
+  <div class="note">tacticum-mcp — это MCP-сервер Dev, регистрирующийся в Tacticum Platform MCP Runtime арендатора. Stack-Specific MCP Bundles (<code>tacticum-mcp-qt</code>, <code>tacticum-mcp-compose</code>, ...) — отдельные MCP-серверы Dev, устанавливаются рядом при apply профиля. Hosting, аудит и scope-aware вызовы — на стороне Platform.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 6 · Сравнение</span>
+  <h2>3 сценария разработки</h2>
+  <table>
+    <thead><tr><th>Ось</th><th>No agents</th><th>Vibe coding</th><th>Tacticum agentic</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Velocity / FTE</strong></td><td>🔴 baseline 1×</td><td>🟡 ×3–5 на greenfield, ×1.5 на legacy</td><td>🟢 <strong>×4–6 устойчиво, любой стек</strong></td></tr>
+      <tr><td><strong>Defect rate на legacy</strong></td><td>🟡 управляемо, медленно</td><td>🔴 непредсказуемо — ломает threading / lifecycle</td><td>🟢 quality gates ловят ДО merge</td></tr>
+      <tr><td><strong>Architecture compliance</strong></td><td>🟡 ручной code review</td><td>🔴 случайная — agent не видит ADR/topology</td><td>🟢 <strong>RE KB + ADR gate</strong></td></tr>
+      <tr><td><strong>Design system compliance</strong></td><td>🟡 manual enforcement</td><td>🔴 hardcoded violations накапливаются</td><td>🟢 <code>design_resolve_token</code> — hardcode невозможен</td></tr>
+      <tr><td><strong>Regression risk на legacy</strong></td><td>🟡 высокая, видимая</td><td>🔴 очень высокая — agent не знает domain</td><td>🟢 stack-specific gates</td></tr>
+      <tr><td><strong>Knowledge persistence</strong></td><td>🟡 docs + tribal</td><td>🔴 tribal</td><td>🟢 <strong>KB ingredients, versioned</strong></td></tr>
+      <tr><td><strong>Onboarding нового dev'а</strong></td><td>🟡 1–3 месяца</td><td>🔴 1–3 мес + «нужен vibe-skill»</td><td>🟢 <strong>дни</strong></td></tr>
+      <tr><td><strong>Auditability / traceability</strong></td><td>🟡 manual ADR</td><td>🔴 none</td><td>🟢 BRD ↔ ADR ↔ PIN ↔ TESTS ↔ MR</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 7 · Stack-specific</span>
+  <h2>Глубина под стек</h2>
+  <p><strong>Tacticum Dev — не «один общий profile под всё». Это stack-specific orchestration.</strong></p>
+  <h3>Пример: C++/Qt6 enterprise-профиль</h3>
+  <p>Кастомные Qt MCP-tools, которых нет ни у одного market-агента:</p>
+  <table>
+    <thead><tr><th>Tool</th><th>Что проверяет</th></tr></thead>
+    <tbody>
+      <tr><td><code>qt_detect_version</code></td><td>Версия Qt и совместимость</td></tr>
+      <tr><td><code>qt_cmake_audit</code></td><td>CMake targets, QML modules, resources</td></tr>
+      <tr><td><code>qt_cpp_qml_boundary_audit</code></td><td>Граница C++/QML</td></tr>
+      <tr><td><code>qt_model_view_audit</code></td><td>QAbstractItemModel, roles, delegates, proxy models</td></tr>
+      <tr><td><code>qt_signal_slot_audit</code></td><td>Connection type, duplicate connections, lifecycle</td></tr>
+      <tr><td><code>qt_threading_audit</code></td><td>UI-thread safety, QThread, queued connections</td></tr>
+      <tr><td><code>qt_qml_lint</code> / <code>qt_qml_format_check</code></td><td>qmllint + qmlformat</td></tr>
+      <tr><td><code>qt_i18n_audit</code></td><td>Translations, locale-sensitive formatting</td></tr>
+      <tr><td><code>qt_accessibility_audit</code></td><td>Focus, labels, keyboard navigation</td></tr>
+      <tr><td><code>qt_performance_audit</code></td><td>QML bindings, rendering, startup, memory</td></tr>
+    </tbody>
+  </table>
+  <h3>Что это даёт на практике</h3>
+  <p><strong>Vibe-агент на legacy Qt6 без stack-bundle:</strong></p>
+  <ul>
+    <li>❌ Не знает что <code>QObject</code> ownership — parent-child</li>
+    <li>❌ Не знает что <code>signal connection type</code> влияет на threading safety</li>
+    <li>❌ Накопит memory leaks, deadlock'и в worker-thread</li>
+    <li>❌ Сломает QML binding evaluation order</li>
+  </ul>
+  <p><strong>Tacticum-агент с qt-bundle:</strong></p>
+  <ul>
+    <li>✅ <code>qt_signal_slot_audit</code> блокирует MR с broken lifetime</li>
+    <li>✅ <code>qt_threading_audit</code> ловит UI-thread violations до runtime</li>
+    <li>✅ <code>qt_cpp_qml_boundary_audit</code> не даёт business logic размазаться по QML</li>
+  </ul>
+  <p><strong>Эта же глубина — для каждого стека:</strong> Android (Compose state audit), iOS (SwiftUI lifecycle), Go (concurrency primitives audit), React/RN (hooks discipline), backend (transactional boundaries).</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 8 · Кейс</span>
+  <h2>Pilot в Android-команде</h2>
+  <p><strong>Контекст:</strong> Android-команда (Kotlin / Compose / Ktor / Room), brownfield. Период: 4 недели. Метрики сверяются с 3-месячным baseline до пилота.</p>
+  <h3>Headline-результат</h3>
+  <div class="quote">3 новые фичи закрыты за 1–2 дня одним разработчиком (включая design + tests + docs). До пилота сопоставимый scope занимал ~5–7 дней с 2 разработчиками.</div>
+  <h3>Метрики</h3>
+  <table>
+    <thead><tr><th>Метрика</th><th>Baseline (3 мес до)</th><th>Пилот (4 недели)</th><th>Δ</th></tr></thead>
+    <tbody>
+      <tr><td>Median lead time (issue → merged MR)</td><td>~5 рабочих дней</td><td>~1.5 дня</td><td><strong>−70%</strong></td></tr>
+      <tr><td>Output на разработчика (фичи/неделя)</td><td>0.6</td><td>1.5</td><td><strong>×2.5</strong></td></tr>
+      <tr><td>Defect rate (severity ≥ medium / release)</td><td>4</td><td>3</td><td><strong>−25%</strong></td></tr>
+      <tr><td>Architecture compliance (% MR без отката)</td><td>~60%</td><td>85%</td><td><strong>+25 п.п.</strong></td></tr>
+      <tr><td>Design token violations / MR</td><td>2–3</td><td>0</td><td><strong>−100%</strong></td></tr>
+    </tbody>
+  </table>
+  <h3>Индустриальный benchmark</h3>
+  <table>
+    <thead><tr><th>Источник</th><th>Метрика</th><th>Значение</th></tr></thead>
+    <tbody>
+      <tr><td>GitHub (Copilot productivity study, 2024)</td><td>Speed-up при AI-ассистенте</td><td>+55%</td></tr>
+      <tr><td>McKinsey (Generative AI in software, 2024)</td><td>Time saved на типовых задачах</td><td>35–60%</td></tr>
+    </tbody>
+  </table>
+  <p>Tacticum-уплифт устойчиво выше market-AI-tools за счёт RE KB и quality gates — потому что измеряется <em>закрытие фичи end-to-end</em>, а не только speed of typing.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 9 · Roll-out</span>
+  <h2>6 месяцев · 4 профиля параллельно</h2>
+  <p><strong>Типовой план для команд 100+ FTE.</strong></p>
+<pre>Месяц:   0          2          3           4          6
+         │          │          │           │          │
+Team 1 ──┼──────────────────────────────────────────────►  Production
+(Pilot)  │          │          │           │          │
+         │          │          │           │          │
+Team 2   │          ╞══════════════════════════════════►  Production
+         │          │ R&amp;D start            │          │
+         │          │          │           │          │
+Team 3   │          │          ╞════════════════════════►  Production
+         │          │          │ R&amp;D start │          │
+         │          │          │           │          │
+Team 4   │          ╞══════════════════════════════════►  Production
+         │          │ R&amp;D start            │          │
+         │          │          │           │          │
+         │   Phase  │   Phase  │   Phase   │  Phase   │
+         │   1      │   2      │   3       │   4      │
+         │ baseline │ training │ ramp-up   │ full     │
+         │ + KB     │ cohort 1 │ + cohort 2│ scale    │
+         │ collect  │          │           │          │</pre>
+  <p>Параллельные R&amp;D-треки определяются по стекам и приоритетам клиента: brownfield (живой legacy), greenfield (новые продукты), backend microservices, desktop/mobile.</p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 10 · Workforce</span>
+  <h2>Top-30 ↑, middle-40 →, KB-coverage gate</h2>
+  <p><strong>Главный принцип:</strong> знание не уходит с людьми. Сначала KB, потом любые workforce-изменения.</p>
+<pre>ИЗ 100 application FTE                  СТАНОВИТСЯ ~50 FTE
+
+┌─────────────────────────┐             ┌─────────────────────────┐
+│  Top-30% (~30 FTE)      │             │  AGENT ARCHITECTS       │
+│  Senior+ инженеры       │ ─────────► │  ~20 FTE                │
+│                         │             │  comp +30–50%           │
+│  Текущая роль:          │             │  ownership profile KB   │
+│  пишут код              │             │                         │
+└─────────────────────────┘             └─────────────────────────┘
+
+┌─────────────────────────┐             ┌─────────────────────────┐
+│  Middle-40% (~40 FTE)   │             │  AGENT-AUGMENTED        │
+│  Mid-level инженеры     │ ─────────► │  ENGINEERS              │
+│  + training cohort 1-2  │             │  ~30 FTE                │
+│  + reassign to growing  │             │  выход ×2-3 vs baseline │
+│    domains              │             │                         │
+└─────────────────────────┘             └─────────────────────────┘
+
+┌─────────────────────────┐             ┌─────────────────────────┐
+│  Bottom-30% (~30 FTE)   │             │  EXIT после             │
+│  Performance-based      │ ─────────► │  KB-coverage gate       │
+│  процедуры по ТК        │             │                         │
+└─────────────────────────┘             └─────────────────────────┘</pre>
+  <h3>Knowledge Transfer Gate (обязательное условие)</h3>
+  <div class="quote">Никакая волна сокращений не начинается, пока KB-coverage домена не валидирован.</div>
+  <ol>
+    <li>Identify domain X — тематика, за которую отвечает сотрудник.</li>
+    <li>Tacticum + dev пишут KB ingredients под этот домен (behaviour block, ADR, use cases, code-scenario-match).</li>
+    <li>Архитектор + заказчик валидируют, что профиль закрывает домен (тест фичи через agent).</li>
+    <li>Только тогда сотрудник может покинуть компанию по performance-процедуре.</li>
+  </ol>
+  <p><strong>Это превращает workforce-план из риска потери знаний в <em>усиление</em> knowledge base.</strong></p>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 11 · Risks</span>
+  <h2>Risks &amp; Mitigations</h2>
+  <table>
+    <thead><tr><th>#</th><th>Риск</th><th>Митигация</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Data security + ФЗ-152 / КИИ</strong></td><td><strong>Sovereign LLM:</strong> Qwen, Kimi, GigaChat через локальный прокси. Production code и inference в периметре заказчика. <strong>On-prem</strong> доступен в рамках расширенного контракта</td></tr>
+      <tr><td>2</td><td><strong>Vendor lock-in</strong></td><td><strong>Schema-based ingredients:</strong> profile — открытая спецификация, exportable. <strong>Source escrow.</strong> Transition clause: handover профилей за N месяцев</td></tr>
+      <tr><td>3</td><td><strong>Knowledge loss при workforce changes</strong></td><td><strong>KB-coverage gate:</strong> сотрудник не уходит, пока домен не покрыт</td></tr>
+      <tr><td>4</td><td><strong>Top-30 саботаж / уход</strong></td><td><strong>New role «Agent Architect»:</strong> +30–50% comp, ownership profile KB</td></tr>
+      <tr><td>5</td><td><strong>Quality drift / AI hallucinations</strong></td><td><strong>Mandatory quality gates.</strong> Agent <strong>не мерджит</strong>, только предлагает MR</td></tr>
+      <tr><td>6</td><td><strong>Сжатые сроки для сложного стека</strong> (Qt, embedded)</td><td><strong>Stack-specific профиль покрывает brownfield workflow</strong> — не миграцию архитектуры</td></tr>
+    </tbody>
+  </table>
+  <h3>«А что если просто купим Cursor Enterprise / GitHub Copilot Enterprise?»</h3>
+  <table>
+    <thead><tr><th>Cursor / Copilot Enterprise</th><th>Tacticum Dev</th></tr></thead>
+    <tbody>
+      <tr><td>Generic vibe-coding tool</td><td>Enterprise profile orchestrator</td></tr>
+      <tr><td>Не знает архитектуру вашего проекта</td><td>RE Knowledge layer с topology / ADR / use cases</td></tr>
+      <tr><td>Не знает design system</td><td>Design token enforcement через MCP</td></tr>
+      <tr><td>Не управляет quality gates</td><td>BRD/ADR/PIN/TESTS approval gate + stack-specific gates</td></tr>
+      <tr><td>Generic tools для всех</td><td>Stack-specific (Qt, Compose, Go, RN) bundles</td></tr>
+      <tr><td>Sales — на разработчика</td><td>Sales — на профиль / стек / команду</td></tr>
+    </tbody>
+  </table>
+  <div class="quote">Cursor — это IDE с AI. Tacticum — это SDLC-layer над agentic CLI. Их можно использовать <strong>вместе</strong>: Tacticum-профиль конфигурирует Cursor / Copilot / Claude Code одинаково.</div>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 12 · Training</span>
+  <h2>Re-skilling программа</h2>
+  <p>Сократить можно только тех, чьи задачи закрыты агентами. Чтобы оставшиеся работали с агентами эффективно — нужна структурированная программа.</p>
+<pre>Cohort training (3 волны × 2 месяца каждая):
+
+Cohort 1 (m1-m2):  Early adopters + lead team    ~30 человек
+Cohort 2 (m3-m4):  Backend + cross-functional    ~50 человек
+Cohort 3 (m5-m6):  Остальные команды             ~70 человек
+
+Per cohort:
+├── Неделя 1     Onboarding profile + market MCP basics
+├── Недели 2-3   Hands-on: BRD/ADR/PIN/TESTS authoring
+├── Недели 4-5   Design tokens + quality gates
+├── Недели 6-7   Live проекты под supervision
+└── Неделя 8    Certification + access к full-tier profile</pre>
+  <table>
+    <thead><tr><th>Компонент</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td>Curriculum</td><td>Specific под стек заказчика + profile-aware</td></tr>
+      <tr><td>Mentors (Tacticum)</td><td>2–3 senior engineer'а на cohort</td></tr>
+      <tr><td>Hands-on labs</td><td>Реальные задачи из backlog заказчика</td></tr>
+      <tr><td>Certification</td><td>Internal заказчика + Tacticum joint cert</td></tr>
+      <tr><td>Materials</td><td>Skill content, video, examples — IP заказчика после окончания контракта</td></tr>
+      <tr><td>Post-training support</td><td>3 мес консультаций после cohort</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <span class="slide-num">Slide 13 · Старт</span>
+  <h2>Cascade-ask + Next steps</h2>
+<pre>1️⃣  PILOT
+    └─ Команда A (Android/Go/RN на выбор): 4-6 недель
+       Метрики: lead time, defects, architecture compliance
+
+2️⃣  TRAINING CONTRACT
+    └─ Cohort 1 (~30 человек) запускается через 2 недели после pilot
+
+3️⃣  R&amp;D НА N ПАРАЛЛЕЛЬНЫХ ПРОФИЛЯ
+    └─ Greenfield, backend, mobile, desktop — параллельно
+       Старт: m+2, готовность: m+4-6
+
+4️⃣  WORKFORCE REORGANIZATION
+    └─ Через 6 месяцев: 100% команд на agentic workflow
+       Performance-based процедуры + KB-coverage gate
+
+5️⃣  [OPTIONAL] EQUITY PATH ↔ ON-PREM
+    └─ Strategic stake в Tacticum ↔ on-prem deployment +
+       co-development governance</pre>
+  <h3>Timeline после «yes»</h3>
+  <table>
+    <thead><tr><th>Неделя</th><th>Milestone</th></tr></thead>
+    <tbody>
+      <tr><td>W+1</td><td>Term sheet (pilot + training pricing)</td></tr>
+      <tr><td>W+2</td><td>Контракт подписан, baseline data collection</td></tr>
+      <tr><td>W+3</td><td>Pilot kick-off</td></tr>
+      <tr><td>W+5</td><td>Промежуточные метрики pilot</td></tr>
+      <tr><td>W+8</td><td>Pilot graduation, переход в production rollout</td></tr>
+      <tr><td>M+2</td><td>Cohort 1 training kick-off</td></tr>
+      <tr><td>M+6</td><td>Full agentic adoption across application teams</td></tr>
+    </tbody>
+  </table>
+  <h3>С чего начинаем</h3>
+  <ol>
+    <li>Discovery-звонок: 60 минут, аудит инженерной орг-структуры.</li>
+    <li>Готовим term sheet под конкретный pilot-кейс.</li>
+    <li>Pilot стартует через 1–2 недели после подписания.</li>
+  </ol>
+</section>
+
+<div class="footer">
+  <span class="brand-mark">TACTICUM DEV</span> · Agentic-трансформация разработки · 2026
+</div>
+
+</div>
+</body>
+</html>

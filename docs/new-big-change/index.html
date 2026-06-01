@@ -1,0 +1,2990 @@
+<!doctype html>
+<html lang="ru"><head><script data-od-sandbox-shim="">(function(){
+  function makeStore(){
+    var data = {};
+    var api = {
+      getItem: function(k){ return Object.prototype.hasOwnProperty.call(data, k) ? data[k] : null; },
+      setItem: function(k, v){ data[k] = String(v); },
+      removeItem: function(k){ delete data[k]; },
+      clear: function(){ data = {}; },
+      key: function(i){ return Object.keys(data)[i] || null; }
+    };
+    Object.defineProperty(api, 'length', { get: function(){ return Object.keys(data).length; } });
+    return api;
+  }
+  function tryShim(name){
+    var works = false;
+    try { works = !!window[name] && typeof window[name].getItem === 'function'; void window[name].length; }
+    catch (_) { works = false; }
+    if (works) return;
+    try { Object.defineProperty(window, name, { configurable: true, value: makeStore() }); }
+    catch (_) { try { window[name] = makeStore(); } catch (__) {} }
+  }
+  tryShim('localStorage');
+  tryShim('sessionStorage');
+  document.addEventListener('click', (e) => {
+    if (!e.target || !(e.target instanceof Element)) return;
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (href === null) return;
+    var isAnchor = href.startsWith('#') || href === '';
+    if (isAnchor) {
+      e.preventDefault();
+      if (href === '' || href === '#') {
+        window.scrollTo({ top: 0 });
+        history.replaceState(null, '', ' ');
+      } else {
+        var targetId = href.slice(1);
+        var target = targetId ? document.getElementById(targetId) : null;
+        if (target) {
+          target.scrollIntoView();
+          location.hash === href && history.replaceState(null, '', ' ');
+          location.hash = href;
+        }
+      }
+    } else if (link.getAttribute('target') === '_blank') {
+      e.preventDefault();
+      let safe = false;
+      try {
+        var url = new URL(href, location.href);
+        safe =
+          url.protocol === 'http:' ||
+          url.protocol === 'https:' ||
+          url.protocol === 'mailto:';
+      } catch (_) {}
+      safe && window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  });
+})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tacticum — Оценим, спроектируем и внедрим AI-решение под вашу бизнес-задачу</title>
+<meta name="description" content="Tacticum — интеграция AI и IT под ключ. От расчёта проекта и сборки команды до запуска AI-агентов и ботов в боевых процессах.">
+<meta name="theme-color" content="#001F3F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+/* ─── tokens.css — Tacticum Corporate (verbatim from design-system) ─── */
+:root {
+  --bg: #f5f8fc;
+  --surface: #ffffff;
+  --surface-alt: #eef3fa;
+  --surface-warm: var(--surface-alt);
+
+  --fg: #0b1829;
+  --fg-2: #1e3554;
+  --muted: #4a6580;
+  --meta: #7a96ae;
+
+  --border: #ccd8e8;
+  --border-soft: #e3ecf4;
+
+  --accent: #0066cc;
+  --accent-on: #ffffff;
+  --accent-hover: color-mix(in oklab, var(--accent), black 10%);
+  --accent-active: color-mix(in oklab, var(--accent), black 18%);
+  --accent-subtle: color-mix(in oklab, var(--accent), white 88%);
+
+  --navy: #001f3f;
+  --navy-mid: #002b59;
+
+  --gradient-brand:      linear-gradient(135deg, var(--navy) 0%, var(--accent) 100%);
+  --gradient-hero-dark:  linear-gradient(rgba(0, 31, 63, 0.82), rgba(0, 31, 63, 0.94));
+  --gradient-hero-light: linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.72) 55%, rgba(255,255,255,0.08) 100%);
+
+  --success: #16a34a;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --info: #0284c7;
+
+  --font-display: "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-body:    "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "Fira Code", monospace;
+
+  --text-xs: 12px;   --text-sm: 14px;   --text-base: 16px;
+  --text-lg: 20px;   --text-xl: 24px;   --text-2xl: 32px;
+  --text-3xl: 48px;  --text-4xl: 64px;
+
+  --leading-body: 1.65;
+  --leading-snug: 1.35;
+  --leading-tight: 1.2;
+  --tracking-display: -0.02em;
+  --tracking-heading: -0.01em;
+  --tracking-body: 0em;
+  --tracking-caps: 0.08em;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+  --space-12: 48px; --space-16: 64px; --space-20: 80px; --space-24: 96px;
+
+  --section-y-desktop: 96px;
+  --section-y-tablet:  64px;
+  --section-y-phone:   48px;
+
+  --radius-sm: 8px;   --radius-md: 12px;
+  --radius-lg: 16px;  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  --elev-flat:    none;
+  --elev-ring:    0 0 0 1px var(--border);
+  --elev-raised:  0 2px 16px color-mix(in oklab, var(--fg), transparent 86%);
+  --elev-overlay: 0 8px 40px color-mix(in oklab, var(--fg), transparent 80%);
+
+  --focus-ring: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 68%);
+
+  --motion-fast: 150ms; --motion-base: 220ms; --motion-slow: 340ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit:     cubic-bezier(0.4, 0, 1, 1);
+
+  --container-max: 1280px;
+  --container-gutter-desktop: 32px;
+  --container-gutter-tablet:  24px;
+  --container-gutter-phone:   16px;
+
+  --z-base: 0; --z-raised: 10; --z-dropdown: 100;
+  --z-overlay: 200; --z-modal: 300; --z-toast: 400;
+
+  --tc-nav-height: 64px;
+  --tc-input-height: 44px;
+  --tc-button-height-sm: 32px;
+  --tc-button-height-md: 44px;
+  --tc-button-height-lg: 52px;
+  --tc-consent-bg: color-mix(in oklab, var(--accent), white 94%);
+  --tc-consent-border: color-mix(in oklab, var(--accent), white 72%);
+}
+
+/* ─── reset + base ─── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--tc-nav-height) + 16px); }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); }
+button { font-family: inherit; cursor: pointer; }
+:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+::selection { background: color-mix(in oklab, var(--accent), white 70%); color: var(--fg); }
+
+/* ─── layout primitives ─── */
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter-desktop);
+}
+.section {
+  padding-block: var(--section-y-desktop);
+}
+.section--alt { background: var(--surface-alt); }
+.section--ink { background: var(--navy); color: #fff; }
+.section--ink h2, .section--ink h3 { color: #fff; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--accent);
+  margin-bottom: var(--space-4);
+}
+.eyebrow::before {
+  content: "";
+  width: 24px; height: 1px;
+  background: currentColor;
+}
+.section--ink .eyebrow { color: color-mix(in oklab, var(--accent), white 30%); }
+
+.section-head {
+  max-width: 720px;
+  margin-bottom: var(--space-12);
+}
+.section-head h2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  line-height: 1.2;
+  margin: 0 0 var(--space-4);
+  color: var(--fg);
+}
+.section-head p {
+  font-size: var(--text-lg);
+  color: var(--muted);
+  margin: 0;
+  max-width: 60ch;
+}
+.section--ink .section-head p { color: color-mix(in oklab, #fff, transparent 30%); }
+
+/* ─── buttons ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--tc-button-height-md);
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: var(--text-base);
+  border: 1.5px solid transparent;
+  transition: background var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard),
+              border-color var(--motion-fast) var(--ease-standard),
+              transform var(--motion-fast) var(--ease-standard);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+.btn--primary:hover { background: var(--accent-hover); color: var(--accent-on); }
+.btn--secondary {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.btn--secondary:hover { background: var(--accent-subtle); }
+.btn--ghost-light {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255,255,255,0.6);
+}
+.btn--ghost-light:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: #fff;
+}
+.btn--lg { height: var(--tc-button-height-lg); padding-inline: var(--space-6); font-size: var(--text-base); }
+.btn--sm { height: var(--tc-button-height-sm); padding-inline: var(--space-4); font-size: var(--text-sm); }
+.btn .arrow {
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+.btn:hover .arrow { transform: translateX(3px); }
+
+/* ─── navbar ─── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-dropdown);
+  height: var(--tc-nav-height);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--motion-base), background var(--motion-base);
+}
+.nav.is-scrolled {
+  border-bottom-color: var(--border-soft);
+  background: rgba(255,255,255,0.96);
+}
+.nav__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.nav__brand .mark {
+  height: 28px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+}
+.nav__links {
+  display: flex;
+  gap: var(--space-6);
+  list-style: none;
+  margin: 0; padding: 0;
+  flex: 1;
+}
+.nav__links a {
+  color: var(--fg-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding-block: var(--space-2);
+  transition: color var(--motion-fast);
+}
+.nav__links a:hover { color: var(--accent); }
+.nav__actions { display: flex; gap: var(--space-3); align-items: center; }
+.nav__phone {
+  color: var(--fg);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+.nav__phone:hover { color: var(--accent); }
+.nav__burger {
+  display: none;
+  width: 44px; height: 44px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  align-items: center; justify-content: center;
+}
+.nav__burger svg { width: 20px; height: 20px; stroke: var(--fg); }
+
+/* ─── hero ─── */
+.hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--navy);
+  color: #fff;
+  overflow: hidden;
+  min-height: 80vh;
+  padding-block: 96px 80px;
+  display: flex;
+  align-items: center;
+}
+/* photo layer */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background: url("mps5vae7-slide1-hero-bg.png") center / cover no-repeat;
+  filter: saturate(1.05);
+}
+/* navy + cobalt glow overlay sitting on top of the photo */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(0,102,204,0.40), transparent 62%),
+    radial-gradient(ellipse 70% 60% at 15% 80%, rgba(0,102,204,0.22), transparent 60%),
+    linear-gradient(135deg, rgba(0,20,40,0.82) 0%, rgba(0,43,89,0.74) 50%, rgba(0,20,40,0.88) 100%);
+  z-index: -2;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse 80% 70% at center, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at center, #000 30%, transparent 80%);
+  z-index: -1;
+}
+.hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--space-16);
+  align-items: center;
+}
+.hero__copy { max-width: 720px; }
+.hero__eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: color-mix(in oklab, var(--accent), white 40%);
+  margin-bottom: var(--space-6);
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.04);
+}
+.hero__eyebrow .pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 0 rgba(22,163,74,0.6);
+  animation: pulse 2s var(--ease-standard) infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(22,163,74,0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+}
+.hero h1 {
+  font-size: clamp(36px, 5.2vw, 64px);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.05;
+  margin: 0 0 var(--space-6);
+  color: #fff;
+  text-wrap: balance;
+}
+.hero h1 .hl {
+  background: linear-gradient(135deg, #4d9bff 0%, #66b3ff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.hero__lead {
+  font-size: var(--text-lg);
+  line-height: 1.55;
+  color: rgba(255,255,255,0.82);
+  margin: 0 0 var(--space-8);
+  max-width: 56ch;
+}
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-10);
+}
+.hero__ctas .btn--primary { background: var(--accent); }
+.hero__ctas .btn--primary:hover { background: #2a7fd6; }
+.hero__microcopy {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  flex-basis: 100%;
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.6);
+}
+.hero__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  padding-top: var(--space-8);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.hero__stat .num {
+  display: block;
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+.hero__stat .num .unit {
+  font-size: 0.55em;
+  color: color-mix(in oklab, var(--accent), white 40%);
+  font-weight: 600;
+  margin-left: 2px;
+}
+.hero__stat .lbl {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.65);
+  line-height: 1.4;
+}
+
+/* hero visual — orchestrating right card */
+.hero__visual {
+  position: relative;
+  align-self: stretch;
+  min-height: 440px;
+}
+.hero-card {
+  position: absolute;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: var(--space-5);
+}
+.hero-card--main {
+  inset: 0 0 60px 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+}
+.hero-card__head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.hero-card__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.hero-card__title .dot { width:8px; height:8px; border-radius:50%; background: var(--accent); }
+.hero-card__tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(22,163,74,0.15);
+  color: #4ade80;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+.flow-step {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background var(--motion-base);
+}
+.flow-step.active {
+  background: rgba(0,102,204,0.16);
+  border-color: rgba(77,155,255,0.4);
+}
+.flow-step__icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.08);
+  display: grid; place-items: center;
+  color: rgba(255,255,255,0.8);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.flow-step.active .flow-step__icon {
+  background: var(--accent);
+  color: #fff;
+}
+.flow-step__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.flow-step__copy .t {
+  font-size: var(--text-sm); font-weight: 600;
+  color: #fff;
+}
+.flow-step__copy .s {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-mono);
+}
+.flow-step__bar {
+  margin-left: auto;
+  width: 40px; height: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.flow-step.active .flow-step__bar {
+  background: rgba(255,255,255,0.15);
+}
+.flow-step.active .flow-step__bar::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  animation: barfill 1.8s var(--ease-standard) forwards;
+}
+@keyframes barfill { to { width: 100%; } }
+.hero-card--badge {
+  bottom: 0; right: 16px;
+  height: 80px; width: 220px;
+  display: flex; align-items: center; gap: var(--space-3);
+  background: linear-gradient(135deg, rgba(0,102,204,0.25), rgba(0,102,204,0.1));
+  border-color: rgba(77,155,255,0.4);
+}
+.hero-card--badge .num {
+  font-size: 28px; font-weight: 700; color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.hero-card--badge .lbl {
+  font-size: 11px; color: rgba(255,255,255,0.7);
+  text-transform: uppercase; letter-spacing: var(--tracking-caps);
+  font-family: var(--font-mono);
+  line-height: 1.3;
+}
+.hero-card--badge svg { width: 36px; height: 36px; color: #4d9bff; }
+
+/* ─── entry-points ─── */
+.entry {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-6);
+}
+.entry-card {
+  grid-column: span 4;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition: transform var(--motion-base) var(--ease-standard),
+              border-color var(--motion-base),
+              box-shadow var(--motion-base);
+  position: relative;
+  overflow: hidden;
+}
+.entry-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--elev-raised);
+}
+.entry-card--feature {
+  grid-column: span 6;
+  background: var(--gradient-brand);
+  color: #fff;
+  border-color: transparent;
+}
+.entry-card--feature::after {
+  content: "";
+  position: absolute;
+  inset: -50% -20% auto auto;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 60%);
+  pointer-events: none;
+}
+.entry-card--wide { grid-column: span 6; }
+.entry-card__icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: grid; place-items: center;
+  margin-bottom: var(--space-5);
+}
+.entry-card--feature .entry-card__icon {
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+}
+.entry-card__icon svg { width: 24px; height: 24px; }
+.entry-card h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+  letter-spacing: var(--tracking-heading);
+  color: inherit;
+}
+.entry-card p {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0 0 var(--space-6);
+  flex: 1;
+  line-height: var(--leading-body);
+}
+.entry-card--feature p { color: rgba(255,255,255,0.85); }
+.entry-card__link {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--accent);
+  margin-top: auto;
+}
+.entry-card--feature .entry-card__link { color: #fff; }
+.entry-card__link .arrow {
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+.entry-card:hover .entry-card__link .arrow { transform: translateX(4px); }
+.entry-card__meta {
+  position: absolute;
+  top: var(--space-5); right: var(--space-5);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--meta);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.entry-card--feature .entry-card__meta { color: rgba(255,255,255,0.7); }
+
+/* ─── trust strip ─── */
+.trust {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-10);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-ring);
+}
+.trust__item .num {
+  display: block;
+  font-size: clamp(36px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: var(--space-3);
+}
+.trust__item .num .unit {
+  font-size: 0.55em;
+  color: var(--fg-2);
+  margin-left: 2px;
+}
+.trust__item .lbl {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  line-height: 1.45;
+}
+.client-row {
+  margin-top: var(--space-12);
+  padding-top: var(--space-10);
+  border-top: 1px solid var(--border-soft);
+}
+.client-row__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--meta);
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+.client-logos {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-8);
+  align-items: center;
+}
+.client-logo {
+  display: flex; align-items: center; justify-content: center;
+  height: 48px;
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--muted);
+  letter-spacing: -0.01em;
+  filter: grayscale(1);
+  opacity: 0.7;
+  transition: opacity var(--motion-base), filter var(--motion-base);
+}
+.client-logo:hover { opacity: 1; filter: grayscale(0); }
+.client-logo .glyph {
+  display: inline-block;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--fg-2);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ─── services tabs ─── */
+.services {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-10);
+  align-items: start;
+}
+.svc-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: var(--elev-ring);
+}
+.svc-tab {
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  text-align: left;
+  padding: var(--space-4) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--fg-2);
+  font-size: var(--text-base);
+  font-weight: 500;
+  width: 100%;
+  transition: background var(--motion-fast), color var(--motion-fast);
+  cursor: pointer;
+}
+.svc-tab:hover { background: var(--surface-alt); color: var(--fg); }
+.svc-tab[aria-selected="true"] {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.svc-tab__idx {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--meta);
+  width: 22px;
+  flex-shrink: 0;
+}
+.svc-tab[aria-selected="true"] .svc-tab__idx { color: rgba(255,255,255,0.7); }
+.svc-tab .arrow {
+  margin-left: auto;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--motion-fast), transform var(--motion-fast);
+}
+.svc-tab[aria-selected="true"] .arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+.svc-panel { display: none; }
+.svc-panel.is-active { display: block; }
+.svc-panel-inner {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-10);
+  box-shadow: var(--elev-ring);
+}
+.svc-panel h3 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  margin: 0 0 var(--space-3);
+  color: var(--fg);
+}
+.svc-panel__lead {
+  font-size: var(--text-lg);
+  color: var(--muted);
+  margin: 0 0 var(--space-8);
+  max-width: 60ch;
+}
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+.svc-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.svc-item__icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.svc-item__icon svg { width: 18px; height: 18px; }
+.svc-item h4 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--fg);
+}
+.svc-item p {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.55;
+}
+.svc-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-soft);
+}
+.svc-bottom__time {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.svc-bottom__time strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* ─── process ─── */
+.process {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-4);
+  position: relative;
+}
+.process::before {
+  content: "";
+  position: absolute;
+  top: 32px;
+  left: 32px; right: 32px;
+  height: 2px;
+  background: linear-gradient(to right, var(--accent-subtle), var(--accent), var(--accent-subtle));
+  z-index: 0;
+}
+.process-step {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  z-index: 1;
+}
+.process-step__num {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: #fff;
+  display: grid; place-items: center;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-5);
+}
+.process-step h4 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+  color: var(--fg);
+}
+.process-step p {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.55;
+}
+.process-step__time {
+  display: inline-block;
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 4px 8px;
+  background: var(--accent-subtle);
+  border-radius: var(--radius-pill);
+}
+
+/* ─── cases ─── */
+.cases {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+.case-card {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform var(--motion-base), box-shadow var(--motion-base);
+}
+.case-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--elev-raised);
+}
+.case-card__cover {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-brand);
+}
+.case-card__cover svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.4; }
+.case-card__industry {
+  position: absolute; top: var(--space-4); left: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.25);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(8px);
+}
+.case-card__metric {
+  position: absolute; bottom: var(--space-4); left: var(--space-4); right: var(--space-4);
+  display: flex; align-items: baseline; gap: var(--space-2);
+  color: #fff;
+}
+.case-card__metric .num {
+  font-size: clamp(32px, 3vw, 40px);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+}
+.case-card__metric .lbl {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.85);
+  line-height: 1.3;
+}
+.case-card__body { padding: var(--space-6); display: flex; flex-direction: column; flex: 1; }
+.case-card h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+  color: var(--fg);
+  line-height: 1.35;
+}
+.case-card__desc {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0 0 var(--space-5);
+  flex: 1;
+}
+.case-card__tags {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-alt);
+  color: var(--fg-2);
+}
+.case-card__link {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-weight: 600; font-size: var(--text-sm);
+  color: var(--accent);
+}
+
+/* ─── testimonials ─── */
+.testimonials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+.quote {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  border: 1px solid var(--border-soft);
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.quote__mark {
+  font-family: Georgia, serif;
+  font-size: 80px;
+  line-height: 0.8;
+  color: var(--accent);
+  opacity: 0.18;
+  position: absolute;
+  top: var(--space-5); left: var(--space-6);
+}
+.quote__body {
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--fg);
+  margin: var(--space-8) 0 var(--space-6);
+  text-wrap: pretty;
+  position: relative;
+}
+.quote__who {
+  display: flex; align-items: center; gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-soft);
+}
+.quote__avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: #fff;
+  display: grid; place-items: center;
+  font-weight: 600;
+  font-size: var(--text-base);
+  flex-shrink: 0;
+}
+.quote__person .name { font-weight: 600; font-size: var(--text-sm); color: var(--fg); }
+.quote__person .role { font-size: var(--text-xs); color: var(--muted); }
+
+/* ─── FAQ ─── */
+.faq-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: var(--space-12);
+  align-items: start;
+}
+.faq-aside {
+  position: sticky;
+  top: calc(var(--tc-nav-height) + 32px);
+}
+.faq-aside h2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  margin: 0 0 var(--space-4);
+  color: var(--fg);
+}
+.faq-aside p { color: var(--muted); margin: 0 0 var(--space-6); }
+.faq-list { display: flex; flex-direction: column; }
+.faq-item {
+  border-bottom: 1px solid var(--border-soft);
+}
+.faq-item:first-child { border-top: 1px solid var(--border-soft); }
+.faq-q {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  padding: var(--space-5) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+  transition: color var(--motion-fast);
+}
+.faq-q:hover { color: var(--accent); }
+.faq-q__icon {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  display: grid; place-items: center;
+  color: var(--fg-2);
+  transition: background var(--motion-fast), color var(--motion-fast), transform var(--motion-base);
+}
+.faq-q[aria-expanded="true"] .faq-q__icon {
+  background: var(--accent);
+  color: #fff;
+  transform: rotate(45deg);
+}
+.faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-slow) var(--ease-enter);
+}
+.faq-q[aria-expanded="true"] + .faq-a {
+  grid-template-rows: 1fr;
+}
+.faq-a__inner {
+  overflow: hidden;
+  padding: 0;
+}
+.faq-q[aria-expanded="true"] + .faq-a .faq-a__inner {
+  padding-bottom: var(--space-5);
+}
+.faq-a p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-base);
+  max-width: 64ch;
+  line-height: var(--leading-body);
+}
+
+/* ─── lead CTA ─── */
+.lead-cta {
+  background: var(--gradient-brand);
+  border-radius: var(--radius-xl);
+  padding: 80px 64px;
+  color: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
+  gap: var(--space-12);
+  align-items: start;
+  position: relative;
+  overflow: hidden;
+}
+.lead-cta::before {
+  content: "";
+  position: absolute;
+  inset: -50% -10% auto auto;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 65%);
+  pointer-events: none;
+}
+.lead-cta__copy { position: relative; }
+.lead-cta__copy h2 {
+  font-size: clamp(32px, 3.6vw, 44px);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+  margin: 0 0 var(--space-5);
+  color: #fff;
+  text-wrap: balance;
+}
+.lead-cta__copy p {
+  font-size: var(--text-lg);
+  color: rgba(255,255,255,0.85);
+  margin: 0 0 var(--space-8);
+  max-width: 48ch;
+}
+.lead-cta__features {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+.lead-cta__features li {
+  display: flex; align-items: flex-start; gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.9);
+  line-height: 1.5;
+}
+.lead-cta__features svg {
+  width: 20px; height: 20px;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.lead-form {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+}
+.lead-form h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: 0 0 var(--space-5);
+  color: #fff;
+}
+.lead-form__fields { display: flex; flex-direction: column; gap: var(--space-4); }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: rgba(255,255,255,0.9);
+}
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  height: var(--tc-input-height);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  padding: 0 var(--space-4);
+  font-family: inherit;
+  font-size: var(--text-base);
+  transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+.form-field textarea { height: auto; padding-block: var(--space-3); resize: vertical; min-height: 80px; }
+.form-field input::placeholder,
+.form-field textarea::placeholder { color: rgba(255,255,255,0.45); }
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #fff;
+  background: rgba(255,255,255,0.12);
+  box-shadow: none;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+}
+.consent input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+  background: transparent;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+.consent input[type="checkbox"]:checked {
+  background: #fff;
+  border-color: #fff;
+}
+.consent input[type="checkbox"]:checked::after {
+  content: "";
+  width: 10px; height: 6px;
+  border: 2px solid var(--accent);
+  border-top: 0; border-right: 0;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.consent a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+.lead-form button[type="submit"] {
+  margin-top: var(--space-5);
+  width: 100%;
+  height: var(--tc-button-height-lg);
+  background: #fff;
+  color: var(--accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: var(--text-base);
+  transition: background var(--motion-fast);
+}
+.lead-form button[type="submit"]:hover { background: rgba(255,255,255,0.92); }
+.lead-form__microcopy {
+  text-align: center;
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.6);
+}
+
+/* ─── ecosystem (Tacticum platform + 3 продукта) ─── */
+.eco {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+.eco-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: transform var(--motion-base) var(--ease-standard),
+              box-shadow var(--motion-base) var(--ease-standard),
+              border-color var(--motion-base);
+  text-decoration: none;
+  color: var(--fg);
+}
+.eco-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-raised);
+  border-color: color-mix(in oklab, var(--accent), white 50%);
+}
+.eco-card--hero {
+  grid-column: 1 / -1;
+  background: var(--gradient-brand);
+  color: #fff;
+  border: 0;
+  padding: var(--space-10);
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-10);
+  align-items: center;
+}
+.eco-card--hero:hover { transform: translateY(-2px); box-shadow: var(--elev-overlay); }
+.eco-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-4);
+}
+.eco-card__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--meta);
+}
+.eco-card--hero .eco-card__kicker { color: color-mix(in oklab, #fff, transparent 30%); }
+.eco-card__class {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border: 1px solid color-mix(in oklab, var(--accent), white 78%);
+  white-space: nowrap;
+}
+.eco-card--hero .eco-card__class {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  border-color: rgba(255,255,255,0.22);
+}
+.eco-card h3 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  margin: 0;
+  color: inherit;
+  line-height: 1.25;
+}
+.eco-card--hero h3 { font-size: var(--text-2xl); }
+.eco-card__lead {
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--muted);
+  margin: 0;
+}
+.eco-card--hero .eco-card__lead {
+  color: rgba(255,255,255,0.86);
+  font-size: var(--text-lg);
+}
+.eco-card__bullets {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.eco-card__bullets li {
+  position: relative;
+  padding-left: 22px;
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+  line-height: 1.5;
+}
+.eco-card--hero .eco-card__bullets li { color: rgba(255,255,255,0.92); }
+.eco-card__bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 9px;
+  width: 12px; height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.eco-card--hero .eco-card__bullets li::before {
+  background: #fff;
+}
+.eco-card__effect {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
+  font-size: var(--text-sm);
+  color: var(--muted);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.eco-card--hero .eco-card__effect {
+  border-top-color: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.82);
+}
+.eco-card__effect strong {
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.eco-card--hero .eco-card__effect strong { color: #fff; }
+.eco-card__link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+.eco-card--hero .eco-card__link { color: #fff; }
+.eco-card__link .arrow {
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+.eco-card:hover .eco-card__link .arrow { transform: translateX(3px); }
+
+/* reg-ready strip */
+.reg-strip {
+  margin-top: var(--space-10);
+  padding: var(--space-6) var(--space-8);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+  align-items: center;
+}
+.reg-strip__head {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.reg-strip__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--meta);
+}
+.reg-strip__title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.reg-strip__item {
+  border-left: 2px solid var(--border-soft);
+  padding-left: var(--space-4);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.reg-strip__num {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.reg-strip__lbl {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ─── footer ─── */
+.footer {
+  background: var(--navy);
+  color: #fff;
+  padding-block: var(--space-16) var(--space-8);
+}
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;
+  gap: var(--space-10);
+  margin-bottom: var(--space-12);
+}
+.footer__brand {
+  font-weight: 700;
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  color: #fff;
+}
+.footer__brand .mark {
+  height: 32px;
+  width: auto;
+  display: block;
+  /* dark logo on navy → invert to white per Tacticum logo guide fallback */
+  filter: brightness(0) invert(1);
+}
+.footer__about {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.65);
+  max-width: 38ch;
+  line-height: 1.6;
+  margin-bottom: var(--space-6);
+}
+.footer__contacts { display: flex; flex-direction: column; gap: var(--space-2); }
+.footer__contacts a {
+  color: #fff;
+  font-size: var(--text-sm);
+  display: inline-flex; align-items: center; gap: var(--space-2);
+}
+.footer__contacts a:hover { color: color-mix(in oklab, var(--accent), white 30%); }
+.footer__col h4 {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  font-family: var(--font-mono);
+  margin: 0 0 var(--space-4);
+  color: rgba(255,255,255,0.5);
+}
+.footer__col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.footer__col a {
+  color: rgba(255,255,255,0.85);
+  font-size: var(--text-sm);
+  transition: color var(--motion-fast);
+}
+.footer__col a:hover { color: #fff; }
+.footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.5);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.footer__bottom a { color: rgba(255,255,255,0.6); margin-left: var(--space-4); }
+
+/* ─── sticky action bar (mobile) ─── */
+.action-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: var(--z-overlay);
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4);
+  display: none;
+  gap: var(--space-3);
+  align-items: center;
+  transform: translateY(100%);
+  transition: transform var(--motion-base) var(--ease-enter);
+  box-shadow: 0 -4px 20px rgba(0,31,63,0.08);
+}
+.action-bar.is-visible { transform: translateY(0); }
+.action-bar .btn { flex: 1; }
+
+/* ─── reveal-on-scroll ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 600ms var(--ease-enter), transform 600ms var(--ease-enter);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── breakpoints ─── */
+@media (max-width: 1180px) {
+  :root { --container-gutter-desktop: 24px; }
+  .hero__inner { grid-template-columns: 1fr; gap: var(--space-12); }
+  .hero__visual { min-height: 380px; }
+  .services { grid-template-columns: 1fr; }
+  .svc-tabs { flex-direction: row; overflow-x: auto; padding: var(--space-2); }
+  .svc-tabs::-webkit-scrollbar { display: none; }
+  .svc-tab { flex-shrink: 0; }
+  .svc-tab .arrow { display: none; }
+  .process { grid-template-columns: repeat(3, 1fr); }
+  .process::before { display: none; }
+  .eco-card--hero { grid-template-columns: 1fr; gap: var(--space-6); }
+  .reg-strip { grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  .footer__grid { grid-template-columns: 1.5fr 1fr 1fr; gap: var(--space-8); }
+  .footer__brand-col { grid-column: 1 / -1; }
+}
+@media (max-width: 960px) {
+  .section { padding-block: var(--section-y-tablet); }
+  .entry-card { grid-column: span 6; }
+  .entry-card--feature, .entry-card--wide { grid-column: span 12; }
+  .trust { grid-template-columns: repeat(2, 1fr); padding: var(--space-8); }
+  .client-logos { grid-template-columns: repeat(3, 1fr); }
+  .cases { grid-template-columns: 1fr 1fr; }
+  .testimonials { grid-template-columns: 1fr; }
+  .faq-wrap { grid-template-columns: 1fr; gap: var(--space-8); }
+  .faq-aside { position: static; }
+  .lead-cta { grid-template-columns: 1fr; padding: var(--space-12) var(--space-8); }
+}
+@media (max-width: 720px) {
+  :root { --container-gutter-desktop: 16px; }
+  .section { padding-block: var(--section-y-phone); }
+  .nav__links { display: none; }
+  .nav__phone { display: none; }
+  .nav__burger { display: inline-flex; }
+  .nav__actions .btn { display: none; }
+  .hero { min-height: 75vh; padding-block: 56px 48px; }
+  .hero h1 { font-size: clamp(32px, 8vw, 44px); }
+  .hero__lead { font-size: var(--text-base); }
+  .hero__stats { grid-template-columns: 1fr; gap: var(--space-5); padding-top: var(--space-6); }
+  .hero__ctas { flex-direction: column; align-items: stretch; }
+  .hero__ctas .btn { width: 100%; }
+  .hero__visual { display: none; }
+  .entry { gap: var(--space-4); }
+  .entry-card { grid-column: span 12; padding: var(--space-5); }
+  .eco { grid-template-columns: 1fr; gap: var(--space-4); }
+  .eco-card { padding: var(--space-6); }
+  .eco-card--hero { padding: var(--space-8) var(--space-6); }
+  .reg-strip { grid-template-columns: 1fr; padding: var(--space-5); }
+  .reg-strip__item { border-left: 0; border-top: 1px solid var(--border-soft); padding-left: 0; padding-top: var(--space-3); }
+  .reg-strip__head { border-bottom: 1px solid var(--border-soft); padding-bottom: var(--space-4); }
+  .trust { grid-template-columns: 1fr 1fr; gap: var(--space-6); padding: var(--space-6); }
+  .client-logos { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+  .svc-panel-inner { padding: var(--space-6); }
+  .svc-grid { grid-template-columns: 1fr; gap: var(--space-5); }
+  .process { grid-template-columns: 1fr; }
+  .cases { grid-template-columns: 1fr; }
+  .lead-cta { padding: var(--space-10) var(--space-5); }
+  .lead-cta__copy h2 { font-size: clamp(28px, 7vw, 36px); }
+  .lead-cta__features { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .footer { padding-block: var(--space-12) var(--space-6); }
+  .footer__grid { grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+  .footer__brand-col { grid-column: 1 / -1; }
+  .footer__bottom { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+  .footer__bottom .links a { margin-left: 0; margin-right: var(--space-4); }
+  .action-bar { display: flex; }
+  .footer { padding-bottom: 92px; }
+  body { padding-bottom: 0; }
+  .section-head h2 { font-size: clamp(26px, 6vw, 32px); }
+  .section-head p { font-size: var(--text-base); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+</style>
+<style data-od-tweaks-bridge-style="">
+[data-od-tweaks-hidden] .tw-panel {
+  transform: translateX(calc(100% + 32px)) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.tw-restore { display: none !important; }
+</style><script data-od-tweaks-bridge="">(function(){
+  // Synchronously hide BEFORE the artifact body parses so the panel never
+  // flashes on initial paint. The host removes the attribute via postMessage
+  // once it knows the desired state.
+  document.documentElement.setAttribute('data-od-tweaks-hidden', '');
+
+  var suppressEcho = false;
+  var observer = null;
+
+  function panelEl(){ return document.querySelector('.tw-panel'); }
+
+  function applyClassesToPanel(visible){
+    var panel = panelEl();
+    if (panel) panel.classList.toggle('tw-hidden', !visible);
+  }
+
+  function setPanelVisible(visible){
+    suppressEcho = true;
+    document.documentElement.toggleAttribute('data-od-tweaks-hidden', !visible);
+    applyClassesToPanel(visible);
+    // Clear flag after the MutationObserver has had a chance to fire for this
+    // change so we don't echo our own host-driven toggles back to the host.
+    Promise.resolve().then(function(){ suppressEcho = false; });
+  }
+
+  function postState(){
+    var panel = panelEl();
+    if (!panel) return;
+    try {
+      parent.postMessage({
+        type: 'od:tweaks-panel-state',
+        visible: !panel.classList.contains('tw-hidden'),
+      }, '*');
+    } catch (e) {}
+  }
+
+  function postAvailability(){
+    try {
+      parent.postMessage({
+        type: 'od:tweaks-available',
+        available: !!panelEl(),
+      }, '*');
+    } catch (e) {}
+  }
+
+  function attachObserver(){
+    var panel = panelEl();
+    if (!panel || observer) return;
+    observer = new MutationObserver(function(){
+      if (suppressEcho) return;
+      postState();
+    });
+    observer.observe(panel, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function onReady(){
+    // Capture the panel authored visibility BEFORE we apply the host hidden
+    // attribute. The bridge sets data-od-tweaks-hidden synchronously in head
+    // (before the body parses), so on entry to onReady the attribute is
+    // always present even though the artifact may have authored the panel
+    // as default-visible. Reading the panel class first is the only place
+    // we can still observe the author intent. Then drive the attribute,
+    // classes, and posted state from that captured value so a default
+    // visible tw-panel reports visible:true and the toolbar toggle starts
+    // ON. Issue surfaced in PR #1643 review.
+    var panel = panelEl();
+    var initialVisible = !!panel && !panel.classList.contains('tw-hidden');
+    document.documentElement.toggleAttribute('data-od-tweaks-hidden', !initialVisible);
+    applyClassesToPanel(initialVisible);
+    attachObserver();
+    postAvailability();
+    // Post the captured initial visibility so the toolbar toggle reflects
+    // the default state on mount. Without this the toggle reads OFF while
+    // a default-visible tw-panel artifact clearly shows its panel and the
+    // user would have to click toggle-on then toggle-off to actually hide.
+    postState();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReady);
+  } else {
+    onReady();
+  }
+
+  window.addEventListener('message', function(ev){
+    if (!ev.data || ev.data.type !== 'od:tweaks-panel-visible') return;
+    setPanelVisible(!!ev.data.visible);
+  });
+})();</script></head>
+<body>
+
+<!-- ─── NAVIGATION ─── -->
+<header class="nav" id="nav" data-od-id="path-0">
+  <div class="container nav__inner" data-od-id="path-0-0">
+    <a href="#" class="nav__brand" aria-label="Tacticum — на главную" data-od-id="path-0-0-0">
+      <img class="mark" src="mps5v012-logo-flag-dark.png" alt="Tacticum" width="132" height="32">
+    </a>
+    <nav data-od-id="path-0-0-1">
+      <ul class="nav__links">
+        <li><a href="#services" data-od-id="path-0-0-1-0-0-0">Услуги</a></li>
+        <li><a href="#ecosystem" data-od-id="path-0-0-1-0-1-0">Продукты</a></li>
+        <li><a href="#process" data-od-id="path-0-0-1-0-2-0">Процесс</a></li>
+        <li><a href="#cases" data-od-id="path-0-0-1-0-3-0">Кейсы</a></li>
+        <li><a href="#faq" data-od-id="path-0-0-1-0-4-0">FAQ</a></li>
+        <li><a href="#contact" data-od-id="path-0-0-1-0-5-0">Контакты</a></li>
+      </ul>
+    </nav>
+    <div class="nav__actions">
+      <a href="tel:+74951234567" class="nav__phone" data-od-id="path-0-0-2-0">+7 495 123-45-67</a>
+      <a href="#calculate" class="btn btn--primary btn--sm" data-od-id="path-0-0-2-1">Рассчитать&nbsp;проект</a>
+      <button class="nav__burger" aria-label="Открыть меню" data-od-id="path-0-0-2-2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ─── HERO ─── -->
+<section class="hero" id="top" data-od-id="path-1">
+  <div class="hero__bg" aria-hidden="true" data-od-id="path-1-0"></div>
+  <div class="container hero__inner" data-od-id="path-1-1">
+    <div class="hero__copy">
+      <span class="hero__eyebrow"><span class="pulse"></span>AI-интеграция под&nbsp;ключ · 2026</span>
+      <h1 data-od-id="path-1-1-0-1">Оценим, спроектируем и&nbsp;внедрим <span class="hl">AI-решение</span> под вашу бизнес-задачу</h1>
+      <p class="hero__lead">
+        Ведём компании от&nbsp;первичного концепта и&nbsp;бюджета до&nbsp;сборки команды, интеграций и&nbsp;запуска AI-агентов в&nbsp;боевые процессы. От&nbsp;недели до&nbsp;трёх месяцев&nbsp;— в&nbsp;зависимости от&nbsp;сложности задачи.
+      </p>
+      <div class="hero__ctas">
+        <a href="#calculate" class="btn btn--primary btn--lg" data-od-id="path-1-1-0-3-0">
+          Рассчитать проект
+          <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </a>
+        <a href="#cases" class="btn btn--ghost-light btn--lg" data-od-id="path-1-1-0-3-1">Смотреть кейсы</a>
+        <p class="hero__microcopy">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>
+          Бесплатная консультация · ответ в&nbsp;течение 24&nbsp;часов · без&nbsp;обязательств
+        </p>
+      </div>
+
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <span class="num" data-count="42"><span class="val">42</span><span class="unit">%</span></span>
+          <span class="lbl">снижение простоев оборудования у&nbsp;промышленных клиентов</span>
+        </div>
+        <div class="hero__stat">
+          <span class="num" data-count="60"><span class="val">60</span><span class="unit">%</span></span>
+          <span class="lbl">сокращение TCO после миграции с&nbsp;SAP на&nbsp;собственный стек</span>
+        </div>
+        <div class="hero__stat">
+          <span class="num"><span class="val" data-count="4">4</span><span class="unit">×</span></span>
+          <span class="lbl">ускорение подготовки регулярной отчётности</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="hero-card hero-card--main">
+        <div class="hero-card__head">
+          <div class="hero-card__title"><span class="dot"></span>AI-агент · модуль продаж</div>
+          <span class="hero-card__tag">LIVE</span>
+        </div>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-step__icon">①</div>
+            <div class="flow-step__copy"><span class="t">Анализ запроса</span><span class="s">parse · NLU · intent</span></div>
+            <div class="flow-step__bar"></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__icon">②</div>
+            <div class="flow-step__copy"><span class="t">Поиск по&nbsp;базе</span><span class="s">RAG · 1.2M документов</span></div>
+            <div class="flow-step__bar"></div>
+          </div>
+          <div class="flow-step active">
+            <div class="flow-step__icon">③</div>
+            <div class="flow-step__copy"><span class="t">Генерация ответа</span><span class="s">GPT-4 · brand tone</span></div>
+            <div class="flow-step__bar"></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__icon">④</div>
+            <div class="flow-step__copy"><span class="t">Передача оператору</span><span class="s">handoff · CRM ticket</span></div>
+            <div class="flow-step__bar"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-card hero-card--badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"></path></svg>
+        <div>
+          <div class="num">90%</div>
+          <div class="lbl">автоматизации<br>NLP-бот B2B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ENTRY POINTS ─── -->
+<section class="section" id="services" data-od-id="path-2">
+  <div class="container" data-od-id="path-2-0">
+    <div class="section-head">
+      <span class="eyebrow">5 точек входа</span>
+      <h2 data-od-id="path-2-0-0-1">Выберите формат сотрудничества&nbsp;— остальное возьмём на&nbsp;себя</h2>
+      <p>Каждый сценарий ведёт к&nbsp;конкретному артефакту: смете проекта, спроектированному AI-решению, собранной команде или работающему боту в&nbsp;вашем мессенджере.</p>
+    </div>
+
+    <div class="entry">
+      <a href="#calculate" class="entry-card entry-card--feature" data-od-id="path-2-0-1-0">
+        <span class="entry-card__meta">01 · флагман</span>
+        <div class="entry-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="14" x2="11" y2="14"></line><line x1="8" y1="17" x2="14" y2="17"></line></svg>
+        </div>
+        <h3 data-od-id="path-2-0-1-0-2">Рассчитать проект</h3>
+        <p>Сравним вашу задачу с&nbsp;похожими внедрениями в&nbsp;отрасли, обозначим baseline-оценку по&nbsp;срокам, бюджету и&nbsp;команде. Без&nbsp;обязательств&nbsp;— даже если решите делать сами.</p>
+        <span class="entry-card__link">Получить смету за&nbsp;24&nbsp;часа <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </a>
+
+      <a href="#contact" class="entry-card entry-card--wide" data-od-id="path-2-0-1-1">
+        <span class="entry-card__meta">02</span>
+        <div class="entry-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+        </div>
+        <h3 data-od-id="path-2-0-1-1-2">Внедрить AI-решение</h3>
+        <p>Discovery, прототип, разработка, интеграция и&nbsp;запуск в&nbsp;ваши процессы. От&nbsp;NLP-ассистентов до&nbsp;аналитики качества колл-центра. Поддержка после релиза включена.</p>
+        <span class="entry-card__link">Сценарии внедрения <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </a>
+
+      <a href="#contact" class="entry-card" data-od-id="path-2-0-1-2">
+        <span class="entry-card__meta">03</span>
+        <div class="entry-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3 data-od-id="path-2-0-1-2-2">Собрать команду</h3>
+        <p>Подберём специалистов под&nbsp;роли, уровни сениорности и&nbsp;нагрузку. Замена в&nbsp;течение 5&nbsp;рабочих дней, минимальный буккинг&nbsp;— 40&nbsp;часов.</p>
+        <span class="entry-card__link">Состав ролей <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </a>
+
+      <a href="#contact" class="entry-card" data-od-id="path-2-0-1-3">
+        <span class="entry-card__meta">04</span>
+        <div class="entry-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><circle cx="9" cy="10" r="0.6" fill="currentColor"></circle><circle cx="13" cy="10" r="0.6" fill="currentColor"></circle><circle cx="17" cy="10" r="0.6" fill="currentColor"></circle></svg>
+        </div>
+        <h3 data-od-id="path-2-0-1-3-2">Запустить AI-бота</h3>
+        <p>Протестируйте сценарии прямо в&nbsp;Telegram на&nbsp;демо-агентах. Понравится&nbsp;— соберём прототип под&nbsp;вашу базу знаний и&nbsp;CRM за&nbsp;1–2 недели.</p>
+        <span class="entry-card__link">Запустить демо в&nbsp;Telegram <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </a>
+
+      <a href="#contact" class="entry-card" data-od-id="path-2-0-1-4">
+        <span class="entry-card__meta">05</span>
+        <div class="entry-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        </div>
+        <h3 data-od-id="path-2-0-1-4-2">Просто обсудить</h3>
+        <p>Оставьте описание задачи&nbsp;— ведущий архитектор перезвонит в&nbsp;течение дня. Без&nbsp;презентаций и&nbsp;шаблонных вопросов; разговор пойдёт по&nbsp;вашему процессу.</p>
+        <span class="entry-card__link">Связаться напрямую <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ECOSYSTEM (Tacticum platform + 3 продукта) ─── -->
+<section class="section section--alt" id="ecosystem" data-od-id="path-3">
+  <div class="container" data-od-id="path-3-0">
+    <div class="section-head">
+      <span class="eyebrow">Экосистема Tacticum · 4 программы</span>
+      <h2 data-od-id="path-3-0-0-1">Российская экосистема AI-программ&nbsp;— платформа-ядро и&nbsp;три прикладных продукта</h2>
+      <p>Не&nbsp;вендор-локин на&nbsp;одной модели и&nbsp;не&nbsp;AI-обёртка над&nbsp;OpenAI&nbsp;API. Один LLM-шлюз, одна память, один аудит&nbsp;— и&nbsp;три доменных приложения сверху. Берёте один продукт, два или все вместе с&nbsp;платформой как ядром.</p>
+    </div>
+
+    <div class="eco">
+      <!-- 1) Platform — anchor card -->
+      <a href="#calculate" class="eco-card eco-card--hero" data-od-id="path-3-0-1-0">
+        <div>
+          <div class="eco-card__head">
+            <span class="eco-card__kicker">01 · Платформа-ядро</span>
+            <span class="eco-card__class">Минцифры 04.13</span>
+          </div>
+          <h3 style="margin-top: var(--space-3);" data-od-id="path-3-0-1-0-0-1">Tacticum&nbsp;Platform</h3>
+          <p class="eco-card__lead">Программная платформа для построения, развёртывания и&nbsp;эксплуатации систем искусственного интеллекта на&nbsp;основе больших языковых моделей. 17&nbsp;модулей в&nbsp;6&nbsp;группах&nbsp;— RUNTIME, AI, DATA, ACCESS, IO, OPS.</p>
+        </div>
+        <div>
+          <ul class="eco-card__bullets">
+            <li>Один Agent Runtime — три DSL для всех продуктов экосистемы</li>
+            <li>LLM&nbsp;Gateway, Prompt&nbsp;Mgmt, Guardrails&nbsp;— единый учёт стоимости</li>
+            <li>RAG, Memory, Doc&nbsp;Processing&nbsp;— общая инфраструктура данных</li>
+            <li>Workflow Spec Engine для durable-процессов</li>
+            <li>Identity/RBAC, тенансы, Credential Pool из&nbsp;коробки</li>
+          </ul>
+          <div class="eco-card__effect">
+            <span><strong>2–4&nbsp;недели</strong> вместо 3–4&nbsp;месяцев&nbsp;— время вывода нового AI-приложения на&nbsp;инфраструктуру</span>
+            <span class="eco-card__link">Обсудить внедрение
+              <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 2) Agents -->
+      <a href="#contact" class="eco-card" data-od-id="path-3-0-1-1">
+        <div class="eco-card__head">
+          <span class="eco-card__kicker">02 · Прикладной продукт</span>
+          <span class="eco-card__class">Минцифры 04.13</span>
+        </div>
+        <h3 data-od-id="path-3-0-1-1-1">Tacticum&nbsp;Agents</h3>
+        <p class="eco-card__lead">Мультиагентные ассистенты для HR-, юридического, бухгалтерского, клиентского и&nbsp;корпоративного контуров. Графы агентов&nbsp;— декларативные манифесты, исполняются на&nbsp;Agent&nbsp;Runtime платформы.</p>
+        <ul class="eco-card__bullets">
+          <li>HR-онбординг, предчтение резюме, юр-предчтение договоров</li>
+          <li>Бух-FAQ, корп-KB, клиентский саппорт, IT helpdesk</li>
+          <li>Agent Catalog + Business-Function Templates</li>
+          <li>ACP-адаптер, Multi-Channel Admin&nbsp;UI</li>
+        </ul>
+        <div class="eco-card__effect">
+          <span><strong>−40…60%</strong> нагрузки HR · <strong>−50…60%</strong> типовых юр-проверок</span>
+          <span class="eco-card__link">Сценарии для&nbsp;HR/юр/бух
+            <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- 3) Dev -->
+      <a href="#contact" class="eco-card" data-od-id="path-3-0-1-2">
+        <div class="eco-card__head">
+          <span class="eco-card__kicker">03 · Прикладной продукт</span>
+          <span class="eco-card__class">Минцифры 06.07</span>
+        </div>
+        <h3 data-od-id="path-3-0-1-2-1">Tacticum&nbsp;Dev</h3>
+        <p class="eco-card__lead">Платформа управления жизненным циклом разработки ПО&nbsp;с&nbsp;применением AI-агентов. Vibe-coding без&nbsp;потери архитектуры&nbsp;— для команд от&nbsp;50&nbsp;FTE, упёршихся в&nbsp;«vibe-coding потолок».</p>
+        <ul class="eco-card__bullets">
+          <li>Profile Catalog под&nbsp;стек заказчика (Qt&nbsp;/ Compose / iOS / Go / RN / Backend)</li>
+          <li>Feature Lifecycle Workflow + Quality Gates Registry</li>
+          <li>RE Knowledge DSL поверх Platform RAG</li>
+          <li>Multi-CLI Adapter и&nbsp;Design Token Layer</li>
+        </ul>
+        <div class="eco-card__effect">
+          <span><strong>Lead&nbsp;time −70%</strong> · <strong>×2.5</strong> output на&nbsp;разработчика · design violations −100%</span>
+          <span class="eco-card__link">Пилот на&nbsp;вашем стеке
+            <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- 4) Forum -->
+      <a href="#contact" class="eco-card" data-od-id="path-3-0-1-3">
+        <div class="eco-card__head">
+          <span class="eco-card__kicker">04 · Прикладной продукт</span>
+          <span class="eco-card__class">Минцифры 04.13</span>
+        </div>
+        <h3 data-od-id="path-3-0-1-3-1">Tacticum&nbsp;Forum</h3>
+        <p class="eco-card__lead">Импортонезависимая диалоговая платформа для&nbsp;автоматизации обработки клиентских обращений. Сценарии плюс&nbsp;LLM, без&nbsp;иллюзий. Для&nbsp;контакт-центров в&nbsp;e-commerce, fintech, страховании, телекоме, госуслугах.</p>
+        <ul class="eco-card__bullets">
+          <li>Scenario&nbsp;DSL + Visual Scenario Editor</li>
+          <li>A/B Experiment Engine, Need Discovery Engine</li>
+          <li>Telegram, веб-чат, SIP, MAX, VK&nbsp;Teams, мобильное приложение</li>
+          <li>Traceability ответов для&nbsp;регуляторных требований</li>
+        </ul>
+        <div class="eco-card__effect">
+          <span><strong>Automation rate 40…70%</strong> · drop-off −20…40% · TTR −50…70%</span>
+          <span class="eco-card__link">Замена Twilio&nbsp;/ Genesys
+            <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- 5) Reg-ready strip -->
+      <div class="reg-strip" style="grid-column: 1 / -1;">
+        <div class="reg-strip__head">
+          <span class="reg-strip__kicker">Reg-ready · 2026</span>
+          <span class="reg-strip__title">Готовы к&nbsp;ПП&nbsp;РФ №&nbsp;1937 и&nbsp;Реестру Минцифры</span>
+        </div>
+        <div class="reg-strip__item">
+          <span class="reg-strip__num">4 / 4</span>
+          <span class="reg-strip__lbl">программы поданы в&nbsp;Реестр отечественного&nbsp;ПО</span>
+        </div>
+        <div class="reg-strip__item">
+          <span class="reg-strip__num">2 ОС</span>
+          <span class="reg-strip__lbl">Astra&nbsp;Linux + РЕД&nbsp;ОС&nbsp;— нативная совместимость</span>
+        </div>
+        <div class="reg-strip__item">
+          <span class="reg-strip__num">0%&nbsp;НДС</span>
+          <span class="reg-strip__lbl">по&nbsp;пп.&nbsp;26 п.&nbsp;2 ст.&nbsp;149 НК на&nbsp;реестровое&nbsp;ПО</span>
+        </div>
+        <div class="reg-strip__item">
+          <span class="reg-strip__num">КИИ</span>
+          <span class="reg-strip__lbl">ФЗ-152, ФЗ-187&nbsp;— on-prem контур у&nbsp;заказчика</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TRUST STRIP ─── -->
+<section class="section" data-od-id="path-4">
+  <div class="container" data-od-id="path-4-0">
+    <div class="section-head">
+      <span class="eyebrow">Результаты в&nbsp;цифрах</span>
+      <h2 data-od-id="path-4-0-0-1">Не&nbsp;обещаем&nbsp;— показываем эффект, который дали клиентам</h2>
+    </div>
+
+    <div class="trust">
+      <div class="trust__item">
+        <span class="num"><span class="val" data-count="60">60</span><span class="unit">%</span></span>
+        <div class="lbl">сокращение TCO после миграции с&nbsp;SAP на&nbsp;собственный стек&nbsp;— промышленный холдинг</div>
+      </div>
+      <div class="trust__item">
+        <span class="num"><span class="val" data-count="90">90</span><span class="unit">%</span></span>
+        <div class="lbl">автоматизация типовых запросов NLP-ботом в&nbsp;B2B-финтехе</div>
+      </div>
+      <div class="trust__item">
+        <span class="num"><span class="val" data-count="5">5</span><span class="unit">×</span></span>
+        <div class="lbl">ускорение аналитики и&nbsp;отчётности после переноса на&nbsp;Lakehouse</div>
+      </div>
+      <div class="trust__item">
+        <span class="num"><span class="val" data-count="12">12</span><span class="unit">%</span></span>
+        <div class="lbl">рост среднего чека после внедрения AI-рекомендаций в&nbsp;e-commerce</div>
+      </div>
+    </div>
+
+    <div class="client-row">
+      <div class="client-row__label">с&nbsp;нами работают</div>
+      <div class="client-logos">
+        <div class="client-logo"><span class="glyph"></span>МТС</div>
+        <div class="client-logo"><span class="glyph"></span>СберТех</div>
+        <div class="client-logo"><span class="glyph"></span>Sapiens</div>
+        <div class="client-logo"><span class="glyph"></span>ПромТехСервис</div>
+        <div class="client-logo"><span class="glyph"></span>X5 Tech</div>
+        <div class="client-logo"><span class="glyph"></span>VK Cloud</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SERVICES (tabs) ─── -->
+<section class="section" id="capabilities" data-od-id="path-5">
+  <div class="container" data-od-id="path-5-0">
+    <div class="section-head">
+      <span class="eyebrow">Компетенции</span>
+      <h2 data-od-id="path-5-0-0-1">Четыре направления, в&nbsp;которых мы&nbsp;работаем глубоко</h2>
+      <p>Каждое направление&nbsp;— это команда из&nbsp;архитектора, ведущих разработчиков и&nbsp;аналитика данных. Мы&nbsp;не&nbsp;беремся за&nbsp;всё подряд&nbsp;— только за&nbsp;то, где можем дать измеримый эффект.</p>
+    </div>
+
+    <div class="services">
+      <div class="svc-tabs" role="tablist" aria-label="Направления">
+        <button class="svc-tab" role="tab" aria-selected="true" aria-controls="svc-1" id="tab-1" data-target="svc-1" data-od-id="path-5-0-1-0-0">
+          <span class="svc-tab__idx">01</span>
+          <span>AI-агенты и&nbsp;NLP</span>
+          <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>
+        <button class="svc-tab" role="tab" aria-selected="false" aria-controls="svc-2" id="tab-2" data-target="svc-2" data-od-id="path-5-0-1-0-1">
+          <span class="svc-tab__idx">02</span>
+          <span>Аналитика и&nbsp;ML</span>
+          <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>
+        <button class="svc-tab" role="tab" aria-selected="false" aria-controls="svc-3" id="tab-3" data-target="svc-3" data-od-id="path-5-0-1-0-2">
+          <span class="svc-tab__idx">03</span>
+          <span>Интеграции и&nbsp;импортозамещение</span>
+          <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>
+        <button class="svc-tab" role="tab" aria-selected="false" aria-controls="svc-4" id="tab-4" data-target="svc-4" data-od-id="path-5-0-1-0-3">
+          <span class="svc-tab__idx">04</span>
+          <span>Outstaffing команды</span>
+          <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>
+      </div>
+
+      <div class="svc-panels">
+        <div class="svc-panel is-active" id="svc-1" role="tabpanel" aria-labelledby="tab-1" data-od-id="path-5-0-1-1-0">
+          <div class="svc-panel-inner" data-od-id="path-5-0-1-1-0-0">
+            <h3 data-od-id="path-5-0-1-1-0-0-0">AI-агенты, чат-боты и&nbsp;NLP-сценарии</h3>
+            <p class="svc-panel__lead">Внутренние ассистенты для&nbsp;поддержки сотрудников, клиентские боты для&nbsp;первой линии и&nbsp;voice-агенты для&nbsp;колл-центров. RAG поверх вашей базы знаний, безопасный handoff на&nbsp;живого оператора.</p>
+            <div class="svc-grid">
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-0-0-2-0-1-0">Клиентские чат-боты</h4><p>Telegram, WhatsApp, веб-виджет, intent-router, knowledge-base.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-0-0-2-1-1-0">Voice-агенты колл-центра</h4><p>Транскрибация, эмоциональная аналитика, скриптовая поддержка оператора.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-0-0-2-2-1-0">RAG по&nbsp;документации</h4><p>Корпоративный поиск, ссылка на&nbsp;источник, контроль галлюцинаций.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-0-0-2-3-1-0">Внутренний AI-helper</h4><p>Помощник для&nbsp;HR, продаж, юристов&nbsp;— c&nbsp;контролем доступа по&nbsp;ролям.</p></div>
+              </div>
+            </div>
+            <div class="svc-bottom">
+              <div class="svc-bottom__time">Срок запуска: <strong>2–6 недель</strong> · от&nbsp;прототипа до&nbsp;прода</div>
+              <a href="#calculate" class="btn btn--secondary" data-od-id="path-5-0-1-1-0-0-3-1">Запросить расчёт</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="svc-panel" id="svc-2" role="tabpanel" aria-labelledby="tab-2" hidden="" data-od-id="path-5-0-1-1-1">
+          <div class="svc-panel-inner" data-od-id="path-5-0-1-1-1-0">
+            <h3 data-od-id="path-5-0-1-1-1-0-0">Аналитика, ML и&nbsp;предсказательные модели</h3>
+            <p class="svc-panel__lead">Прогноз спроса, churn, аномалии в&nbsp;логах оборудования, рекомендательные системы. Доводим до&nbsp;продакшена&nbsp;— не&nbsp;останавливаемся на&nbsp;Jupyter-блокноте.</p>
+            <div class="svc-grid">
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-1-0-2-0-1-0">Прогноз спроса</h4><p>Многомерные модели с&nbsp;учётом сезонности и&nbsp;промо-акций.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-1-0-2-1-1-0">Предиктивное обслуживание</h4><p>−42% простоев оборудования на&nbsp;промышленных контурах.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4z"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-1-0-2-2-1-0">Рекомендательные системы</h4><p>+12% к&nbsp;среднему чеку в&nbsp;ритейле и&nbsp;e-commerce.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-1-0-2-3-1-0">MLOps-инфраструктура</h4><p>CI/CD для&nbsp;моделей, мониторинг дрифта, A/B-тестирование.</p></div>
+              </div>
+            </div>
+            <div class="svc-bottom">
+              <div class="svc-bottom__time">Срок запуска: <strong>4–12 недель</strong> · включая dev/prod-контур</div>
+              <a href="#calculate" class="btn btn--secondary" data-od-id="path-5-0-1-1-1-0-3-1">Запросить расчёт</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="svc-panel" id="svc-3" role="tabpanel" aria-labelledby="tab-3" hidden="" data-od-id="path-5-0-1-1-2">
+          <div class="svc-panel-inner" data-od-id="path-5-0-1-1-2-0">
+            <h3 data-od-id="path-5-0-1-1-2-0-0">Интеграции и&nbsp;импортозамещение</h3>
+            <p class="svc-panel__lead">Миграция с&nbsp;SAP, Oracle, Salesforce и&nbsp;других зарубежных систем на&nbsp;российский стек или&nbsp;собственное решение. Сохранение данных, бесшовный переход для&nbsp;пользователей.</p>
+            <div class="svc-grid">
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-2-0-2-0-1-0">Миграция с&nbsp;SAP / Oracle</h4><p>Импортозамещение ERP, CRM, BI&nbsp;— −60% TCO.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-2-0-2-1-1-0">API-интеграции</h4><p>1С, Битрикс24, amoCRM, банки, маркетплейсы, кастомные ESB.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v6a9 3 0 0 0 18 0V5"></path><path d="M3 11v6a9 3 0 0 0 18 0v-6"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-2-0-2-2-1-0">Lakehouse и&nbsp;DWH</h4><p>Перенос аналитики на&nbsp;Yandex Cloud / Greenplum&nbsp;— ускорение 5×.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-2-0-2-3-1-0">ГОСТ-совместимость</h4><p>Размещение на&nbsp;российских ЦОДах, аттестация по&nbsp;ФСТЭК.</p></div>
+              </div>
+            </div>
+            <div class="svc-bottom">
+              <div class="svc-bottom__time">Срок запуска: <strong>6–24 недели</strong> · с&nbsp;поэтапным cut-over</div>
+              <a href="#calculate" class="btn btn--secondary" data-od-id="path-5-0-1-1-2-0-3-1">Запросить расчёт</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="svc-panel" id="svc-4" role="tabpanel" aria-labelledby="tab-4" hidden="" data-od-id="path-5-0-1-1-3">
+          <div class="svc-panel-inner" data-od-id="path-5-0-1-1-3-0">
+            <h3 data-od-id="path-5-0-1-1-3-0-0">Outstaffing&nbsp;— команда под&nbsp;проект</h3>
+            <p class="svc-panel__lead">Если внутренней экспертизы хватает, но&nbsp;нужны руки&nbsp;— подключим инженеров под&nbsp;ваш процесс. Тимлид остаётся вашим, мы&nbsp;берём на&nbsp;себя&nbsp;HR, замены и&nbsp;качество.</p>
+            <div class="svc-grid">
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-3-0-2-0-1-0">Senior / Middle&nbsp;Engineers</h4><p>Python, Go, TypeScript, ML, DevOps&nbsp;— уровни Junior+ до&nbsp;Lead.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-3-0-2-1-1-0">Data Scientists / ML&nbsp;Engineers</h4><p>NLP, CV, прогнозирование, RecSys, MLOps.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-3-0-2-2-1-0">Замена за&nbsp;5 рабочих дней</h4><p>Прозрачные рейты, минимальный буккинг&nbsp;— 40&nbsp;часов в&nbsp;месяц.</p></div>
+              </div>
+              <div class="svc-item">
+                <div class="svc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+                <div><h4 data-od-id="path-5-0-1-1-3-0-2-3-1-0">NDA и&nbsp;комплаенс</h4><p>Российские резиденты, ИП&nbsp;или штатные сотрудники&nbsp;— по&nbsp;запросу.</p></div>
+              </div>
+            </div>
+            <div class="svc-bottom">
+              <div class="svc-bottom__time">Срок подключения: <strong>5–10 рабочих дней</strong></div>
+              <a href="#calculate" class="btn btn--secondary" data-od-id="path-5-0-1-1-3-0-3-1">Состав ролей и&nbsp;ставки</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROCESS ─── -->
+<section class="section section--alt" id="process" data-od-id="path-6">
+  <div class="container" data-od-id="path-6-0">
+    <div class="section-head">
+      <span class="eyebrow">Как мы&nbsp;работаем</span>
+      <h2 data-od-id="path-6-0-0-1">Пять шагов от&nbsp;идеи до&nbsp;работающего AI-агента в&nbsp;ваших процессах</h2>
+      <p>Каждый этап заканчивается артефактом, который вы&nbsp;можете показать руководству&nbsp;— оценкой, прототипом, отчётом по&nbsp;тестам или метриками в&nbsp;проде.</p>
+    </div>
+
+    <div class="process">
+      <div class="process-step">
+        <div class="process-step__num">01</div>
+        <h4 data-od-id="path-6-0-1-0-1">Анализ</h4>
+        <p>Изучаем процессы, инвентаризируем данные, формулируем гипотезу и&nbsp;метрику успеха.</p>
+        <span class="process-step__time">1–2 недели</span>
+      </div>
+      <div class="process-step">
+        <div class="process-step__num">02</div>
+        <h4 data-od-id="path-6-0-1-1-1">Прототип</h4>
+        <p>MVP за&nbsp;2–4&nbsp;недели, на&nbsp;реальных данных, с&nbsp;понятной демо-страницей.</p>
+        <span class="process-step__time">2–4 недели</span>
+      </div>
+      <div class="process-step">
+        <div class="process-step__num">03</div>
+        <h4 data-od-id="path-6-0-1-2-1">Тестирование</h4>
+        <p>Закрытое тестирование на&nbsp;фокус-группе, сбор метрик и&nbsp;итерации до&nbsp;target&nbsp;KPI.</p>
+        <span class="process-step__time">1–3 недели</span>
+      </div>
+      <div class="process-step">
+        <div class="process-step__num">04</div>
+        <h4 data-od-id="path-6-0-1-3-1">Интеграция</h4>
+        <p>Подключение к&nbsp;CRM, BPM, мессенджерам, базам знаний. SLA по&nbsp;развёртыванию.</p>
+        <span class="process-step__time">2–6 недель</span>
+      </div>
+      <div class="process-step">
+        <div class="process-step__num">05</div>
+        <h4 data-od-id="path-6-0-1-4-1">Запуск</h4>
+        <p>Релиз, мониторинг качества, дообучение моделей, регулярные QBR&nbsp;по&nbsp;метрикам.</p>
+        <span class="process-step__time">постоянно</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CASES ─── -->
+<section class="section" id="cases" data-od-id="path-7">
+  <div class="container" data-od-id="path-7-0">
+    <div class="section-head">
+      <span class="eyebrow">Кейсы</span>
+      <h2 data-od-id="path-7-0-0-1">Три проекта, которые показывают&nbsp;как мы&nbsp;работаем</h2>
+      <p>Подробные разборы с&nbsp;цифрами до&nbsp;и&nbsp;после&nbsp;— по&nbsp;NDA отправим расширенную версию после первого звонка.</p>
+    </div>
+
+    <div class="cases">
+      <article class="case-card" data-od-id="path-7-0-1-0">
+        <div class="case-card__cover" style="background: linear-gradient(135deg, #001f3f 0%, #0066cc 100%);" data-od-id="path-7-0-1-0-0">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+            <defs><pattern id="grid1" width="20" height="20" patternUnits="userSpaceOnUse" data-od-id="path-7-0-1-0-0-0-0-0"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"></path></pattern></defs>
+            <rect width="200" height="200" fill="url(#grid1)"></rect>
+            <circle cx="60" cy="80" r="40" fill="white" opacity="0.08"></circle>
+            <circle cx="140" cy="120" r="60" fill="white" opacity="0.06"></circle>
+          </svg>
+          <span class="case-card__industry">Промышленность</span>
+          <div class="case-card__metric">
+            <span class="num">−60%</span>
+            <span class="lbl">TCO после миграции с&nbsp;SAP</span>
+          </div>
+        </div>
+        <div class="case-card__body" data-od-id="path-7-0-1-0-1">
+          <h3 data-od-id="path-7-0-1-0-1-0">Импортозамещение SAP в&nbsp;промышленном холдинге</h3>
+          <p class="case-card__desc">Перенесли производственный учёт, MES и&nbsp;BI на&nbsp;российский стек без&nbsp;остановки производства. Поэтапный cut-over по&nbsp;заводам.</p>
+          <div class="case-card__tags">
+            <span class="tag">SAP</span><span class="tag">DWH</span><span class="tag">1С:ERP</span><span class="tag">9&nbsp;мес.</span>
+          </div>
+          <a href="#contact" class="case-card__link" data-od-id="path-7-0-1-0-1-3">Запросить разбор по&nbsp;NDA <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+
+      <article class="case-card" data-od-id="path-7-0-1-1">
+        <div class="case-card__cover" style="background: linear-gradient(135deg, #002b59 0%, #0066cc 100%);" data-od-id="path-7-0-1-1-0">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+            <defs><pattern id="grid2" width="20" height="20" patternUnits="userSpaceOnUse" data-od-id="path-7-0-1-1-0-0-0-0"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"></path></pattern></defs>
+            <rect width="200" height="200" fill="url(#grid2)"></rect>
+            <path d="M0,140 Q50,80 100,110 T200,90" fill="none" stroke="white" stroke-width="2" opacity="0.5"></path>
+            <path d="M0,160 Q50,110 100,130 T200,120" fill="none" stroke="white" stroke-width="2" opacity="0.25"></path>
+          </svg>
+          <span class="case-card__industry">Колл-центр</span>
+          <div class="case-card__metric">
+            <span class="num">5×</span>
+            <span class="lbl">скорость аналитики разговоров</span>
+          </div>
+        </div>
+        <div class="case-card__body" data-od-id="path-7-0-1-1-1">
+          <h3 data-od-id="path-7-0-1-1-1-0">AI-аналитика качества колл-центра</h3>
+          <p class="case-card__desc">Транскрибация, эмоциональный анализ, автоматическая оценка скриптов и&nbsp;отчёты по&nbsp;операторам в&nbsp;реальном времени.</p>
+          <div class="case-card__tags">
+            <span class="tag">ASR</span><span class="tag">NLP</span><span class="tag">Whisper</span><span class="tag">4&nbsp;мес.</span>
+          </div>
+          <a href="#contact" class="case-card__link" data-od-id="path-7-0-1-1-1-3">Запросить разбор по&nbsp;NDA <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+
+      <article class="case-card" data-od-id="path-7-0-1-2">
+        <div class="case-card__cover" style="background: linear-gradient(135deg, #001428 0%, #4d9bff 100%);" data-od-id="path-7-0-1-2-0">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+            <defs><pattern id="grid3" width="20" height="20" patternUnits="userSpaceOnUse" data-od-id="path-7-0-1-2-0-0-0-0"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"></path></pattern></defs>
+            <rect width="200" height="200" fill="url(#grid3)"></rect>
+            <g opacity="0.6"><rect x="40" y="60" width="120" height="14" rx="7" fill="white" opacity="0.18"></rect><rect x="40" y="84" width="100" height="14" rx="7" fill="white" opacity="0.18"></rect><rect x="40" y="108" width="80" height="14" rx="7" fill="white" opacity="0.18"></rect></g>
+          </svg>
+          <span class="case-card__industry">B2B Финтех</span>
+          <div class="case-card__metric">
+            <span class="num">90%</span>
+            <span class="lbl">автоматизации первой линии</span>
+          </div>
+        </div>
+        <div class="case-card__body" data-od-id="path-7-0-1-2-1">
+          <h3 data-od-id="path-7-0-1-2-1-0">NLP-бот в&nbsp;B2B-финтехе</h3>
+          <p class="case-card__desc">Бот закрывает 90% типовых обращений по&nbsp;документообороту и&nbsp;комиссиям. Handoff на&nbsp;оператора&nbsp;— только сложные кейсы.</p>
+          <div class="case-card__tags">
+            <span class="tag">RAG</span><span class="tag">Telegram</span><span class="tag">CRM</span><span class="tag">6&nbsp;нед.</span>
+          </div>
+          <a href="#contact" class="case-card__link" data-od-id="path-7-0-1-2-1-3">Запросить разбор по&nbsp;NDA <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section class="section section--alt" data-od-id="path-8">
+  <div class="container" data-od-id="path-8-0">
+    <div class="section-head">
+      <span class="eyebrow">Что говорят клиенты</span>
+      <h2 data-od-id="path-8-0-0-1">Голос людей, которые отвечают за&nbsp;результат внутри своей компании</h2>
+    </div>
+
+    <div class="testimonials">
+      <blockquote class="quote">
+        <span class="quote__mark">«</span>
+        <p class="quote__body">Tacticum не&nbsp;просто отдали нам модель&nbsp;— они довели её&nbsp;до&nbsp;продакшена и&nbsp;остались с&nbsp;нами на&nbsp;поддержке. Прогноз простоев работает уже год, экономия посчитанная.</p>
+        <div class="quote__who">
+          <div class="quote__avatar">АП</div>
+          <div class="quote__person">
+            <div class="name">Алексей Петров</div>
+            <div class="role">Технический директор · ПромТехСервис</div>
+          </div>
+        </div>
+      </blockquote>
+
+      <blockquote class="quote">
+        <span class="quote__mark">«</span>
+        <p class="quote__body">За&nbsp;шесть недель собрали NLP-бота, который закрыл 90% обращений первой линии. На&nbsp;удивление аккуратная команда&nbsp;— SLA соблюдают, документация в&nbsp;порядке.</p>
+        <div class="quote__who">
+          <div class="quote__avatar">ЮЕ</div>
+          <div class="quote__person">
+            <div class="name">Юрий Ефаров</div>
+            <div class="role">Генеральный директор · Sapiens</div>
+          </div>
+        </div>
+      </blockquote>
+
+      <blockquote class="quote">
+        <span class="quote__mark">«</span>
+        <p class="quote__body">Брали в&nbsp;outstaff трёх ML-инженеров под&nbsp;внутренний продукт. Замена была один раз&nbsp;— заменили за&nbsp;четыре дня, без&nbsp;провала в&nbsp;скорости релизов.</p>
+        <div class="quote__who">
+          <div class="quote__avatar">АК</div>
+          <div class="quote__person">
+            <div class="name">Анастасия Колаева</div>
+            <div class="role">Руководитель направления · МТС</div>
+          </div>
+        </div>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─── -->
+<section class="section" id="faq" data-od-id="path-9">
+  <div class="container" data-od-id="path-9-0">
+    <div class="faq-wrap">
+      <aside class="faq-aside" data-od-id="path-9-0-0-0">
+        <span class="eyebrow">FAQ</span>
+        <h2 data-od-id="path-9-0-0-0-1">Часто задаваемые вопросы</h2>
+        <p>Собрали ответы на&nbsp;16&nbsp;вопросов, которые задают чаще всего&nbsp;— от&nbsp;ставок и&nbsp;буккинга до&nbsp;безопасности и&nbsp;GDPR.</p>
+        <a href="#contact" class="btn btn--secondary" data-od-id="path-9-0-0-0-3">Не&nbsp;нашли свой вопрос?</a>
+      </aside>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="true" data-od-id="path-9-0-0-1-0-0">
+            Сколько стоит специалист и&nbsp;что входит в&nbsp;ставку?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Ставка зависит от&nbsp;роли и&nbsp;сениорности&nbsp;— от&nbsp;2900&nbsp;₽/час для&nbsp;Middle до&nbsp;6500&nbsp;₽/час для&nbsp;Senior&nbsp;ML&nbsp;Engineer. В&nbsp;ставку включены: работа специалиста, HR-сопровождение, замена в&nbsp;случае ухода, ведение через нашего тимлида и&nbsp;помощь архитектора по&nbsp;запросу.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-1-0">
+            Какие гарантии вы&nbsp;даёте по&nbsp;результату?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>На&nbsp;этапе анализа фиксируем target&nbsp;KPI и&nbsp;baseline. Если на&nbsp;этапе прототипа становится понятно, что KPI&nbsp;недостижим&nbsp;— стопаем проект и&nbsp;возвращаем неотработанную часть аванса. Для&nbsp;продакшен-внедрений действует SLA по&nbsp;uptime и&nbsp;качеству ответов модели.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-2-0">
+            Как происходит замена специалиста?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>5&nbsp;рабочих дней на&nbsp;подбор замены равной или&nbsp;более высокой сениорности. Период передачи дел&nbsp;— до&nbsp;двух рабочих недель, в&nbsp;это время старый и&nbsp;новый специалист работают параллельно. Дни передачи не&nbsp;считаются повторно.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-3-0">
+            Какой минимальный буккинг по&nbsp;часам?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>40&nbsp;часов в&nbsp;месяц на&nbsp;специалиста. Это нужно, чтобы инженер реально погружался в&nbsp;контекст, а&nbsp;не&nbsp;переключался между задачами каждый день. Для&nbsp;разовых задач предлагаем формат «спринт»&nbsp;— 80&nbsp;часов в&nbsp;течение 4&nbsp;недель.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-4-0">
+            Что умеют ваши AI-агенты?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Закрывать первую линию поддержки клиентов, отвечать на&nbsp;вопросы сотрудников по&nbsp;корпоративной документации, анализировать диалоги колл-центра, генерировать черновики коммерческих предложений, парсить и&nbsp;классифицировать входящие письма. Не&nbsp;умеют&nbsp;— принимать управленческие решения и&nbsp;брать за&nbsp;них ответственность.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-5-0">
+            Сколько занимает внедрение?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>От&nbsp;1&nbsp;недели для&nbsp;простого Telegram-бота на&nbsp;готовой базе знаний до&nbsp;12&nbsp;недель для&nbsp;корпоративного AI-ассистента с&nbsp;RBAC, кастомным RAG и&nbsp;интеграциями. Импортозамещение крупных систем&nbsp;— от&nbsp;6&nbsp;до&nbsp;24&nbsp;месяцев с&nbsp;поэтапным cut-over.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-6-0">
+            Как считается стоимость проекта?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Два формата: T&amp;M по&nbsp;часам и&nbsp;Fixed Price&nbsp;по&nbsp;спринтам. T&amp;M подходит, когда требования эволюционируют&nbsp;— большинство AI-проектов. Fixed Price берём только после анализа и&nbsp;прототипа, когда scope зафиксирован. Аванс&nbsp;— 30%, после&nbsp;закрытия милстоунов остальные платежи.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-7-0">
+            Интегрируетесь&nbsp;ли с&nbsp;нашей CRM?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>amoCRM, Битрикс24, 1С, Salesforce, HubSpot, Microsoft&nbsp;Dynamics&nbsp;— готовые коннекторы. Для&nbsp;кастомных систем или&nbsp;legacy CRM&nbsp;пишем интеграционный слой; обычно это +1–2&nbsp;недели к&nbsp;общему проекту.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-8-0">
+            Где хранятся данные? Соответствие 152-ФЗ и&nbsp;GDPR?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>По&nbsp;умолчанию&nbsp;— российские ЦОДы (Yandex&nbsp;Cloud, VK&nbsp;Cloud, Selectel). Подписываем NDA&nbsp;и&nbsp;ДПД&nbsp;по&nbsp;152-ФЗ, при&nbsp;необходимости&nbsp;— GDPR&nbsp;DPA. Для&nbsp;госсектора&nbsp;— аттестованные сегменты с&nbsp;ФСТЭК-3.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-9-0">
+            Можно&nbsp;ли протестировать решение перед оплатой?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Да. Демо-агенты в&nbsp;Telegram доступны без&nbsp;договора&nbsp;— потрогать сценарии можно сразу. Прототип на&nbsp;ваших данных запускаем за&nbsp;2–4&nbsp;недели с&nbsp;фиксированным бюджетом; если не&nbsp;понравится&nbsp;— расходитесь без&nbsp;обязательств по&nbsp;дальнейшим этапам.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-10-0">
+            Какие LLM используете?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>YandexGPT, GigaChat, Qwen, Llama 3.1/3.3, DeepSeek&nbsp;V3, GPT-4o&nbsp;через российские прокси. Выбор зависит от&nbsp;задачи, требований по&nbsp;размещению и&nbsp;бюджета на&nbsp;инференс. Для&nbsp;закрытых контуров&nbsp;— self-hosted на&nbsp;ваших GPU.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-11-0">
+            Кто будет владельцем кода и&nbsp;моделей?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Всё&nbsp;— ваше. Код передаётся в&nbsp;ваш Git, веса дообученных моделей&nbsp;— в&nbsp;ваш S3. Используем открытые лицензии (MIT, Apache&nbsp;2.0); закрытые компоненты&nbsp;— только по&nbsp;вашему согласию и&nbsp;с&nbsp;понятной escape-стратегией.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-12-0">
+            Как организована поддержка после релиза?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Три уровня SLA: Bronze (8×5, ответ&nbsp;4&nbsp;часа), Silver (12×6, ответ&nbsp;2&nbsp;часа), Gold (24×7, ответ&nbsp;30&nbsp;минут&nbsp;на&nbsp;инциденты). Включаем дообучение моделей раз в&nbsp;квартал, ежемесячный отчёт по&nbsp;метрикам и&nbsp;QBR.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-13-0">
+            Работаете&nbsp;ли с&nbsp;госсектором и&nbsp;банками?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Да. Опыт работы с&nbsp;банками топ-30, страховыми и&nbsp;ведомствами. Соответствие 152-ФЗ, ФЗ-115, ФСТЭК&nbsp;К1/К2. Размещение в&nbsp;аттестованных ЦОДах, аудит&nbsp;кода, отчуждаемость&nbsp;кода&nbsp;— подписываем требуемые приложения.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-14-0">
+            Откуда вы&nbsp;берёте людей и&nbsp;как проверяете?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Свой пул из&nbsp;~180 инженеров&nbsp;— большая часть работала с&nbsp;нами не&nbsp;первый проект. Все проходят техническое интервью у&nbsp;нашего тимлида и&nbsp;интервью&nbsp;по&nbsp;софт-скиллам; ставки и&nbsp;грейды зафиксированы внутри. Перед стартом проекта&nbsp;— ещё одно интервью с&nbsp;вашим тимлидом.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false" data-od-id="path-9-0-0-1-15-0">
+            Что если задача нестандартная?
+            <span class="faq-q__icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Если задача за&nbsp;пределами компетенции&nbsp;— скажем сразу и&nbsp;порекомендуем коллег. За&nbsp;последний год отказались от&nbsp;7&nbsp;проектов: компьютерное зрение в&nbsp;медицине, blockchain-решения и&nbsp;игровая разработка. Лучше честно отказаться, чем&nbsp;провалить.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LEAD CTA ─── -->
+<section class="section" id="calculate" data-od-id="path-10">
+  <div class="container" data-od-id="path-10-0">
+    <div class="lead-cta">
+      <div class="lead-cta__copy">
+        <span class="eyebrow" style="color: rgba(255,255,255,0.85);">Рассчитать проект</span>
+        <h2 data-od-id="path-10-0-0-0-1">Расскажите о&nbsp;задаче&nbsp;— через сутки вернёмся с&nbsp;оценкой</h2>
+        <p>Оценку готовит ведущий архитектор по&nbsp;вашему направлению. В&nbsp;ответе&nbsp;— ориентир по&nbsp;срокам, составу команды, бюджету и&nbsp;трём похожим проектам из&nbsp;нашей практики.</p>
+        <ul class="lead-cta__features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Ответ в&nbsp;течение 24&nbsp;часов</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Архитектор, а&nbsp;не&nbsp;менеджер по&nbsp;продажам</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span>NDA подписываем до&nbsp;первого разговора</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Без&nbsp;обязательств и&nbsp;последующих звонков</span></li>
+        </ul>
+      </div>
+
+      <form class="lead-form" id="contact" onsubmit="event.preventDefault(); this.querySelector('button[type=submit]').textContent='Отправлено · вернёмся в&nbsp;течение суток'; this.querySelector('button[type=submit]').style.background='rgba(255,255,255,0.18)'; this.querySelector('button[type=submit]').style.color='#fff';" data-od-id="path-10-0-0-1">
+        <h3 data-od-id="path-10-0-0-1-0">Заявка на&nbsp;оценку</h3>
+        <div class="lead-form__fields" data-od-id="path-10-0-0-1-1">
+          <div class="form-row">
+            <div class="form-field">
+              <label for="name">Имя</label>
+              <input id="name" name="name" type="text" placeholder="Как к&nbsp;вам обращаться" required="" data-od-id="path-10-0-0-1-1-0-0-1">
+            </div>
+            <div class="form-field">
+              <label for="company">Компания</label>
+              <input id="company" name="company" type="text" placeholder="Название" required="" data-od-id="path-10-0-0-1-1-0-1-1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="vy@company.ru" required="" data-od-id="path-10-0-0-1-1-1-0-1">
+            </div>
+            <div class="form-field">
+              <label for="phone">Телефон</label>
+              <input id="phone" name="phone" type="tel" placeholder="+7" inputmode="tel" data-od-id="path-10-0-0-1-1-1-1-1">
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="task">Что хотите внедрить?</label>
+            <select id="task" name="task" data-od-id="path-10-0-0-1-1-2-1">
+              <option>AI-агент / чат-бот</option>
+              <option>Аналитика и&nbsp;ML</option>
+              <option>Импортозамещение SAP / Oracle</option>
+              <option>Outstaffing команды</option>
+              <option>Пока не&nbsp;знаю&nbsp;— нужна консультация</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="brief">Кратко о&nbsp;задаче</label>
+            <textarea id="brief" name="brief" placeholder="Что сейчас болит, какой результат ждёте" data-od-id="path-10-0-0-1-1-3-1"></textarea>
+          </div>
+        </div>
+        <label class="consent">
+          <input type="checkbox" required="">
+          <span>Я&nbsp;соглашаюсь с&nbsp;<a href="#" data-od-id="path-10-0-0-1-2-1-0">политикой обработки персональных данных</a> и&nbsp;согласен на&nbsp;обработку моих данных по&nbsp;152-ФЗ.</span>
+        </label>
+        <button type="submit" data-od-id="path-10-0-0-1-3">Отправить и&nbsp;получить оценку</button>
+        <p class="lead-form__microcopy">Без&nbsp;спама и&nbsp;рассылок · только ответ по&nbsp;вашей задаче</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer" data-od-id="path-11">
+  <div class="container" data-od-id="path-11-0">
+    <div class="footer__grid">
+      <div class="footer__brand-col">
+        <div class="footer__brand">
+          <img class="mark" src="mps5v012-logo-flag-dark.png" alt="Tacticum" width="148" height="36">
+        </div>
+        <p class="footer__about">
+          Российская команда по&nbsp;интеграции AI и&nbsp;IT под&nbsp;ключ. С&nbsp;2018 года довели до&nbsp;продакшена больше 80&nbsp;проектов в&nbsp;промышленности, финтехе, ритейле и&nbsp;госсекторе.
+        </p>
+        <div class="footer__contacts">
+          <a href="tel:+74951234567" data-od-id="path-11-0-0-0-2-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z"></path></svg> +7 495 123-45-67</a>
+          <a href="mailto:hello@tacticum.ru" data-od-id="path-11-0-0-0-2-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> hello@tacticum.ru</a>
+          <a href="https://t.me/tacticum_ru" data-od-id="path-11-0-0-0-2-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Telegram</a>
+        </div>
+      </div>
+
+      <div class="footer__col">
+        <h4 data-od-id="path-11-0-0-1-0">Точки входа</h4>
+        <ul>
+          <li><a href="#calculate" data-od-id="path-11-0-0-1-1-0-0">Рассчитать проект</a></li>
+          <li><a href="#services" data-od-id="path-11-0-0-1-1-1-0">Внедрить AI</a></li>
+          <li><a href="#capabilities" data-od-id="path-11-0-0-1-1-2-0">Собрать команду</a></li>
+          <li><a href="#services" data-od-id="path-11-0-0-1-1-3-0">Запустить бота</a></li>
+          <li><a href="#contact" data-od-id="path-11-0-0-1-1-4-0">Просто обсудить</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 data-od-id="path-11-0-0-2-0">Продукты</h4>
+        <ul>
+          <li><a href="#ecosystem" data-od-id="path-11-0-0-2-1-0-0">Tacticum&nbsp;Platform</a></li>
+          <li><a href="#ecosystem" data-od-id="path-11-0-0-2-1-1-0">Tacticum&nbsp;Agents</a></li>
+          <li><a href="#ecosystem" data-od-id="path-11-0-0-2-1-2-0">Tacticum&nbsp;Dev</a></li>
+          <li><a href="#ecosystem" data-od-id="path-11-0-0-2-1-3-0">Tacticum&nbsp;Forum</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 data-od-id="path-11-0-0-3-0">Кейсы</h4>
+        <ul>
+          <li><a href="#cases" data-od-id="path-11-0-0-3-1-0-0">Импортозамещение SAP</a></li>
+          <li><a href="#cases" data-od-id="path-11-0-0-3-1-1-0">Аналитика колл-центра</a></li>
+          <li><a href="#cases" data-od-id="path-11-0-0-3-1-2-0">NLP-бот в&nbsp;финтехе</a></li>
+          <li><a href="#cases" data-od-id="path-11-0-0-3-1-3-0">Все кейсы</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 data-od-id="path-11-0-0-4-0">Компания</h4>
+        <ul>
+          <li><a href="#" data-od-id="path-11-0-0-4-1-0-0">О&nbsp;нас</a></li>
+          <li><a href="#" data-od-id="path-11-0-0-4-1-1-0">Карьера</a></li>
+          <li><a href="#" data-od-id="path-11-0-0-4-1-2-0">Блог</a></li>
+          <li><a href="#" data-od-id="path-11-0-0-4-1-3-0">152-ФЗ и&nbsp;NDA</a></li>
+          <li><a href="#faq" data-od-id="path-11-0-0-4-1-4-0">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© 2018–2026 ООО «Тактикум» · ИНН 7700000000</span>
+      <span class="links">
+        <a href="#" data-od-id="path-11-0-1-1-0">Политика конфиденциальности</a>
+        <a href="#" data-od-id="path-11-0-1-1-1">Согласие на&nbsp;обработку ПД</a>
+        <a href="#" data-od-id="path-11-0-1-1-2">Карта сайта</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── STICKY MOBILE CTA ─── -->
+<div class="action-bar" id="actionBar" role="region" aria-label="Быстрые действия" data-od-id="path-12">
+  <a href="tel:+74951234567" class="btn btn--secondary" data-od-id="path-12-0">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z"></path></svg>
+    Позвонить
+  </a>
+  <a href="#calculate" class="btn btn--primary" data-od-id="path-12-1">Рассчитать проект</a>
+</div>
+
+<script>
+(function () {
+  // ── 1) sticky nav border on scroll ───────────────────────────────
+  var nav = document.getElementById('nav');
+  var actionBar = document.getElementById('actionBar');
+  function onScroll() {
+    var y = window.scrollY || window.pageYOffset;
+    nav.classList.toggle('is-scrolled', y > 4);
+    if (actionBar) actionBar.classList.toggle('is-visible', y > 400);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ── 2) animated counters via IntersectionObserver ─────────────────
+  function animateCount(el) {
+    var target = parseFloat(el.getAttribute('data-count') || el.textContent);
+    if (isNaN(target)) return;
+    var duration = 1400;
+    var start = performance.now();
+    var initial = 0;
+    function tick(now) {
+      var p = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var v = initial + (target - initial) * eased;
+      el.textContent = (target % 1 === 0) ? Math.round(v) : v.toFixed(1);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = (target % 1 === 0) ? target : target.toFixed(1);
+    }
+    requestAnimationFrame(tick);
+  }
+  var counters = document.querySelectorAll('[data-count]');
+  if ('IntersectionObserver' in window && counters.length) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          var el = e.target.classList && e.target.classList.contains('val') ? e.target : e.target.querySelector('.val') || e.target;
+          if (!el.dataset.counted) {
+            el.dataset.counted = '1';
+            animateCount(el);
+          }
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function (c) { io.observe(c); });
+  }
+
+  // ── 3) reveal-on-scroll ──────────────────────────────────────────
+  document.querySelectorAll('.section, .entry-card, .case-card, .quote, .process-step').forEach(function (el) {
+    el.classList.add('reveal');
+  });
+  if ('IntersectionObserver' in window) {
+    var ro = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          ro.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(function (el) { ro.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  // ── 4) services tabs ─────────────────────────────────────────────
+  var tabs = document.querySelectorAll('.svc-tab');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var target = tab.getAttribute('data-target');
+      tabs.forEach(function (t) { t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); });
+      document.querySelectorAll('.svc-panel').forEach(function (p) {
+        var isActive = p.id === target;
+        p.classList.toggle('is-active', isActive);
+        if (isActive) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
+      });
+    });
+    tab.addEventListener('keydown', function (e) {
+      var arr = Array.prototype.slice.call(tabs);
+      var i = arr.indexOf(tab);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); arr[(i + 1) % arr.length].focus(); arr[(i + 1) % arr.length].click(); }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft')   { e.preventDefault(); arr[(i - 1 + arr.length) % arr.length].focus(); arr[(i - 1 + arr.length) % arr.length].click(); }
+    });
+  });
+
+  // ── 5) FAQ accordion ─────────────────────────────────────────────
+  document.querySelectorAll('.faq-q').forEach(function (q) {
+    q.addEventListener('click', function () {
+      var open = q.getAttribute('aria-expanded') === 'true';
+      q.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+
+  // ── 6) smooth-scroll for in-page links handled by CSS scroll-behavior ─
+})();
+</script>
+
+
+
+<script data-od-snapshot-bridge="">(function(){
+  var SNAPSHOT_STYLE_PROPS = [
+    'display','position','box-sizing','width','height','min-width','max-width','min-height','max-height',
+    'margin','margin-top','margin-right','margin-bottom','margin-left',
+    'padding','padding-top','padding-right','padding-bottom','padding-left',
+    'border','border-top','border-right','border-bottom','border-left','border-radius',
+    'font','font-family','font-size','font-weight','font-style','line-height','letter-spacing',
+    'color','background-color','opacity','transform','transform-origin','overflow','overflow-x','overflow-y',
+    'white-space','text-align','vertical-align','object-fit','object-position',
+    'flex','flex-direction','flex-wrap','flex-grow','flex-shrink','flex-basis',
+    'grid','grid-template-columns','grid-template-rows','grid-column','grid-row',
+    'gap','row-gap','column-gap','align-items','align-content','align-self',
+    'justify-items','justify-content','justify-self','inset','top','right','bottom','left',
+    'z-index','box-shadow','text-shadow'
+  ];
+  function copyComputedStyle(source, target){
+    if (!source || !target || source.nodeType !== 1 || target.nodeType !== 1) return;
+    var computed = window.getComputedStyle(source);
+    var style = target.getAttribute('style') || '';
+    for (var i = 0; i < SNAPSHOT_STYLE_PROPS.length; i++){
+      var prop = SNAPSHOT_STYLE_PROPS[i];
+      var value = computed.getPropertyValue(prop);
+      if (value) style += prop + ':' + value + ';';
+    }
+    target.setAttribute('style', style);
+  }
+  function syncElementState(source, target){
+    var tag = source.tagName ? source.tagName.toLowerCase() : '';
+    if (tag === 'img' && source.currentSrc) target.setAttribute('src', source.currentSrc);
+    if (tag === 'input' || tag === 'textarea') target.setAttribute('value', source.value || '');
+    if (tag === 'canvas') {
+      try {
+        var img = document.createElement('img');
+        img.setAttribute('src', source.toDataURL('image/png'));
+        img.setAttribute('style', target.getAttribute('style') || '');
+        target.parentNode && target.parentNode.replaceChild(img, target);
+      } catch (_) {}
+    }
+  }
+  function inlineSnapshotStyles(originalRoot, cloneRoot){
+    copyComputedStyle(originalRoot, cloneRoot);
+    syncElementState(originalRoot, cloneRoot);
+    var originals = originalRoot.querySelectorAll('*');
+    var clones = cloneRoot.querySelectorAll('*');
+    var count = Math.min(originals.length, clones.length, 3500);
+    for (var i = 0; i < count; i++){
+      copyComputedStyle(originals[i], clones[i]);
+      syncElementState(originals[i], clones[i]);
+    }
+    var scripts = cloneRoot.querySelectorAll('script');
+    for (var s = scripts.length - 1; s >= 0; s--) scripts[s].remove();
+    var links = cloneRoot.querySelectorAll('link[rel~="stylesheet"], link[rel~="preload"], link[rel~="preconnect"]');
+    for (var l = links.length - 1; l >= 0; l--) links[l].remove();
+    var styles = cloneRoot.querySelectorAll('style');
+    for (var st = 0; st < styles.length; st++) {
+      styles[st].textContent = (styles[st].textContent || '')
+        .replace(/@import[^;]+;/gi, '')
+        .replace(/@font-face\s*\{[^}]*\}/gi, '');
+    }
+  }
+  function waitForImages(){
+    var imgs = Array.prototype.slice.call(document.images || []);
+    return Promise.all(imgs.map(function(img){
+      if (img.complete) return Promise.resolve();
+      return new Promise(function(resolve){
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }));
+  }
+  function scrollOffset(){
+    var doc = document.documentElement;
+    var body = document.body;
+    return {
+      x: Math.max(window.scrollX || 0, doc ? doc.scrollLeft || 0 : 0, body ? body.scrollLeft || 0 : 0),
+      y: Math.max(window.scrollY || 0, doc ? doc.scrollTop || 0 : 0, body ? body.scrollTop || 0 : 0)
+    };
+  }
+  function escapeAttribute(value){
+    return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+  function renderSnapshot(id){
+    var w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+    var h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+    var dpr = window.devicePixelRatio || 1;
+    var docW = Math.max(w, document.documentElement.scrollWidth || 0, document.body ? document.body.scrollWidth : 0);
+    var docH = Math.max(h, document.documentElement.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+    var clone = document.documentElement.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    inlineSnapshotStyles(document.documentElement, clone);
+    var scroll = scrollOffset();
+    var cloneBody = clone.querySelector('body');
+    var rootStyle = clone.getAttribute('style') || '';
+    var bodyStyle = cloneBody ? cloneBody.getAttribute('style') || '' : '';
+    var bodyContent = cloneBody ? cloneBody.innerHTML : clone.innerHTML;
+    var wrapperStyle = rootStyle + bodyStyle +
+      'margin:0;position:relative;left:' + (-scroll.x) + 'px;top:' + (-scroll.y) + 'px;' +
+      'width:' + docW + 'px;height:' + docH + 'px;overflow:visible;';
+    var html = '<div xmlns="http://www.w3.org/1999/xhtml" style="' + escapeAttribute(wrapperStyle) + '">' + bodyContent + '</div>';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
+      '<foreignObject x="0" y="0" width="' + docW + '" height="' + docH + '">' +
+      html +
+      '</foreignObject></svg>';
+    var img = new Image();
+    img.onload = function(){
+      try {
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.floor(w * dpr));
+        canvas.height = Math.max(1, Math.floor(h * dpr));
+        var ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('no 2d context');
+        ctx.scale(dpr, dpr);
+        ctx.drawImage(img, 0, 0, w, h);
+        window.parent.postMessage({ type: 'od:snapshot:result', id: id, dataUrl: canvas.toDataURL('image/png'), w: canvas.width, h: canvas.height }, '*');
+      } catch (err) {
+        window.parent.postMessage({ type: 'od:snapshot:result', id: id, error: String(err && err.message || err) }, '*');
+      }
+    };
+    function encodedSvgDataUrl(){
+      var encoded = encodeURIComponent(svg);
+      return 'data:image/svg+xml;charset=utf-8,' + encoded;
+    }
+    img.onerror = function(){
+      window.parent.postMessage({ type: 'od:snapshot:result', id: id, error: 'snapshot image failed' }, '*');
+    };
+    img.src = encodedSvgDataUrl();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if (!data || data.type !== 'od:snapshot' || !data.id) return;
+    waitForImages().then(function(){ renderSnapshot(String(data.id)); });
+  });
+})();</script><script data-od-srcdoc-transport-activation="">(function(){
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if (!data || data.type !== 'od:srcdoc-transport-activate' || typeof data.html !== 'string') return;
+    document.open();
+    document.write(data.html);
+    document.close();
+  });
+})();</script></body></html>
