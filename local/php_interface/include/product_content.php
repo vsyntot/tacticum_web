@@ -132,12 +132,14 @@ if (!function_exists('tacticum_product_content_clear_cache')) {
 
         global $CACHE_MANAGER;
         if (
-            $iblockId > 0
-            && defined('BX_COMP_MANAGED_CACHE')
+            defined('BX_COMP_MANAGED_CACHE')
             && is_object($CACHE_MANAGER)
             && method_exists($CACHE_MANAGER, 'ClearByTag')
         ) {
-            $CACHE_MANAGER->ClearByTag('iblock_id_' . $iblockId);
+            $tagIblockIds = $iblockId > 0 ? [$iblockId] : tacticum_product_content_related_iblock_ids();
+            foreach ($tagIblockIds as $tagIblockId) {
+                $CACHE_MANAGER->ClearByTag('iblock_id_' . $tagIblockId);
+            }
         }
     }
 }

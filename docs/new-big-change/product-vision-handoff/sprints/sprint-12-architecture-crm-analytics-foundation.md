@@ -2,7 +2,7 @@
 
 Suggested duration: 1-2 weeks
 
-Status: in-progress / Bitrix product content foundation implemented, production evidence pending
+Status: in-progress / Bitrix product content foundation implemented and production source switched
 
 ## Sprint Goal
 
@@ -39,7 +39,7 @@ Related gaps: `REL-003`, `ARCH-007`, `ARCH-008`.
 
 | Item | Description | Owner | Priority | Status |
 |---|---|---|---|---|
-| S12-001 | Approve Bitrix product content model with Git fallback | Architect + Dev + Content | P2 | implemented locally / production evidence pending |
+| S12-001 | Approve Bitrix product content model with Git fallback | Architect + Dev + Content | P2 | implemented / production source switched |
 | S12-002 | Approve current `product_page_blocks/*.php` partial taxonomy or open ADR for local component/preview system | Architect + Frontend | P2 | planned |
 | S12-003 | Decide component promotion criteria after Sprint 11 design output | Architect + Frontend + QA | P2 | planned |
 | S12-004 | Confirm current `lead_*` canonical profile + `task` fallback is enough for v1 Sales routing or scope structured fields | Backend + PM + QA + Sales | P1 | accepted for v1 fallback |
@@ -60,6 +60,7 @@ Related gaps: `REL-003`, `ARCH-007`, `ARCH-008`.
 - Product content ownership decision: Bitrix SoT with `auto|bitrix|fallback` runtime source and Git fallback.
 - Product content runtime cache and invalidation rule for Bitrix source mode.
 - Product config health scope for post-deploy validation.
+- Product content source switch readiness guard and rollback runbook.
 - Component boundary decision.
 - Component promotion criteria.
 - Lead qualification v1 decision: fallback accepted or structured field scope opened.
@@ -93,7 +94,8 @@ Related gaps: `REL-003`, `ARCH-007`, `ARCH-008`.
 - `npm run product:gaps:check`
 - `npm run design:handoff:check` if migration map or design handoff changes
 - `npm run product:content:check` in Bitrix/PHP environment after migration/config sync
-- `npm run product:content:check:strict` before switching source mode to `bitrix`
+- `npm run product:content:check:strict` after migration/config sync and after source-mode changes
+- `npm run product:content:switch-readiness:prod` before repeat switches or rollback rehearsal
 - `npm run gaps:known`
 - Manual review of `lead-form-contract.md` if payload decisions change
 
@@ -125,17 +127,20 @@ Related gaps: `REL-003`, `ARCH-007`, `ARCH-008`.
 - Product renderer now exposes `data-product-source`; `npm run product:source:smoke:prod` verifies rendered `source=bitrix` with Chrome, and `npm run product:source:http:prod` verifies the same marker on production servers without Chrome or `node_modules`.
 - 03.06.2026 `npm run product:source:http:prod` passed on production: `/platform/`, `/agents/`, `/dev/`, `/forum/` returned `source=bitrix` and 11 product blocks each.
 - 03.06.2026 `npm run release:public-precheck:prod` passed without creating leads: health/config scopes, product source marker, public Metrika tag, unauthenticated Bitrix admin surface and legacy alias headers are publicly healthy.
+- 03.06.2026 `npm run product:content:switch-readiness:prod` added as a pre-switch guard: it checks public health `products` scope, rendered `source=bitrix`, required product blocks, and prints switch/rollback evidence requirements.
+- 03.06.2026 `npm run product:content:cache-clear` added as target Bitrix/PHP cache clear for product content cache dir and product managed-cache tags; target server PHP lint and `product:content:cache-clear:dry-run` passed with source `auto`, TTL `300`, tags `iblock_id_21`, `iblock_id_22`, `iblock_id_23`.
+- 03.06.2026 target server passed the post-cache sequence in source mode `auto`: `product:content:switch-readiness:prod`, `product:content:cache-clear`, `product:content:check:strict`, `product:source:http:prod`, `release:public-precheck:prod`.
+- 03.06.2026 production source switched to `products.source=bitrix`; post-switch `product:content:cache-clear`, `product:content:check:strict`, `product:source:http:prod` and `release:public-precheck:prod` passed in source mode `bitrix`.
 
 ### Not Done
 
 - Deploy automation for product migration is intentionally not enabled.
 - Structured CRM/upstream fields remain out of v1 scope.
 - Metrika goal evidence remains an external release gate.
-- Bitrix admin/content review is still pending before switching source mode to `bitrix`.
 - Manual success-flow, authenticated Metrika goal visibility and staff upstream/CRM confirmation remain owner-evidence gates; public precheck does not replace them.
 
 ### Follow-Up
 
-- Keep created IDs and `products.source=auto`, `products.cache_ttl=300` synced in `local/php_interface/include/tacticum_config.php` on every target environment.
+- Keep created IDs and `products.source=bitrix`, `products.cache_ttl=300` synced in `local/php_interface/include/tacticum_config.php` on production; use `auto` or `fallback` only as rollback.
 - Optional design/QA handoff: run `npm run product:block-previews:prod` when block-level screenshots are needed.
-- Switch `products.source` from `auto` only after Bitrix admin/content review.
+- Use `docs/workflow/product-content-source-switch-runbook.md` for repeat switches and rollback.

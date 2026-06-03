@@ -54,6 +54,9 @@
         "goals": [
           "tacticum_form_submit",
           "tacticum_form_success",
+          "tacticum_product_view",
+          "tacticum_product_cta_click",
+          "tacticum_product_form_submit",
           "tacticum_chat_send",
           "tacticum_chat_success",
           "tacticum_prefill_submit",
@@ -73,7 +76,9 @@
         "admin_url": "https://tacticum.ru/bitrix/admin/",
         "role": "admin or content-admin",
         "public_toolbar_url": "https://tacticum.ru/price/",
-        "result": "admin panel and public toolbar open without 500/white screen"
+        "result": "admin panel and public toolbar open without 500/white screen",
+        "cache_note": "deploy/cache refresh did not break admin panel or public toolbar",
+        "external_evidence": "replace-with-internal-ticket-or-screenshot-link"
       }
     },
     "staff-sale-upstream": {

@@ -16,7 +16,7 @@ PM не закрывает release issue, пока для затронутых �
 | `css-js-e2e-readiness` | Изменены CSS/JS, frontend assets, visual-smoke tooling или deploy/cache behavior | Frontend + QA | `e2e:css-js:prod` passed; при CSS PR также `e2e:css-js:local` passed; manifest не содержит browser/runtime/action blockers или `consoleWarnings` |
 | `manual-success-flow` | Изменены формы, чат, prefill, sale/staff-order или upstream adapter | QA + Backend/Frontend owner | Staging lead ID или controlled production lead с временем проверки |
 | `metrika-goals` | Изменены `analytics.js`, `metrika.js`, формы, чат или goal taxonomy | PM/Marketing + QA | Названия проверенных goals и время проверки в Yandex.Metrika |
-| `config-sync` | Добавлены/изменены config keys | DevOps | Подтверждение, что production/staging `tacticum_config.php` синхронизирован с `tacticum_config.example.php` |
+| `config-sync` | Добавлены/изменены config keys | DevOps | Подтверждение, что production/staging `tacticum_config.php` синхронизирован с `tacticum_config.example.php`; для ignored runtime config приложить `npm run config:runtime:check` без secret values |
 | `bitrix-admin` | Изменён template/header/assets/deploy/cache | QA/Admin | Авторизованный вход в Bitrix admin panel после deploy |
 | `legacy-sunset` | Изменены legacy sale aliases или дата >= 30.09.2026 | Architect + Backend | Решение по Sprint 09 matrix: удалить aliases, вернуть `410/redirect` или продлить поддержку |
 | `staff-sale-upstream` | Изменён `ai.endpoint_paths.staff_sale` или upstream workers contract | Architect + Backend + QA + DevOps | Config-sync, health-check и staging staff-order success-flow |
@@ -81,6 +81,17 @@ Draft-check не является release closure: перед закрытием
 
 Ручные gates закрываются по `docs/workflow/manual-release-gates-runbook.md`. Безопасный JSON-формат evidence для переноса в release sign-off лежит в `docs/workflow/release-signoff-manual-evidence.template.json`; в него нельзя добавлять PII, raw payload, cookie/session IDs или полный upstream response.
 Для pending manual gates draft JSON обязан содержать `due`, ссылки `evidence.runbook` и `evidence.evidence_template`; draft-check печатает список оставшихся pending gates.
+Чтобы передать текущий ручной хвост owner-ам без ручной сборки формата, использовать helper:
+
+```bash
+npm run release:manual-gates:helper -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json
+```
+
+Он читает текущий draft, показывает pending `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream`, next actions and safe evidence skeletons. Helper read-only: он не создаёт лиды, не ходит в production and не сохраняет PII.
+Если `docs/` не выгружается на production server, helper запускается в standalone skeleton mode и печатает универсальные skeletons без текущего draft-контекста; финальный перенос evidence всё равно выполняется в repository sign-off JSON.
+Для owner-run проверки `manual-success-flow` использовать `npm run manual:success-flow:helper`: он генерирует controlled payload/browser/curl templates для default form, modal form, AI chat and prefill, но не отправляет их сам.
+Для owner-run проверки `metrika-goals` использовать `npm run metrika:goals:helper`: он показывает expected goals/events, проверяет deployed JS taxonomy and даёт browser observer snippet, но не заменяет проверку goals в Яндекс.Метрике.
+Для owner-run проверки `bitrix-admin` использовать `npm run bitrix:admin:gate-helper`: он показывает authenticated admin/public toolbar checklist and safe evidence skeleton, но не логинится в Bitrix и не сохраняет cookie/session data.
 
 Если evidence указывает на локальный `manifest.json`, checker парсит его и дополнительно проверяет:
 

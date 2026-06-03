@@ -5,6 +5,7 @@
   "runActions": true,
   "expectSeoHead": true,
   "expectPriceTeamPresets": true,
+  "failOnWarnings": true,
   "results": [
     {
       "page": "/price/",
