@@ -1,0 +1,391 @@
+{
+  "meta": {
+    "project": "tacticum.ru",
+    "snapshotDate": "2026-06-02",
+    "status": "as-is-to-be-migration-baseline",
+    "dependsOn": [
+      "docs/design-system-handoff/05-design-tokens-as-is.json",
+      "docs/design-system-handoff/07-component-state-contract.json"
+    ],
+    "note": "This file maps checked AS IS component/state contracts to TO BE design-system component work. It is a planning baseline, not final approved Figma naming."
+  },
+  "contract": {
+    "version": "2026-06-02-as-is-to-be-migration-map",
+    "type": "component-migration-map",
+    "guard": {
+      "script": "tools/design-migration-map-check.mjs",
+      "npmScript": "design:migration:check",
+      "checks": [
+        "all component ids from 07-component-state-contract.json are mapped",
+        "migration types are allowed",
+        "risk levels are allowed",
+        "required gates are present for high-risk components",
+        "package script is registered"
+      ]
+    },
+    "allowedMigrationTypes": [
+      "visual-restyle",
+      "contract-preserving-split",
+      "contract-migration",
+      "new-interaction"
+    ],
+    "allowedRiskLevels": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "migrationTypeDefinitions": {
+      "visual-restyle": "Change visual anatomy, CSS classes, layout, density and copy while preserving selectors/fields/JS behavior.",
+      "contract-preserving-split": "Move markup into a better component/partial boundary while preserving behavior-bearing selectors.",
+      "contract-migration": "Change selectors, fields, payload, JS behavior or analytics contract; requires frontend/backend scope and smoke updates.",
+      "new-interaction": "Add a new interactive state/control; requires page asset decision, implementation and QA smoke."
+    }
+  },
+  "globalRules": [
+    "Every TO BE design component must reference the AS IS source component id or explicitly mark a new component as out-of-scope for this migration map.",
+    "High-risk components must include Design, Frontend and QA gates.",
+    "Any migration that touches form payloads, REST endpoints, analytics params or PII handling requires Security / Integration review.",
+    "Visual restyle is the default migration type for first TO BE implementation unless a component's preservedSelectors cannot support the design.",
+    "Do not remove product block locators, form selectors, chat selectors, FAQ classes or price builder data attributes without updating JS, smoke and docs."
+  ],
+  "mappings": [
+    {
+      "asIsComponentId": "global-navigation",
+      "toBeComponentName": "NavigationShell",
+      "toBeFamily": "global-shell",
+      "migrationType": "visual-restyle",
+      "riskLevel": "medium",
+      "preserveSelectors": [
+        "[data-tacticum-menu-toggle]",
+        "#tacticum-mobile-menu",
+        ".tacticum-mobile-menu-close",
+        ".tacticum-contact-btn",
+        "#contactUsBtn"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA browser smoke",
+        "SEO navigation review"
+      ],
+      "designDeliverables": [
+        "desktop header anatomy",
+        "desktop dropdown/current state",
+        "mobile menu layout",
+        "focus states",
+        "product/commercial navigation hierarchy"
+      ],
+      "implementationNotes": [
+        "Keep mobile menu toggle and contact modal triggers unless a JS migration is planned.",
+        "Navigation hierarchy changes must keep product and money-page links visible to seo:check."
+      ],
+      "openDecisions": [
+        "Full-screen mobile menu versus drawer.",
+        "Compact sticky header state.",
+        "Product versus services grouping in desktop nav."
+      ]
+    },
+    {
+      "asIsComponentId": "contact-modal",
+      "toBeComponentName": "ContactModal",
+      "toBeFamily": "forms-and-overlays",
+      "migrationType": "visual-restyle",
+      "riskLevel": "high",
+      "preserveSelectors": [
+        "#tacticum-modal",
+        "#tacticum-modal-close",
+        "#tacticum-modal-form",
+        "[data-tacticum-form]",
+        "[data-tacticum-close-target]",
+        "[data-tacticum-close-mode]",
+        "[data-error]"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA browser smoke",
+        "QA form validation smoke",
+        "Security / Integration if payload changes"
+      ],
+      "designDeliverables": [
+        "desktop modal layout",
+        "mobile modal/sheet layout",
+        "field anatomy",
+        "loading/error/success states",
+        "focus-visible treatment"
+      ],
+      "implementationNotes": [
+        "Preserve focus trap root and form close contract.",
+        "Inline success state is a design decision; current AS IS uses toast/close behavior."
+      ],
+      "openDecisions": [
+        "Toast-only success versus inline success.",
+        "Desktop modal versus mobile bottom sheet.",
+        "Modal field density compared with page CTA forms."
+      ]
+    },
+    {
+      "asIsComponentId": "lead-cta-form",
+      "toBeComponentName": "LeadCTAForm",
+      "toBeFamily": "conversion",
+      "migrationType": "visual-restyle",
+      "riskLevel": "high",
+      "preserveSelectors": [
+        "[data-tacticum-form]",
+        "[data-form-id]",
+        "[data-endpoint]",
+        "[data-tacticum-consent]",
+        "name",
+        "email",
+        "phone",
+        "message",
+        "lead_scenario",
+        "lead_budget",
+        "lead_timeline"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA form validation smoke",
+        "QA success-flow evidence",
+        "Security / Integration if fields or endpoints change",
+        "Analytics review if event params change"
+      ],
+      "designDeliverables": [
+        "CTA intent variants",
+        "field states",
+        "qualification select states",
+        "consent/error states",
+        "mobile one-column layout"
+      ],
+      "implementationNotes": [
+        "Default first implementation should keep form payload and global forms.js behavior.",
+        "New fields beyond lead_* require lead-form-contract and backend review."
+      ],
+      "openDecisions": [
+        "Compact B2B form versus conversational form.",
+        "Which CTA intents require different layout.",
+        "Budget/timeline placement on product pages."
+      ]
+    },
+    {
+      "asIsComponentId": "chat-surface",
+      "toBeComponentName": "ChatSurface",
+      "toBeFamily": "conversational-ui",
+      "migrationType": "visual-restyle",
+      "riskLevel": "high",
+      "preserveSelectors": [
+        "[data-tacticum-chat='hero']",
+        "[data-tacticum-chat='light']",
+        "[data-chat-surface]",
+        "[data-chat-messages]",
+        "[data-chat-input]",
+        "[data-chat-send]",
+        "[data-chat-quick-reply]",
+        "[data-message]",
+        "[data-chat-lead-handoff]"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA browser smoke",
+        "QA chat smoke",
+        "Security / Integration if chat payload changes",
+        "Analytics review if event params change"
+      ],
+      "designDeliverables": [
+        "message bubble anatomy",
+        "typing/error states",
+        "quick reply states",
+        "long answer behavior",
+        "lead handoff CTA",
+        "mobile keyboard behavior"
+      ],
+      "implementationNotes": [
+        "Keep chat selectors and group_id/prefill behavior unless chat-agent.js is migrated.",
+        "Long-answer visuals must preserve message scroll containment."
+      ],
+      "openDecisions": [
+        "Shared design-system component versus product-specific chat pattern.",
+        "Final answer/handoff layout.",
+        "Mobile long-answer behavior."
+      ]
+    },
+    {
+      "asIsComponentId": "faq-accordion",
+      "toBeComponentName": "FAQAccordion",
+      "toBeFamily": "disclosure",
+      "migrationType": "visual-restyle",
+      "riskLevel": "medium",
+      "preserveSelectors": [
+        ".faq-item",
+        ".faq-question",
+        ".faq-answer",
+        ".faq-icon",
+        ".active"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA browser smoke"
+      ],
+      "designDeliverables": [
+        "collapsed/open states",
+        "hover/focus states",
+        "long answer layout",
+        "mobile tap target",
+        "reduced-motion expectation"
+      ],
+      "implementationNotes": [
+        "Current faq.js closes other items. Multiple-open behavior is a contract migration.",
+        "Icon changes can be visual-only if .faq-icon remains."
+      ],
+      "openDecisions": [
+        "Single-open versus multiple-open.",
+        "Motion and reduced-motion policy.",
+        "Long legal/security answer treatment."
+      ]
+    },
+    {
+      "asIsComponentId": "price-team-builder",
+      "toBeComponentName": "TeamBuilder",
+      "toBeFamily": "configurator",
+      "migrationType": "contract-preserving-split",
+      "riskLevel": "high",
+      "preserveSelectors": [
+        "[data-price-list]",
+        "[data-price-card]",
+        "[data-price-filter-tab]",
+        "[data-price-search]",
+        "[data-price-level-option]",
+        "[data-price-value]",
+        "[data-price-order]",
+        "[data-price-team-preset]",
+        "[data-price-team-summary]",
+        "[data-price-empty]",
+        "[data-price-order-modal]",
+        "[data-price-order-form]",
+        "workers_json",
+        "monthly_budget_estimate"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA browser smoke",
+        "QA price focused smoke",
+        "Security / Integration if staff payload changes",
+        "Analytics review if new events are added"
+      ],
+      "designDeliverables": [
+        "desktop team builder flow",
+        "mobile team builder flow",
+        "filter/search/empty states",
+        "role card selected states",
+        "team summary states",
+        "order modal states",
+        "budget caveat treatment"
+      ],
+      "implementationNotes": [
+        "Keep modern data-price selectors and legacy fallback until rollout risk is retired.",
+        "Changing workers_json or monthly_budget_estimate requires endpoint contract review."
+      ],
+      "openDecisions": [
+        "Catalog cards versus full builder experience.",
+        "Inline mobile builder versus sticky summary versus modal-first.",
+        "How to communicate estimate limitations."
+      ]
+    },
+    {
+      "asIsComponentId": "product-page-blocks",
+      "toBeComponentName": "ProductPageSystem",
+      "toBeFamily": "product-storytelling",
+      "migrationType": "contract-preserving-split",
+      "riskLevel": "medium",
+      "preserveSelectors": [
+        "[data-product-block='hero']",
+        "[data-product-block='fit-guide']",
+        "[data-product-block='content-section']",
+        "[data-product-block='architecture']",
+        "[data-product-block='use-cases']",
+        "[data-product-block='comparison']",
+        "[data-product-block='procurement']",
+        "[data-product-block='rollout']",
+        "[data-product-block='proof']",
+        "[data-product-block='faq']",
+        "[data-product-block='lead-cta']"
+      ],
+      "requiredGates": [
+        "Design",
+        "Frontend",
+        "QA rendered smoke",
+        "SEO rendered schema smoke",
+        "PM/Legal for proof/status copy"
+      ],
+      "designDeliverables": [
+        "product hero",
+        "fit guide",
+        "use-case card",
+        "architecture diagram",
+        "comparison block",
+        "procurement/security block",
+        "rollout timeline",
+        "proof/status block",
+        "product CTA"
+      ],
+      "implementationNotes": [
+        "Keep data-product-block locators for QA/design previews.",
+        "Moving partials into local components is allowed if locators and product data contract remain."
+      ],
+      "openDecisions": [
+        "Final TO BE names for product blocks.",
+        "Renderer partials versus local components.",
+        "Proof/status mapping to claim governance."
+      ]
+    }
+  ],
+  "toBeBacklog": [
+    {
+      "id": "new.proof-status",
+      "toBeComponentName": "ProofStatus",
+      "source": "new component",
+      "migrationType": "new-interaction",
+      "riskLevel": "high",
+      "requiredGates": [
+        "Design",
+        "PM/Legal",
+        "Frontend",
+        "QA rendered smoke"
+      ],
+      "reason": "AS IS proof readiness text exists, but TO BE needs evidence/source/status component rules."
+    },
+    {
+      "id": "new.architecture-diagram",
+      "toBeComponentName": "ArchitectureDiagram",
+      "source": "new component",
+      "migrationType": "new-interaction",
+      "riskLevel": "medium",
+      "requiredGates": [
+        "Design",
+        "Architect",
+        "Frontend",
+        "QA responsive smoke"
+      ],
+      "reason": "AS IS architecture blocks are text/layer cards; TO BE needs diagram-grade desktop and mobile fallback."
+    },
+    {
+      "id": "new.procurement-doc-request",
+      "toBeComponentName": "ProcurementDocRequest",
+      "source": "new or CTA variant",
+      "migrationType": "contract-migration",
+      "riskLevel": "high",
+      "requiredGates": [
+        "Design",
+        "PM/Sales",
+        "Security / Integration",
+        "Frontend",
+        "QA form smoke"
+      ],
+      "reason": "Current procurement block links to existing CTA; gated documents or extra fields require a separate endpoint/form decision."
+    }
+  ]
+}

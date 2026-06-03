@@ -73,7 +73,11 @@ AS IS дизайн-система формально не выделена ка�
 
 ## Базовые Токены AS IS
 
-Файл: `local/templates/tacticum/assets/src/tailwind.css`.
+Файлы:
+
+- implemented source: `local/templates/tacticum/assets/src/tailwind.css`;
+- AS IS contract: `docs/design-system-handoff/05-design-tokens-as-is.json`;
+- guard: `npm run design:tokens:check`.
 
 Текущие явно заданные токены:
 
@@ -94,6 +98,8 @@ AS IS дизайн-система формально не выделена ка�
 - z-index scale;
 - section backgrounds;
 - page hero overlays.
+
+На 01.06.2026 эти значения не стали финальной TO BE дизайн-системой, но появились как `observedTokenCandidates` в `05-design-tokens-as-is.json`. Там же явно отмечены drift-значения, например `#001F40` в `.to-primary` против canonical `#001F3F` и legacy hover `#007bff` против brand primary `#0066CC`. Это нужно дизайнеру как входной материал для нормализации, а frontend использует guard, чтобы JSON не расходился с реальным CSS.
 
 ## Визуальный Язык AS IS
 
@@ -231,4 +237,3 @@ Optional JS:
 5. CSS сейчас смешивает utilities и ручные классы; TO BE должен решить, какой слой станет canonical.
 6. Иконки сейчас Remix Icon; замена иконок потребует migration decision.
 7. Контент приходит из инфоблоков, поэтому карточки должны выдерживать разную длину текста.
-

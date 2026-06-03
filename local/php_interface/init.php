@@ -11,6 +11,7 @@ $tacticumIncludes = [
     '/local/php_interface/include/site_helpers.php',
     '/local/php_interface/include/component_helpers.php',
     '/local/php_interface/include/seo_helpers.php',
+    '/local/php_interface/include/product_content.php',
     '/local/php_interface/include/product_page.php',
     '/local/php_interface/include/offer_catalog_cache.php',
     '/local/php_interface/include/calcrequests_rest.php',
@@ -25,6 +26,10 @@ foreach ($tacticumIncludes as $relativePath) {
 
 if (function_exists('tacticum_register_offer_catalog_cache_handlers')) {
     tacticum_register_offer_catalog_cache_handlers();
+}
+
+if (function_exists('tacticum_register_product_content_cache_handlers')) {
+    tacticum_register_product_content_cache_handlers();
 }
 
 if (function_exists('tacticum_register_calcrequests_rest')) {

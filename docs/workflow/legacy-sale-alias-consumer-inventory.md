@@ -29,8 +29,10 @@ Successor endpoint: `/local/rest/tacticum_form.php`.
 |---|---|---|---|
 | Repository source scan | 24.05.2026 | no first-party callers found | Command below returned no content references |
 | Endpoint files | 24.05.2026 | aliases still exist | `local/rest/tacticum_offer.php` and `local/rest/tacticum_sale.php` keep response shape and send `Deprecation`, `Sunset`, `Link: rel="successor-version"` |
-| Production access logs | pending | pending | PM + Backend must check exact endpoint hits through `30.06.2026` |
-| CRM/upstream source reports | pending | pending | PM + Backend must match legacy endpoint leads without exposing PII |
+| Access-log aggregate tooling | 03.06.2026 | ready | `npm run legacy:sale:inventory:logs` parses access logs / `.gz` archives and prints aggregate-only endpoint/method/status/day counts |
+| Production access logs partial window | 03.06.2026 | no hits | Window `2026-05-24` - `2026-06-03`, scanned `79384` lines, matched hits `0`; final full-window repeat still required after `30.06.2026` |
+| Production access logs full window | external report required | external report required | PM + Backend must check exact endpoint hits through `30.06.2026` |
+| CRM/upstream source reports | external report required | external report required | PM + Backend must match legacy endpoint leads without exposing PII |
 
 ```bash
 rg -n '/local/rest/tacticum_(offer|sale)\.php|tacticum_offer\.php|tacticum_sale\.php' \
@@ -48,20 +50,59 @@ rg -n '/local/rest/tacticum_(offer|sale)\.php|tacticum_offer\.php|tacticum_sale\
 | Partner/integration register | PM | до `2026-06-30` | Known external owners and migration contact path |
 | Repo/source scan | Backend | each release touching sale flow | Confirmation that first-party code does not reintroduce direct calls to legacy aliases |
 
+## Access Log Aggregate Command
+
+Use the repo-owned parser on the production host or on an internal log-processing host that has access to sanitized copies of web access logs.
+
+First discover common nginx/apache/BitrixVM access log candidates:
+
+```bash
+npm run legacy:sale:inventory:logs -- --discover
+```
+
+Then run the inventory with the real log paths found on that host. The paths below are examples; replace them with real files from `--discover` or DevOps:
+
+```bash
+npm run legacy:sale:inventory:logs -- /var/log/nginx/access.log /var/log/nginx/access.log.1 /var/log/nginx/access.log.2.gz
+```
+
+Alternative with environment variables:
+
+```bash
+TACTICUM_LEGACY_LOG_FILES=/var/log/nginx/access.log,/var/log/nginx/access.log.1.gz \
+TACTICUM_LEGACY_LOG_FROM=2026-05-24 \
+TACTICUM_LEGACY_LOG_TO=2026-06-30 \
+TACTICUM_LEGACY_SOURCE_LABEL=production-access-logs \
+npm run legacy:sale:inventory:logs
+```
+
+For machine-readable aggregate evidence:
+
+```bash
+npm run legacy:sale:inventory:logs -- --json /var/log/nginx/access.log
+```
+
+The parser matches exact paths only:
+
+- `/local/rest/tacticum_offer.php`;
+- `/local/rest/tacticum_sale.php`.
+
+It ignores query strings and intentionally discards raw IP, referrer, cookie, user-agent and request line details. Allowed evidence output from the command: source label, endpoint, method, status, count, first seen, last seen and daily aggregate counts.
+
 ## Inventory Table
 
 | Consumer / Source Label | Endpoint | Evidence Link / ID | Window | Last Seen At | Count | Owner | Migration Target | Target Date | Status | Notes |
 |---|---|---|---|---|---:|---|---|---|---|---|
 | first-party repo callers | both | local repo scan 24.05.2026 | current tree | not seen | 0 | Frontend + Backend | already uses current form/staff endpoints | done | done | No content references outside docs/tools |
-| production access logs | `tacticum_offer.php` | pending internal report | `2026-05-24` - `2026-06-30` | pending | pending | Backend + DevOps | `/local/rest/tacticum_form.php` | `2026-08-31` | pending | Aggregate only |
-| production access logs | `tacticum_sale.php` | pending internal report | `2026-05-24` - `2026-06-30` | pending | pending | Backend + DevOps | `/local/rest/tacticum_form.php` | `2026-08-31` | pending | Aggregate only |
+| production access logs | `tacticum_offer.php` | prod aggregate run 03.06.2026; full-window report pending | `2026-05-24` - `2026-06-30` | not seen as of `2026-06-03` | 0 interim | Backend + DevOps | `/local/rest/tacticum_form.php` | `2026-08-31` | pending | Interim window `2026-05-24` - `2026-06-03`: `79384` scanned lines across both aliases, matched hits `0`; repeat after `30.06.2026` |
+| production access logs | `tacticum_sale.php` | prod aggregate run 03.06.2026; full-window report pending | `2026-05-24` - `2026-06-30` | not seen as of `2026-06-03` | 0 interim | Backend + DevOps | `/local/rest/tacticum_form.php` | `2026-08-31` | pending | Interim window `2026-05-24` - `2026-06-03`: `79384` scanned lines across both aliases, matched hits `0`; repeat after `30.06.2026` |
 | CRM/upstream source report | both | pending internal report | `2026-05-24` - `2026-06-30` | pending | pending | PM + Backend | `/local/rest/tacticum_form.php` | `2026-08-31` | pending | Match by safe source IDs only |
 
 Allowed statuses: `pending`, `identified`, `owner-assigned`, `migration-planned`, `migrated`, `no-traffic`, `accepted-risk`, `done`.
 
 ## Runbook
 
-1. Query web access logs for exact `POST /local/rest/tacticum_offer.php` and `POST /local/rest/tacticum_sale.php` paths.
+1. Run `npm run legacy:sale:inventory:logs` against production web access logs for exact `/local/rest/tacticum_offer.php` and `/local/rest/tacticum_sale.php` paths.
 2. Group results by endpoint, week and masked consumer label. Do not copy raw log lines into docs.
 3. Cross-check CRM/upstream reports for leads created through legacy endpoints.
 4. For every non-zero consumer, assign owner and migration path to `/local/rest/tacticum_form.php`.

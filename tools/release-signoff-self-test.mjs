@@ -246,8 +246,58 @@ const cases = [
           health_config: 'success=true; scopes include ai, rest, security',
           url: 'https://staging.tacticum.ru/price/',
           form_id: 'price-specialist',
+          team_preset: 'mvp',
           workers_count: 3,
           monthly_budget_estimate_present: false,
+          end_date_present: true,
+          upstream_request_id: 'stg-upstream-1001',
+          result: 'upstream accepted lead',
+        },
+      };
+    },
+  },
+  {
+    name: 'missing staff-sale end date evidence',
+    expected: /end_date_present/,
+    mutate(payload) {
+      payload.gates['staff-sale-upstream'] = {
+        status: 'passed',
+        owner: 'Architect + Backend + QA + DevOps',
+        evidence: {
+          environment: 'staging',
+          checked_at: '2026-05-23T00:00:00+03:00',
+          checked_by: 'QA Owner',
+          health_config: 'success=true; scopes include ai, rest, security',
+          url: 'https://staging.tacticum.ru/price/',
+          form_id: 'price-specialist',
+          team_preset: 'mvp',
+          workers_count: 3,
+          monthly_budget_estimate_present: true,
+          end_date_present: false,
+          upstream_request_id: 'stg-upstream-1001',
+          result: 'upstream accepted lead',
+        },
+      };
+    },
+  },
+  {
+    name: 'invalid staff-sale team preset evidence',
+    expected: /team_preset/,
+    mutate(payload) {
+      payload.gates['staff-sale-upstream'] = {
+        status: 'passed',
+        owner: 'Architect + Backend + QA + DevOps',
+        evidence: {
+          environment: 'staging',
+          checked_at: '2026-05-23T00:00:00+03:00',
+          checked_by: 'QA Owner',
+          health_config: 'success=true; scopes include ai, rest, security',
+          url: 'https://staging.tacticum.ru/price/',
+          form_id: 'price-specialist',
+          team_preset: 'custom',
+          workers_count: 3,
+          monthly_budget_estimate_present: true,
+          end_date_present: true,
           upstream_request_id: 'stg-upstream-1001',
           result: 'upstream accepted lead',
         },

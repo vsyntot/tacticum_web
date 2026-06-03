@@ -151,7 +151,7 @@ No raw message, company, email, phone, document names, URLs with sensitive query
 
 | Area | Target |
 |---|---|
-| Tokens | Documented token source and mapping to Tailwind/global CSS |
+| Tokens | Checked AS IS token contract exists; TO BE source and mapping to Tailwind/global CSS still need approval |
 | Component previews | Lightweight local HTML/PHP preview or documented screenshot harness |
 | CSS structure | Split `global.css` by documented sections or component CSS when safe |
 | JS modules | Keep explicit page asset flags; add new JS only for real interaction |
@@ -174,11 +174,11 @@ No raw message, company, email, phone, document names, URLs with sensitive query
 | ID | Gap | Current | Target | Gate |
 |---|---|---|---|---|
 | ARCH-001 | Product content ownership | Shared PHP data files | Decide whether Git layer is enough or CMS/hybrid is needed | ADR likely if CMS-backed |
-| ARCH-002 | Product components | PHP block partials | Decide if partials are enough or if local components/previews are needed | Design + Architect |
+| ARCH-002 | Product components | PHP block partials plus checked component/state contract and migration map in `07` / `08` design handoff files | Decide if partials are enough or if local components/previews are needed | Design + Architect |
 | ARCH-003 | Lead qualification | Canonical profile + `task` fallback | Structured upstream/CRM fields after approval | Security / Integration |
 | ARCH-004 | Analytics | Product funnel code events | Метрика goals/evidence and future interaction events | QA + Marketing |
 | ARCH-005 | Proof model | Docs/register plus static proof readiness | Evidence-backed proof components | Legal/Sales/PM |
-| ARCH-006 | Design tokens | Minimal Tailwind tokens | Formal token pipeline | Design + Frontend |
+| ARCH-006 | Design tokens | Checked AS IS token contract in `05-design-tokens-as-is.json` with `npm run design:tokens:check` | Formal TO BE token pipeline and approved mapping | Design + Frontend |
 | ARCH-007 | CSS organization | Large `global.css` | Layered/component CSS strategy | Frontend |
 | ARCH-008 | Component preview | Lightweight rendered screenshot workflow exists through `product:block-previews`; Storybook/local component previews absent | Decide later only if design/QA needs component-level isolated previews | Frontend/QA |
 | ARCH-009 | CSP | Report-only | Enforce after baseline and vendor review | Security / Integration |
@@ -203,5 +203,5 @@ ADR is needed if any of these decisions are made:
 - New product components preserve existing form/FAQ/menu contracts or document migrations.
 - Product qualification can be consumed by sales/CRM in structured form or has approved canonical fallback.
 - Product analytics can be measured without PII.
-- Design token decisions are implementable in Tailwind/global CSS.
+- Design token decisions are implementable in Tailwind/global CSS and mapped from the checked AS IS token contract.
 - Release gates distinguish local code readiness from external production evidence.

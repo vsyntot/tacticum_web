@@ -1,10 +1,12 @@
 # 02. Component Inventory
 
-Дата: 30.05.2026
+Дата: 02.06.2026
 
 ## Назначение
 
 Этот документ фиксирует AS IS компоненты и блоки, которые дизайнеру нужно учитывать при проектировании TO BE дизайн-системы. Таблицы описывают не только внешний вид, но и states, JS-контракты и вопросы для новой системы.
+
+Машиночитаемый companion contract: `07-component-state-contract.json`. Он фиксирует behavior-bearing components, preserved selectors, required state coverage and source checks. Перед handoff/review можно запустить `npm run design:components:check`, чтобы убедиться, что документированная карта не разошлась с templates/JS.
 
 ## Global Shell
 
@@ -148,4 +150,3 @@ TO BE decision:
 | Chat | `chat.surface`, `chat-agent.js`, `global.css` | Window-like chrome, bubbles, scroll | Define conversational UI spec |
 | Price builder | `news.list/price` + `script.js` | Cards + filters + modal + summary | Dedicated complex flow spec |
 | Map/contact | `contacts/index.php` | iframe card + address/hours | Contact page pattern |
-

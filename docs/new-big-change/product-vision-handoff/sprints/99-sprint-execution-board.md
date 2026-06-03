@@ -1,8 +1,8 @@
 # Sprint Execution Board
 
-Дата: 01.06.2026
+Дата: 02.06.2026
 
-Статус: PM / lead-level execution board для TO BE product program.
+Статус: PM / lead-level execution board для TO BE product program, including post-challenge sprint wave `09-14`.
 
 ## Purpose
 
@@ -39,6 +39,17 @@
 | 07 | in-progress | Proof/forms/SEO/analytics hardening | External evidence, claim approval | Security, QA, SEO, Legal |
 | 08 | planned | Release and post-launch handoff | Strict sign-off closure | Post-deploy, PM |
 
+## Post-Challenge Program Board
+
+| Sprint | Status | Primary Outcome | Main Blocker | Gate Focus |
+|---|---|---|---|---|
+| 09 | ready-for-owner-review | Taxonomy, claims, packaging and `/agents/` vs `/aiagents/` decisions | PM/Sales/Legal/SEO owner approvals | Legal, Security, SEO |
+| 10 | ready-for-owner-review | Pilot kits, role-based CJM, CTA taxonomy and returning journey | Sales/PM confirmation of real discovery paths and Sprint 09 dependency | Design, Sales |
+| 11 | ready-for-owner-review | Approved TO BE design-system package | Token source, Figma components, proof/status UI and Sprint 09/10 dependencies | Design, Frontend, QA |
+| 12 | planned | Architecture, CRM/upstream and analytics decisions | CRM/upstream and Metrika evidence | ADR, Security, QA, Analytics |
+| 13 | planned | Implementation-ready copy/UI/SEO/QA scope | All required upstream decisions from 09-12 | Design, SEO, QA |
+| 14 | planned | Production evidence and post-launch governance | External access: deploy, Metrika, Bitrix admin, upstream | Post-deploy, QA, DevOps |
+
 ## Detailed Work Packages
 
 ### Sprint 00 - Decision And Evidence Baseline
@@ -63,10 +74,10 @@
 
 | Work Package | Output | Depends On | Done When |
 |---|---|---|---|
-| Token system | Color/type/spacing/status/focus/motion spec | Brand/design decision | Frontend can map tokens to Tailwind/global CSS |
-| Product components | Component inventory and responsive behavior | Sprint 01 briefs | Product hero, fit guide, use cases, diagrams, proof and CTA states exist |
+| Token system | Color/type/spacing/status/focus/motion spec mapped from checked AS IS token contract | Brand/design decision | Frontend can map approved tokens to Tailwind/global CSS and keep `design:tokens:check` green |
+| Product components | Component inventory and responsive behavior mapped from checked component/state contract and migration map | Sprint 01 briefs | Product hero, fit guide, use cases, diagrams, proof and CTA states exist and preserve/migrate decisions are explicit |
 | Proof/status UI | Evidence-aware UI rules | Claims register | UI cannot imply unapproved metrics/logos/certifications |
-| Interaction states | Form/nav/modal/accordion/chat/configurator states | AS IS contracts | QA and frontend can verify states without guessing |
+| Interaction states | Form/nav/modal/accordion/chat/configurator states | Checked AS IS component/state contract and migration map | QA and frontend can verify states without guessing; `design:components:check` and `design:migration:check` stay green |
 
 ### Sprint 03 - Implementation Foundation
 
@@ -124,6 +135,65 @@
 | Post-deploy smoke | Visual/browser/SEO/form evidence | Production access | Release sign-off can be strict, not assumed |
 | Handoff | Sales/design/content/QA post-launch notes | Release result | Owners know what to measure and iterate |
 | Post-launch backlog | Next iteration list | Analytics/Sales feedback | Deferred items are not hidden as "done" |
+
+### Sprint 09 - Product Taxonomy, Claims And Packaging
+
+| Work Package | Output | Depends On | Done When |
+|---|---|---|---|
+| Taxonomy and one-liners | Approved Platform/Agents/Dev/Forum names and public descriptors | PM/Sales/Architect review | `D-01` has approved wording or explicit blocker |
+| Product boundary | Agents/Forum and `/aiagents/` decision | SEO and PM review | `D-02` direction is documented |
+| Proof/claims split | Evidence matrix and public/private/blocked statuses | Legal/Security/Sales evidence | `D-03` has status per claim family |
+| Packaging language | Assessment/pilot/SaaS/on-prem/hybrid/PAK/support wording | PM/Sales/Architect/Legal | `D-04` public wording is approved |
+| Review workbook and records | Completed `sprint-09-review-workbook.md` and `sprint-09-decision-records.md` | Sprint 09 session | Every decision has status, owner and next action |
+| Approval/evidence packet | Completed `sprint-09-approval-request.md` and `sprint-09-evidence-intake.md` | Local preparation | Owners can provide approval/evidence without new doc scaffolding |
+
+### Sprint 10 - Pilot Kits, CJM And CTA
+
+| Work Package | Output | Depends On | Done When |
+|---|---|---|---|
+| Product pilot kits | Trigger/owner/readiness/input/output/proof/limitation/CTA per use case | Sprint 09 taxonomy/claims | `D-05` is approved by PM/Content/Sales |
+| Role paths | Economic, technical, security, functional and returning-lead CJM | Product pilot kits | `D-06` role journey map is approved |
+| CTA taxonomy | Pilot, architecture, scenario, documentation-request and estimate routes | Current form contracts | No new field/payload is assumed without Sprint 12 |
+| Sales routing review | Current `lead_scenario` + `task` fallback suitability | Sales/Backend/QA | Fallback accepted or structured-field scope opened |
+| Review bundle | Completed `sprint-10-review-workbook.md`, `sprint-10-pilot-kit-records.md`, `sprint-10-cjm-cta-records.md`, `sprint-10-approval-request.md` | Local preparation | Owners can review D-05/D-06 without new scaffolding |
+
+### Sprint 11 - Design System Approval
+
+| Work Package | Output | Depends On | Done When |
+|---|---|---|---|
+| Token source | Figma variables/token mapping | AS IS token contract | `D-07` approved by Designer + Frontend |
+| Component family | Product components and states | Sprint 10 pilot kits | `D-08` component/state spec approved |
+| Diagrams and proof/status | Architecture diagram and evidence status UI | Sprint 09 claims | `D-09` approved by Designer/Architect/Legal |
+| Migration map update | AS IS -> TO BE preserve/migrate decisions | Component design | `design:handoff:check` remains green |
+| Review bundle | Completed `sprint-11-review-workbook.md`, `sprint-11-decision-records.md`, `sprint-11-state-matrix.md`, `sprint-11-approval-request.md` | Local preparation | Owners can review `D-07` - `D-09` without new scaffolding |
+
+### Sprint 12 - Architecture, CRM And Analytics
+
+| Work Package | Output | Depends On | Done When |
+|---|---|---|---|
+| Content/component architecture | Git-only v1 or ADR scope | Design/component decisions | `D-10` is explicit |
+| CRM/upstream qualification | Fallback acceptance or structured field contract | Sprint 10 CTA taxonomy | `D-11` is explicit |
+| Product analytics | Metrika goal map and no-PII evidence rules | Current analytics events | `D-12` is explicit |
+| Release evidence model | Updated external evidence slots | QA/DevOps/Analytics | Release sign-off knows remaining blockers |
+
+### Sprint 13 - Implementation Readiness
+
+| Work Package | Output | Depends On | Done When |
+|---|---|---|---|
+| Copy packet | Approved product copy and pilot kit rendering plan | Sprints 09-10 | Copy traces to approved decisions |
+| UI implementation plan | Token/CSS/component task split | Sprint 11 | Selectors and states are preserved or scoped |
+| SEO plan | Metadata/canonical/schema update matrix | Sprint 09 SEO decisions | SEO impact is known before code |
+| QA matrix | Smoke matrix for AS IS + TO BE journeys | Sprints 11-12 | QA can verify old and new flows |
+
+### Sprint 14 - Release Evidence And Governance
+
+| Work Package | Output | Depends On | Done When |
+|---|---|---|---|
+| Deploy/cache smoke | Product-first production evidence | Implementation complete | `REL-001` evidence exists or blocker recorded |
+| Rendered SEO evidence | Product SEO manifest | SEO implementation | `REL-002` evidence exists or blocker recorded |
+| Manual success-flow | Form/chat/price/prefill evidence without PII | QA/staging/prod access | `REL-003` evidence exists or blocker recorded |
+| Metrika/admin/upstream | External evidence | External credentials/access | `REL-004` - `REL-006`, `ARCH-008` evidence or blockers recorded |
+| Strict sign-off | Final closure or accepted risks | All evidence | `gaps:known:strict` only used after external gates close |
 
 ## Release Readiness Checklist
 

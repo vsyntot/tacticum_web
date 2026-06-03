@@ -45,6 +45,7 @@ const injectedJs = injectedJsFiles.length > 0
 const runActions = isTruthy(process.env.TACTICUM_VISUAL_ACTIONS);
 const expectSeoHead = isTruthy(process.env.TACTICUM_EXPECT_SEO_HEAD);
 const expectProductBlocks = expectSeoHead || isTruthy(process.env.TACTICUM_EXPECT_PRODUCT_BLOCKS);
+const expectedProductSource = String(process.env.TACTICUM_EXPECT_PRODUCT_SOURCE || '').trim();
 const captureProductBlocks = isTruthy(process.env.TACTICUM_CAPTURE_PRODUCT_BLOCKS);
 const expectPriceTeamPresets = isTruthy(process.env.TACTICUM_EXPECT_PRICE_TEAM_PRESETS);
 const failOnWarnings = isTruthy(process.env.TACTICUM_VISUAL_FAIL_ON_WARNINGS);
@@ -97,7 +98,7 @@ try {
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectProductBlocks, captureProductBlocks, expectPriceTeamPresets, failOnWarnings, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectProductBlocks, expectedProductSource, captureProductBlocks, expectPriceTeamPresets, failOnWarnings, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -434,6 +435,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         const currentPath = normalizePath(window.location.pathname);
         const productPaths = ['/platform', '/agents', '/dev', '/forum'];
         const isProductPage = productPaths.includes(currentPath);
+        const expectedProductSource = ${JSON.stringify(expectedProductSource)};
         const requiredProductBlocks = [
           'hero',
           'fit-guide',
@@ -451,6 +453,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           .map((element) => (element.getAttribute('data-product-block') || '').trim())
           .filter(Boolean)
           .filter((block, index, blocks) => blocks.indexOf(block) === index);
+        const productSource = (document.querySelector('[data-product-source]')?.getAttribute('data-product-source') || '').trim();
         const missingProductBlocks = isProductPage
           ? requiredProductBlocks.filter((block) => !foundProductBlocks.includes(block))
           : [];
@@ -458,11 +461,15 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           isProductPage,
           required: isProductPage ? requiredProductBlocks : [],
           found: foundProductBlocks,
-          missing: missingProductBlocks
+          missing: missingProductBlocks,
+          source: isProductPage ? productSource : ''
         };
         const productBlockErrors = [];
         if (isProductPage && expectProductBlocks && missingProductBlocks.length > 0) {
           productBlockErrors.push('missing product blocks on ' + currentPath + ': ' + missingProductBlocks.join(', '));
+        }
+        if (isProductPage && expectedProductSource && productSource !== expectedProductSource) {
+          productBlockErrors.push('product source mismatch on ' + currentPath + ': expected ' + expectedProductSource + ', got ' + (productSource || 'empty'));
         }
         const softwareSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('SoftwareApplication'));
         const faqSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('FAQPage'));
@@ -1411,8 +1418,11 @@ function formatResult(result) {
   const warningSummary = result.consoleWarnings.length > 0 ? ` warnings=${result.consoleWarnings.length}` : '';
   const seoSummary = result.seoHead ? ` seo=${result.seoErrors.length > 0 ? 'bad' : 'ok'}` : '';
   const missingProductBlocks = result.productBlocks?.missing?.length || 0;
+  const productSourceSummary = result.productBlocks?.isProductPage && result.productBlocks?.source
+    ? ` source=${result.productBlocks.source}`
+    : '';
   const blockSummary = result.productBlocks?.isProductPage
-    ? ` blocks=${result.productBlockErrors.length > 0 ? 'bad' : missingProductBlocks > 0 ? 'missing' : 'ok'}`
+    ? ` blocks=${result.productBlockErrors.length > 0 ? 'bad' : missingProductBlocks > 0 ? 'missing' : 'ok'}${productSourceSummary}`
     : '';
   const actionSummary = result.actions.length > 0
     ? ` actions=${result.actions.filter((action) => action.status === 'ok').length}/${result.actions.length}`

@@ -1,8 +1,8 @@
 # Sprint Roadmap - AS IS To TO BE Product Vision
 
-Дата: 01.06.2026
+Дата: 02.06.2026
 
-Статус: planning baseline.
+Статус: planning baseline plus post-challenge sprint wave.
 
 ## Planning Assumption
 
@@ -20,6 +20,19 @@
 | 07 | 31.08.2026 - 11.09.2026 | Proof, forms, SEO, analytics hardening |
 | 08 | 14.09.2026 - 18.09.2026 | Release, post-launch, handoff |
 
+## Post-Challenge Sprint Wave
+
+После документов `24-28` добавлена уточняющая волна `09-14`. Она не отменяет базовые спринты `00-08`, а превращает decision backlog `D-01` - `D-13` в более управляемые review and implementation-readiness итерации.
+
+| Sprint | Suggested Duration | Main Outcome |
+|---|---|---|
+| 09 | 1 week | Product taxonomy, claims, packaging and `/agents/` vs `/aiagents/` decision closure |
+| 10 | 1-2 weeks | Pilot kits, role-based CJM, CTA taxonomy and returning journey |
+| 11 | 2 weeks | TO BE design-system approval: tokens, components, states, diagrams and proof/status UI |
+| 12 | 1-2 weeks | Architecture, CRM/upstream qualification and analytics evidence decisions |
+| 13 | 2 weeks | Implementation-ready product copy, UI, SEO and QA scope |
+| 14 | 1 week plus external availability | Release evidence, strict sign-off and post-launch governance |
+
 ## Gap Coverage
 
 | Gap IDs | Covered In |
@@ -35,6 +48,17 @@
 | All release gates | Sprint 08 |
 
 Detailed crosswalk for `PTC-*`, `PB-*`, `CJM-*`, `UI-*`, `ARCH-*`, `SEO-TOBE-*` and `REL-*` lives in `99-gap-to-sprint-traceability.md`.
+
+## Post-Challenge Decision Coverage
+
+| Sprint | Decision Focus |
+|---|---|
+| 09 | `D-01`, `D-02`, `D-03`, `D-04` |
+| 10 | `D-05`, `D-06` |
+| 11 | `D-07`, `D-08`, `D-09` |
+| 12 | `D-10`, `D-11`, `D-12` |
+| 13 | Implementation readiness after `D-01` - `D-12` |
+| 14 | `D-13` |
 
 ## Challenge Backlog Coverage
 
@@ -64,6 +88,10 @@ Detailed crosswalk for `PTC-*`, `PB-*`, `CJM-*`, `UI-*`, `ARCH-*`, `SEO-TOBE-*` 
 ## Current State Overlay
 
 На 01.06.2026 часть Sprint 03-07 уже реализована как safe MVP slice: shared product data layer, product pages, product navigation, product-aware CTA context, FAQ, rollout, proof readiness and product schema. Это не закрывает Sprint 00-03 задним числом и не отменяет TO BE gaps по evidence, CJM, design system, structured lead fields, content ownership and external release gates.
+
+На 02.06.2026 post-challenge документы `24-28` уточнили критический путь: vendor-grade TO BE требует закрыть taxonomy/claims/packaging, role-based CJM, approved design system, CRM/upstream/analytics decisions and external release evidence. Это вынесено в спринты `09-14`.
+
+На 02.06.2026 спринты `09`, `10` and `11` доведены до local `ready-for-owner-review`: для product taxonomy/claims/packaging, pilot kits/CJM/CTA and TO BE design-system decisions подготовлены workbooks, draft decision records and approval requests. Это не закрывает owner/evidence gates, но убирает локальный documentation scaffolding blocker перед внешними review-сессиями.
 
 ## Release Scope Recommendation
 

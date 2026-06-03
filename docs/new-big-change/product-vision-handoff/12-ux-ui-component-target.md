@@ -118,6 +118,12 @@ Designer must specify states for:
 - configurator: filter selected, item selected, empty state, summary state;
 - diagrams: desktop, tablet, mobile stacked fallback.
 
+Current AS IS component/state baseline is also checked: `docs/design-system-handoff/07-component-state-contract.json` records behavior-bearing components, preserved selectors and required state coverage for navigation, contact modal, lead CTA forms, chat, FAQ, `/price/` team builder and product page blocks. `npm run design:components:check` validates it against templates and JS. Designer should use this contract to mark each TO BE component as `preserve selector`, `contract-preserving split` or `contract migration`.
+
+The first migration baseline is checked in `docs/design-system-handoff/08-as-is-to-be-migration-map.json`: every AS IS component id from `07-component-state-contract.json` has a preliminary TO BE component name, migration type, risk level and gates. `npm run design:migration:check` validates coverage and high-risk gates. Designer + Frontend should approve or edit this map before detailed Figma variants are treated as implementation-ready.
+
+The designer work order is fixed in `docs/design-system-handoff/09-to-be-design-work-order.md`. It defines required Figma/design deliverables, state matrix, red lines and acceptance criteria. `npm run design:handoff:check` must be green after any handoff document changes before the package is treated as ready for external design work.
+
 ## UI Challenge
 
 Current AS IS UI is stable but generic. TO BE should avoid:
@@ -156,6 +162,8 @@ Figma variables
   -> Bitrix components
 ```
 
+Current AS IS baseline is now checked, not just described: `docs/design-system-handoff/05-design-tokens-as-is.json` contains implemented Tailwind tokens, observed CSS/JS token candidates and known drift, while `npm run design:tokens:check` validates it against `tailwind.css`, `global.css`, `forms.js` and `package.json`. Designer should use this as the starting map for TO BE naming and scale decisions, but the final source of truth still needs approval.
+
 ## Component Implementation Target
 
 Current MVP uses `local/php_interface/include/product_page.php` as renderer bootstrap and `local/php_interface/include/product_page_blocks/*.php` as visual block partials. For the next stage:
@@ -179,16 +187,18 @@ Current partials expose a stable AS IS locator taxonomy through `data-product-bl
 | UIX-004 | Proof system | Proof readiness text | Evidence/status/source component system | P1 |
 | UIX-005 | Procurement path | Missing | Security/docs request CTA | P1 |
 | UIX-006 | Product-specific page character | Same structure across products | Product-specific decision blocks | P2 |
-| UIX-007 | Form states | Technically working | Full form state design spec | P1 |
-| UIX-008 | `/price/` mobile UX | Existing complex configurator | Dedicated mobile team builder spec | P2 |
-| UIX-009 | Chat UI | Working hero/light chat | Conversational component spec | P2 |
-| UIX-010 | Token system | Minimal tokens | Formal token and mapping spec | P1 |
+| UIX-007 | Form states | Checked AS IS form/modal/CTA contract exists | Full visual form state design spec | P1 |
+| UIX-008 | `/price/` mobile UX | Checked AS IS team-builder contract exists | Dedicated mobile team builder spec | P2 |
+| UIX-009 | Chat UI | Checked AS IS hero/light chat contract exists | Conversational component spec | P2 |
+| UIX-010 | Token system | Checked AS IS token contract exists; TO BE source still undecided | Formal token and mapping spec | P1 |
 
 ## Acceptance Criteria
 
 - Designer can map each AS IS component to a TO BE component.
+- Migration type is explicit for each behavior-bearing AS IS component.
 - Product pages are not just four copies of the same card grid.
 - Every product has a distinct use-case block and CTA logic.
 - All proof-looking elements have evidence state.
 - All interactive components have states.
 - New visual system can be implemented in Bitrix without breaking current JS/data contracts.
+- `npm run design:handoff:check` is green for the handoff package.

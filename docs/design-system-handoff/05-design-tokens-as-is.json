@@ -1,16 +1,169 @@
 {
   "meta": {
     "project": "tacticum.ru",
-    "snapshotDate": "2026-05-30",
+    "snapshotDate": "2026-06-01",
     "status": "as-is",
     "sources": [
       "local/templates/tacticum/assets/src/tailwind.css",
       "local/templates/tacticum/styles/global.css",
+      "local/templates/tacticum/js/forms.js",
       "local/templates/tacticum/header.php",
       "local/components/tacticum/lead.cta/templates/.default/template.php",
       "local/components/tacticum/contact.modal/templates/.default/template.php"
     ],
     "note": "This file captures implemented AS IS tokens and recurring values. It is not a complete TO BE token system."
+  },
+  "contract": {
+    "version": "2026-06-01-as-is-token-contract",
+    "type": "observed-as-is-token-contract",
+    "scope": [
+      "implemented Tailwind theme tokens",
+      "recurring manual CSS values",
+      "known color drift",
+      "TO BE mapping input for Figma variables / token JSON / Tailwind"
+    ],
+    "sourceOfTruth": {
+      "implementedTheme": {
+        "path": "local/templates/tacticum/assets/src/tailwind.css",
+        "status": "current implemented source for explicit project theme tokens"
+      },
+      "manualRuntimeCss": {
+        "path": "local/templates/tacticum/styles/global.css",
+        "status": "observed recurring values, not normalized source of truth"
+      },
+      "toBeDecision": "Designer + Frontend must decide whether Figma variables, JSON tokens, Tailwind theme or a hybrid mapping becomes canonical."
+    },
+    "canonicalTokens": {
+      "color.brand.primary": {
+        "value": "#0066CC",
+        "cssVariable": "--color-primary",
+        "source": "local/templates/tacticum/assets/src/tailwind.css",
+        "currentStatus": "implemented"
+      },
+      "color.brand.secondary": {
+        "value": "#001F3F",
+        "cssVariable": "--color-secondary",
+        "source": "local/templates/tacticum/assets/src/tailwind.css",
+        "currentStatus": "implemented"
+      },
+      "radius.button": {
+        "value": "8px",
+        "cssVariable": "--radius-button",
+        "source": "local/templates/tacticum/assets/src/tailwind.css",
+        "currentStatus": "implemented"
+      }
+    },
+    "observedTokenCandidates": {
+      "gradient.brandHorizontal": {
+        "value": "linear-gradient(90deg, #001F40 0%, #0066CC 100%)",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": [".to-primary"],
+        "promotionDecision": "normalize or replace in TO BE"
+      },
+      "color.focus.brandRing": {
+        "value": "rgba(0, 102, 204, 0.18)",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["form controls", "contact modal controls"],
+        "promotionDecision": "promote to focus token in TO BE"
+      },
+      "color.brand.hoverBlue": {
+        "value": "#0057ad",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["modal submit hover", "contact form submit hover"],
+        "promotionDecision": "define hover/pressed brand states in TO BE"
+      },
+      "color.brand.legacyLinkHover": {
+        "value": "#007bff",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["legacy icon hover"],
+        "promotionDecision": "replace with primary/hover token or keep only if intentional"
+      },
+      "radius.formControl": {
+        "value": "8px",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["lead forms", "contact modal form controls"],
+        "promotionDecision": "align with input/card/modal radius scale"
+      },
+      "radius.pill": {
+        "value": "9999px",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["checkbox/custom round controls and pill-like UI"],
+        "promotionDecision": "define pill/radius-full token"
+      },
+      "elevation.cardHover": {
+        "value": "0 10px 25px -5px rgba(0, 102, 204, 0.1)",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["feature/card hover"],
+        "promotionDecision": "define card hover elevation"
+      },
+      "elevation.formCta": {
+        "value": "0 18px 42px rgba(15, 23, 42, 0.18)",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["lead CTA form"],
+        "promotionDecision": "define panel/form elevation"
+      },
+      "elevation.modal": {
+        "value": "0 24px 64px rgba(15, 23, 42, 0.28)",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["footer contact modal"],
+        "promotionDecision": "define modal elevation"
+      },
+      "motion.fast": {
+        "value": "0.2s ease",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["focus, buttons, modal close"],
+        "promotionDecision": "define fast interaction duration/easing"
+      },
+      "motion.default": {
+        "value": "0.3s ease",
+        "source": "local/templates/tacticum/styles/global.css",
+        "currentUsage": ["nav underline, FAQ, cards, mobile menu"],
+        "promotionDecision": "define default interaction duration/easing"
+      },
+      "z.toast": {
+        "value": "999",
+        "source": "local/templates/tacticum/js/forms.js",
+        "currentUsage": ["form toast container via Tailwind utility z-[999]"],
+        "promotionDecision": "define z-index scale"
+      }
+    },
+    "knownDrift": [
+      {
+        "id": "brand-secondary-gradient-start",
+        "canonicalToken": "color.brand.secondary",
+        "canonicalValue": "#001F3F",
+        "observedValue": "#001F40",
+        "source": "local/templates/tacticum/styles/global.css",
+        "impact": "Visual difference is tiny, but it creates ambiguity for a future token pipeline.",
+        "recommendedDecision": "Use one brand navy value in TO BE tokens and update gradients through a planned CSS migration."
+      },
+      {
+        "id": "legacy-hover-blue",
+        "canonicalToken": "color.brand.primary",
+        "canonicalValue": "#0066CC",
+        "observedValue": "#007bff",
+        "source": "local/templates/tacticum/styles/global.css",
+        "impact": "Legacy hover color differs from project primary and hover candidates.",
+        "recommendedDecision": "Replace with brand hover token or explicitly keep as legacy/link token."
+      }
+    ],
+    "migrationRules": [
+      "Do not rename or remove current Tailwind tokens without updating tailwind.css, this JSON and generated CSS.",
+      "Do not treat observedTokenCandidates as approved TO BE tokens until Designer + Frontend approve names and scale.",
+      "Preserve existing DOM/data contracts for forms, chat, FAQ and product blocks during visual migration unless a separate dev task documents the change.",
+      "If Figma variables become canonical, maintain a checked mapping from Figma token names to Tailwind/global CSS names."
+    ],
+    "guard": {
+      "script": "tools/design-token-contract-check.mjs",
+      "npmScript": "design:tokens:check",
+      "checks": [
+        "Tailwind theme contains implemented canonical tokens",
+        "JSON canonical tokens match Tailwind values",
+        "Observed AS IS candidate values still match global.css",
+        "Known drift is documented explicitly",
+        "Package script is registered"
+      ]
+    }
   },
   "colors": {
     "brand": {
@@ -228,8 +381,8 @@
       "usage": ["mobile overlay"]
     },
     "modal": {
-      "value": "z-[999]",
-      "usage": ["contact modal", "toast container"]
+      "value": "z-50 / z-[999]",
+      "usage": ["contact modal and price modal use z-50; form toast container uses z-[999]"]
     }
   },
   "icons": {
@@ -246,4 +399,3 @@
     ]
   }
 }
-

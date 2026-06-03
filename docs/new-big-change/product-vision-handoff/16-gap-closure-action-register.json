@@ -1,0 +1,562 @@
+{
+  "meta": {
+    "project": "tacticum.ru",
+    "snapshotDate": "2026-06-02",
+    "status": "execution-register",
+    "source": "docs/new-big-change/product-vision-handoff/14-gap-backlog-and-decision-register.md",
+    "plan": "docs/new-big-change/product-vision-handoff/15-gap-closure-master-plan.md",
+    "note": "Covers every non-closed gap from the decision register. Closed gaps are intentionally omitted."
+  },
+  "guard": {
+    "script": "tools/product-gap-closure-check.mjs",
+    "npmScript": "product:gaps:check"
+  },
+  "allowedClosureModes": [
+    "product-decision",
+    "design-decision",
+    "architecture-decision",
+    "seo-content-decision",
+    "external-evidence",
+    "accepted-monitoring"
+  ],
+  "allowedTracks": [
+    "product-strategy",
+    "cjm",
+    "design-system",
+    "architecture-integration",
+    "seo-content",
+    "release-evidence"
+  ],
+  "reviewArtifacts": [
+    {
+      "path": "docs/new-big-change/product-vision-handoff/17-local-gap-decision-briefs.md",
+      "covers": [
+        "PB-004",
+        "CJM-004",
+        "CJM-005",
+        "UI-004",
+        "UI-008"
+      ]
+    },
+    {
+      "path": "docs/new-big-change/product-vision-handoff/18-phase-1-product-decision-review-pack.md",
+      "covers": [
+        "PB-001",
+        "PB-002",
+        "PB-003",
+        "PB-005",
+        "PB-006",
+        "PB-007",
+        "PB-008",
+        "CJM-001",
+        "CJM-002",
+        "CJM-003"
+      ]
+    },
+    {
+      "path": "docs/new-big-change/product-vision-handoff/19-phase-3-architecture-integration-decision-pack.md",
+      "covers": [
+        "ARCH-001",
+        "ARCH-002",
+        "ARCH-003",
+        "ARCH-004",
+        "CJM-006"
+      ]
+    },
+    {
+      "path": "docs/new-big-change/product-vision-handoff/20-phase-4-seo-content-decision-pack.md",
+      "covers": [
+        "SEO-TOBE-001",
+        "SEO-TOBE-002",
+        "SEO-TOBE-003",
+        "SEO-TOBE-005"
+      ]
+    },
+    {
+      "path": "docs/new-big-change/product-vision-handoff/21-phase-5-release-evidence-closure-pack.md",
+      "covers": [
+        "REL-001",
+        "REL-002",
+        "REL-003",
+        "REL-004",
+        "REL-005",
+        "REL-006",
+        "ARCH-007",
+        "ARCH-008"
+      ]
+    },
+    {
+      "path": "docs/new-big-change/product-vision-handoff/22-phase-2-design-system-approval-pack.md",
+      "covers": [
+        "UI-001",
+        "UI-002",
+        "UI-003",
+        "UI-005",
+        "UI-006",
+        "UI-007"
+      ]
+    },
+    {
+      "path": "docs/new-big-change/product-vision-handoff/23-accepted-risk-monitoring-pack.md",
+      "covers": [
+        "ARCH-006",
+        "SEO-TOBE-004"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "PB-001",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "product-strategy",
+      "closureMode": "product-decision",
+      "owner": "PM + Sales",
+      "targetCheckpoint": "Phase 1 before TO BE design approval",
+      "nextAction": "Review and approve the taxonomy baseline from 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "Approved taxonomy document", "Updated page/CTA copy decisions"]
+    },
+    {
+      "id": "PB-002",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "product-strategy",
+      "closureMode": "product-decision",
+      "owner": "PM + Architect",
+      "targetCheckpoint": "Phase 1 before product page redesign",
+      "nextAction": "Review and approve Platform buying triggers from 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "Approved product brief update"]
+    },
+    {
+      "id": "PB-003",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "product-strategy",
+      "closureMode": "product-decision",
+      "owner": "PM + Product",
+      "targetCheckpoint": "Phase 1 before SEO/canonical decision",
+      "nextAction": "Review and approve Agents vs Forum boundary copy from 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "PM/SEO review note", "Updated boundary copy if needed"]
+    },
+    {
+      "id": "PB-004",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "product-strategy",
+      "closureMode": "product-decision",
+      "owner": "PM + Tech Lead",
+      "targetCheckpoint": "Phase 1 before Dev page final copy",
+      "nextAction": "Review and approve the Dev workflow baseline from 17-local-gap-decision-briefs.md.",
+      "acceptanceEvidence": ["17-local-gap-decision-briefs.md review", "Approved Dev page content brief"]
+    },
+    {
+      "id": "PB-005",
+      "sourceStatus": "blocked",
+      "priority": "P0",
+      "track": "product-strategy",
+      "closureMode": "external-evidence",
+      "owner": "PM + Sales + Legal",
+      "targetCheckpoint": "Phase 1 before public proof UI",
+      "blocker": "Approved product proof sources are external to the repo.",
+      "nextAction": "Fill and approve the proof/evidence matrix from 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "Proof matrix", "Legal/Sales approval", "No unsupported public claims"]
+    },
+    {
+      "id": "PB-006",
+      "sourceStatus": "blocked",
+      "priority": "P0",
+      "track": "product-strategy",
+      "closureMode": "external-evidence",
+      "owner": "PM + Legal + Security",
+      "targetCheckpoint": "Phase 1 before procurement/security publication",
+      "blocker": "Regulatory/procurement wording requires Legal/Security approval.",
+      "nextAction": "Review safe wording rules and blocked claim families from 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "Claims register update", "Legal/Security approval"]
+    },
+    {
+      "id": "PB-007",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "product-strategy",
+      "closureMode": "product-decision",
+      "owner": "PM + Sales + Architect",
+      "targetCheckpoint": "Phase 1 before pricing/packaging UI",
+      "nextAction": "Review and approve the packaging matrix from 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "Packaging matrix", "Approved public wording"]
+    },
+    {
+      "id": "PB-008",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "seo-content",
+      "closureMode": "seo-content-decision",
+      "owner": "PM + SEO",
+      "targetCheckpoint": "Phase 1 before canonical/redirect implementation",
+      "nextAction": "Review `/agents/` vs `/aiagents/` options from 18-phase-1-product-decision-review-pack.md and approve canonical/compatibility strategy.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "SEO decision note", "Canonical/redirect plan"]
+    },
+    {
+      "id": "CJM-001",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "cjm",
+      "closureMode": "design-decision",
+      "owner": "UX + PM",
+      "targetCheckpoint": "Phase 2 before product page final design",
+      "nextAction": "Review implemented fit guide against criteria in 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "UX/PM fit guide approval", "Updated copy or design if needed"]
+    },
+    {
+      "id": "CJM-002",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "cjm",
+      "closureMode": "external-evidence",
+      "owner": "PM + Security + UX",
+      "targetCheckpoint": "Phase 1 before procurement path design",
+      "blocker": "Security/procurement evidence and wording need external owner approval.",
+      "nextAction": "Review procurement blocks against criteria in 18-phase-1-product-decision-review-pack.md and approve final UX path.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "Security/procurement review", "Approved journey copy"]
+    },
+    {
+      "id": "CJM-003",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "cjm",
+      "closureMode": "product-decision",
+      "owner": "PM + Content",
+      "targetCheckpoint": "Phase 1 before product content freeze",
+      "nextAction": "Review use-case anatomy against criteria in 18-phase-1-product-decision-review-pack.md.",
+      "acceptanceEvidence": ["18-phase-1-product-decision-review-pack.md review", "PM/content review", "Approved use-case matrix"]
+    },
+    {
+      "id": "CJM-004",
+      "sourceStatus": "open",
+      "priority": "P2",
+      "track": "cjm",
+      "closureMode": "design-decision",
+      "owner": "PM + UX",
+      "targetCheckpoint": "Phase 2 before CTA redesign",
+      "nextAction": "Review and approve the role/stage/product CTA matrix from 17-local-gap-decision-briefs.md.",
+      "acceptanceEvidence": ["17-local-gap-decision-briefs.md review", "Updated migration map if contracts change"]
+    },
+    {
+      "id": "CJM-005",
+      "sourceStatus": "open",
+      "priority": "P2",
+      "track": "cjm",
+      "closureMode": "product-decision",
+      "owner": "Sales + UX",
+      "targetCheckpoint": "Phase 2 before returning-lead flows",
+      "nextAction": "Review and approve the returning-lead journey baseline from 17-local-gap-decision-briefs.md.",
+      "acceptanceEvidence": ["17-local-gap-decision-briefs.md review", "CTA/form implications documented"]
+    },
+    {
+      "id": "CJM-006",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "architecture-integration",
+      "closureMode": "architecture-decision",
+      "owner": "Backend + PM + QA",
+      "targetCheckpoint": "Phase 3 before CRM/upstream changes",
+      "nextAction": "Review and approve the lead qualification decision from 19-phase-3-architecture-integration-decision-pack.md.",
+      "acceptanceEvidence": ["19-phase-3-architecture-integration-decision-pack.md review", "Lead qualification decision", "Lead form contract update if payload changes"]
+    },
+    {
+      "id": "UI-001",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer + Frontend",
+      "targetCheckpoint": "Phase 2 before Figma library approval",
+      "nextAction": "Review and approve token source of truth using 22-phase-2-design-system-approval-pack.md.",
+      "acceptanceEvidence": ["22-phase-2-design-system-approval-pack.md review", "Figma variables or token JSON", "Mapping to 05-design-tokens-as-is.json"]
+    },
+    {
+      "id": "UI-002",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer + PM",
+      "targetCheckpoint": "Phase 2 before product page design approval",
+      "nextAction": "Review and approve product storytelling component family using 22-phase-2-design-system-approval-pack.md.",
+      "acceptanceEvidence": ["22-phase-2-design-system-approval-pack.md review", "Figma component set", "Approved 08 migration map updates"]
+    },
+    {
+      "id": "UI-003",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer + QA",
+      "targetCheckpoint": "Phase 2 before form restyle implementation",
+      "nextAction": "Review and approve form/modal/CTA state spec using 22-phase-2-design-system-approval-pack.md.",
+      "acceptanceEvidence": ["22-phase-2-design-system-approval-pack.md review", "Form state matrix", "QA state checklist"]
+    },
+    {
+      "id": "UI-004",
+      "sourceStatus": "open",
+      "priority": "P2",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer + Architect",
+      "targetCheckpoint": "Phase 2 before architecture diagram implementation",
+      "nextAction": "Review and approve the architecture diagram patterns from 17-local-gap-decision-briefs.md.",
+      "acceptanceEvidence": ["17-local-gap-decision-briefs.md review", "Architect approval"]
+    },
+    {
+      "id": "UI-005",
+      "sourceStatus": "open",
+      "priority": "P2",
+      "track": "design-system",
+      "closureMode": "external-evidence",
+      "owner": "Designer + Legal + PM",
+      "targetCheckpoint": "Phase 2 after proof evidence matrix",
+      "blocker": "Proof/status UI depends on approved claim/evidence model.",
+      "nextAction": "Review and approve proof/status UI taxonomy using 22-phase-2-design-system-approval-pack.md.",
+      "acceptanceEvidence": ["22-phase-2-design-system-approval-pack.md review", "Proof/status component spec", "Claims governance mapping"]
+    },
+    {
+      "id": "UI-006",
+      "sourceStatus": "in-progress",
+      "priority": "P2",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer + Frontend",
+      "targetCheckpoint": "Phase 2 before `/price/` redesign",
+      "nextAction": "Review and approve `/price/` mobile team builder flow using 22-phase-2-design-system-approval-pack.md.",
+      "acceptanceEvidence": ["22-phase-2-design-system-approval-pack.md review", "Mobile team builder spec", "QA smoke implications"]
+    },
+    {
+      "id": "UI-007",
+      "sourceStatus": "in-progress",
+      "priority": "P2",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer + Frontend",
+      "targetCheckpoint": "Phase 2 before chat redesign",
+      "nextAction": "Review and approve chat visual/state spec using 22-phase-2-design-system-approval-pack.md.",
+      "acceptanceEvidence": ["22-phase-2-design-system-approval-pack.md review", "Chat component state spec", "Frontend feasibility review"]
+    },
+    {
+      "id": "UI-008",
+      "sourceStatus": "open",
+      "priority": "P3",
+      "track": "design-system",
+      "closureMode": "design-decision",
+      "owner": "Designer",
+      "targetCheckpoint": "Phase 2 before icon-heavy component design",
+      "nextAction": "Review and approve the icon taxonomy baseline from 17-local-gap-decision-briefs.md.",
+      "acceptanceEvidence": ["17-local-gap-decision-briefs.md review", "Approved icon library decision"]
+    },
+    {
+      "id": "ARCH-001",
+      "sourceStatus": "in-progress",
+      "priority": "P2",
+      "track": "architecture-integration",
+      "closureMode": "architecture-decision",
+      "owner": "Architect + Dev + Content",
+      "targetCheckpoint": "Phase 3 before content scaling",
+      "nextAction": "Review and approve the content ownership decision from 19-phase-3-architecture-integration-decision-pack.md.",
+      "acceptanceEvidence": ["19-phase-3-architecture-integration-decision-pack.md review", "Content ownership ADR or explicit Git-only decision"]
+    },
+    {
+      "id": "ARCH-002",
+      "sourceStatus": "in-progress",
+      "priority": "P2",
+      "track": "architecture-integration",
+      "closureMode": "architecture-decision",
+      "owner": "Architect + Frontend",
+      "targetCheckpoint": "Phase 3 before component refactor",
+      "nextAction": "Review and approve the renderer/component boundary from 19-phase-3-architecture-integration-decision-pack.md.",
+      "acceptanceEvidence": ["19-phase-3-architecture-integration-decision-pack.md review", "Component boundary decision", "ADR if shared pattern changes"]
+    },
+    {
+      "id": "ARCH-003",
+      "sourceStatus": "in-progress",
+      "priority": "P1",
+      "track": "architecture-integration",
+      "closureMode": "architecture-decision",
+      "owner": "Backend + PM + QA",
+      "targetCheckpoint": "Phase 3 before CRM/upstream payload change",
+      "nextAction": "Review and approve current fallback or structured upstream/CRM fields using 19-phase-3-architecture-integration-decision-pack.md.",
+      "acceptanceEvidence": ["19-phase-3-architecture-integration-decision-pack.md review", "CRM/upstream approval", "Lead form contract update if needed"]
+    },
+    {
+      "id": "ARCH-004",
+      "sourceStatus": "in-progress",
+      "priority": "P2",
+      "track": "architecture-integration",
+      "closureMode": "external-evidence",
+      "owner": "PM + Analytics + QA",
+      "targetCheckpoint": "Phase 3 before analytics closure",
+      "blocker": "Metrika access/evidence is external.",
+      "nextAction": "Review product analytics goal map from 19-phase-3-architecture-integration-decision-pack.md and confirm Metrika goals without PII.",
+      "acceptanceEvidence": ["19-phase-3-architecture-integration-decision-pack.md review", "Metrika goal evidence", "Analytics params review"]
+    },
+    {
+      "id": "ARCH-006",
+      "sourceStatus": "accepted",
+      "priority": "P2",
+      "track": "architecture-integration",
+      "closureMode": "accepted-monitoring",
+      "owner": "Security",
+      "targetCheckpoint": "Monitor until CSP enforce scope",
+      "nextAction": "Monitor CSP report-only decision using 23-accepted-risk-monitoring-pack.md and revisit enforce only after vendor/report baseline.",
+      "acceptanceEvidence": ["23-accepted-risk-monitoring-pack.md review", "Accepted risk remains documented", "No enforce mode without baseline"]
+    },
+    {
+      "id": "ARCH-007",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "QA + DevOps",
+      "targetCheckpoint": "Phase 5 before strict release closure",
+      "blocker": "Deploy/cache, forms, Metrika and Bitrix admin evidence require external access.",
+      "nextAction": "Close external release gates using 21-phase-5-release-evidence-closure-pack.md and attach safe evidence.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Strict release sign-off", "gaps:known:strict passes"]
+    },
+    {
+      "id": "ARCH-008",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "Backend + DevOps",
+      "targetCheckpoint": "Phase 5 before staff-order closure",
+      "blocker": "Staff upstream currently has 502 evidence and requires recovery.",
+      "nextAction": "Recover upstream and confirm staff-order CRM/upstream success-flow using 21-phase-5-release-evidence-closure-pack.md.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Controlled staff-order evidence", "CRM/upstream confirmation"]
+    },
+    {
+      "id": "SEO-TOBE-001",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "seo-content",
+      "closureMode": "seo-content-decision",
+      "owner": "SEO + PM",
+      "targetCheckpoint": "Phase 4 before final metadata",
+      "nextAction": "Review and approve product cluster map from 20-phase-4-seo-content-decision-pack.md.",
+      "acceptanceEvidence": ["20-phase-4-seo-content-decision-pack.md review", "SEO cluster research", "Approved page intent map"]
+    },
+    {
+      "id": "SEO-TOBE-002",
+      "sourceStatus": "open",
+      "priority": "P1",
+      "track": "seo-content",
+      "closureMode": "seo-content-decision",
+      "owner": "SEO + PM",
+      "targetCheckpoint": "Phase 4 before canonical/redirect implementation",
+      "nextAction": "Review `/agents/` and `/aiagents/` options from 20-phase-4-seo-content-decision-pack.md and approve canonical/compatibility strategy.",
+      "acceptanceEvidence": ["20-phase-4-seo-content-decision-pack.md review", "SEO decision note", "Updated canonical/redirect plan"]
+    },
+    {
+      "id": "SEO-TOBE-003",
+      "sourceStatus": "open",
+      "priority": "P2",
+      "track": "seo-content",
+      "closureMode": "seo-content-decision",
+      "owner": "SEO + Content + Sales",
+      "targetCheckpoint": "Phase 4 after proof evidence matrix",
+      "nextAction": "Review and approve product proof/case taxonomy from 20-phase-4-seo-content-decision-pack.md.",
+      "acceptanceEvidence": ["20-phase-4-seo-content-decision-pack.md review", "Product proof/case map", "Content ownership decision"]
+    },
+    {
+      "id": "SEO-TOBE-004",
+      "sourceStatus": "accepted",
+      "priority": "P2",
+      "track": "seo-content",
+      "closureMode": "accepted-monitoring",
+      "owner": "SEO + PM",
+      "targetCheckpoint": "Monitor after content/proof readiness",
+      "nextAction": "Monitor industry/scenario noindex decision using 23-accepted-risk-monitoring-pack.md until proof/content readiness improves.",
+      "acceptanceEvidence": ["23-accepted-risk-monitoring-pack.md review", "Accepted noindex decision remains documented", "Revisit trigger defined"]
+    },
+    {
+      "id": "SEO-TOBE-005",
+      "sourceStatus": "open",
+      "priority": "P2",
+      "track": "seo-content",
+      "closureMode": "seo-content-decision",
+      "owner": "SEO + Content",
+      "targetCheckpoint": "Phase 4 before release SEO smoke",
+      "nextAction": "Review and approve final metadata matrix from 20-phase-4-seo-content-decision-pack.md, using 17-local-gap-decision-briefs.md as draft source.",
+      "acceptanceEvidence": ["20-phase-4-seo-content-decision-pack.md review", "seo:check passes after implementation"]
+    },
+    {
+      "id": "REL-001",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "DevOps + QA",
+      "targetCheckpoint": "Phase 5 after deploy/cache refresh",
+      "blocker": "Requires production/staging deploy and cache refresh.",
+      "nextAction": "Run `release:product-first:prod-check` after deploy/cache refresh using 21-phase-5-release-evidence-closure-pack.md.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Command output", "Release sign-off evidence"]
+    },
+    {
+      "id": "REL-002",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "SEO + QA",
+      "targetCheckpoint": "Phase 5 after rendered SEO smoke",
+      "blocker": "Requires rendered production/staging HTML evidence.",
+      "nextAction": "Capture rendered product SEO evidence using 21-phase-5-release-evidence-closure-pack.md.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Rendered SEO manifest", "Product schema summary evidence"]
+    },
+    {
+      "id": "REL-003",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "QA + Backend/Frontend",
+      "targetCheckpoint": "Phase 5 before strict release closure",
+      "blocker": "Manual success-flow requires controlled staging/production and upstream availability.",
+      "nextAction": "Run controlled success-flow using 21-phase-5-release-evidence-closure-pack.md without PII evidence.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Manual success-flow evidence", "No PII committed"]
+    },
+    {
+      "id": "REL-004",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "PM/Marketing + QA",
+      "targetCheckpoint": "Phase 5 before analytics closure",
+      "blocker": "Requires Yandex.Metrika access.",
+      "nextAction": "Confirm affected goals/events using 21-phase-5-release-evidence-closure-pack.md without PII params.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Metrika evidence", "Analytics review"]
+    },
+    {
+      "id": "REL-005",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "QA/Admin",
+      "targetCheckpoint": "Phase 5 after deploy/cache refresh",
+      "blocker": "Requires authenticated Bitrix admin credentials.",
+      "nextAction": "Run authenticated Bitrix admin and public toolbar smoke using 21-phase-5-release-evidence-closure-pack.md.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Bitrix admin smoke evidence", "No credentials committed"]
+    },
+    {
+      "id": "REL-006",
+      "sourceStatus": "blocked",
+      "priority": "P1",
+      "track": "release-evidence",
+      "closureMode": "external-evidence",
+      "owner": "Backend + DevOps + PM",
+      "targetCheckpoint": "Phase 5 before legacy sale sunset decision",
+      "blocker": "Requires production access logs and CRM aggregate reports.",
+      "nextAction": "Collect legacy sale alias aggregate inventory using 21-phase-5-release-evidence-closure-pack.md and decide migration/sunset.",
+      "acceptanceEvidence": ["21-phase-5-release-evidence-closure-pack.md review", "Aggregate access log report", "CRM source report", "No PII committed"]
+    }
+  ]
+}

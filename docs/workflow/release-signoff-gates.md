@@ -39,6 +39,8 @@ PM не закрывает release issue, пока для затронутых �
 | Evidence | Команда | Что считается passed |
 |---|---|---|
 | Rendered SEO head | `npm run seo:smoke` | В `manifest.json` у затронутых URL нет `seoErrors`; `seoHead` фиксирует один title, одну description, один HTTPS canonical и обязательные OpenGraph meta без дублей; для `/platform/`, `/agents/`, `/dev/`, `/forum/` manifest фиксирует product `SoftwareApplication` + `FAQPage` schema and required `data-product-block` inventory |
+| Product source marker | `npm run product:source:http:prod` on production server; `npm run product:source:smoke:prod` where Chrome/Chromium is available | После deploy/cache refresh `/platform/`, `/agents/`, `/dev/`, `/forum/` имеют rendered `data-product-source=bitrix`; browser smoke additionally checks `seo=ok` and `blocks=ok`, but requires Chrome/Chromium |
+| Public release precheck | `npm run release:public-precheck:prod` | Без создания лидов проверяет `health_config`, product source marker, public Metrika tag, unauth `/bitrix/admin/` surface and legacy alias deprecation headers; это precheck, а не замена manual gates |
 | Product block previews | `npm run product:block-previews:prod` | Для design/QA handoff manifest содержит `productBlockScreenshots[]`, `productBlockErrors=[]`, а `product-blocks/*.png` содержит rendered AS IS screenshots по product blocks |
 | `/price/` team presets | `npm run browser:smoke:price` | Для `/price/` desktop/mobile action `price team presets/summary` имеет `status=ok`, а `detail` показывает количество `workers` и рассчитанный monthly budget |
 | CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, `consoleWarnings`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; product `lead_scenario` selects and FAQ toggles pass; `/price/` team presets проходят |
@@ -102,7 +104,7 @@ Draft-check не является release closure: перед закрытием
 - config-sync: not applicable / pending / passed, owner:
 - bitrix-admin: not applicable / pending / passed, owner:
 - legacy-sunset: not applicable / pending / passed, decision:
-- staff-sale-upstream: not applicable / pending / passed, evidence:
+- staff-sale-upstream: not applicable / pending / passed, evidence with team_preset, workers_count, monthly_budget_estimate_present, end_date_present, upstream_request_id/lead_id:
 ```
 
 ## Escalation
