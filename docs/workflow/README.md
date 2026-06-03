@@ -130,6 +130,9 @@ QA подключается до разработки, если задача к�
 - `asset-layout-audit.md` — карта текущих CSS/JS assets, inline-долги и правила дальнейшей верстки.
 - `seo-gap-analysis.md` — детальный SEO gap analysis: indexability, 404, structured data, sitemap/robots и social preview.
 - `product-marketing-gap-analysis.md` — продуктово-маркетинговый gap analysis: positioning, funnel, CTA, proof, `/offer/` segmentation и lead qualification.
+- `design-token-contract.md` — AS IS token contract, guard и правила обновления design tokens handoff.
+- `component-state-contract.md` — AS IS component/state contract, guard и правила сохранения/migration behavior-bearing selectors.
+- `design-migration-map.md` — AS IS -> TO BE migration map, migration types and gates для дизайн-системной миграции.
 - `offer-example-seed-runbook.md` — запуск и контроль CLI-сидера synthetic offer examples для `/offer/`.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
 - `release-signoff-gates.md` — ручные/staging sign-off gates для success-flow, Метрики, config sync и Bitrix admin.
@@ -140,7 +143,14 @@ QA подключается до разработки, если задача к�
 
 - `npm run bitrix:check` — guard для Bitrix architecture: thin `init.php`, отсутствие direct `bitrix:*` в public page entries, отсутствие component-level global helper functions, наличие `/offer/` service/cache hardening и footer modal component.
 - `npm run gaps:known` — PM/QA guard для текущего известного хвоста: code-level open gaps, pending release gates, legacy inventory и post-deploy/cache smoke.
+- `npm run staff:sale:gate-helper` — helper для controlled `staff-sale-upstream` gate: генерирует staff-order payload, curl template и safe evidence block без отправки запроса.
+- `npm run legacy:sale:inventory:logs` — aggregate-only parser для production access logs по legacy sale aliases; выводит endpoint/method/status/day counts без IP, query, referrer, cookie, user-agent и raw log lines.
+- `npm run product:gaps:check` — guard для AS IS / TO BE product gap closure: сверяет source backlog `14-gap-backlog-and-decision-register.md`, master plan and `16-gap-closure-action-register.json`, чтобы каждый non-closed gap имел owner, next action, blocker/evidence model, review artifact coverage and package script.
 - `npm run template-styles:check` — guard для CSS retirement и template public asset hygiene, включая запрет возврата Remixicon demo HTML в `local/templates/tacticum/fonts/`.
+- `npm run design:tokens:check` — guard для AS IS token contract: сверяет `05-design-tokens-as-is.json` с Tailwind theme, `global.css`, `forms.js` и package script.
+- `npm run design:components:check` — guard для AS IS component/state contract: сверяет `07-component-state-contract.json` с behavior-bearing templates/JS и package script.
+- `npm run design:migration:check` — guard для AS IS -> TO BE migration map: проверяет покрытие всех component ids из `07-component-state-contract.json`, migration types, risk gates and package script.
+- `npm run design:handoff:check` — aggregate guard для design handoff package: запускает token/component/migration checks и проверяет полноту `01`-`09`, README references, workflow docs and scripts.
 
 ## Definition Of Ready
 

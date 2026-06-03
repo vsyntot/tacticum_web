@@ -1,10 +1,12 @@
 # 04. Interaction Contracts
 
-Дата: 30.05.2026
+Дата: 02.06.2026
 
 ## Назначение
 
 Этот документ описывает интерактивные контракты AS IS. Для дизайнера это важно потому, что текущий JS привязан к конкретной HTML-разметке. В TO BE можно поменять UI, но нужно явно определить, какие контракты сохраняются, а какие требуют разработки.
+
+Проверяемая карта ключевых behavior-bearing контрактов вынесена в `07-component-state-contract.json`. Команда `npm run design:components:check` сверяет selectors/attributes из JSON с текущими templates/JS и помогает отличать visual restyle от contract migration.
 
 ## Общий JS Подход
 
@@ -400,4 +402,3 @@ Script: `scroll.js`.
 - anchor target offset under fixed header;
 - active section navigation if needed;
 - back-to-top if retained.
-

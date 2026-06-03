@@ -43,12 +43,42 @@ if (!function_exists('tacticum_product_page_canonical_path')) {
 if (!function_exists('tacticum_product_page_data')) {
     function tacticum_product_page_data(string $productCode): array
     {
-        $productFiles = [
-            'platform' => 'platform.php',
-            'agents' => 'agents.php',
-            'dev' => 'dev.php',
-            'forum' => 'forum.php',
-        ];
+        $source = function_exists('tacticum_product_content_source')
+            ? tacticum_product_content_source()
+            : 'fallback';
+
+        if ($source !== 'fallback' && function_exists('tacticum_product_content_bitrix_data')) {
+            $bitrixData = tacticum_product_content_bitrix_data($productCode);
+            if (!empty($bitrixData)) {
+                $isRenderable = function_exists('tacticum_product_content_is_minimum_renderable')
+                    ? tacticum_product_content_is_minimum_renderable($bitrixData)
+                    : true;
+
+                if ($isRenderable || $source === 'bitrix') {
+                    return $bitrixData;
+                }
+            }
+        }
+
+        if ($source === 'bitrix') {
+            return [];
+        }
+
+        return tacticum_product_page_fallback_data($productCode);
+    }
+}
+
+if (!function_exists('tacticum_product_page_fallback_data')) {
+    function tacticum_product_page_fallback_data(string $productCode): array
+    {
+        $productFiles = function_exists('tacticum_product_content_codes')
+            ? tacticum_product_content_codes()
+            : [
+                'platform' => 'platform.php',
+                'agents' => 'agents.php',
+                'dev' => 'dev.php',
+                'forum' => 'forum.php',
+            ];
 
         if (!isset($productFiles[$productCode])) {
             return [];
@@ -61,7 +91,13 @@ if (!function_exists('tacticum_product_page_data')) {
 
         $data = require $path;
 
-        return is_array($data) ? $data : [];
+        if (!is_array($data)) {
+            return [];
+        }
+
+        $data['_source'] = 'fallback';
+
+        return $data;
     }
 }
 

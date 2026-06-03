@@ -1,8 +1,8 @@
 # TO BE Product Vision Sprints
 
-Дата: 01.06.2026
+Дата: 02.06.2026
 
-Статус: implementation in progress. Базовый sprint backlog сохранён как маршрут перехода от AS IS сайта `tacticum.ru` к TO BE продуктовой модели Tacticum Platform + Agents + Dev + Forum; первые безопасные MVP-срезы добавлены 01.06.2026.
+Статус: implementation in progress. Базовый sprint backlog `00-08` сохранён как маршрут перехода от AS IS сайта `tacticum.ru` к TO BE продуктовой модели Tacticum Platform + Agents + Dev + Forum; post-challenge refinement спринты `09-14` добавлены 02.06.2026 на базе документов `24-28`.
 
 ## Назначение
 
@@ -22,6 +22,11 @@
 - `../12-ux-ui-component-target.md`;
 - `../13-architecture-components-stack-target.md`;
 - `../14-gap-backlog-and-decision-register.md`;
+- `../24-post-challenge-gap-analysis.md`;
+- `../25-post-challenge-use-cases-and-cjm.md`;
+- `../26-post-challenge-ux-ui-design-system.md`;
+- `../27-post-challenge-architecture-components-stack.md`;
+- `../28-post-challenge-decision-backlog.md`;
 - `../../../design-system-handoff/`;
 - `../../../workflow/current-state.md`;
 - `../../../workflow/gap-analysis.md`.
@@ -41,6 +46,12 @@
 | 06 | `sprint-06-dev-and-forum-pages.md` | Реализовать Dev и Forum pages | in-progress / FAQ + scenario + rollout + proof readiness + schema added |
 | 07 | `sprint-07-proof-forms-seo-analytics-hardening.md` | Закрыть proof, forms, SEO, analytics и claim governance | in-progress / proof readiness + schema/static guards, external gates pending |
 | 08 | `sprint-08-release-post-launch-and-handoff.md` | Провести release, smoke, sign-off и post-launch handoff | planned |
+| 09 | `sprint-09-product-taxonomy-claims-packaging.md` | Закрыть taxonomy, claims, packaging and `/agents/` vs `/aiagents/` decisions | ready-for-owner-review / external approvals pending |
+| 10 | `sprint-10-pilot-kits-cjm-cta.md` | Детализировать pilot kits, role-based CJM, CTA taxonomy and returning journey | ready-for-owner-review / Sprint 09 approvals pending |
+| 11 | `sprint-11-design-system-to-be-approval.md` | Утвердить TO BE tokens, components, states, diagrams and proof/status UI | ready-for-owner-review / Sprint 09-10 approvals pending |
+| 12 | `sprint-12-architecture-crm-analytics-foundation.md` | Зафиксировать content/component architecture, CRM/upstream qualification and analytics evidence model | planned / post-challenge |
+| 13 | `sprint-13-product-copy-ui-implementation-readiness.md` | Подготовить implementation-ready copy/UI/SEO/QA scope after approvals | planned / post-challenge |
+| 14 | `sprint-14-release-evidence-post-launch-governance.md` | Закрыть production release evidence and post-launch governance | planned / post-challenge |
 
 Общая карта и зависимости: `00-sprint-roadmap.md`.
 
@@ -50,6 +61,18 @@
 |---|---|
 | `99-gap-to-sprint-traceability.md` | Показывает, какие AS IS / TO BE gaps, challenge IDs и decision backlog IDs закрывает каждый спринт |
 | `99-sprint-execution-board.md` | Дает PM/lead-level execution board: work packages, blockers, gates, verification and release readiness |
+| `sprint-09-review-workbook.md` | Рабочая форма для проведения Sprint 09 review по taxonomy, boundaries, claims and packaging |
+| `sprint-09-decision-records.md` | Draft decision records for `D-01` - `D-04`; фиксирует recommended v1 baseline and approval statuses |
+| `sprint-09-approval-request.md` | Owner-facing approval request: кто и какие решения должен подтвердить по Sprint 09 |
+| `sprint-09-evidence-intake.md` | Evidence/source intake template for proof, claims, packaging and `/aiagents/` SEO decision |
+| `sprint-10-review-workbook.md` | Рабочая форма для Sprint 10 review по pilot kits, CJM and CTA taxonomy |
+| `sprint-10-pilot-kit-records.md` | Draft pilot kits for Platform, Agents, Dev and Forum |
+| `sprint-10-cjm-cta-records.md` | Draft role paths, CTA taxonomy, returning-lead journey and Sales routing decision |
+| `sprint-10-approval-request.md` | Owner-facing approval request for `D-05` and `D-06` |
+| `sprint-11-review-workbook.md` | Рабочая форма для Sprint 11 review по token source, component family, states, diagrams and proof/status UI |
+| `sprint-11-decision-records.md` | Draft decision records for `D-07` - `D-09`; фиксирует recommended v1 baseline and approval questions |
+| `sprint-11-state-matrix.md` | Detailed state matrix for behavior-bearing components, selectors and QA/smoke implications |
+| `sprint-11-approval-request.md` | Owner-facing approval request for Designer/Frontend/QA/PM/Legal/Architect по Sprint 11 |
 
 ## Принцип Планирования
 
@@ -62,6 +85,14 @@ Sprint 00 -> Sprint 01 -> Sprint 02 -> Sprint 03
 ```
 
 `Sprint 00` нельзя пропускать: без него дизайн и разработка начнут опираться на неподтвержденные regulatory, customer и metric claims.
+
+Post-challenge wave follows the latest decision backlog:
+
+```text
+Sprint 09 -> Sprint 10 -> Sprint 11 -> Sprint 12 -> Sprint 13 -> Sprint 14
+```
+
+Эта волна не дублирует `00-08`: она уточняет оставшиеся decision/evidence/design/architecture gates после уже реализованного safe product-first MVP.
 
 MVP-срезы, уже добавленные 01.06.2026 в Sprint 03-07, считаются безопасным product-first layer, но не закрывают весь TO BE scope. Они сохраняют AS IS лидогенерацию, добавляют shared product data layer and product pages, однако vendor-grade TO BE требует evidence, CJM, design system, structured qualification, content ownership decision and release gates.
 

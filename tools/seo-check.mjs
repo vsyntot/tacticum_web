@@ -502,6 +502,18 @@ function assertPublicPageComponentization() {
     'local/php_interface/include/product_page_blocks/page.php'
   ];
   const productRendererBootstrapSource = read('local/php_interface/include/product_page.php');
+  const productContentSource = read('local/php_interface/include/product_content.php');
+  const productMigrationSource = read('tools/product-content-migration.php');
+  const productContentCheckSource = read('tools/product-content-check.php');
+  const productSourceHttpCheckSource = read('tools/product-source-http-check.mjs');
+  const releasePublicPrecheckSource = read('tools/release-public-precheck.mjs');
+  const legacySaleAccessLogInventorySource = read('tools/legacy-sale-access-log-inventory.mjs');
+  const staffSaleGateHelperSource = read('tools/staff-sale-gate-helper.mjs');
+  const initSource = read('local/php_interface/init.php');
+  const configExampleSource = read('local/php_interface/include/tacticum_config.example.php');
+  const productContentAdrSource = read('docs/adr/ADR-010-product-content-bitrix-model.md');
+  const restHelpersSource = read('local/rest/rest_helpers.php');
+  const healthConfigSource = read('local/rest/health_config.php');
   const productRendererSource = [
     productRendererBootstrapSource,
     ...productPageBlockFiles.map((file) => read(file))
@@ -522,6 +534,81 @@ function assertPublicPageComponentization() {
 
   if (!productRendererSource.includes("'SCENARIO_OPTIONS'")) {
     fail('product page renderer must pass product scenario options into tacticum:lead.cta');
+  }
+  if (!productRendererBootstrapSource.includes('tacticum_product_content_bitrix_data') || !productRendererBootstrapSource.includes('tacticum_product_page_fallback_data')) {
+    fail('product_page.php must support Bitrix product content with Git fallback');
+  }
+  if (!productRendererBootstrapSource.includes('tacticum_product_content_is_minimum_renderable') || !productRendererBootstrapSource.includes('$source === \'bitrix\'')) {
+    fail('product_page.php must guard auto Bitrix product content by minimum renderability and preserve bitrix-only mode');
+  }
+  const productContentIncludeIndex = initSource.indexOf('/include/product_content.php');
+  const productPageIncludeIndex = initSource.indexOf('/include/product_page.php');
+  if (productContentIncludeIndex < 0 || productPageIncludeIndex < 0 || productContentIncludeIndex > productPageIncludeIndex) {
+    fail('init.php must load product_content.php before product_page.php');
+  }
+  for (const helperName of [
+    'tacticum_product_content_source',
+    'tacticum_product_content_bitrix_data',
+    'tacticum_product_content_fetch_blocks',
+    'tacticum_product_content_fetch_use_cases',
+    'tacticum_product_content_is_minimum_renderable',
+    'tacticum_product_content_completeness_diagnostics',
+    'tacticum_product_content_cache_ttl',
+    'tacticum_product_content_clear_cache',
+    'tacticum_register_product_content_cache_handlers'
+  ]) {
+    if (!productContentSource.includes(helperName)) {
+      fail(`product_content.php is missing ${helperName}`);
+    }
+  }
+  if (!productContentSource.includes('Cache::createInstance()') || !productContentSource.includes('iblock_id_')) {
+    fail('product_content.php must cache Bitrix product content with iblock managed tags');
+  }
+  if (!initSource.includes('tacticum_register_product_content_cache_handlers')) {
+    fail('init.php must register product content cache invalidation handlers');
+  }
+  for (const configKey of ['products', 'product_blocks', 'product_use_cases']) {
+    if (!configExampleSource.includes(`'${configKey}' => 0`)) {
+      fail(`tacticum_config.example.php must document ${configKey} iblock key`);
+    }
+  }
+  if (!configExampleSource.includes("'products' => [") || !configExampleSource.includes("'source' => 'auto'") || !configExampleSource.includes("'cache_ttl' => 300")) {
+    fail('tacticum_config.example.php must document products.source=auto and products.cache_ttl');
+  }
+  if (
+    !restHelpersSource.includes("in_array('products', $scopes, true)")
+    || !restHelpersSource.includes("'products.source'")
+    || !restHelpersSource.includes("'products.cache_ttl'")
+  ) {
+    fail('rest_helpers.php must validate products scope, products.source and products.cache_ttl');
+  }
+  if (!healthConfigSource.includes("'products'")) {
+    fail('health_config.php must include products scope in config validation');
+  }
+  for (const productContentIblock of ['tacticum_products', 'tacticum_product_blocks', 'tacticum_product_use_cases']) {
+    if (!productMigrationSource.includes(productContentIblock)) {
+      fail(`product-content-migration.php must manage ${productContentIblock}`);
+    }
+  }
+  if (!productMigrationSource.includes('ensureExistingIblockProductRelations') || !productMigrationSource.includes('--update-seed-content')) {
+    fail('product-content-migration.php must support product relations and controlled seed updates');
+  }
+  for (const checkNeedle of [
+    'tacticum_product_content_bitrix_data',
+    'tacticum_product_content_is_minimum_renderable',
+    'missing_to_be_blocks',
+    'checkRelationProperties',
+    '--strict'
+  ]) {
+    if (!productContentCheckSource.includes(checkNeedle)) {
+      fail(`product-content-check.php is missing ${checkNeedle}`);
+    }
+  }
+  if (!packageSource.includes('"product:content:check"') || !packageSource.includes('"product:content:check:strict"')) {
+    fail('package.json must expose product content check scripts');
+  }
+  if (!productContentAdrSource.includes('auto|bitrix|fallback') || !productContentAdrSource.includes('`products`') || !productContentAdrSource.includes('`product_blocks`') || !productContentAdrSource.includes('`product_use_cases`')) {
+    fail('ADR-010 must document product source modes and product iblock model');
   }
   if (!productRendererBootstrapSource.includes('/local/php_interface/include/product_page_blocks/page.php')) {
     fail('product_page.php must load product page renderer blocks from local/php_interface/include/product_page_blocks');
@@ -552,11 +639,75 @@ function assertPublicPageComponentization() {
       fail(`product page renderer must expose data-product-block="${blockName}" for design-system QA and handoff`);
     }
   }
+  if (!productRendererSource.includes('data-product-source=')) {
+    fail('product page renderer must expose data-product-source for Bitrix/fallback runtime verification');
+  }
   if (!visualSmokeSource.includes('expectProductBlocks') || !visualSmokeSource.includes('captureProductBlocks') || !visualSmokeSource.includes('captureProductBlockPreviews') || !visualSmokeSource.includes('productBlocks') || !visualSmokeSource.includes('productBlockErrors') || !visualSmokeSource.includes('productBlockScreenshots')) {
     fail('visual-smoke must expose rendered product block inventory and errors for product pages');
   }
+  if (!visualSmokeSource.includes('TACTICUM_EXPECT_PRODUCT_SOURCE') || !visualSmokeSource.includes('product source mismatch')) {
+    fail('visual-smoke must support expected product source verification');
+  }
+  if (!productSourceHttpCheckSource.includes('data-product-source') || !productSourceHttpCheckSource.includes('TACTICUM_EXPECT_PRODUCT_SOURCE')) {
+    fail('product-source-http-check.mjs must support server-safe product source verification');
+  }
   if (!packageSource.includes('"product:block-previews"') || !packageSource.includes('TACTICUM_CAPTURE_PRODUCT_BLOCKS=1')) {
     fail('package.json must expose a product:block-previews script for design/QA screenshot handoff');
+  }
+  if (!packageSource.includes('"product:source:smoke:prod"') || !packageSource.includes('TACTICUM_EXPECT_PRODUCT_SOURCE=bitrix')) {
+    fail('package.json must expose product:source:smoke:prod for Bitrix source verification');
+  }
+  if (!packageSource.includes('"product:source:http:prod"') || !packageSource.includes('product-source-http-check.mjs')) {
+    fail('package.json must expose product:source:http:prod for Chrome-free source verification');
+  }
+  for (const releasePrecheckNeedle of [
+    'health_config.php',
+    'data-product-source',
+    'metrika.js',
+    '/bitrix/admin/',
+    'tacticum_offer.php',
+    'tacticum_sale.php'
+  ]) {
+    if (!releasePublicPrecheckSource.includes(releasePrecheckNeedle)) {
+      fail(`release-public-precheck.mjs must include ${releasePrecheckNeedle} public precheck`);
+    }
+  }
+  if (!packageSource.includes('"release:public-precheck:prod"') || !packageSource.includes('release-public-precheck.mjs')) {
+    fail('package.json must expose release:public-precheck:prod for safe production prechecks');
+  }
+  for (const legacyInventoryNeedle of [
+    'TACTICUM_LEGACY_LOG_FILES',
+    'TACTICUM_LEGACY_LOG_FROM',
+    'TACTICUM_LEGACY_LOG_TO',
+    'TACTICUM_LEGACY_SOURCE_LABEL',
+    '--self-test',
+    'createGunzip',
+    'tacticum_offer.php',
+    'tacticum_sale.php',
+    'aggregate-only'
+  ]) {
+    if (!legacySaleAccessLogInventorySource.includes(legacyInventoryNeedle)) {
+      fail(`legacy-sale-access-log-inventory.mjs must include ${legacyInventoryNeedle}`);
+    }
+  }
+  if (!packageSource.includes('"legacy:sale:inventory:logs"') || !packageSource.includes('legacy-sale-access-log-inventory.mjs')) {
+    fail('package.json must expose legacy:sale:inventory:logs for aggregate access-log inventory');
+  }
+  for (const staffSaleGateNeedle of [
+    'TACTICUM_STAFF_TEST_SESSID',
+    'TACTICUM_STAFF_TEST_EMAIL',
+    'workers_json',
+    'team_preset',
+    'monthly_budget_estimate',
+    'end_date_present',
+    'upstream_request_id'
+  ]) {
+    if (!staffSaleGateHelperSource.includes(staffSaleGateNeedle)) {
+      fail(`staff-sale-gate-helper.mjs must include ${staffSaleGateNeedle}`);
+    }
+  }
+  if (!packageSource.includes('"staff:sale:gate-helper"') || !packageSource.includes('staff-sale-gate-helper.mjs')) {
+    fail('package.json must expose staff:sale:gate-helper for controlled staff upstream evidence');
   }
   if (!productBlockPreviewWorkflow.includes('npm run product:block-previews') || !productBlockPreviewWorkflow.includes('product-blocks/*.png')) {
     fail('product block preview workflow runbook must document command and screenshot outputs');

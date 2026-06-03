@@ -14,7 +14,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
 }
 
-$scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'rest', 'security'];
+$scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'products', 'rest', 'security'];
 $errors = tacticum_rest_validate_config($scopes);
 
 if (!empty($errors)) {

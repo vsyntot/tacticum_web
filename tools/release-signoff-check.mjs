@@ -492,8 +492,10 @@ function validateStaffSaleUpstream(evidence) {
     'health_config',
     'url',
     'form_id',
+    'team_preset',
     'workers_count',
     'monthly_budget_estimate_present',
+    'end_date_present',
     'result',
   ]);
   validateIsoDateTime('staff-sale-upstream', evidence.checked_at);
@@ -509,6 +511,15 @@ function validateStaffSaleUpstream(evidence) {
 
   if (evidence.monthly_budget_estimate_present !== true) {
     fail('staff-sale-upstream: monthly_budget_estimate_present must be true');
+  }
+
+  if (evidence.end_date_present !== true) {
+    fail('staff-sale-upstream: end_date_present must be true');
+  }
+
+  const teamPreset = String(evidence.team_preset || '').trim();
+  if (!['mvp', 'discovery', 'support', 'qa-burst'].includes(teamPreset)) {
+    fail('staff-sale-upstream: team_preset must be one of mvp, discovery, support, qa-burst');
   }
 }
 

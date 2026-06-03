@@ -1,6 +1,6 @@
 # Design System Handoff — Tacticum AS IS
 
-Дата: 30.05.2026
+Дата: 02.06.2026
 
 Статус: входной пакет для дизайнера, который будет формировать новую версию дизайн-системы `tacticum.ru`.
 
@@ -16,8 +16,11 @@
 2. `02-component-inventory.md` — инвентаризация компонентов, вариантов и состояний.
 3. `03-page-inventory.md` — карта публичных страниц и их роли в воронке.
 4. `04-interaction-contracts.md` — интерактив, DOM-контракты и JS-состояния.
-5. `05-design-tokens-as-is.json` — машиночитаемый снимок текущих токенов.
+5. `05-design-tokens-as-is.json` — машиночитаемый AS IS token contract: implemented Tailwind tokens, observed CSS candidates, known drift and guard metadata.
 6. `06-known-debt-and-to-be-questions.md` — долги AS IS и вопросы для TO BE дизайн-системы.
+7. `07-component-state-contract.json` — машиночитаемый AS IS -> TO BE contract по behavior-bearing компонентам, selectors and required states.
+8. `08-as-is-to-be-migration-map.json` — машиночитаемая карта миграции AS IS components -> TO BE components, migration types and gates.
+9. `09-to-be-design-work-order.md` — рабочее задание дизайнеру: deliverables, red lines, acceptance criteria and review flow.
 
 ## Короткая Картина AS IS
 
@@ -39,7 +42,11 @@ public page entry
 - повторяемые секции вынесены в локальные Bitrix-компоненты;
 - ручные стили собраны в одном runtime-файле `styles/global.css`;
 - интерактив сделан на vanilla JS и привязан к `data-*`, id и class контрактам;
-- отдельной формальной дизайн-системы, Storybook или token pipeline нет.
+- отдельной формальной TO BE дизайн-системы, Storybook или token pipeline нет;
+- AS IS token contract уже зафиксирован в `05-design-tokens-as-is.json` и проверяется командой `npm run design:tokens:check`.
+- AS IS component/state contract уже зафиксирован в `07-component-state-contract.json` и проверяется командой `npm run design:components:check`.
+- AS IS -> TO BE migration map уже зафиксирована в `08-as-is-to-be-migration-map.json` и проверяется командой `npm run design:migration:check`.
+- Полнота handoff-пакета проверяется командой `npm run design:handoff:check`.
 
 ## Основные Исходники
 
@@ -48,12 +55,16 @@ public page entry
 | Template shell | `local/templates/tacticum/header.php` | Подключение CSS/JS, CSP, header, top menu |
 | Footer shell | `local/templates/tacticum/footer.php` | Footer, bottom menu, mobile menu, contact modal |
 | Tailwind source | `local/templates/tacticum/assets/src/tailwind.css` | AS IS токены и source scan |
+| Token contract | `docs/design-system-handoff/05-design-tokens-as-is.json` | AS IS token contract, observed candidates, drift |
 | Generated CSS | `local/templates/tacticum/tailwind.generated.css` | Сгенерированные utilities |
 | Manual CSS | `local/templates/tacticum/styles/global.css` | Ручные стили компонентов и страниц |
 | JS | `local/templates/tacticum/js/` | Интерактив сайта |
 | Local components | `local/components/tacticum/` | Повторяемые UI-компоненты |
 | Bitrix component templates | `local/templates/tacticum/components/bitrix/` | Шаблоны меню, списков, detail-страниц |
 | Example page | `contacts/index.php` | Пример публичной страницы с общей CTA-формой |
+| Component/state contract | `docs/design-system-handoff/07-component-state-contract.json` | Behavior-bearing components, selectors, required states |
+| Migration map | `docs/design-system-handoff/08-as-is-to-be-migration-map.json` | AS IS component -> TO BE component, migration type, gates |
+| TO BE work order | `docs/design-system-handoff/09-to-be-design-work-order.md` | Deliverables, red lines, acceptance criteria, review flow |
 
 ## Что Важно Для TO BE
 
@@ -85,6 +96,13 @@ JS сейчас зависит от конкретных DOM-контракто�
 1. Дать дизайнеру этот каталог и текущие production/staging ссылки.
 2. Совместно пройти `02-component-inventory.md` и отметить компоненты, которые должны войти в Figma library.
 3. По `04-interaction-contracts.md` согласовать обязательные состояния.
-4. По `05-design-tokens-as-is.json` решить, что остается, что переименовывается и какие токены добавляются.
-5. По `06-known-debt-and-to-be-questions.md` закрыть решения до старта детальной отрисовки.
+4. По `05-design-tokens-as-is.json` решить, что остается, что переименовывается и какие токены добавляются; перед передачей/ревью можно проверить актуальность через `npm run design:tokens:check`.
+5. По `07-component-state-contract.json` определить, какие selectors сохраняются в первой миграции, а какие требуют отдельной dev-задачи; перед ревью можно проверить актуальность через `npm run design:components:check`.
+6. По `08-as-is-to-be-migration-map.json` согласовать `toBeComponentName`, `migrationType`, gates and open decisions; перед ревью можно проверить актуальность через `npm run design:migration:check`.
+7. По `09-to-be-design-work-order.md` принять состав Figma/design deliverables, red lines and acceptance criteria.
+8. По `06-known-debt-and-to-be-questions.md` закрыть решения до старта детальной отрисовки.
+9. Перед передачей дизайнеру или LLM запустить `npm run design:handoff:check`.
 
+## Связанный TO BE Approval Pack
+
+Для закрытия design-system gaps в AS IS / TO BE product backlog использовать `../new-big-change/product-vision-handoff/22-phase-2-design-system-approval-pack.md`. Он связывает этот AS IS handoff with approval rules for `UI-001`, `UI-002`, `UI-003`, `UI-005`, `UI-006` and `UI-007`: token source, product components, form states, proof/status UI, `/price/` mobile UX and chat states.

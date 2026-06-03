@@ -27,8 +27,12 @@ if (!function_exists('tacticum_render_product_page')) {
         $proof = is_array($page['proof'] ?? null) ? $page['proof'] : [];
         $faq = is_array($page['faq'] ?? null) ? $page['faq'] : [];
         $cta = is_array($page['cta'] ?? null) ? $page['cta'] : [];
+        $source = tacticum_product_page_string($page, '_source', 'unknown');
+        if (!in_array($source, ['bitrix', 'fallback'], true)) {
+            $source = 'unknown';
+        }
         ?>
-        <section class="bg-gradient-to-r from-secondary to-primary pt-24 text-white" data-product-block="hero">
+        <section class="bg-gradient-to-r from-secondary to-primary pt-24 text-white" data-product-block="hero" data-product-source="<?=tacticum_product_page_html($source)?>">
             <div class="container mx-auto px-4 py-20">
                 <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.08fr_0.92fr]">
                     <div>

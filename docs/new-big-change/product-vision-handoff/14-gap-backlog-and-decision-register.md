@@ -4,6 +4,8 @@
 
 Статус: рабочий backlog решений и гэпов после product/tech challenge. Использовать для планирования следующих спринтов и для подготовки задач дизайнеру, PM, архитектору, SEO, QA и legal/security.
 
+Execution control: последовательность закрытия описана в `15-gap-closure-master-plan.md`, machine-readable действия по каждому non-closed gap ID зафиксированы в `16-gap-closure-action-register.json`, review packages лежат в `17-local-gap-decision-briefs.md`, `18-phase-1-product-decision-review-pack.md`, `19-phase-3-architecture-integration-decision-pack.md`, `20-phase-4-seo-content-decision-pack.md`, `21-phase-5-release-evidence-closure-pack.md`, `22-phase-2-design-system-approval-pack.md` and `23-accepted-risk-monitoring-pack.md`, покрытие проверяется через `npm run product:gaps:check`.
+
 ## Statuses
 
 | Status | Meaning |
@@ -51,13 +53,13 @@
 
 | ID | Status | Priority | Gap | Decision Needed | Owner |
 |---|---|---:|---|---|---|
-| UI-001 | open | P1 | TO BE token source not decided | Figma variables vs JSON vs Tailwind mapping | Designer + Frontend |
-| UI-002 | open | P1 | Product storytelling components not specified | Component family from `12-ux-ui-component-target.md` | Designer + PM |
-| UI-003 | open | P1 | Form state spec incomplete | Full state spec for lead/product/procurement forms | Designer + QA |
+| UI-001 | in-progress | P1 | AS IS token contract is checked; TO BE token source not decided | Figma variables vs JSON vs Tailwind mapping, using `05-design-tokens-as-is.json` as baseline | Designer + Frontend |
+| UI-002 | in-progress | P1 | AS IS product block/component contract and migration map are checked; TO BE storytelling components not approved | Component family from `12-ux-ui-component-target.md`, using `07` / `08` design handoff files as baseline | Designer + PM |
+| UI-003 | in-progress | P1 | AS IS form/modal/CTA contract and migration map are checked; visual form state spec incomplete | Full state spec for lead/product/procurement forms | Designer + QA |
 | UI-004 | open | P2 | Architecture diagrams are not visual enough | Diagram patterns and mobile fallbacks | Designer + Architect |
 | UI-005 | open | P2 | Proof/status UI not defined | Evidence status badges/cards/source notes | Designer + Legal + PM |
-| UI-006 | open | P2 | `/price/` mobile team builder needs dedicated UX | Mobile flow decision: modal/inline/summary | Designer + Frontend |
-| UI-007 | open | P2 | Chat component lacks TO BE visual/state spec | Chat bubbles, errors, handoff, long answers | Designer + Frontend |
+| UI-006 | in-progress | P2 | AS IS `/price/` team-builder contract and migration map are checked; mobile UX still needs decision | Mobile flow decision: modal/inline/summary | Designer + Frontend |
+| UI-007 | in-progress | P2 | AS IS chat contract and migration map are checked; TO BE visual/state spec still missing | Chat bubbles, errors, handoff, long answers | Designer + Frontend |
 | UI-008 | open | P3 | Icon taxonomy missing | Keep Remix or curated icon set | Designer |
 
 ## Architecture / Stack Gaps

@@ -1,0 +1,604 @@
+{
+  "meta": {
+    "project": "tacticum.ru",
+    "snapshotDate": "2026-06-02",
+    "status": "as-is-to-be-bridge",
+    "sources": [
+      "docs/design-system-handoff/02-component-inventory.md",
+      "docs/design-system-handoff/04-interaction-contracts.md",
+      "docs/new-big-change/product-vision-handoff/12-ux-ui-component-target.md",
+      "local/templates/tacticum/header.php",
+      "local/templates/tacticum/components/bitrix/menu/mobilemenu/template.php",
+      "local/components/tacticum/contact.modal/templates/.default/template.php",
+      "local/components/tacticum/lead.cta/templates/.default/form.php",
+      "local/components/tacticum/chat.surface/templates/.default/template.php",
+      "local/templates/tacticum/js/forms.js",
+      "local/templates/tacticum/js/modal.js",
+      "local/templates/tacticum/js/menu.js",
+      "local/templates/tacticum/js/faq.js",
+      "local/templates/tacticum/js/chat-agent.js",
+      "local/templates/tacticum/components/bitrix/news.list/price/template.php",
+      "local/templates/tacticum/components/bitrix/news.list/price/script.js",
+      "local/php_interface/include/product_page_blocks/page.php",
+      "local/php_interface/include/product_page_blocks/common.php",
+      "local/php_interface/include/product_page_blocks/architecture.php",
+      "local/php_interface/include/product_page_blocks/use_cases.php",
+      "local/php_interface/include/product_page_blocks/comparison.php",
+      "local/php_interface/include/product_page_blocks/procurement.php",
+      "local/php_interface/include/product_page_blocks/rollout.php",
+      "local/php_interface/include/product_page_blocks/proof.php",
+      "local/php_interface/include/product_page_blocks/faq.php"
+    ],
+    "note": "This file captures AS IS component/state contracts that must be preserved or explicitly migrated while designing the TO BE design system. It is not a final visual component library."
+  },
+  "contract": {
+    "version": "2026-06-02-as-is-component-state-contract",
+    "type": "component-state-handoff-contract",
+    "scope": [
+      "interactive component DOM contracts",
+      "state requirements for TO BE design",
+      "product block locator taxonomy",
+      "migration policy for visual redesign"
+    ],
+    "guard": {
+      "script": "tools/component-state-contract-check.mjs",
+      "npmScript": "design:components:check",
+      "checks": [
+        "required component ids exist in JSON",
+        "component source files exist",
+        "required selectors/attributes still exist in sources",
+        "core TO BE state requirements are documented",
+        "package script is registered"
+      ]
+    },
+    "migrationPolicy": [
+      "Visual restyle may change classes, spacing, colors and layout only if preservedSelectors stay available or a separate frontend migration is documented.",
+      "Forms, chat, FAQ, modal, mobile menu, product blocks and price builder are behavior-bearing components and must not be redesigned from screenshots alone.",
+      "New interactive states require either existing JS support or an explicit dev task with page asset, smoke and analytics implications.",
+      "Design specs must separate AS IS preserved contracts from TO BE component names."
+    ]
+  },
+  "components": [
+    {
+      "id": "global-navigation",
+      "toBeComponent": "navigation.shell",
+      "sourceFiles": [
+        "local/templates/tacticum/header.php",
+        "local/templates/tacticum/components/bitrix/menu/mobilemenu/template.php",
+        "local/templates/tacticum/js/menu.js",
+        "local/templates/tacticum/js/scroll.js"
+      ],
+      "preservedSelectors": [
+        "[data-tacticum-menu-toggle]",
+        "#tacticum-mobile-menu",
+        ".tacticum-mobile-menu-close",
+        ".tacticum-contact-btn",
+        ".translate-x-full",
+        "#contactUsBtn"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/templates/tacticum/header.php",
+          "pattern": "data-tacticum-menu-toggle",
+          "reason": "mobile menu open/close trigger"
+        },
+        {
+          "file": "local/templates/tacticum/header.php",
+          "pattern": "id=\"contactUsBtn\"",
+          "reason": "desktop modal CTA trigger"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/menu/mobilemenu/template.php",
+          "pattern": "id=\"tacticum-mobile-menu\"",
+          "reason": "mobile overlay root"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/menu/mobilemenu/template.php",
+          "pattern": "translate-x-full",
+          "reason": "closed state class"
+        },
+        {
+          "file": "local/templates/tacticum/js/menu.js",
+          "pattern": "[data-tacticum-menu-toggle]",
+          "reason": "JS selector for toggle"
+        }
+      ],
+      "statesToDesign": [
+        "desktop default",
+        "desktop active page",
+        "dropdown hover/focus",
+        "mobile closed",
+        "mobile open",
+        "mobile nested links",
+        "keyboard focus",
+        "scroll/shadow state"
+      ],
+      "openToBeDecisions": [
+        "Keep full-screen mobile overlay or migrate to drawer.",
+        "Define compact/sticky header state.",
+        "Define how product and commercial entries coexist in navigation."
+      ]
+    },
+    {
+      "id": "contact-modal",
+      "toBeComponent": "modal.contact-form",
+      "sourceFiles": [
+        "local/components/tacticum/contact.modal/templates/.default/template.php",
+        "local/templates/tacticum/js/modal.js",
+        "local/templates/tacticum/js/forms.js"
+      ],
+      "preservedSelectors": [
+        "#tacticum-modal",
+        "#tacticum-modal-close",
+        "#tacticum-modal-form",
+        "[data-tacticum-form]",
+        "[data-tacticum-close-target]",
+        "[data-tacticum-close-mode]",
+        "[data-error]",
+        "[data-role='spinner']",
+        "[data-role='btn-text']"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/components/tacticum/contact.modal/templates/.default/template.php",
+          "pattern": "id=\"tacticum-modal\"",
+          "reason": "modal root"
+        },
+        {
+          "file": "local/components/tacticum/contact.modal/templates/.default/template.php",
+          "pattern": "id=\"tacticum-modal-form\"",
+          "reason": "modal form root"
+        },
+        {
+          "file": "local/components/tacticum/contact.modal/templates/.default/template.php",
+          "pattern": "data-tacticum-close-target=\"#tacticum-modal\"",
+          "reason": "forms.js closes modal after success"
+        },
+        {
+          "file": "local/templates/tacticum/js/modal.js",
+          "pattern": "getElementById(\"tacticum-modal\")",
+          "reason": "modal JS root selector"
+        },
+        {
+          "file": "local/templates/tacticum/js/forms.js",
+          "pattern": "tacticumCloseTarget",
+          "reason": "global form close contract"
+        }
+      ],
+      "statesToDesign": [
+        "hidden",
+        "open desktop",
+        "open mobile",
+        "backdrop",
+        "scrollable content",
+        "focus trap",
+        "field validation error",
+        "submit loading",
+        "success toast",
+        "backend/network error"
+      ],
+      "openToBeDecisions": [
+        "Desktop modal versus mobile bottom sheet.",
+        "Inline success state versus toast-only success.",
+        "Whether modal form uses the same field density as page CTA forms."
+      ]
+    },
+    {
+      "id": "lead-cta-form",
+      "toBeComponent": "cta.product-form",
+      "sourceFiles": [
+        "local/components/tacticum/lead.cta/component.php",
+        "local/components/tacticum/lead.cta/templates/.default/template.php",
+        "local/components/tacticum/lead.cta/templates/.default/form.php",
+        "local/templates/tacticum/js/forms.js",
+        "local/rest/tacticum_form.php"
+      ],
+      "preservedSelectors": [
+        "[data-tacticum-form]",
+        "[data-form-id]",
+        "[data-endpoint]",
+        "[data-tacticum-consent]",
+        "name",
+        "email",
+        "phone",
+        "message",
+        "lead_scenario",
+        "lead_budget",
+        "lead_timeline"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/components/tacticum/lead.cta/templates/.default/form.php",
+          "pattern": "data-tacticum-form",
+          "reason": "global forms.js handler"
+        },
+        {
+          "file": "local/components/tacticum/lead.cta/templates/.default/form.php",
+          "pattern": "data-form-id",
+          "reason": "form taxonomy and analytics"
+        },
+        {
+          "file": "local/components/tacticum/lead.cta/templates/.default/form.php",
+          "pattern": "data-tacticum-consent",
+          "reason": "required consent contract"
+        },
+        {
+          "file": "local/components/tacticum/lead.cta/templates/.default/form.php",
+          "pattern": "name=\"lead_scenario\"",
+          "reason": "product scenario qualification"
+        },
+        {
+          "file": "local/templates/tacticum/js/forms.js",
+          "pattern": "[data-tacticum-form]",
+          "reason": "global submit selector"
+        },
+        {
+          "file": "local/rest/tacticum_form.php",
+          "pattern": "lead_scenario",
+          "reason": "backend canonical qualification profile"
+        }
+      ],
+      "statesToDesign": [
+        "default",
+        "focus",
+        "filled",
+        "invalid field",
+        "consent unchecked error",
+        "submit loading",
+        "success",
+        "backend error",
+        "network error",
+        "disabled",
+        "autofill",
+        "mobile single column",
+        "qualification select open/selected"
+      ],
+      "openToBeDecisions": [
+        "Dense B2B form versus conversational form.",
+        "Which CTA intents need different layouts rather than copy-only variants.",
+        "Whether budget/timeline stay optional and where they appear on mobile."
+      ]
+    },
+    {
+      "id": "chat-surface",
+      "toBeComponent": "chat.surface",
+      "sourceFiles": [
+        "local/components/tacticum/chat.surface/component.php",
+        "local/components/tacticum/chat.surface/templates/.default/template.php",
+        "local/templates/tacticum/js/chat-agent.js"
+      ],
+      "preservedSelectors": [
+        "[data-tacticum-chat='hero']",
+        "[data-tacticum-chat='light']",
+        "[data-chat-surface]",
+        "[data-chat-messages]",
+        "[data-chat-input]",
+        "[data-chat-send]",
+        "[data-chat-quick-reply]",
+        "[data-message]",
+        "[data-chat-lead-handoff]",
+        "#main_chat",
+        "#aichat"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/components/tacticum/chat.surface/templates/.default/template.php",
+          "pattern": "data-tacticum-chat=\"hero\"",
+          "reason": "hero chat root"
+        },
+        {
+          "file": "local/components/tacticum/chat.surface/templates/.default/template.php",
+          "pattern": "data-tacticum-chat=\"light\"",
+          "reason": "light chat root"
+        },
+        {
+          "file": "local/components/tacticum/chat.surface/templates/.default/template.php",
+          "pattern": "data-chat-quick-reply",
+          "reason": "quick reply controls"
+        },
+        {
+          "file": "local/templates/tacticum/js/chat-agent.js",
+          "pattern": "[data-tacticum-chat=\"light\"]",
+          "reason": "light chat JS selector"
+        },
+        {
+          "file": "local/templates/tacticum/js/chat-agent.js",
+          "pattern": "data-chat-lead-handoff",
+          "reason": "chat-to-lead handoff action"
+        },
+        {
+          "file": "local/templates/tacticum/js/chat-agent.js",
+          "pattern": "typing-indicator",
+          "reason": "typing state"
+        }
+      ],
+      "statesToDesign": [
+        "initial assistant message",
+        "user message",
+        "assistant message",
+        "typing indicator",
+        "backend error",
+        "quick replies",
+        "scroll overflow",
+        "long answer",
+        "lead handoff CTA",
+        "disabled/sending",
+        "mobile keyboard layout"
+      ],
+      "openToBeDecisions": [
+        "Whether chat is a shared design-system component or a product-specific pattern.",
+        "How final answer and handoff actions should look.",
+        "Long AI response behavior on mobile."
+      ]
+    },
+    {
+      "id": "faq-accordion",
+      "toBeComponent": "accordion.faq",
+      "sourceFiles": [
+        "local/templates/tacticum/components/bitrix/news.list/faq/template.php",
+        "local/php_interface/include/product_page_blocks/faq.php",
+        "local/templates/tacticum/js/faq.js"
+      ],
+      "preservedSelectors": [
+        ".faq-item",
+        ".faq-question",
+        ".faq-answer",
+        ".faq-icon",
+        ".active"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/faq/template.php",
+          "pattern": "faq-item",
+          "reason": "iblock FAQ item selector"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/faq.php",
+          "pattern": "faq-question",
+          "reason": "static product FAQ selector"
+        },
+        {
+          "file": "local/templates/tacticum/js/faq.js",
+          "pattern": ".faq-question",
+          "reason": "FAQ click target"
+        },
+        {
+          "file": "local/templates/tacticum/js/faq.js",
+          "pattern": "active",
+          "reason": "open state class"
+        }
+      ],
+      "statesToDesign": [
+        "collapsed",
+        "open",
+        "hover",
+        "focus",
+        "long answer",
+        "single open behavior",
+        "mobile tap target"
+      ],
+      "openToBeDecisions": [
+        "Single-open accordion versus multiple-open.",
+        "Icon behavior and reduced-motion fallback.",
+        "Long legal/security answers inside FAQ."
+      ]
+    },
+    {
+      "id": "price-team-builder",
+      "toBeComponent": "team-builder.price",
+      "sourceFiles": [
+        "local/templates/tacticum/components/bitrix/news.list/price/template.php",
+        "local/templates/tacticum/components/bitrix/news.list/price/script.js",
+        "local/templates/tacticum/components/bitrix/news.list/price/style.css",
+        "local/rest/tacticum_sale_staff.php"
+      ],
+      "preservedSelectors": [
+        "[data-price-list]",
+        "[data-price-card]",
+        "[data-price-filter-tab]",
+        "[data-price-search]",
+        "[data-price-level-option]",
+        "[data-price-value]",
+        "[data-price-order]",
+        "[data-price-team-preset]",
+        "[data-price-team-summary]",
+        "[data-price-empty]",
+        "[data-price-order-modal]",
+        "[data-price-order-form]",
+        "workers_json",
+        "monthly_budget_estimate"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/price/template.php",
+          "pattern": "data-price-list",
+          "reason": "price builder root"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/price/template.php",
+          "pattern": "data-price-team-summary",
+          "reason": "persistent team summary"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/price/template.php",
+          "pattern": "name=\"workers_json\"",
+          "reason": "rich staff-order payload"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/price/script.js",
+          "pattern": "[data-price-card]",
+          "reason": "modern card selector"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/price/script.js",
+          "pattern": "pricing-card",
+          "reason": "legacy mixed-rollout fallback"
+        },
+        {
+          "file": "local/templates/tacticum/components/bitrix/news.list/price/script.js",
+          "pattern": "data-price-worker-action",
+          "reason": "worker quantity controls"
+        }
+      ],
+      "statesToDesign": [
+        "category selected",
+        "search with results",
+        "empty search",
+        "role card default",
+        "role card selected/added",
+        "level selected",
+        "team preset selected",
+        "summary empty",
+        "summary filled",
+        "monthly budget visible",
+        "modal open",
+        "duration preset selected",
+        "order submit loading",
+        "order success",
+        "order backend/network error",
+        "mobile team builder flow"
+      ],
+      "openToBeDecisions": [
+        "Catalog cards versus full team builder experience.",
+        "Mobile flow: inline builder, sticky summary or modal-first.",
+        "How budget estimate caveats should be displayed."
+      ]
+    },
+    {
+      "id": "product-page-blocks",
+      "toBeComponent": "product.page-system",
+      "sourceFiles": [
+        "local/php_interface/include/product_page_blocks/page.php",
+        "local/php_interface/include/product_page_blocks/common.php",
+        "local/php_interface/include/product_page_blocks/architecture.php",
+        "local/php_interface/include/product_page_blocks/use_cases.php",
+        "local/php_interface/include/product_page_blocks/comparison.php",
+        "local/php_interface/include/product_page_blocks/procurement.php",
+        "local/php_interface/include/product_page_blocks/rollout.php",
+        "local/php_interface/include/product_page_blocks/proof.php",
+        "local/php_interface/include/product_page_blocks/faq.php"
+      ],
+      "preservedSelectors": [
+        "[data-product-block='hero']",
+        "[data-product-block='fit-guide']",
+        "[data-product-block='content-section']",
+        "[data-product-block='architecture']",
+        "[data-product-block='use-cases']",
+        "[data-product-block='comparison']",
+        "[data-product-block='procurement']",
+        "[data-product-block='rollout']",
+        "[data-product-block='proof']",
+        "[data-product-block='faq']",
+        "[data-product-block='lead-cta']"
+      ],
+      "requiredSourcePatterns": [
+        {
+          "file": "local/php_interface/include/product_page_blocks/page.php",
+          "pattern": "data-product-block=\"hero\"",
+          "reason": "product hero locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/page.php",
+          "pattern": "data-product-block=\"lead-cta\"",
+          "reason": "product CTA locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/common.php",
+          "pattern": "data-product-block=\"fit-guide\"",
+          "reason": "fit guide locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/common.php",
+          "pattern": "data-product-block=\"content-section\"",
+          "reason": "generic content section locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/architecture.php",
+          "pattern": "data-product-block=\"architecture\"",
+          "reason": "architecture locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/use_cases.php",
+          "pattern": "data-product-block=\"use-cases\"",
+          "reason": "use-case anatomy locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/comparison.php",
+          "pattern": "data-product-block=\"comparison\"",
+          "reason": "comparison locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/procurement.php",
+          "pattern": "data-product-block=\"procurement\"",
+          "reason": "security/procurement locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/rollout.php",
+          "pattern": "data-product-block=\"rollout\"",
+          "reason": "rollout locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/proof.php",
+          "pattern": "data-product-block=\"proof\"",
+          "reason": "proof readiness locator"
+        },
+        {
+          "file": "local/php_interface/include/product_page_blocks/faq.php",
+          "pattern": "data-product-block=\"faq\"",
+          "reason": "product FAQ locator"
+        }
+      ],
+      "statesToDesign": [
+        "desktop layout",
+        "mobile stacked layout",
+        "proof available",
+        "proof pilot-only",
+        "proof unavailable",
+        "architecture dense desktop",
+        "architecture mobile fallback",
+        "CTA with scenario selected",
+        "FAQ open/closed",
+        "block screenshot preview"
+      ],
+      "openToBeDecisions": [
+        "Final TO BE names for product blocks.",
+        "Which product blocks become local components versus renderer partials.",
+        "How proof/status states map to claim governance."
+      ]
+    }
+  ],
+  "stateCoverageRequirements": {
+    "forms": [
+      "focus",
+      "invalid field",
+      "consent unchecked error",
+      "submit loading",
+      "success",
+      "backend error",
+      "network error",
+      "autofill"
+    ],
+    "chat": [
+      "typing indicator",
+      "backend error",
+      "long answer",
+      "lead handoff CTA",
+      "disabled/sending"
+    ],
+    "configurator": [
+      "filter selected",
+      "empty state",
+      "item selected",
+      "summary filled",
+      "modal open",
+      "submit loading/error/success"
+    ],
+    "productBlocks": [
+      "desktop",
+      "mobile",
+      "proof status",
+      "diagram fallback",
+      "CTA qualification"
+    ]
+  }
+}

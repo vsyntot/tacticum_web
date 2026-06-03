@@ -10,9 +10,9 @@
       "status": "passed",
       "owner": "DevOps",
       "evidence": {
-        "health_config": "2026-05-25: GET /local/rest/health_config.php with Origin https://tacticum.ru returned success=true, scopes api, ai, telegram, offer, content, rest, security",
-        "visual_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-44-51-696Z/manifest.json",
-        "browser_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T18-02-20-117Z/manifest.json",
+        "health_config": "2026-06-03: release public precheck confirmed health_config scopes api, ai, telegram, offer, content, products, rest, security",
+        "visual_smoke_manifest": "/tmp/tacticum-release-closure-2026-06-03/seo/manifest.json",
+        "browser_smoke_manifest": "/tmp/tacticum-release-closure-2026-06-03/browser/manifest.json",
         "contacts_map_precheck": "2026-05-25: production /contacts/ rendered Yandex map widget oid=243968538014 for Тактикум, Victory Park landmark and legal address text"
       }
     },
@@ -20,38 +20,38 @@
       "status": "passed",
       "owner": "SEO + QA",
       "evidence": {
-        "seo_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-39-02-361Z/manifest.json",
-        "note": "seoErrors=[] for 9 public URLs on desktop/mobile; npm run seo:check:prod passed on 2026-05-25"
+        "seo_smoke_manifest": "/tmp/tacticum-release-closure-2026-06-03/seo/manifest.json",
+        "note": "seoErrors=[] for public/product URLs on desktop/mobile; product pages source=bitrix and product blocks=ok on 2026-06-03"
       }
     },
     "price-team-presets": {
       "status": "passed",
       "owner": "QA + Frontend",
       "evidence": {
-        "price_smoke_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-48-01-394Z/manifest.json",
-        "note": "price team presets/summary ok for desktop/mobile on 2026-05-25; detail contains workers=5 and monthly budget"
+        "price_smoke_manifest": "/tmp/tacticum-release-closure-2026-06-03/price/manifest.json",
+        "note": "price team presets/summary ok for desktop/mobile on 2026-06-03; detail contains workers and monthly budget"
       }
     },
     "css-js-e2e-readiness": {
       "status": "passed",
       "owner": "Frontend + QA",
       "evidence": {
-        "production_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-44-51-696Z/manifest.json",
-        "production_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T18-02-20-117Z/manifest.json",
-        "production_price_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-48-01-394Z/manifest.json",
-        "css_local_visual_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-44-51-708Z/manifest.json",
-        "css_local_browser_manifest": "/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-05-25T17-46-19-917Z/manifest.json",
-        "note": "production and CSS-local rendered/action smoke passed on 2026-05-25; warning-aware browser manifests have failOnWarnings=true and consoleWarnings=0"
+        "production_visual_manifest": "/tmp/tacticum-release-closure-2026-06-03/seo/manifest.json",
+        "production_browser_manifest": "/tmp/tacticum-release-closure-2026-06-03/browser/manifest.json",
+        "production_price_manifest": "/tmp/tacticum-release-closure-2026-06-03/price/manifest.json",
+        "css_local_visual_manifest": "/tmp/tacticum-release-closure-2026-06-03/css-local-visual/manifest.json",
+        "css_local_browser_manifest": "/tmp/tacticum-release-closure-2026-06-03/css-local-browser/manifest.json",
+        "note": "production and CSS-local rendered/action smoke passed on 2026-06-03; warning-aware browser manifests have failOnWarnings=true and consoleWarnings=0"
       }
     },
     "manual-success-flow": {
       "status": "pending",
       "owner": "QA + Backend/Frontend",
       "due": "before-strict-release-closure",
-      "reason": "Controlled production smoke was attempted on 2026-05-25. Default form, modal form, AI chat and staff-order are blocked by upstream 502 responses; prefill controlled empty state returned expected 404.",
+      "reason": "Controlled production smoke was attempted on 2026-05-25. Default form, modal form and AI chat remain blocked by upstream 502 responses; prefill controlled empty state returned expected 404. Staff-order browser-controlled POST returned HTTP 200 success=true on 2026-06-03, but CRM/upstream safe ID evidence is still pending.",
       "evidence": {
         "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
-        "safe_summary": "default-lead-form=502 upstream_error; modal-form=502 upstream_error; ai-chat=502 upstream_http_error with upstream_status=502; prefill-controlled-empty=404 not_found; staff-order=502 upstream_error",
+        "safe_summary": "default-lead-form=502 upstream_error; modal-form=502 upstream_error; ai-chat=502 upstream_http_error with upstream_status=502; prefill-controlled-empty=404 not_found; staff-order=HTTP 200 success=true code=ok on 2026-06-03 browser-controlled POST",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
@@ -107,10 +107,11 @@
       "status": "pending",
       "owner": "Architect + Backend + QA + DevOps",
       "due": "before-strict-release-closure",
-      "reason": "Controlled production staff-order smoke was attempted on 2026-05-25 and returned 502 upstream_error; closing this gate requires upstream recovery plus CRM/upstream confirmation.",
+      "reason": "Controlled production staff-order browser POST returned HTTP 200 success=true on 2026-06-03. Closing this gate still requires CRM/upstream confirmation with safe upstream_request_id or lead_id.",
       "evidence": {
         "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
-        "safe_summary": "staff-order=502 upstream_error; workers_json/team_preset/monthly_budget_estimate/endDate were sent in controlled test payload but upstream did not accept the request",
+        "browser_controlled_staff_order": "2026-06-03T10:49:21+03:00: /price/ DevTools fetch returned HTTP 200 success=true code=ok for price-specialist payload with team_preset=mvp, workers_count=3, monthly_budget_estimate_present=true, end_date_present=true",
+        "safe_summary": "staff-order endpoint accepted controlled payload; CRM/upstream safe ID evidence pending before strict gate closure",
         "readiness": "docs/workflow/rich-workers-upstream-readiness-2026-05-24.md",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-staff-sale-upstream",

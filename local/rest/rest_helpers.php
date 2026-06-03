@@ -138,6 +138,23 @@ function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram',
         }
     }
 
+    if (in_array('products', $scopes, true)) {
+        foreach (['products', 'product_blocks', 'product_use_cases'] as $key) {
+            $checkIblock($key);
+        }
+
+        $products = tacticum_rest_get_config_section('products');
+        $source = $products['source'] ?? 'auto';
+        if (!is_string($source) || !in_array($source, ['auto', 'bitrix', 'fallback'], true)) {
+            $addError('products.source', 'invalid_value');
+        }
+
+        $cacheTtl = $products['cache_ttl'] ?? null;
+        if ($cacheTtl !== null && !is_numeric($cacheTtl)) {
+            $addError('products.cache_ttl', 'invalid_type');
+        }
+    }
+
     if (in_array('ai', $scopes, true)) {
         $checkHttpsUrl('AI_SERVICE_BASE_URL');
         $checkEndpointPath('chat_agent_sale');

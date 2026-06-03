@@ -12,6 +12,9 @@ return [
         'team' => 18,
         'policies' => 19,
         'aiagents' => 20,
+        'products' => 0,
+        'product_blocks' => 0,
+        'product_use_cases' => 0,
     ],
     'base_urls' => [
         'AI_SERVICE_BASE_URL' => 'https://ai.example.com',
@@ -36,6 +39,10 @@ return [
             'services' => 20,
             'price' => 21,
         ],
+    ],
+    'products' => [
+        'source' => 'auto',
+        'cache_ttl' => 300,
     ],
     'ai' => [
         'endpoint_paths' => [

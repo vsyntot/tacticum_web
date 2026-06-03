@@ -21,15 +21,21 @@
 
 ## Основные Долги AS IS
 
-### 1. Токены Недостаточно Формализованы
+### 1. Токены Формализованы Только На AS IS Уровне
 
-Есть только минимальные явные токены:
+Есть минимальные implemented Tailwind tokens:
 
 - `primary`;
 - `secondary`;
 - `button radius`.
 
-Не формализованы:
+На 01.06.2026 добавлен проверяемый AS IS token contract:
+
+- `05-design-tokens-as-is.json` фиксирует implemented tokens, observed CSS candidates, known drift and migration rules;
+- `npm run design:tokens:check` сверяет JSON с `tailwind.css`, `global.css`, `forms.js` и `package.json`;
+- drift уже отмечен явно: `#001F40` vs `#001F3F`, `#007bff` vs `#0066CC`.
+
+Но TO BE token system всё ещё не утверждена. Нужно нормализовать:
 
 - typography scale;
 - spacing scale;
@@ -43,7 +49,7 @@
 - chart colors;
 - motion tokens.
 
-TO BE question: какие токены становятся canonical source of truth — Figma variables, Tailwind theme, JSON token file или комбинация?
+TO BE question: какие токены становятся canonical source of truth — Figma variables, Tailwind theme, JSON token file или комбинация, и как approved TO BE names мапятся на текущий AS IS contract?
 
 ### 2. Два Языка Styling
 
@@ -104,9 +110,13 @@ TO BE question: какие card variants нужны в дизайн-систем
 - pricing/staff card;
 - metric/stat card.
 
+На 02.06.2026 AS IS -> TO BE migration baseline зафиксирован в `08-as-is-to-be-migration-map.json`: текущие behavior-bearing components получили preliminary TO BE names, migration types and gates. Это не заменяет финальный Figma component inventory, но задает маршрут: где достаточно `visual-restyle`, где нужен `contract-preserving-split`, а где потребуется `contract-migration` или `new-interaction`.
+
 ### 5. Формы Нуждаются В Полной State Spec
 
-Технически формы работают, но дизайн-спека состояний не оформлена.
+Технически формы работают. На 02.06.2026 behavior-bearing selectors and required state coverage зафиксированы в `07-component-state-contract.json` и проверяются через `npm run design:components:check`.
+
+Но визуальная дизайн-спека состояний всё ещё не оформлена.
 
 Нужно формализовать:
 
@@ -151,6 +161,8 @@ TO BE question: CTA variants должны различаться только co
 
 AS IS есть hero chat и light chat. Они уже имеют отдельные DOM contracts и message scroll.
 
+На 02.06.2026 chat selectors, typing, quick replies and lead handoff contract зафиксированы в `07-component-state-contract.json`, но это не финальная визуальная chat spec.
+
 Нужно спроектировать:
 
 - message bubbles;
@@ -180,6 +192,8 @@ TO BE question: chat — это часть общей дизайн-систем�
 - order modal;
 - staff-order endpoint;
 - fallback legacy selectors.
+
+На 02.06.2026 core `/price/` selectors, legacy fallback and required state coverage зафиксированы в `07-component-state-contract.json`. Это снижает риск поломать flow при редизайне, но не заменяет dedicated mobile/team-builder UX.
 
 TO BE question: проектировать `/price/` как каталог карточек или как полноценный team builder?
 
@@ -245,7 +259,7 @@ TO BE question: какие hero variants нужны и какие правила
 
 Перед детальным дизайном нужно ответить:
 
-1. Какая структура design tokens будет source of truth?
+1. Какая структура design tokens будет source of truth и как она мапится на `05-design-tokens-as-is.json`?
 2. Какие компоненты входят в первую версию Figma library?
 3. Какие страницы являются canonical templates?
 4. Какие AS IS DOM-контракты нужно сохранить в первой миграции?
@@ -263,11 +277,14 @@ TO BE question: какие hero variants нужны и какие правила
 Для первой версии дизайн-системы стоит запросить у дизайнера:
 
 - Figma variables for tokens;
+- mapping from Figma variables to AS IS token contract / Tailwind / global CSS;
 - component library with variants and states;
 - responsive page templates;
 - state matrix for forms/chat/price/FAQ/modal/menu;
 - icon taxonomy;
 - migration notes from AS IS selectors/components to TO BE components;
+- review of `07-component-state-contract.json` with explicit preserve/migrate decisions;
+- review of `08-as-is-to-be-migration-map.json` with approved migration type and gates for each AS IS component;
 - examples for `/contacts/`, `/services/`, `/price/`, `/offer/`.
 
 ## Suggested Migration Map Format
@@ -281,4 +298,3 @@ TO BE question: какие hero variants нужны и какие правила
 | `.faq-item` | `AccordionItem` | component restyle | Preserve active behavior or update JS |
 | `news.list/price` | `TeamBuilder` | product redesign | Requires dedicated UX/dev scope |
 | `topmenu/mobilemenu` | `Navigation` | shell redesign | Requires menu template updates |
-

@@ -99,6 +99,14 @@ Owner: Architect + Backend + QA + DevOps.
 
 Этот gate нужен, когда менялся `ai.endpoint_paths.staff_sale`, `/price/` staff-order payload или upstream workers contract.
 
+Перед controlled проверкой можно сгенерировать тестовый payload, curl template и безопасный evidence block:
+
+```bash
+npm run staff:sale:gate-helper
+```
+
+Для curl template с реальными тестовыми данными задать env-переменные из вывода helper-а. Значение `sessid` брать из авторизованной браузерной сессии Bitrix на проверяемом окружении; тестовые контакты не сохранять в release evidence.
+
 Порядок:
 
 1. Подтвердить `health_config`: `success=true`, scopes включают `ai`, `rest`, `security`.
@@ -107,6 +115,7 @@ Owner: Architect + Backend + QA + DevOps.
 4. Отправить заявку через modal `price-specialist`.
 5. Проверить upstream/CRM: в заявке есть summary состава команды, количество worker rows, `team_preset`, `monthly_budget_estimate`, `end_date` или осознанный fallback.
 6. Записать `upstream_request_id`/`lead_id`, `workers_count`, `team_preset`, `monthly_budget_estimate_present`, `end_date_present`, checked_at и owner.
+7. Strict checker требует `team_preset` из `mvp`, `discovery`, `support`, `qa-burst`, `monthly_budget_estimate_present=true` и `end_date_present=true`.
 
 ## Closing The Release JSON
 
