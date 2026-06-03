@@ -52,6 +52,9 @@
       "evidence": {
         "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
         "safe_summary": "default-lead-form=502 upstream_error; modal-form=502 upstream_error; ai-chat=502 upstream_http_error with upstream_status=502; prefill-controlled-empty=404 not_found; staff-order=HTTP 200 success=true code=ok on 2026-06-03 browser-controlled POST",
+        "manual_gate_helper_prod_standalone": "2026-06-03: production server npm run release:manual-gates:helper passed in standalone skeleton mode because docs/ sign-off draft is not deployed",
+        "manual_success_flow_helper": "2026-06-03: npm run manual:success-flow:helper added to generate controlled payload/browser/curl/evidence templates for default form, modal form, AI chat and prefill without sending requests",
+        "manual_success_flow_helper_prod": "2026-06-03: production server npm run manual:success-flow:helper, -- --browser and -- --curl printed controlled templates; npm run release:manual-gates:helper -- --gate manual-success-flow linked the helper in standalone mode",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
@@ -64,6 +67,9 @@
       "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy; this environment has no Metrika connector/API credentials.",
       "evidence": {
         "public_precheck": "2026-05-25: metrika.js contains counter 103471113 and production HTML contains noscript pixel; goal visibility still requires Yandex.Metrika access",
+        "manual_gate_helper_prod_standalone": "2026-06-03: production server npm run release:manual-gates:helper -- --json passed in standalone skeleton mode and emitted Metrika evidence skeleton without PII",
+        "metrika_goals_helper": "2026-06-03: npm run metrika:goals:helper added to print expected goals/events, deployed JS source coverage, browser observer snippet and safe evidence skeleton without accessing Yandex.Metrika",
+        "metrika_goals_helper_prod": "2026-06-03: production server npm run metrika:goals:helper, -- --source-check --evidence and -- --browser passed; source-check found missing_events=-, counter 103471113 in analytics/metrika assets, reachGoal, QA browser event and HTTPS tag; release helper linked metrika:goals:helper in standalone mode",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
         "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
@@ -73,24 +79,58 @@
       "status": "passed",
       "owner": "DevOps",
       "evidence": {
-        "health_config": "2026-05-25: success=true, scopes include security",
-        "synced_keys": [
+        "health_config": "2026-06-03: success=true, scopes include api, ai, telegram, offer, content, products, rest, security",
+        "product_content_source_switch": "2026-06-03: production local/php_interface/include/tacticum_config.php switched products.source=bitrix; post-switch cache clear, strict content check, product source HTTP check and release public precheck passed",
+        "runtime_config_check": "2026-06-03: php -l tools/config-runtime-check.php and npm run config:runtime:check passed on production; valid=yes; AI base URLs are HTTPS on api.tacticum.ru; endpoint paths, csp_mode and FAQ fallback use documented defaults",
+        "product_iblocks": {
+          "products": 21,
+          "product_blocks": 22,
+          "product_use_cases": 23
+        },
+        "products_config": {
+          "source": "bitrix",
+          "cache_ttl": 300
+        },
+        "ai_base_urls": {
+          "AI_SERVICE_BASE_URL": "present_https host=api.tacticum.ru",
+          "TELEGRAM_RESOLVER_URL": "present_https host=api.tacticum.ru"
+        },
+        "defaulted_keys": [
           "ai.endpoint_paths.chat_agent_sale",
           "ai.endpoint_paths.staff_sale",
-          "security.csp_mode"
+          "security.csp_mode",
+          "content.faq_section_fallback_ids"
+        ],
+        "runtime_defaults": {
+          "ai.endpoint_paths.chat_agent_sale": "/tacticum/v1/chat_agent/sale",
+          "ai.endpoint_paths.staff_sale": "/tacticum/v1/chat_agent/sale",
+          "security.csp_mode": "report-only",
+          "content.faq_section_fallback_ids_count": 0
+        },
+        "runbook": "docs/workflow/product-content-source-switch-runbook.md",
+        "synced_keys": [
+          "iblocks.products",
+          "iblocks.product_blocks",
+          "iblocks.product_use_cases",
+          "products.source",
+          "products.cache_ttl",
+          "base_urls.AI_SERVICE_BASE_URL",
+          "base_urls.TELEGRAM_RESOLVER_URL",
+          "rest.allowed_origins"
         ]
       }
     },
     "bitrix-admin": {
-      "status": "pending",
+      "status": "passed",
       "owner": "QA/Admin",
-      "due": "before-strict-release-closure",
-      "reason": "Requires authenticated Bitrix admin panel smoke after deploy/cache refresh; this environment has no Bitrix admin credentials.",
       "evidence": {
-        "public_precheck": "2026-05-25: unauthenticated HEAD /bitrix/admin/ returned HTTP 200 and x-bitrix-ajax-status=Authorize without 500/white screen",
-        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
-        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-bitrix-admin",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "checked_at": "2026-06-03T18:42:45+03:00",
+        "checked_by": "Ivan Monakhov",
+        "admin_url": "https://tacticum.ru/bitrix/admin/",
+        "role": "admin",
+        "public_toolbar_url": "https://tacticum.ru/price/",
+        "result": "admin panel and public toolbar open without 500 or white screen",
+        "cache_note": "deploy/cache refresh did not break admin panel or public toolbar"
       }
     },
     "legacy-sunset": {
@@ -112,6 +152,7 @@
         "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
         "browser_controlled_staff_order": "2026-06-03T10:49:21+03:00: /price/ DevTools fetch returned HTTP 200 success=true code=ok for price-specialist payload with team_preset=mvp, workers_count=3, monthly_budget_estimate_present=true, end_date_present=true",
         "safe_summary": "staff-order endpoint accepted controlled payload; CRM/upstream safe ID evidence pending before strict gate closure",
+        "manual_gate_helper_prod_standalone": "2026-06-03: production server npm run release:manual-gates:helper -- --gate staff-sale-upstream passed in standalone skeleton mode and emitted required staff upstream evidence skeleton",
         "readiness": "docs/workflow/rich-workers-upstream-readiness-2026-05-24.md",
         "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-staff-sale-upstream",

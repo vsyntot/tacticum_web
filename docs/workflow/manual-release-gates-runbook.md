@@ -36,9 +36,31 @@ npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-05-24-
 npm run release:signoff:summary -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json
 ```
 
+Перед передачей задачи QA/PM/Admin/Backend owner-ам можно сгенерировать текущий список pending manual gates, next actions and safe evidence skeletons:
+
+```bash
+npm run release:manual-gates:helper -- docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json
+```
+
+Helper ничего не отправляет в production и не собирает PII. Он читает release sign-off draft, показывает только pending manual gates по умолчанию и печатает skeletons, которые нужно заполнить реальными safe ID/owner/time перед переносом в sign-off JSON. Для машинного handoff доступен формат:
+
+```bash
+npm run release:manual-gates:helper -- --json
+```
+
+Если `docs/` не выгружен на production server, helper не падает на отсутствующем дефолтном draft и запускается в standalone skeleton mode. В этом режиме он не знает текущие `reason` / `safe_summary` из repository sign-off, но всё ещё печатает валидные skeletons для owner evidence. Draft-aware вывод нужно запускать в репозитории с `docs/workflow/release-signoff-*.json` или явно передавать путь через `TACTICUM_RELEASE_SIGNOFF`.
+
 ## Gate: manual-success-flow
 
 Owner: QA + Backend/Frontend owner.
+
+Перед controlled проверкой default form, modal form, AI chat and prefill можно сгенерировать payload templates, browser snippet, curl templates and safe evidence block:
+
+```bash
+npm run manual:success-flow:helper
+```
+
+Helper ничего не отправляет сам. Browser/curl snippets создают тестовые лиды только после ручной замены controlled contact placeholders and owner-run отправки. Staff-order часть этого gate проверять через `npm run staff:sale:gate-helper`, потому что для неё нужен отдельный rich workers contract and CRM/upstream ID.
 
 Минимальный набор для релиза с формами, AI flow и `/price/`:
 
@@ -64,6 +86,14 @@ Owner: PM/Marketing + QA.
 
 Проверять в Яндекс.Метрике counter `103471113` или в подключённом tag manager, если goals проксируются через него.
 
+Перед owner-run проверкой можно сгенерировать expected goals/events, source taxonomy check, browser observer snippet and safe evidence block:
+
+```bash
+npm run metrika:goals:helper
+```
+
+Helper не имеет доступа к Яндекс.Метрике и не закрывает gate сам. Он проверяет локальный/deployed JS event contract and помогает owner-у понять, какие goals искать в Метрике и какие params считать безопасными.
+
 Минимальный набор affected goals:
 
 | Scenario | Goals/events |
@@ -84,6 +114,14 @@ Owner: PM/Marketing + QA.
 ## Gate: bitrix-admin
 
 Owner: QA/Admin.
+
+Перед ручной проверкой можно вывести checklist, browser observer snippet и безопасный evidence block:
+
+```bash
+npm run bitrix:admin:gate-helper
+```
+
+Helper не логинится в Bitrix и не читает cookie/session; он только фиксирует формат проверки. Unauthenticated `npm run release:public-precheck:prod` остаётся baseline, но не заменяет authenticated admin smoke.
 
 Порядок:
 

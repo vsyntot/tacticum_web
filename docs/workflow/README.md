@@ -133,6 +133,7 @@ QA подключается до разработки, если задача к�
 - `design-token-contract.md` — AS IS token contract, guard и правила обновления design tokens handoff.
 - `component-state-contract.md` — AS IS component/state contract, guard и правила сохранения/migration behavior-bearing selectors.
 - `design-migration-map.md` — AS IS -> TO BE migration map, migration types and gates для дизайн-системной миграции.
+- `product-content-source-switch-runbook.md` — порядок проверки, переключения и rollback для `products.source=bitrix`.
 - `offer-example-seed-runbook.md` — запуск и контроль CLI-сидера synthetic offer examples для `/offer/`.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
 - `release-signoff-gates.md` — ручные/staging sign-off gates для success-flow, Метрики, config sync и Bitrix admin.
@@ -142,7 +143,14 @@ QA подключается до разработки, если задача к�
 ## Static Guards
 
 - `npm run bitrix:check` — guard для Bitrix architecture: thin `init.php`, отсутствие direct `bitrix:*` в public page entries, отсутствие component-level global helper functions, наличие `/offer/` service/cache hardening и footer modal component.
+- `npm run config:runtime:check` — Bitrix/PHP runtime check для ignored `tacticum_config.php`: health scopes, iblock IDs, product source, endpoint path explicit/default status, CSP mode and REST summary without secret values.
 - `npm run gaps:known` — PM/QA guard для текущего известного хвоста: code-level open gaps, pending release gates, legacy inventory и post-deploy/cache smoke.
+- `npm run product:content:cache-clear:dry-run` / `npm run product:content:cache-clear` — Bitrix/PHP helper для проверки и очистки product content cache dir plus managed-cache tags перед switch/rollback.
+- `npm run product:content:switch-readiness:prod` — HTTP/readiness guard перед переключением `products.source=bitrix`: проверяет health `products` scope, rendered `data-product-source=bitrix` and required product blocks.
+- `npm run release:manual-gates:helper` — read-only helper для оставшихся ручных release gates: читает текущий sign-off draft, показывает pending `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream`, next actions and safe evidence skeletons без PII; если `docs/` не выгружен на production, работает в standalone skeleton mode без draft-контекста.
+- `npm run manual:success-flow:helper` — read-only helper для controlled `manual-success-flow`: генерирует payload/browser/curl templates and safe evidence skeleton для default form, modal form, AI chat and prefill без отправки запроса.
+- `npm run metrika:goals:helper` — read-only helper для `metrika-goals`: показывает expected goals/events, проверяет deployed JS taxonomy, даёт browser observer snippet and safe evidence skeleton без доступа к кабинету Метрики.
+- `npm run bitrix:admin:gate-helper` — read-only helper для `bitrix-admin`: выдаёт authenticated admin/public toolbar checklist, browser observer snippet and safe evidence skeleton без логина, запросов, cookie/session data.
 - `npm run staff:sale:gate-helper` — helper для controlled `staff-sale-upstream` gate: генерирует staff-order payload, curl template и safe evidence block без отправки запроса.
 - `npm run legacy:sale:inventory:logs` — aggregate-only parser для production access logs по legacy sale aliases; выводит endpoint/method/status/day counts без IP, query, referrer, cookie, user-agent и raw log lines.
 - `npm run product:gaps:check` — guard для AS IS / TO BE product gap closure: сверяет source backlog `14-gap-backlog-and-decision-register.md`, master plan and `16-gap-closure-action-register.json`, чтобы каждый non-closed gap имел owner, next action, blocker/evidence model, review artifact coverage and package script.

@@ -66,7 +66,8 @@ php tools/product-content-check.php --strict
    - TTL задаётся `products.cache_ttl`;
    - cache key включает IDs `products`, `product_blocks`, `product_use_cases`;
    - managed tags регистрируются как `iblock_id_*` для product-инфоблоков;
-   - event handlers чистят cache при add/update/delete/property update product elements.
+   - event handlers чистят cache при add/update/delete/property update product elements;
+   - `npm run product:content:cache-clear` gives owners a Bitrix/PHP CLI cache clear for switch/rollback, with `--dry-run` evidence available through `product:content:cache-clear:dry-run`.
 16. `health_config.php` включает scope `products` and validates product iblock IDs, source mode and cache TTL without returning secret/config values.
 17. Product renderer exposes safe `data-product-source` (`bitrix|fallback|unknown`), visual smoke can verify rendered source with `TACTICUM_EXPECT_PRODUCT_SOURCE=bitrix`, and HTTP source check can verify the same marker without Chrome.
 
@@ -93,7 +94,11 @@ php tools/product-content-check.php --strict
 - `npm run product:source:http:prod` is production-server-safe source-marker evidence without Chrome or `node_modules`;
 - server attempt 03.06.2026 showed `product:source:smoke:prod` fails if Chrome executable is absent; this is a browser dependency issue, not a Node package issue;
 - `npm run product:source:http:prod` passed 03.06.2026 on production: all four product URLs returned `source=bitrix` and 11 product blocks each;
-- `products.source=bitrix` требует admin/content review, even though strict checker and rendered smoke passed;
+- `npm run product:content:switch-readiness:prod` checks health `products` scope, rendered `data-product-source=bitrix`, required product blocks, and prints switch/rollback evidence requirements before `products.source=bitrix`;
+- `npm run product:content:cache-clear:dry-run` passed 03.06.2026 on target Bitrix/PHP server after PHP lint: source `auto`, TTL `300`, tags `iblock_id_21`, `iblock_id_22`, `iblock_id_23`;
+- target server post-cache sequence passed 03.06.2026 in source mode `auto`: readiness, cache clear, strict content check, source HTTP check and public release precheck;
+- production source switched to `products.source=bitrix` on 03.06.2026; cache clear, strict content check, source HTTP check and public release precheck passed in source mode `bitrix`;
+- rollback remains `products.source=auto|fallback` plus `npm run product:content:cache-clear`;
 - future proof/cases model still needs owner evidence and Legal/PM approval;
 - deploy automation for migration deferred until CLI path is tested.
 

@@ -505,12 +505,19 @@ function assertPublicPageComponentization() {
   const productContentSource = read('local/php_interface/include/product_content.php');
   const productMigrationSource = read('tools/product-content-migration.php');
   const productContentCheckSource = read('tools/product-content-check.php');
+  const productContentCacheClearSource = read('tools/product-content-cache-clear.php');
   const productSourceHttpCheckSource = read('tools/product-source-http-check.mjs');
+  const productContentSwitchReadinessSource = read('tools/product-content-switch-readiness.mjs');
   const releasePublicPrecheckSource = read('tools/release-public-precheck.mjs');
+  const releaseManualGatesHelperSource = read('tools/release-manual-gates-helper.mjs');
   const legacySaleAccessLogInventorySource = read('tools/legacy-sale-access-log-inventory.mjs');
+  const manualSuccessFlowHelperSource = read('tools/manual-success-flow-helper.mjs');
+  const metrikaGoalsHelperSource = read('tools/metrika-goals-helper.mjs');
+  const bitrixAdminGateHelperSource = read('tools/bitrix-admin-gate-helper.mjs');
   const staffSaleGateHelperSource = read('tools/staff-sale-gate-helper.mjs');
   const initSource = read('local/php_interface/init.php');
   const configExampleSource = read('local/php_interface/include/tacticum_config.example.php');
+  const configRuntimeCheckSource = read('tools/config-runtime-check.php');
   const productContentAdrSource = read('docs/adr/ADR-010-product-content-bitrix-model.md');
   const restHelpersSource = read('local/rest/rest_helpers.php');
   const healthConfigSource = read('local/rest/health_config.php');
@@ -529,6 +536,9 @@ function assertPublicPageComponentization() {
   const releaseSignoffSelfTestSource = read('tools/release-signoff-self-test.mjs');
   const packageSource = read('package.json');
   const productBlockPreviewWorkflow = read('docs/workflow/product-block-preview-workflow.md');
+  const productContentSourceSwitchRunbook = read('docs/workflow/product-content-source-switch-runbook.md');
+  const manualReleaseGatesRunbook = read('docs/workflow/manual-release-gates-runbook.md');
+  const releaseSignoffGatesSource = read('docs/workflow/release-signoff-gates.md');
 
   assertLocalComponentMetadata();
 
@@ -585,6 +595,33 @@ function assertPublicPageComponentization() {
   if (!healthConfigSource.includes("'products'")) {
     fail('health_config.php must include products scope in config validation');
   }
+  for (const runtimeConfigNeedle of [
+    'tacticum_rest_validate_config',
+    'tacticum_config_runtime_check_endpoint_path',
+    'tacticum_config_runtime_check_url_status',
+    'source_config',
+    'cache_ttl_config',
+    'csp_mode_config',
+    'faq_section_fallback_ids_count',
+    'allowed_origins_count',
+    'JSON_UNESCAPED_SLASHES'
+  ]) {
+    if (!configRuntimeCheckSource.includes(runtimeConfigNeedle)) {
+      fail(`config-runtime-check.php must include ${runtimeConfigNeedle}`);
+    }
+  }
+  for (const secretNeedle of ['password', 'secret', 'token', 'cookie', 'raw_payload', 'raw_response']) {
+    const secretKeyPattern = new RegExp(`['"]${secretNeedle}['"]\\s*=>`);
+    if (secretKeyPattern.test(configRuntimeCheckSource)) {
+      fail(`config-runtime-check.php must not include secret-oriented output key ${secretNeedle}`);
+    }
+  }
+  if (!packageSource.includes('"config:runtime:check"') || !packageSource.includes('"config:runtime:check:json"')) {
+    fail('package.json must expose config runtime check scripts');
+  }
+  if (!releaseSignoffGatesSource.includes('npm run config:runtime:check')) {
+    fail('release-signoff-gates.md must require config:runtime:check for ignored runtime config evidence');
+  }
   for (const productContentIblock of ['tacticum_products', 'tacticum_product_blocks', 'tacticum_product_use_cases']) {
     if (!productMigrationSource.includes(productContentIblock)) {
       fail(`product-content-migration.php must manage ${productContentIblock}`);
@@ -606,6 +643,52 @@ function assertPublicPageComponentization() {
   }
   if (!packageSource.includes('"product:content:check"') || !packageSource.includes('"product:content:check:strict"')) {
     fail('package.json must expose product content check scripts');
+  }
+  for (const cacheClearNeedle of [
+    'tacticum_product_content_clear_cache',
+    'tacticum_product_content_related_iblock_ids',
+    '--dry-run',
+    'Managed tags'
+  ]) {
+    if (!productContentCacheClearSource.includes(cacheClearNeedle)) {
+      fail(`product-content-cache-clear.php is missing ${cacheClearNeedle}`);
+    }
+  }
+  if (!productContentSource.includes('$tagIblockIds = $iblockId > 0 ? [$iblockId] : tacticum_product_content_related_iblock_ids()')) {
+    fail('tacticum_product_content_clear_cache() must clear all product managed tags when called without a specific iblock ID');
+  }
+  if (/if\s*\(\s*&&/.test(productContentSource)) {
+    fail('product_content.php must not contain a leading && inside an if condition');
+  }
+  if (!packageSource.includes('"product:content:cache-clear"') || !packageSource.includes('"product:content:cache-clear:dry-run"')) {
+    fail('package.json must expose product content cache clear scripts');
+  }
+  for (const switchReadinessNeedle of [
+    'TACTICUM_PRODUCT_SWITCH_BASE_URL',
+    'health_config.php',
+    'data-product-source=bitrix',
+    'products.source=bitrix',
+    'product:content:cache-clear:dry-run',
+    'rollback_steps',
+    'required_pre_switch_evidence'
+  ]) {
+    if (!productContentSwitchReadinessSource.includes(switchReadinessNeedle)) {
+      fail(`product-content-switch-readiness.mjs must include ${switchReadinessNeedle}`);
+    }
+  }
+  if (!packageSource.includes('"product:content:switch-readiness:prod"') || !packageSource.includes('product-content-switch-readiness.mjs')) {
+    fail('package.json must expose product:content:switch-readiness:prod for Bitrix source switch readiness');
+  }
+  for (const switchRunbookNeedle of [
+    'products.source=bitrix',
+    'npm run product:content:check:strict',
+    'npm run product:source:http:prod',
+    'Rollback',
+    'Admin / Content Review'
+  ]) {
+    if (!productContentSourceSwitchRunbook.includes(switchRunbookNeedle)) {
+      fail(`product-content-source-switch-runbook.md must include ${switchRunbookNeedle}`);
+    }
   }
   if (!productContentAdrSource.includes('auto|bitrix|fallback') || !productContentAdrSource.includes('`products`') || !productContentAdrSource.includes('`product_blocks`') || !productContentAdrSource.includes('`product_use_cases`')) {
     fail('ADR-010 must document product source modes and product iblock model');
@@ -666,7 +749,8 @@ function assertPublicPageComponentization() {
     'metrika.js',
     '/bitrix/admin/',
     'tacticum_offer.php',
-    'tacticum_sale.php'
+    'tacticum_sale.php',
+    'Manual gates still require owner evidence: manual-success-flow, metrika-goals, staff-sale-upstream'
   ]) {
     if (!releasePublicPrecheckSource.includes(releasePrecheckNeedle)) {
       fail(`release-public-precheck.mjs must include ${releasePrecheckNeedle} public precheck`);
@@ -674,6 +758,103 @@ function assertPublicPageComponentization() {
   }
   if (!packageSource.includes('"release:public-precheck:prod"') || !packageSource.includes('release-public-precheck.mjs')) {
     fail('package.json must expose release:public-precheck:prod for safe production prechecks');
+  }
+  for (const manualGateHelperNeedle of [
+    'manualGateNames',
+    'manual-success-flow',
+    'metrika-goals',
+    'bitrix-admin',
+    'staff-sale-upstream',
+    'evidence_skeleton',
+    'next_actions',
+    'source_file_available',
+    'standalone skeleton mode',
+    'TACTICUM_RELEASE_SIGNOFF',
+    'Do not store name, phone, email'
+  ]) {
+    if (!releaseManualGatesHelperSource.includes(manualGateHelperNeedle)) {
+      fail(`release-manual-gates-helper.mjs must include ${manualGateHelperNeedle}`);
+    }
+  }
+  if (!packageSource.includes('"release:manual-gates:helper"') || !packageSource.includes('release-manual-gates-helper.mjs')) {
+    fail('package.json must expose release:manual-gates:helper for manual release gate evidence handoff');
+  }
+  if (!manualReleaseGatesRunbook.includes('npm run release:manual-gates:helper') || !releaseSignoffGatesSource.includes('npm run release:manual-gates:helper')) {
+    fail('manual release gate docs must document release:manual-gates:helper');
+  }
+  for (const manualSuccessFlowNeedle of [
+    'TACTICUM_MANUAL_FLOW_TEST_SESSID',
+    'default_lead_form',
+    'modal_form',
+    'ai_chat',
+    'prefill_controlled_empty',
+    'tacticum_form.php',
+    'tacticum_chat.php',
+    'tacticum_prefill.php',
+    'Controlled Browser Snippet',
+    'Manual Success-Flow Evidence Template'
+  ]) {
+    if (!manualSuccessFlowHelperSource.includes(manualSuccessFlowNeedle)) {
+      fail(`manual-success-flow-helper.mjs must include ${manualSuccessFlowNeedle}`);
+    }
+  }
+  if (!releaseManualGatesHelperSource.includes('manual:success-flow:helper')) {
+    fail('release-manual-gates-helper.mjs must point manual-success-flow owners to manual:success-flow:helper');
+  }
+  if (!packageSource.includes('"manual:success-flow:helper"') || !packageSource.includes('manual-success-flow-helper.mjs')) {
+    fail('package.json must expose manual:success-flow:helper for controlled manual success-flow evidence');
+  }
+  if (!manualReleaseGatesRunbook.includes('npm run manual:success-flow:helper') || !releaseSignoffGatesSource.includes('npm run manual:success-flow:helper')) {
+    fail('manual release gate docs must document manual:success-flow:helper');
+  }
+  for (const metrikaGoalsNeedle of [
+    'TACTICUM_METRIKA_COUNTER_ID',
+    '103471113',
+    'tacticum_form_submit',
+    'tacticum_form_success',
+    'tacticum_chat_send',
+    'tacticum_prefill_submit',
+    'tacticum_product_view',
+    'tacticum_tg_resolver_success',
+    'source_check',
+    'Browser Observer Snippet',
+    'Metrika Goals Evidence Template'
+  ]) {
+    if (!metrikaGoalsHelperSource.includes(metrikaGoalsNeedle)) {
+      fail(`metrika-goals-helper.mjs must include ${metrikaGoalsNeedle}`);
+    }
+  }
+  if (!releaseManualGatesHelperSource.includes('metrika:goals:helper')) {
+    fail('release-manual-gates-helper.mjs must point metrika-goals owners to metrika:goals:helper');
+  }
+  if (!packageSource.includes('"metrika:goals:helper"') || !packageSource.includes('metrika-goals-helper.mjs')) {
+    fail('package.json must expose metrika:goals:helper for Metrika evidence handoff');
+  }
+  if (!manualReleaseGatesRunbook.includes('npm run metrika:goals:helper') || !releaseSignoffGatesSource.includes('npm run metrika:goals:helper')) {
+    fail('manual release gate docs must document metrika:goals:helper');
+  }
+  for (const bitrixAdminGateNeedle of [
+    'bitrix-admin',
+    '/bitrix/admin/',
+    'public_toolbar_url',
+    'checked_at',
+    'checked_by',
+    'role',
+    'release:public-precheck:prod',
+    'Bitrix Admin Evidence Template'
+  ]) {
+    if (!bitrixAdminGateHelperSource.includes(bitrixAdminGateNeedle)) {
+      fail(`bitrix-admin-gate-helper.mjs must include ${bitrixAdminGateNeedle}`);
+    }
+  }
+  if (!releaseManualGatesHelperSource.includes('bitrix:admin:gate-helper')) {
+    fail('release-manual-gates-helper.mjs must point bitrix-admin owners to bitrix:admin:gate-helper');
+  }
+  if (!packageSource.includes('"bitrix:admin:gate-helper"') || !packageSource.includes('bitrix-admin-gate-helper.mjs')) {
+    fail('package.json must expose bitrix:admin:gate-helper for authenticated Bitrix admin evidence handoff');
+  }
+  if (!manualReleaseGatesRunbook.includes('npm run bitrix:admin:gate-helper') || !releaseSignoffGatesSource.includes('npm run bitrix:admin:gate-helper')) {
+    fail('manual release gate docs must document bitrix:admin:gate-helper');
   }
   for (const legacyInventoryNeedle of [
     'TACTICUM_LEGACY_LOG_FILES',

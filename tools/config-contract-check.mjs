@@ -52,10 +52,14 @@ if (insecureExample) {
 }
 
 for (const scriptName of [
+  'config:runtime:check',
+  'config:runtime:check:json',
   'product:content:migrate',
   'product:content:migrate:apply',
   'product:content:check',
-  'product:content:check:strict'
+  'product:content:check:strict',
+  'product:content:cache-clear',
+  'product:content:cache-clear:dry-run'
 ]) {
   if (!packageSource.includes(`"${scriptName}"`)) {
     console.error(`package.json is missing ${scriptName} script.`);

@@ -51,7 +51,8 @@ if (failures.length > 0) {
 
 console.log('');
 console.log(`Release public precheck passed for ${baseUrl}.`);
-console.log('Manual gates still require owner evidence: manual-success-flow, metrika-goals, bitrix-admin, staff-sale-upstream.');
+console.log('Manual gates still require owner evidence: manual-success-flow, metrika-goals, staff-sale-upstream.');
+console.log('Bitrix admin authenticated smoke is tracked in release sign-off separately from this unauthenticated public precheck.');
 
 async function checkHealthConfig() {
   const url = new URL('/local/rest/health_config.php', baseUrl);
