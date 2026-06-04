@@ -43,7 +43,7 @@ Closes #<!-- номер issue -->
 
 ### Обязательно для backend (REST-эндпоинты)
 - [ ] `tacticum_rest_validate_origin()` вызывается первым
-- [ ] `tacticum_rest_rate_limit('action')` вызывается вторым
+- [ ] `tacticum_rest_rate_limit_by_class('RISK_CLASS', 'action')` вызывается вторым
 - [ ] `tacticum_rest_check_csrf($data)` вызывается для POST
 - [ ] Нет файлового/debug runtime-логирования payload/response в `/local` и публичных скриптах
 - [ ] Нет хардкода ID инфоблоков — используется `tacticum_rest_get_iblock_id('key')`

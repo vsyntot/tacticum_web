@@ -136,7 +136,7 @@ function tacticum_form_build_lead_context(array $data): string
 }
 
 tacticum_rest_validate_origin();
-tacticum_rest_rate_limit('tacticum_form');
+tacticum_rest_rate_limit_by_class('PUBLIC_LEAD_POST', 'tacticum_form');
 tacticum_rest_require_method('POST');
 
 $data = tacticum_rest_read_json_body();

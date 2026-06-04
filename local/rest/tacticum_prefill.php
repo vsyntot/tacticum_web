@@ -7,7 +7,7 @@ header('Content-Type: application/json; charset=UTF-8');
 tacticum_rest_send_noindex_header();
 
 tacticum_rest_validate_origin();
-tacticum_rest_rate_limit('tacticum_prefill');
+tacticum_rest_rate_limit_by_class('SCOPED_PREFILL_POST', 'tacticum_prefill');
 tacticum_rest_require_method('POST');
 
 $data = tacticum_rest_read_json_body();

@@ -13,7 +13,7 @@
 Runtime order:
 
 1. `tacticum_rest_validate_origin()`;
-2. `tacticum_rest_rate_limit('tacticum_chat')`;
+2. `tacticum_rest_rate_limit_by_class('PUBLIC_CHAT_POST', 'tacticum_chat')`;
 3. method check: only `POST`;
 4. JSON parse;
 5. `tacticum_rest_check_csrf($data, true)`;

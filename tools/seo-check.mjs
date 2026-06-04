@@ -513,12 +513,15 @@ function assertPublicPageComponentization() {
   const configRuntimeCheckSource = read('tools/config-runtime-check.php');
   const productContentAdrSource = read('docs/adr/ADR-010-product-content-bitrix-model.md');
   const restHelpersSource = read('local/rest/rest_helpers.php');
+  const restEndpointGuardCheckSource = read('tools/rest-endpoint-guard-check.mjs');
   const healthConfigSource = read('local/rest/health_config.php');
   const productRendererSource = [
     productRendererBootstrapSource,
     ...productPageBlockFiles.map((file) => read(file))
   ].join('\n');
   const homepageSource = read('index.php');
+  const faqSectionComponentSource = read('local/components/tacticum/faq.section/component.php');
+  const faqSectionTemplateSource = read('local/components/tacticum/faq.section/templates/.default/template.php');
   const leadCtaComponentSource = read('local/components/tacticum/lead.cta/component.php');
   const leadCtaFormTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/form.php');
   const formEndpointSource = read('local/rest/tacticum_form.php');
@@ -583,12 +586,32 @@ function assertPublicPageComponentization() {
   ) {
     fail('tacticum_config.example.php must document products.source=bitrix, disabled fallback and products.cache_ttl');
   }
+  for (const rateClass of [
+    'CONFIG_HEALTH_GET',
+    'PUBLIC_LEAD_POST',
+    'PUBLIC_CHAT_POST',
+    'PUBLIC_STAFF_POST',
+    'SCOPED_PREFILL_POST',
+    'PUBLIC_RESOLVER_POST',
+    'LEGACY_ALIAS_POST'
+  ]) {
+    if (!configExampleSource.includes(`'${rateClass}' => [`)) {
+      fail(`tacticum_config.example.php must document REST rate limit class ${rateClass}`);
+    }
+  }
   if (
     !restHelpersSource.includes("in_array('products', $scopes, true)")
     || !restHelpersSource.includes("'products.source'")
     || !restHelpersSource.includes("'products.cache_ttl'")
   ) {
     fail('rest_helpers.php must validate products scope, products.source and products.cache_ttl');
+  }
+  if (
+    !restHelpersSource.includes('tacticum_rest_rate_limit_classes')
+    || !restHelpersSource.includes('tacticum_rest_rate_limit_by_class')
+    || !restHelpersSource.includes("'rest.rate_limits'")
+  ) {
+    fail('rest_helpers.php must define and validate REST endpoint risk classes');
   }
   if (!healthConfigSource.includes("'products'")) {
     fail('health_config.php must include products scope in config validation');
@@ -602,6 +625,9 @@ function assertPublicPageComponentization() {
     'csp_mode_config',
     'faq_section_fallback_ids_count',
     'allowed_origins_count',
+    'rate_limit_classes_count',
+    'rate_limits_override_count',
+    'rate_limits_config',
     'JSON_UNESCAPED_SLASHES'
   ]) {
     if (!configRuntimeCheckSource.includes(runtimeConfigNeedle)) {
@@ -616,6 +642,15 @@ function assertPublicPageComponentization() {
   }
   if (!packageSource.includes('"config:runtime:check"') || !packageSource.includes('"config:runtime:check:json"')) {
     fail('package.json must expose config runtime check scripts');
+  }
+  if (
+    !packageSource.includes('"rest:endpoints:check"')
+    || !restEndpointGuardCheckSource.includes('tacticum_rest_validate_origin(')
+    || !restEndpointGuardCheckSource.includes('tacticum_rest_rate_limit_by_class(')
+    || !restEndpointGuardCheckSource.includes('tacticum_rest_check_csrf(')
+    || !restEndpointGuardCheckSource.includes('PUBLIC_LEAD_POST')
+  ) {
+    fail('REST endpoint guard checker must enforce public endpoint origin/rate/CSRF order');
   }
   if (!releaseSignoffGatesSource.includes('npm run config:runtime:check')) {
     fail('release-signoff-gates.md must require config:runtime:check for ignored runtime config evidence');
@@ -1005,6 +1040,11 @@ function assertPublicPageComponentization() {
   if (!formsSource.includes('productAnalyticsValues') || !formsSource.includes('normalizeControlledValue')) {
     fail('forms.js must allowlist product analytics values before sending product funnel events');
   }
+  for (const formStateNeedle of ['aria-busy', 'aria-invalid', 'tacticumSubmitting', 'tacticumWasDisabled', 'Отправляем...']) {
+    if (!formsSource.includes(formStateNeedle)) {
+      fail(`forms.js must preserve accessible submit/invalid state hook: ${formStateNeedle}`);
+    }
+  }
   for (const forbiddenProductAnalyticsParam of ['lead_budget', 'lead_timeline', 'lead_offer_title', 'message', 'email', 'phone']) {
     if (analyticsSource.includes(`tacticum_product_${forbiddenProductAnalyticsParam}`)) {
       fail(`analytics.js must not send ${forbiddenProductAnalyticsParam} in product funnel analytics`);
@@ -1116,6 +1156,12 @@ function assertPublicPageComponentization() {
     if (/"bitrix:news\.list"\s*,\s*"faq"/s.test(source)) {
       fail(`${file} must not render FAQ through direct bitrix:news.list call`);
     }
+  }
+  if (
+    !faqSectionComponentSource.includes("'status' => 'missing'")
+    || !faqSectionTemplateSource.includes('data-faq-section-status="missing"')
+  ) {
+    fail('tacticum:faq.section must fail closed when semantic SECTION_KEY cannot resolve');
   }
 
   for (const file of directContentListHosts) {

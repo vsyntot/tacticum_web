@@ -71,18 +71,23 @@ $resolveParentSection = static function (
     int $iblockId,
     string $sectionKey,
     string $fallbackSection
-) use ($candidateCodes, $fallbackIds, $resolveByCodes): string {
+) use ($candidateCodes, $fallbackIds, $resolveByCodes): array {
     $sectionKey = TacticumComponentParams::token($sectionKey);
     if ($sectionKey !== '') {
         $resolved = $resolveByCodes($iblockId, $candidateCodes($sectionKey));
         if ($resolved !== '') {
-            return $resolved;
+            return ['id' => $resolved, 'status' => 'resolved'];
         }
 
-        return $fallbackIds()[$sectionKey] ?? $fallbackSection;
+        $fallback = $fallbackIds()[$sectionKey] ?? $fallbackSection;
+        if ($fallback !== '') {
+            return ['id' => $fallback, 'status' => 'fallback'];
+        }
+
+        return ['id' => '', 'status' => 'missing'];
     }
 
-    return $fallbackSection;
+    return ['id' => $fallbackSection, 'status' => $fallbackSection === '' ? 'unscoped' : 'explicit'];
 };
 
 $iblockId = (int)($arParams['IBLOCK_ID'] ?? 0);
@@ -91,11 +96,17 @@ if ($newsCount === '' || !ctype_digit($newsCount)) {
     $newsCount = '0';
 }
 $sectionKey = TacticumComponentParams::string($arParams, 'SECTION_KEY');
-$parentSection = $resolveParentSection(
+$parentSectionResult = $resolveParentSection(
     $iblockId,
     $sectionKey,
     TacticumComponentParams::string($arParams, 'PARENT_SECTION')
 );
+$parentSection = $parentSectionResult['id'];
+$sectionStatus = $parentSectionResult['status'];
+
+$arResult['FAQ_SECTION_KEY'] = TacticumComponentParams::token($sectionKey);
+$arResult['FAQ_SECTION_STATUS'] = $sectionStatus;
+$arResult['FAQ_SECTION_PARENT'] = $parentSection;
 
 $arResult['NEWS_LIST_PARAMS'] = [
     'COMPONENT_TEMPLATE' => 'faq',

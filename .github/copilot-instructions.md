@@ -89,9 +89,9 @@ require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
 
-tacticum_rest_validate_origin();          // 1. CORS/Referer
-tacticum_rest_rate_limit('action_name'); // 2. Rate limiting
-tacticum_rest_require_method('POST');    // 3. Method guard
+tacticum_rest_validate_origin();                                  // 1. CORS/Referer
+tacticum_rest_rate_limit_by_class('PUBLIC_LEAD_POST', 'action_name'); // 2. Rate limiting
+tacticum_rest_require_method('POST');                             // 3. Method guard
 
 $data = tacticum_rest_read_json_body();  // 4. JSON parse
 tacticum_rest_check_csrf($data);         // 5. CSRF
@@ -149,7 +149,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICOD
 | Правило | Где реализовано |
 |---|---|
 | CORS/Referer проверка | `tacticum_rest_validate_origin()` |
-| Rate limiting (IP + сессия) | `tacticum_rest_rate_limit('action')` |
+| Rate limiting (IP + сессия) | `tacticum_rest_rate_limit_by_class('RISK_CLASS', 'action')` |
 | CSRF для POST-форм | `tacticum_rest_check_csrf($data)` |
 | Запрет файлового runtime-логирования payload/response | PR-check scan по `/local` и публичным скриптам |
 | Только HTTPS для внешних запросов | проверка scheme в `tacticum_form.php` |

@@ -103,7 +103,7 @@ ADR не нужен для точечных багфиксов, текстовы
 | URL AI-сервиса только через `tacticum_rest_get_ai_setting('...')` | Конфиг вне кода |
 | Внешние запросы только HTTPS | Безопасность |
 | Кастомный runtime не пишет payload/response в файловые логи | 152-ФЗ, снижение утечек PII |
-| Каждый POST-эндпоинт: validate_origin + rate_limit + check_csrf | Безопасность |
+| Каждый POST-эндпоинт: validate_origin + rate_limit_by_class + check_csrf | Безопасность |
 
 ---
 

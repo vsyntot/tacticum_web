@@ -62,5 +62,14 @@ return [
         ],
         'allowed_ips' => [],
         'trusted_proxies' => [],
+        'rate_limits' => [
+            'CONFIG_HEALTH_GET' => ['limit' => 5, 'ttl' => 60],
+            'PUBLIC_LEAD_POST' => ['limit' => 20, 'ttl' => 60],
+            'PUBLIC_CHAT_POST' => ['limit' => 20, 'ttl' => 60],
+            'PUBLIC_STAFF_POST' => ['limit' => 20, 'ttl' => 60],
+            'SCOPED_PREFILL_POST' => ['limit' => 20, 'ttl' => 60],
+            'PUBLIC_RESOLVER_POST' => ['limit' => 20, 'ttl' => 60],
+            'LEGACY_ALIAS_POST' => ['limit' => 20, 'ttl' => 60],
+        ],
     ],
 ];

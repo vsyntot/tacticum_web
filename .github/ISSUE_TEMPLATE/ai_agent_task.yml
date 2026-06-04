@@ -82,7 +82,7 @@ body:
       label: "Критерии приёмки"
       placeholder: |
         - [ ] Файл создан по паттерну tacticum_form.php
-        - [ ] validate_origin + rate_limit + check_csrf на месте
+        - [ ] validate_origin + rate_limit_by_class + check_csrf на месте
         - [ ] PII маскируется в логах
         - [ ] Нет хардкода URL (только tacticum_rest_get_ai_setting)
         - [ ] Нет хардкода ID инфоблоков

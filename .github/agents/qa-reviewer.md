@@ -49,7 +49,7 @@ Smoke-check не заменяет полный review, если задача п�
 #### Безопасность
 - [ ] Каждый новый POST-эндпоинт в `local/rest/` вызывает:
   - `tacticum_rest_validate_origin()` — **первым**
-  - `tacticum_rest_rate_limit('action')` — **вторым**
+  - `tacticum_rest_rate_limit_by_class('RISK_CLASS', 'action')` — **вторым**
   - `tacticum_rest_check_csrf($data)` — после парсинга JSON
 - [ ] Нет файлового/debug runtime-логирования payload/response в `/local` и публичных скриптах
 - [ ] Нет хардкода URL AI-сервиса и HTTP fallback

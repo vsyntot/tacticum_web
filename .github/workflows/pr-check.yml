@@ -63,6 +63,7 @@ jobs:
           node --check tools/release-signoff-check.mjs
           node --check tools/release-signoff-self-test.mjs
           node --check tools/config-contract-check.mjs
+          node --check tools/rest-endpoint-guard-check.mjs
           node --check tools/legacy-sale-sunset-check.mjs
           node --check tools/bitrix-architecture-check.mjs
           node --check tools/product-content-schema-check.mjs
@@ -72,6 +73,8 @@ jobs:
           node --check tools/product-tech-challenge-owner-status-check.mjs
           node --check tools/product-tech-challenge-issue-backlog-check.mjs
           npm run config:check
+          npm run rest:endpoints:self-test
+          npm run rest:endpoints:check
           npm run seo:check
           npm run bitrix:check
           npm run product:content:safety:check
@@ -152,8 +155,8 @@ jobs:
                 echo "❌ ERROR: $f missing tacticum_rest_validate_origin()"
                 FAIL=1
               fi
-              if ! grep -q "tacticum_rest_rate_limit" "$f"; then
-                echo "❌ ERROR: $f missing tacticum_rest_rate_limit()"
+              if ! grep -q "tacticum_rest_rate_limit_by_class" "$f"; then
+                echo "❌ ERROR: $f missing tacticum_rest_rate_limit_by_class()"
                 FAIL=1
               fi
               if ! grep -q "tacticum_rest_check_csrf" "$f"; then

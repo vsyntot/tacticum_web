@@ -32,6 +32,14 @@ const requiredPatterns = [
   [/['"]rest['"]\s*=>\s*\[/, 'rest section'],
   [/['"]allowed_origins['"]\s*=>\s*\[/, 'allowed origins'],
   [/['"]trusted_proxies['"]\s*=>\s*\[/, 'trusted proxies'],
+  [/['"]rate_limits['"]\s*=>\s*\[/, 'REST rate limit classes'],
+  [/['"]CONFIG_HEALTH_GET['"]\s*=>\s*\[/, 'CONFIG_HEALTH_GET rate limit class'],
+  [/['"]PUBLIC_LEAD_POST['"]\s*=>\s*\[/, 'PUBLIC_LEAD_POST rate limit class'],
+  [/['"]PUBLIC_CHAT_POST['"]\s*=>\s*\[/, 'PUBLIC_CHAT_POST rate limit class'],
+  [/['"]PUBLIC_STAFF_POST['"]\s*=>\s*\[/, 'PUBLIC_STAFF_POST rate limit class'],
+  [/['"]SCOPED_PREFILL_POST['"]\s*=>\s*\[/, 'SCOPED_PREFILL_POST rate limit class'],
+  [/['"]PUBLIC_RESOLVER_POST['"]\s*=>\s*\[/, 'PUBLIC_RESOLVER_POST rate limit class'],
+  [/['"]LEGACY_ALIAS_POST['"]\s*=>\s*\[/, 'LEGACY_ALIAS_POST rate limit class'],
 ];
 
 const missing = requiredPatterns
@@ -60,7 +68,9 @@ for (const scriptName of [
   'product:content:check',
   'product:content:check:strict',
   'product:content:cache-clear',
-  'product:content:cache-clear:dry-run'
+  'product:content:cache-clear:dry-run',
+  'rest:endpoints:check',
+  'rest:endpoints:self-test'
 ]) {
   if (!packageSource.includes(`"${scriptName}"`)) {
     console.error(`package.json is missing ${scriptName} script.`);
