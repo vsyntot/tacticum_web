@@ -546,7 +546,7 @@ function validateManualEvidenceSafety(gateName, evidence) {
     if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(value)) {
       fail(`${gateName}: manual evidence appears to contain an email at "${item.path}"`);
     }
-    if (!item.path.endsWith('.checked_at') && /(?:\+?\d[\d ()-]{8,}\d)/.test(value)) {
+    if (!isAllowedDatetimeEvidence(item.path, value) && /(?:\+?\d[\d ()-]{8,}\d)/.test(value)) {
       fail(`${gateName}: manual evidence appears to contain a phone number at "${item.path}"`);
     }
     if (/(cookie|session|sessid|password|token|secret)\s*[:=]/i.test(value)) {
@@ -557,6 +557,14 @@ function validateManualEvidenceSafety(gateName, evidence) {
 
 function hasPlaceholder(value) {
   return /\b(replace-with|todo|tbd)\b/i.test(String(value || ''));
+}
+
+function isAllowedDatetimeEvidence(path, value) {
+  if (!path.endsWith('.checked_at') && !path.endsWith('.observed_after')) {
+    return false;
+  }
+
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(String(value || '').trim());
 }
 
 function flattenEvidence(value, path = 'evidence') {

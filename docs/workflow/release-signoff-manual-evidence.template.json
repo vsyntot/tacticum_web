@@ -7,20 +7,21 @@
         "environment": "staging or controlled-production",
         "checked_at": "2026-05-24T09:30:00+03:00",
         "checked_by": "replace-with-owner",
+        "qa_marker": "manual-smoke-safeletters",
         "flows": [
           {
             "flow": "default-lead-form",
             "url": "https://tacticum.ru/price/",
             "form_id": "price-cta",
-            "result": "success=true and UI success state",
-            "lead_id": "replace-with-safe-lead-id"
+            "result": "success=true and UI success state; upstream/CRM accepted safe test lead found by qa_marker",
+            "upstream_request_id": "replace-with-safe-upstream-id-or-lead-id"
           },
           {
             "flow": "modal-form",
             "url": "https://tacticum.ru/",
             "form_id": "contact-modal",
-            "result": "success=true and modal success state",
-            "lead_id": "replace-with-safe-lead-id"
+            "result": "success=true and modal success state; upstream/CRM accepted safe test lead found by qa_marker",
+            "upstream_request_id": "replace-with-safe-upstream-id-or-lead-id"
           },
           {
             "flow": "ai-chat",
@@ -38,8 +39,8 @@
             "flow": "staff-order",
             "url": "https://tacticum.ru/price/",
             "form_id": "price-specialist",
-            "result": "workers_json accepted and upstream/CRM lead created",
-            "lead_id": "replace-with-safe-lead-id"
+            "result": "covered by passed staff-sale-upstream evidence when that gate is already closed",
+            "upstream_request_id": "replace-with-safe-upstream-id-or-lead-id-or-staff-sale-upstream-reference"
           }
         ]
       }
@@ -51,6 +52,7 @@
         "counter_id": "103471113",
         "checked_at": "2026-05-24T09:45:00+03:00",
         "checked_by": "replace-with-owner",
+        "observed_after": "2026-05-24T09:30:00+03:00",
         "goals": [
           "tacticum_form_submit",
           "tacticum_form_success",
@@ -62,6 +64,32 @@
           "tacticum_prefill_submit",
           "tacticum_prefill_success"
         ],
+        "goal_observations": [
+          {
+            "goal": "tacticum_form_submit",
+            "status": "observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_form_success",
+            "status": "observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_chat_send",
+            "status": "observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_chat_success",
+            "status": "observed",
+            "params_safe": true
+          }
+        ],
+        "checked_markers": {
+          "manual_success_flow": "manual-smoke-safeletters",
+          "staff_sale_upstream": "staff-smoke-safeletters"
+        },
         "staff_order_goal_note": "price-specialist observed through tacticum_form_success",
         "pii_check": "goal params contain no name, phone, email, message, raw payload or raw URL query",
         "external_evidence": "replace-with-internal-ticket-or-screenshot-link"
@@ -89,6 +117,7 @@
         "checked_at": "2026-05-24T10:15:00+03:00",
         "checked_by": "replace-with-owner",
         "health_config": "success=true; scopes include ai, rest, security",
+        "qa_marker": "staff-smoke-safeletters",
         "url": "https://tacticum.ru/price/",
         "form_id": "price-specialist",
         "team_preset": "mvp or discovery or support or qa-burst",

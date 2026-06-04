@@ -89,7 +89,7 @@ npm run release:manual-gates:helper -- docs/workflow/release-signoff-2026-05-24-
 
 Он читает текущий draft, показывает pending `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream`, next actions and safe evidence skeletons. Helper read-only: он не создаёт лиды, не ходит в production and не сохраняет PII.
 Если `docs/` не выгружается на production server, helper запускается в standalone skeleton mode и печатает универсальные skeletons без текущего draft-контекста; финальный перенос evidence всё равно выполняется в repository sign-off JSON.
-Для owner-run проверки `manual-success-flow` использовать `npm run manual:success-flow:helper`: он генерирует controlled payload/browser/curl templates для default form, modal form, AI chat and prefill, но не отправляет их сам.
+Для owner-run проверки `manual-success-flow` использовать `npm run manual:success-flow:helper`: он генерирует controlled payload/browser/curl templates для default form, modal form, AI chat and prefill, добавляет безопасный `qa_marker` для поиска тестовых лидов в upstream/CRM, но не отправляет запросы сам. Browser output переносить в sign-off только как safe summary, без raw response/body.
 Для owner-run проверки `metrika-goals` использовать `npm run metrika:goals:helper`: он показывает expected goals/events, проверяет deployed JS taxonomy and даёт browser observer snippet, но не заменяет проверку goals в Яндекс.Метрике.
 Для owner-run проверки `bitrix-admin` использовать `npm run bitrix:admin:gate-helper`: он показывает authenticated admin/public toolbar checklist and safe evidence skeleton, но не логинится в Bitrix и не сохраняет cookie/session data.
 

@@ -750,7 +750,7 @@ function assertPublicPageComponentization() {
     '/bitrix/admin/',
     'tacticum_offer.php',
     'tacticum_sale.php',
-    'Manual gates still require owner evidence: manual-success-flow, metrika-goals, staff-sale-upstream'
+    'Manual release gates are tracked in release sign-off; current owner evidence is closed there.'
   ]) {
     if (!releasePublicPrecheckSource.includes(releasePrecheckNeedle)) {
       fail(`release-public-precheck.mjs must include ${releasePrecheckNeedle} public precheck`);
@@ -792,7 +792,12 @@ function assertPublicPageComponentization() {
     'tacticum_chat.php',
     'tacticum_prefill.php',
     'Controlled Browser Snippet',
-    'Manual Success-Flow Evidence Template'
+    'Manual Success-Flow Evidence Template',
+    'TACTICUM_MANUAL_FLOW_TEST_MARKER',
+    'qa_marker',
+    'tacticumManualSuccessFlowSafeBody',
+    'safe_body',
+    'masked_group_id'
   ]) {
     if (!manualSuccessFlowHelperSource.includes(manualSuccessFlowNeedle)) {
       fail(`manual-success-flow-helper.mjs must include ${manualSuccessFlowNeedle}`);
@@ -817,6 +822,12 @@ function assertPublicPageComponentization() {
     'tacticum_product_view',
     'tacticum_tg_resolver_success',
     'source_check',
+    'owner_checklist',
+    'Owner Checklist',
+    'goal_observations',
+    'params_safe',
+    'checked_markers',
+    'observed_after',
     'Browser Observer Snippet',
     'Metrika Goals Evidence Template'
   ]) {
@@ -876,6 +887,10 @@ function assertPublicPageComponentization() {
   }
   for (const staffSaleGateNeedle of [
     'TACTICUM_STAFF_TEST_SESSID',
+    'TACTICUM_STAFF_TEST_MARKER',
+    'qa_marker',
+    'Controlled Staff-Order Browser Snippet',
+    '--browser',
     'TACTICUM_STAFF_TEST_EMAIL',
     'workers_json',
     'team_preset',

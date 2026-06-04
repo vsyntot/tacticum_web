@@ -166,12 +166,7 @@ Production `products.source=bitrix` switch completed on 03.06.2026.
     "blocks_per_page": 11
   },
   "release_public_precheck": "passed",
-  "manual_release_gates_remaining": [
-    "manual-success-flow",
-    "metrika-goals",
-    "bitrix-admin",
-    "staff-sale-upstream"
-  ],
+  "manual_release_gates": "closed separately in docs/workflow/release-signoff-2026-05-24-post-deploy.draft.json on 2026-06-04",
   "rollback": "products.source=auto and npm run product:content:cache-clear"
 }
 ```

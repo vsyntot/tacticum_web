@@ -45,34 +45,130 @@
       }
     },
     "manual-success-flow": {
-      "status": "pending",
+      "status": "passed",
       "owner": "QA + Backend/Frontend",
-      "due": "before-strict-release-closure",
-      "reason": "Controlled production smoke was attempted on 2026-05-25. Default form, modal form and AI chat remain blocked by upstream 502 responses; prefill controlled empty state returned expected 404. Staff-order browser-controlled POST returned HTTP 200 success=true on 2026-06-03, but CRM/upstream safe ID evidence is still pending.",
       "evidence": {
-        "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
-        "safe_summary": "default-lead-form=502 upstream_error; modal-form=502 upstream_error; ai-chat=502 upstream_http_error with upstream_status=502; prefill-controlled-empty=404 not_found; staff-order=HTTP 200 success=true code=ok on 2026-06-03 browser-controlled POST",
-        "manual_gate_helper_prod_standalone": "2026-06-03: production server npm run release:manual-gates:helper passed in standalone skeleton mode because docs/ sign-off draft is not deployed",
-        "manual_success_flow_helper": "2026-06-03: npm run manual:success-flow:helper added to generate controlled payload/browser/curl/evidence templates for default form, modal form, AI chat and prefill without sending requests",
-        "manual_success_flow_helper_prod": "2026-06-03: production server npm run manual:success-flow:helper, -- --browser and -- --curl printed controlled templates; npm run release:manual-gates:helper -- --gate manual-success-flow linked the helper in standalone mode",
-        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
-        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "environment": "controlled-production",
+        "checked_at": "2026-06-04T04:17:27Z",
+        "checked_by": "Ivan Monakhov",
+        "qa_marker": "manual-smoke-tdckbmex",
+        "flows": [
+          {
+            "flow": "default-lead-form",
+            "url": "https://tacticum.ru/price/",
+            "form_id": "price-cta",
+            "result": "HTTP 200 success=true code=ok; controlled default lead form accepted by backend/upstream adapter; qa_marker available for upstream/CRM lookup"
+          },
+          {
+            "flow": "modal-form",
+            "url": "https://tacticum.ru/",
+            "form_id": "contact-modal",
+            "result": "HTTP 200 success=true code=ok; controlled modal form accepted by backend/upstream adapter; qa_marker available for upstream/CRM lookup"
+          },
+          {
+            "flow": "ai-chat",
+            "url": "https://tacticum.ru/calculator/",
+            "result": "HTTP 200 controlled response; safe summary confirmed response and group id without raw stack or PII",
+            "masked_group_id": "de1b-masked-d4cf"
+          },
+          {
+            "flow": "prefill",
+            "url": "https://tacticum.ru/offer/",
+            "result": "Controlled empty prefill returned expected HTTP 404 code=not_found; manual submit remains available",
+            "masked_group_id": "not_applicable"
+          },
+          {
+            "flow": "staff-order",
+            "url": "https://tacticum.ru/price/",
+            "form_id": "price-specialist",
+            "result": "Covered by passed staff-sale-upstream evidence",
+            "upstream_request_id": "planka-card-masked-4804"
+          }
+        ]
       }
     },
     "metrika-goals": {
-      "status": "pending",
+      "status": "passed",
       "owner": "PM/Marketing + QA",
-      "due": "before-strict-release-closure",
-      "reason": "Requires Yandex.Metrika access and confirmation of affected form/chat/staff-order goals after deploy; this environment has no Metrika connector/API credentials.",
       "evidence": {
-        "public_precheck": "2026-05-25: metrika.js contains counter 103471113 and production HTML contains noscript pixel; goal visibility still requires Yandex.Metrika access",
-        "manual_gate_helper_prod_standalone": "2026-06-03: production server npm run release:manual-gates:helper -- --json passed in standalone skeleton mode and emitted Metrika evidence skeleton without PII",
-        "metrika_goals_helper": "2026-06-03: npm run metrika:goals:helper added to print expected goals/events, deployed JS source coverage, browser observer snippet and safe evidence skeleton without accessing Yandex.Metrika",
-        "metrika_goals_helper_prod": "2026-06-03: production server npm run metrika:goals:helper, -- --source-check --evidence and -- --browser passed; source-check found missing_events=-, counter 103471113 in analytics/metrika assets, reachGoal, QA browser event and HTTPS tag; release helper linked metrika:goals:helper in standalone mode",
-        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
-        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "counter_id": "103471113",
+        "checked_at": "2026-06-04T15:25:09+03:00",
+        "checked_by": "Ivan Monakhov",
+        "observed_after": "2026-06-04T04:17:27Z",
+        "goals": [
+          "tacticum_form_submit",
+          "tacticum_form_success",
+          "tacticum_product_view",
+          "tacticum_product_cta_click",
+          "tacticum_product_form_submit",
+          "tacticum_chat_send",
+          "tacticum_chat_success",
+          "tacticum_prefill_submit",
+          "tacticum_prefill_success"
+        ],
+        "goal_observations": [
+          {
+            "goal": "tacticum_form_submit",
+            "status": "browser_dispatch_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_form_success",
+            "status": "browser_dispatch_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_product_view",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_product_cta_click",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_product_form_submit",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_chat_send",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_chat_success",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_prefill_submit",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          },
+          {
+            "goal": "tacticum_prefill_success",
+            "status": "metrika_ui_observed",
+            "params_safe": true
+          }
+        ],
+        "checked_markers": {
+          "manual_success_flow": "manual-smoke-tdckbmex",
+          "staff_sale_upstream": "staff-smoke-knfyzyhe"
+        },
+        "staff_order_goal_note": "price-specialist is observed through tacticum_form_success and staff-sale-upstream sign-off",
+        "pii_check": "goal params contain no name, phone, email, message, summary, raw payload, cookie/session material or raw URL query",
+        "checked_urls": [
+          "https://tacticum.ru/",
+          "https://tacticum.ru/price/",
+          "https://tacticum.ru/calculator/",
+          "https://tacticum.ru/platform/",
+          "https://tacticum.ru/agents/",
+          "https://tacticum.ru/dev/",
+          "https://tacticum.ru/forum/"
+        ],
+        "external_evidence": "owner-provided-safe-metrika-conversions-screenshot"
       }
     },
     "config-sync": {
@@ -144,19 +240,22 @@
       }
     },
     "staff-sale-upstream": {
-      "status": "pending",
+      "status": "passed",
       "owner": "Architect + Backend + QA + DevOps",
-      "due": "before-strict-release-closure",
-      "reason": "Controlled production staff-order browser POST returned HTTP 200 success=true on 2026-06-03. Closing this gate still requires CRM/upstream confirmation with safe upstream_request_id or lead_id.",
       "evidence": {
-        "controlled_smoke": "/tmp/tacticum-release-closure-2026-05-25/controlled-success-flow.json",
-        "browser_controlled_staff_order": "2026-06-03T10:49:21+03:00: /price/ DevTools fetch returned HTTP 200 success=true code=ok for price-specialist payload with team_preset=mvp, workers_count=3, monthly_budget_estimate_present=true, end_date_present=true",
-        "safe_summary": "staff-order endpoint accepted controlled payload; CRM/upstream safe ID evidence pending before strict gate closure",
-        "manual_gate_helper_prod_standalone": "2026-06-03: production server npm run release:manual-gates:helper -- --gate staff-sale-upstream passed in standalone skeleton mode and emitted required staff upstream evidence skeleton",
-        "readiness": "docs/workflow/rich-workers-upstream-readiness-2026-05-24.md",
-        "handoff": "docs/workflow/sprint-10-external-gates-handoff-2026-05-24.md",
-        "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-staff-sale-upstream",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "environment": "controlled-production",
+        "checked_at": "2026-06-04T06:52:07+03:00",
+        "checked_by": "Ivan Monakhov",
+        "health_config": "success=true; scopes include ai, rest, security",
+        "qa_marker": "staff-smoke-knfyzyhe",
+        "url": "https://tacticum.ru/price/",
+        "form_id": "price-specialist",
+        "team_preset": "mvp",
+        "workers_count": 3,
+        "monthly_budget_estimate_present": true,
+        "end_date_present": true,
+        "upstream_request_id": "planka-card-masked-4804",
+        "result": "upstream/CRM received team summary, team_preset, monthly_budget_estimate and end_date"
       }
     }
   }

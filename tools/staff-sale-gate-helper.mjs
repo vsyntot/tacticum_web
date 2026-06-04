@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+import { randomBytes } from 'node:crypto';
+
 const args = process.argv.slice(2);
-const knownOptions = new Set(['--payload', '--curl', '--evidence', '--all', '--help']);
+const knownOptions = new Set(['--payload', '--browser', '--curl', '--evidence', '--all', '--help']);
 const unknownOptions = args.filter((arg) => arg.startsWith('--') && !knownOptions.has(arg));
 
 if (unknownOptions.length > 0) {
@@ -18,12 +20,14 @@ if (args.includes('--help')) {
 const selectedModes = new Set(args.filter((arg) => arg.startsWith('--')));
 if (selectedModes.size === 0 || selectedModes.has('--all')) {
   selectedModes.add('--payload');
+  selectedModes.add('--browser');
   selectedModes.add('--curl');
   selectedModes.add('--evidence');
 }
 
 const baseUrl = trimTrailingSlash(process.env.TACTICUM_STAFF_GATE_BASE_URL || 'https://tacticum.ru');
-const payload = buildPayload(baseUrl);
+const qaMarker = buildQaMarker();
+const payload = buildPayload(baseUrl, qaMarker);
 
 if (selectedModes.has('--payload')) {
   printSection('Controlled Staff-Order Payload');
@@ -35,12 +39,17 @@ if (selectedModes.has('--curl')) {
   printCurl(baseUrl, payload);
 }
 
-if (selectedModes.has('--evidence')) {
-  printSection('Staff-Sale Upstream Evidence Template');
-  console.log(JSON.stringify(buildEvidenceTemplate(baseUrl), null, 2));
+if (selectedModes.has('--browser')) {
+  printSection('Controlled Staff-Order Browser Snippet');
+  printBrowserSnippet(baseUrl, payload);
 }
 
-function buildPayload(baseUrlValue) {
+if (selectedModes.has('--evidence')) {
+  printSection('Staff-Sale Upstream Evidence Template');
+  console.log(JSON.stringify(buildEvidenceTemplate(baseUrl, qaMarker), null, 2));
+}
+
+function buildPayload(baseUrlValue, marker) {
   const workers = [
     {
       role: 'Backend developer',
@@ -62,7 +71,7 @@ function buildPayload(baseUrlValue) {
     company: process.env.TACTICUM_STAFF_TEST_COMPANY || 'Tacticum QA controlled test',
     email: process.env.TACTICUM_STAFF_TEST_EMAIL || '<controlled_test_email>',
     phone: process.env.TACTICUM_STAFF_TEST_PHONE || '<controlled_test_phone>',
-    message: 'Controlled staff-order smoke. Test lead; no commercial processing.',
+    message: `Controlled staff-order smoke. QA marker: ${marker}. Test lead; no commercial processing.`,
     form_id: 'price-specialist',
     page_url: `${baseUrlValue}/price/`,
     team_preset: 'mvp',
@@ -76,12 +85,13 @@ function buildPayload(baseUrlValue) {
   };
 }
 
-function buildEvidenceTemplate(baseUrlValue) {
+function buildEvidenceTemplate(baseUrlValue, marker) {
   return {
     environment: 'controlled-production',
     checked_at: '<YYYY-MM-DDTHH:mm:ss+03:00>',
     checked_by: '<owner>',
     health_config: 'success=true; scopes include ai, rest, security',
+    qa_marker: marker,
     url: `${baseUrlValue}/price/`,
     form_id: 'price-specialist',
     team_preset: 'mvp',
@@ -91,6 +101,18 @@ function buildEvidenceTemplate(baseUrlValue) {
     upstream_request_id: '<safe-upstream-id-or-lead-id>',
     result: 'upstream/CRM received team summary, team_preset, monthly_budget_estimate and end_date',
   };
+}
+
+function buildQaMarker() {
+  const explicit = String(process.env.TACTICUM_STAFF_TEST_MARKER || '').trim();
+  if (explicit) {
+    return explicit;
+  }
+
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  const bytes = randomBytes(8);
+  const suffix = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+  return `staff-smoke-${suffix}`;
 }
 
 function printCurl(baseUrlValue, payloadValue) {
@@ -109,6 +131,57 @@ function printCurl(baseUrlValue, payloadValue) {
   console.log(`  -H 'Origin: ${baseUrlValue}' \\`);
   console.log("  -H 'Content-Type: application/json' \\");
   console.log(`  --data-binary '${shellSingleQuote(data)}'`);
+}
+
+function printBrowserSnippet(baseUrlValue, payloadValue) {
+  const browserPayload = {
+    ...payloadValue,
+    sessid: '<bitrix_sessid_from_browser>',
+    name: '<controlled_test_name>',
+    email: '<controlled_test_email>',
+    phone: '<controlled_test_phone>',
+  };
+
+  console.log('Paste this into a browser console on the checked host only after replacing controlled contact placeholders.');
+  console.log('The snippet sends a POST request and may create a controlled test lead.');
+  console.log('');
+  console.log(`const tacticumStaffSalePayload = ${JSON.stringify(browserPayload, null, 2)};`);
+  console.log(`const tacticumStaffSaleContact = {
+  name: '<controlled_test_name>',
+  email: '<controlled_test_email>',
+  phone: '<controlled_test_phone>'
+};
+
+for (const value of Object.values(tacticumStaffSaleContact)) {
+  if (/^<.*>$/.test(value)) {
+    throw new Error('Replace controlled test contact placeholders before sending the staff-order request.');
+  }
+}
+
+const tacticumStaffSaleResponse = await fetch('${baseUrlValue}/local/rest/tacticum_sale_staff.php', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    ...tacticumStaffSalePayload,
+    sessid: BX.bitrix_sessid(),
+    name: tacticumStaffSaleContact.name,
+    email: tacticumStaffSaleContact.email,
+    phone: tacticumStaffSaleContact.phone
+  })
+});
+
+let tacticumStaffSaleBody;
+try {
+  tacticumStaffSaleBody = await tacticumStaffSaleResponse.json();
+} catch {
+  tacticumStaffSaleBody = {raw: await tacticumStaffSaleResponse.text()};
+}
+
+({
+  qa_marker: tacticumStaffSalePayload.message.match(/QA marker: ([a-z-]+)/)?.[1] || '',
+  status: tacticumStaffSaleResponse.status,
+  body: tacticumStaffSaleBody
+});`);
 }
 
 function requiredCurlEnv() {
@@ -134,7 +207,7 @@ function shellSingleQuote(value) {
 }
 
 function printUsage() {
-  console.error('Usage: npm run staff:sale:gate-helper -- [--payload] [--curl] [--evidence] [--all]');
+  console.error('Usage: npm run staff:sale:gate-helper -- [--payload] [--browser] [--curl] [--evidence] [--all]');
   console.error('');
   console.error('Environment for executable curl output:');
   console.error('  TACTICUM_STAFF_GATE_BASE_URL=https://tacticum.ru');
@@ -142,4 +215,5 @@ function printUsage() {
   console.error('  TACTICUM_STAFF_TEST_NAME=<controlled test name>');
   console.error('  TACTICUM_STAFF_TEST_EMAIL=<controlled test email>');
   console.error('  TACTICUM_STAFF_TEST_PHONE=<controlled test phone>');
+  console.error('  TACTICUM_STAFF_TEST_MARKER=<optional-safe-letters-only-marker>');
 }

@@ -46,6 +46,8 @@ const selectedGates = options.all
   ? allManualGates
   : allManualGates.filter((gate) => gate.status === 'pending');
 
+const mode = buildMode(options, selectedGates);
+
 const payload = {
   source_file: options.file,
   source_file_available: sourceFileAvailable,
@@ -57,7 +59,7 @@ const payload = {
     date: release.date || 'unknown',
     base_url: baseUrl,
   },
-  mode: options.all ? 'all-manual-gates' : 'pending-manual-gates',
+  mode,
   manual_gates: selectedGates,
   closing_commands_note: sourceFileAvailable
     ? 'Run after updating this release sign-off JSON.'
@@ -166,6 +168,14 @@ function buildGateSummary(name, gate, baseUrl) {
   };
 }
 
+function buildMode(parsedOptions, gates) {
+  if (parsedOptions.all) {
+    return 'all-manual-gates';
+  }
+
+  return gates.length > 0 ? 'pending-manual-gates' : 'manual-gates-closed';
+}
+
 function buildStandaloneSignoff(baseUrlValue) {
   const baseUrl = trimTrailingSlash(baseUrlValue || 'https://tacticum.ru');
   return {
@@ -202,13 +212,15 @@ function safeCurrentSummary(evidence) {
 function nextActions(name) {
   const actions = {
     'manual-success-flow': [
-      'Run controlled staging or controlled-production checks for default form, modal form, AI chat, prefill and staff-order.',
+      'Run controlled staging or controlled-production checks for default form, modal form, AI chat and prefill with manual:success-flow:helper.',
+      'Use the generated safe qa_marker to search upstream/CRM for form leads; do not store contact fields or raw responses.',
       'Confirm UI success or expected controlled error state and upstream/CRM receipt where the flow creates a lead.',
       'Record only safe lead/request IDs, flow names, URLs, checked_at, checked_by and short result text.',
     ],
     'metrika-goals': [
       'Open Yandex.Metrika counter 103471113 or the connected tag manager evidence view.',
       'Confirm affected form, chat, prefill and staff-order goals after the checked_at window.',
+      'Use the owner checklist from metrika:goals:helper to record observed goals and params_safe=true without raw params.',
       'Confirm goal params contain no name, phone, email, message, raw payload or raw URL query.',
     ],
     'bitrix-admin': [
@@ -219,6 +231,7 @@ function nextActions(name) {
     ],
     'staff-sale-upstream': [
       'Use the controlled /price/ staff-order payload or an equivalent staging payload.',
+      'Search upstream/CRM by safe qa_marker from staff:sale:gate-helper, not by contact fields.',
       'Confirm upstream/CRM received team summary, team_preset, workers count, monthly budget and exact end date.',
       'Record only safe upstream_request_id or lead_id plus contract booleans required by the checker.',
     ],
@@ -232,11 +245,11 @@ function gateCommands(name) {
     'manual-success-flow': [
       'npm run release:manual-gates:helper -- --gate manual-success-flow',
       'npm run manual:success-flow:helper -- --payloads --browser --curl --evidence',
-      'npm run staff:sale:gate-helper -- --payload --curl --evidence',
+      'npm run staff:sale:gate-helper -- --payload --browser --curl --evidence',
     ],
     'metrika-goals': [
       'npm run release:manual-gates:helper -- --gate metrika-goals',
-      'npm run metrika:goals:helper -- --taxonomy --source-check --browser --evidence',
+      'npm run metrika:goals:helper -- --taxonomy --source-check --owner-checklist --browser --evidence',
     ],
     'bitrix-admin': [
       'npm run release:public-precheck:prod',
@@ -244,7 +257,7 @@ function gateCommands(name) {
       'npm run release:manual-gates:helper -- --gate bitrix-admin',
     ],
     'staff-sale-upstream': [
-      'npm run staff:sale:gate-helper -- --payload --curl --evidence',
+      'npm run staff:sale:gate-helper -- --payload --browser --curl --evidence',
       'npm run release:manual-gates:helper -- --gate staff-sale-upstream',
     ],
   };
@@ -258,20 +271,21 @@ function evidenceSkeleton(name, baseUrl) {
       environment: 'controlled-production',
       checked_at: '<YYYY-MM-DDTHH:mm:ss+03:00>',
       checked_by: 'replace-with-owner',
+      qa_marker: 'manual-smoke-safeletters',
       flows: [
         {
           flow: 'default-lead-form',
           url: `${baseUrl}/price/`,
           form_id: 'price-cta',
-          result: 'UI success state, backend success=true and upstream/CRM accepted safe test lead',
-          lead_id: 'replace-with-safe-lead-id',
+          result: 'UI success state, backend success=true and upstream/CRM accepted safe test lead found by qa_marker',
+          upstream_request_id: 'replace-with-safe-upstream-id-or-lead-id',
         },
         {
           flow: 'modal-form',
           url: `${baseUrl}/`,
           form_id: 'contact-modal',
-          result: 'Modal opens, valid submit reaches success state and upstream/CRM accepted safe test lead',
-          lead_id: 'replace-with-safe-lead-id',
+          result: 'Modal opens, valid submit reaches success state and upstream/CRM accepted safe test lead found by qa_marker',
+          upstream_request_id: 'replace-with-safe-upstream-id-or-lead-id',
         },
         {
           flow: 'ai-chat',
@@ -289,8 +303,8 @@ function evidenceSkeleton(name, baseUrl) {
           flow: 'staff-order',
           url: `${baseUrl}/price/`,
           form_id: 'price-specialist',
-          result: 'Staff-order endpoint accepted controlled payload and upstream/CRM accepted team summary',
-          lead_id: 'replace-with-safe-lead-id',
+          result: 'Covered by passed staff-sale-upstream evidence when that gate is already closed',
+          upstream_request_id: 'replace-with-safe-upstream-id-or-lead-id-or-staff-sale-upstream-reference',
         },
       ],
     },
@@ -298,6 +312,7 @@ function evidenceSkeleton(name, baseUrl) {
       counter_id: '103471113',
       checked_at: '<YYYY-MM-DDTHH:mm:ss+03:00>',
       checked_by: 'replace-with-owner',
+      observed_after: '<YYYY-MM-DDTHH:mm:ss+03:00>',
       goals: [
         'tacticum_form_submit',
         'tacticum_form_success',
@@ -309,6 +324,57 @@ function evidenceSkeleton(name, baseUrl) {
         'tacticum_prefill_submit',
         'tacticum_prefill_success',
       ],
+      goal_observations: [
+        {
+          goal: 'tacticum_form_submit',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_form_success',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_product_view',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_product_cta_click',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_product_form_submit',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_chat_send',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_chat_success',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_prefill_submit',
+          status: 'observed',
+          params_safe: true,
+        },
+        {
+          goal: 'tacticum_prefill_success',
+          status: 'observed',
+          params_safe: true,
+        },
+      ],
+      checked_markers: {
+        manual_success_flow: 'manual-smoke-safeletters',
+        staff_sale_upstream: 'staff-smoke-safeletters',
+      },
       staff_order_goal_note: 'price-specialist observed through tacticum_form_success',
       pii_check: 'goal params contain no name, phone, email, message, raw payload or raw URL query',
       external_evidence: 'replace-with-safe-internal-ticket-or-screenshot-link',
@@ -328,6 +394,7 @@ function evidenceSkeleton(name, baseUrl) {
       checked_at: '<YYYY-MM-DDTHH:mm:ss+03:00>',
       checked_by: 'replace-with-owner',
       health_config: 'success=true; scopes include ai, rest, security',
+      qa_marker: 'staff-smoke-safeletters',
       url: `${baseUrl}/price/`,
       form_id: 'price-specialist',
       team_preset: 'mvp',
@@ -360,7 +427,9 @@ function printText(payload) {
   console.log('');
 
   if (payload.manual_gates.length === 0) {
-    console.log('No matching manual gates found in the selected mode.');
+    console.log(payload.mode === 'manual-gates-closed'
+      ? 'No pending manual gates; current owner evidence is closed in the loaded sign-off.'
+      : 'No matching manual gates found in the selected mode.');
     console.log('Use --all to print templates for passed/not_applicable manual gates too.');
   }
 
