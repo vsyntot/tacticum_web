@@ -62,6 +62,8 @@ npm run manual:success-flow:helper
 
 Helper ничего не отправляет сам. Browser/curl snippets создают тестовые лиды только после ручной замены controlled contact placeholders and owner-run отправки. Staff-order часть этого gate проверять через `npm run staff:sale:gate-helper`, потому что для неё нужен отдельный rich workers contract and CRM/upstream ID.
 
+Helper добавляет в controlled form/chat messages безопасный буквенный `qa_marker`, например `manual-smoke-safeletters`. По нему owner CRM/upstream ищет тестовые default/modal лиды без сохранения имени, телефона, email или полного текста сообщения в release evidence. Browser snippet возвращает safe summary (`status`, `code`, boolean flags, masked `group_id`), а не raw upstream response; в документы переносить только эту безопасную сводку и safe IDs.
+
 Минимальный набор для релиза с формами, AI flow и `/price/`:
 
 | Flow | Где проверять | Passed |
@@ -70,7 +72,7 @@ Helper ничего не отправляет сам. Browser/curl snippets со
 | Modal form | Footer/modal CTA | Модалка открывается, валидная отправка даёт success state, закрытие не ломает страницу |
 | AI chat | Hero/calculator/price chat | Валидное сообщение получает controlled response; нет raw stack/PII; если пришёл `group_id`, он пригоден для prefill |
 | Prefill | CTA после AI response с `group_id` | Prefill возвращает ожидаемое заполнение или controlled empty state; manual submit остаётся доступен |
-| Staff order | `/price/` team preset или состав заявки | `workers_json`, `team_preset`, `monthly_budget_estimate`, `endDate` доходят до backend/upstream |
+| Staff order | `/price/` team preset или состав заявки | Если `staff-sale-upstream` уже passed, сослаться на этот gate; иначе отдельно проверить через `npm run staff:sale:gate-helper` |
 
 Порядок:
 
@@ -78,7 +80,7 @@ Helper ничего не отправляет сам. Browser/curl snippets со
 2. Заполнить тестовыми неперсональными данными; в сообщении указать, что лид тестовый и не требует коммерческой обработки.
 3. Отправить flow и проверить пользовательский success/error state.
 4. Проверить upstream/CRM: лид создан или flow завершился ожидаемым controlled state.
-5. Записать только безопасные evidence-поля: `lead_id`, `upstream_request_id`, `form_id`, `checked_at`, `owner`, `url`, `result`.
+5. Записать только безопасные evidence-поля: `qa_marker`, `lead_id` или `upstream_request_id`, masked `group_id`, `form_id`, `checked_at`, `owner`, `url`, `status/code` и короткий `result`.
 
 ## Gate: metrika-goals
 
@@ -86,10 +88,10 @@ Owner: PM/Marketing + QA.
 
 Проверять в Яндекс.Метрике counter `103471113` или в подключённом tag manager, если goals проксируются через него.
 
-Перед owner-run проверкой можно сгенерировать expected goals/events, source taxonomy check, browser observer snippet and safe evidence block:
+Перед owner-run проверкой можно сгенерировать expected goals/events, source taxonomy check, owner checklist, browser observer snippet and safe evidence block:
 
 ```bash
-npm run metrika:goals:helper
+npm run metrika:goals:helper -- --taxonomy --source-check --owner-checklist --browser --evidence
 ```
 
 Helper не имеет доступа к Яндекс.Метрике и не закрывает gate сам. Он проверяет локальный/deployed JS event contract and помогает owner-у понять, какие goals искать в Метрике и какие params считать безопасными.
@@ -101,7 +103,7 @@ Helper не имеет доступа к Яндекс.Метрике и не з�
 | Forms | `tacticum_form_submit`, `tacticum_form_success` или ожидаемый `tacticum_form_error` |
 | Staff order | `tacticum_form_submit`, `tacticum_form_success` с `form_id=price-specialist` |
 | AI chat | `tacticum_chat_send`, `tacticum_chat_success` или ожидаемый `tacticum_chat_error` |
-| Prefill | `tacticum_prefill_submit`, `tacticum_prefill_success` или ожидаемый `tacticum_prefill_error` |
+| Prefill | `tacticum_prefill_submit`, `tacticum_prefill_success`; для controlled empty `group_id` допустим ожидаемый `tacticum_prefill_error` с safe `status/code` |
 | Telegram resolver | `tacticum_tg_resolver_success/error/skip`, только если менялся resolver или footer/social links |
 
 Порядок:
@@ -109,7 +111,8 @@ Helper не имеет доступа к Яндекс.Метрике и не з�
 1. Выполнить соответствующий user flow на staging/production.
 2. В Метрике проверить, что goal/event появился после `checked_at`.
 3. Убедиться, что параметры не содержат PII: только `page_path`, `form_id`, `endpoint`, `surface`, `status`, `code`, счётчики и boolean-флаги.
-4. Записать `counter_id`, список goals, checked_at, owner и ссылку/ID внутреннего evidence, если скриншот хранится вне репозитория.
+4. Записать `counter_id`, `checked_at`, `checked_by`, `observed_after`, список goals, `goal_observations` со статусом `observed` и `params_safe=true`, safe `checked_markers` и ссылку/ID внутреннего evidence, если скриншот хранится вне репозитория.
+5. Не переносить в репозиторий raw goal params, URL query, contact values, screenshots with unmasked personal data or user message text.
 
 ## Gate: bitrix-admin
 
@@ -143,7 +146,9 @@ Owner: Architect + Backend + QA + DevOps.
 npm run staff:sale:gate-helper
 ```
 
-Для curl template с реальными тестовыми данными задать env-переменные из вывода helper-а. Значение `sessid` брать из авторизованной браузерной сессии Bitrix на проверяемом окружении; тестовые контакты не сохранять в release evidence.
+Helper добавляет в controlled `message` безопасный буквенный `qa_marker`, например `staff-smoke-safeletters`, и печатает browser/curl templates. По `qa_marker` owner CRM/upstream ищет тестовую заявку без сохранения имени, телефона, email или полного текста сообщения в release evidence.
+
+Для browser snippet заменить controlled contact placeholders и выполнить код на проверяемом host, где доступен `BX.bitrix_sessid()`. Для curl template с реальными тестовыми данными задать env-переменные из вывода helper-а. Значение `sessid` брать из авторизованной браузерной сессии Bitrix на проверяемом окружении; тестовые контакты и полный message не сохранять в release evidence. Если нужно повторить поиск по заранее известной метке, задать `TACTICUM_STAFF_TEST_MARKER=<safe-letters-only-marker>`.
 
 Порядок:
 
@@ -151,8 +156,8 @@ npm run staff:sale:gate-helper
 2. На `/price/` выбрать team preset или вручную собрать состав из нескольких специалистов.
 3. Выбрать загрузку и срок; для `duration=exact-date` указать `endDate`.
 4. Отправить заявку через modal `price-specialist`.
-5. Проверить upstream/CRM: в заявке есть summary состава команды, количество worker rows, `team_preset`, `monthly_budget_estimate`, `end_date` или осознанный fallback.
-6. Записать `upstream_request_id`/`lead_id`, `workers_count`, `team_preset`, `monthly_budget_estimate_present`, `end_date_present`, checked_at и owner.
+5. Проверить upstream/CRM: найти controlled заявку по `qa_marker`; в заявке есть summary состава команды, количество worker rows, `team_preset`, `monthly_budget_estimate`, `end_date` или осознанный fallback.
+6. Записать `qa_marker`, `upstream_request_id`/`lead_id`, `workers_count`, `team_preset`, `monthly_budget_estimate_present`, `end_date_present`, checked_at и owner.
 7. Strict checker требует `team_preset` из `mvp`, `discovery`, `support`, `qa-burst`, `monthly_budget_estimate_present=true` и `end_date_present=true`.
 
 ## Closing The Release JSON

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { randomBytes } from 'node:crypto';
+
 const args = process.argv.slice(2);
 const knownOptions = new Set(['--payloads', '--browser', '--curl', '--evidence', '--all', '--help']);
 const unknownOptions = args.filter((arg) => arg.startsWith('--') && !knownOptions.has(arg));
@@ -24,7 +26,8 @@ if (selectedModes.size === 0 || selectedModes.has('--all')) {
 }
 
 const baseUrl = trimTrailingSlash(process.env.TACTICUM_MANUAL_FLOW_BASE_URL || 'https://tacticum.ru');
-const payloads = buildPayloads(baseUrl);
+const qaMarker = buildQaMarker();
+const payloads = buildPayloads(baseUrl, qaMarker);
 
 if (selectedModes.has('--payloads')) {
   printSection('Controlled Manual Success-Flow Payloads');
@@ -43,10 +46,10 @@ if (selectedModes.has('--curl')) {
 
 if (selectedModes.has('--evidence')) {
   printSection('Manual Success-Flow Evidence Template');
-  console.log(JSON.stringify(buildEvidenceTemplate(baseUrl), null, 2));
+  console.log(JSON.stringify(buildEvidenceTemplate(baseUrl, qaMarker), null, 2));
 }
 
-function buildPayloads(baseUrlValue) {
+function buildPayloads(baseUrlValue, marker) {
   return {
     default_lead_form: {
       endpoint: '/local/rest/tacticum_form.php',
@@ -57,7 +60,7 @@ function buildPayloads(baseUrlValue) {
         company: 'Tacticum QA controlled test',
         email: '<controlled_test_email>',
         phone: '<controlled_test_phone>',
-        message: 'Controlled default lead smoke. Test lead; no commercial processing.',
+        message: `Controlled default lead smoke. QA marker: ${marker}. Test lead; no commercial processing.`,
         form_id: 'price-cta',
         page_url: `${baseUrlValue}/price/`,
         lead_product: 'ecosystem',
@@ -74,7 +77,7 @@ function buildPayloads(baseUrlValue) {
         company: 'Tacticum QA controlled test',
         email: '<controlled_test_email>',
         phone: '<controlled_test_phone>',
-        message: 'Controlled modal form smoke. Test lead; no commercial processing.',
+        message: `Controlled modal form smoke. QA marker: ${marker}. Test lead; no commercial processing.`,
         form_id: 'contact-modal',
         page_url: `${baseUrlValue}/`,
         lead_product: 'ecosystem',
@@ -87,7 +90,7 @@ function buildPayloads(baseUrlValue) {
       expected_result: 'HTTP 200 with controlled AI response; no raw stack or PII',
       payload: {
         sessid: '<bitrix_sessid_from_browser>',
-        user_message: 'Controlled AI chat smoke. Please return a short qualification response for a test lead; no commercial processing.',
+        user_message: `Controlled AI chat smoke. QA marker: ${marker}. Please return a short qualification response for a test lead; no commercial processing.`,
         startAgent: 'SalesConsultantAgent',
       },
     },
@@ -96,31 +99,32 @@ function buildPayloads(baseUrlValue) {
       expected_result: 'HTTP 404 code=not_found is acceptable for controlled empty group_id; a real AI group_id can be checked separately',
       payload: {
         sessid: '<bitrix_sessid_from_browser>',
-        group_id: 'controlled-empty-manual-success-flow',
+        group_id: `controlled-empty-${marker}`,
       },
     },
   };
 }
 
-function buildEvidenceTemplate(baseUrlValue) {
+function buildEvidenceTemplate(baseUrlValue, marker) {
   return {
     environment: 'controlled-production',
     checked_at: '<YYYY-MM-DDTHH:mm:ss+03:00>',
     checked_by: '<owner>',
+    qa_marker: marker,
     flows: [
       {
         flow: 'default-lead-form',
         url: `${baseUrlValue}/price/`,
         form_id: 'price-cta',
-        result: 'success=true and UI success state; upstream/CRM accepted safe test lead',
-        lead_id: '<safe-lead-id>',
+        result: 'success=true and UI success state; upstream/CRM accepted safe test lead found by qa_marker',
+        upstream_request_id: '<safe-upstream-id-or-lead-id>',
       },
       {
         flow: 'modal-form',
         url: `${baseUrlValue}/`,
         form_id: 'contact-modal',
-        result: 'success=true and modal success state; upstream/CRM accepted safe test lead',
-        lead_id: '<safe-lead-id>',
+        result: 'success=true and modal success state; upstream/CRM accepted safe test lead found by qa_marker',
+        upstream_request_id: '<safe-upstream-id-or-lead-id>',
       },
       {
         flow: 'ai-chat',
@@ -138,11 +142,23 @@ function buildEvidenceTemplate(baseUrlValue) {
         flow: 'staff-order',
         url: `${baseUrlValue}/price/`,
         form_id: 'price-specialist',
-        result: 'see staff-sale-upstream evidence; staff-order endpoint accepted controlled payload',
-        lead_id: '<safe-lead-id-or-upstream-request-id>',
+        result: 'covered by passed staff-sale-upstream evidence when that gate is already closed',
+        upstream_request_id: '<safe-upstream-id-or-lead-id-or-staff-sale-upstream-reference>',
       },
     ],
   };
+}
+
+function buildQaMarker() {
+  const explicit = String(process.env.TACTICUM_MANUAL_FLOW_TEST_MARKER || '').trim();
+  if (explicit) {
+    return explicit;
+  }
+
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  const bytes = randomBytes(8);
+  const suffix = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+  return `manual-smoke-${suffix}`;
 }
 
 function printBrowserSnippet(baseUrlValue, payloadsValue) {
@@ -158,6 +174,7 @@ function printBrowserSnippet(baseUrlValue, payloadsValue) {
   console.log('Paste this into a browser console on the checked host only after replacing controlled contact placeholders.');
   console.log('The snippet sends POST requests and may create controlled test leads.');
   console.log('');
+  console.log(`const tacticumManualSuccessFlowQaMarker = '${qaMarker}';`);
   console.log(`const tacticumManualSuccessFlowPayloads = ${JSON.stringify(snippetPayloads, null, 2)};`);
   console.log(`const tacticumManualSuccessFlowContact = {
   name: '<controlled_test_name>',
@@ -169,6 +186,40 @@ for (const value of Object.values(tacticumManualSuccessFlowContact)) {
   if (/^<.*>$/.test(value)) {
     throw new Error('Replace controlled test contact placeholders before sending requests.');
   }
+}
+
+function tacticumManualSuccessFlowMaskId(value) {
+  const stringValue = String(value || '');
+  if (!stringValue) {
+    return '';
+  }
+  if (stringValue.length <= 8) {
+    return 'masked-' + stringValue.length;
+  }
+  return stringValue.slice(0, 4) + '-masked-' + stringValue.slice(-4);
+}
+
+function tacticumManualSuccessFlowClean(value) {
+  return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && item !== ''));
+}
+
+function tacticumManualSuccessFlowSafeBody(body) {
+  const payload = body && typeof body === 'object' ? body : {};
+  const groupId = payload.group_id || payload.groupId || payload?.data?.group_id || '';
+  const code = typeof payload.code === 'string' ? payload.code : '';
+  const error = typeof payload.error === 'string' && payload.error.length <= 80 ? payload.error : '';
+  const upstreamStatus = Number(payload.upstream_status);
+
+  return tacticumManualSuccessFlowClean({
+    success: payload.success === true,
+    code,
+    error_code: error,
+    upstream_status: Number.isFinite(upstreamStatus) ? upstreamStatus : undefined,
+    has_response: Boolean(payload.response),
+    has_group_id: Boolean(groupId),
+    masked_group_id: groupId ? tacticumManualSuccessFlowMaskId(groupId) : '',
+    has_offer_url: Boolean(payload.offer_url || payload.offerUrl)
+  });
 }
 
 async function tacticumManualSuccessFlowPost(flowName, flow) {
@@ -193,11 +244,18 @@ async function tacticumManualSuccessFlowPost(flowName, flow) {
     body = {raw: await response.text()};
   }
 
+  const safeBody = tacticumManualSuccessFlowSafeBody(body);
   return {
     flow: flowName,
+    qa_marker: tacticumManualSuccessFlowQaMarker,
     status: response.status,
     expected_result: flow.expected_result,
-    body
+    safe_body: safeBody,
+    result_hint: [
+      'status=' + response.status,
+      safeBody.code ? 'code=' + safeBody.code : '',
+      safeBody.error_code ? 'error=' + safeBody.error_code : ''
+    ].filter(Boolean).join(' ')
   };
 }
 
@@ -205,7 +263,11 @@ const tacticumManualSuccessFlowResults = [];
 for (const [flowName, flow] of Object.entries(tacticumManualSuccessFlowPayloads)) {
   tacticumManualSuccessFlowResults.push(await tacticumManualSuccessFlowPost(flowName, flow));
 }
-tacticumManualSuccessFlowResults;`);
+({
+  qa_marker: tacticumManualSuccessFlowQaMarker,
+  checked_at: new Date().toISOString(),
+  results: tacticumManualSuccessFlowResults
+});`);
 }
 
 function printCurlTemplates(baseUrlValue, payloadsValue) {
@@ -274,4 +336,5 @@ function printUsage() {
   console.error('  TACTICUM_MANUAL_FLOW_TEST_NAME=<controlled test name>');
   console.error('  TACTICUM_MANUAL_FLOW_TEST_EMAIL=<controlled test email>');
   console.error('  TACTICUM_MANUAL_FLOW_TEST_PHONE=<controlled test phone>');
+  console.error('  TACTICUM_MANUAL_FLOW_TEST_MARKER=<optional-safe-letters-only-marker>');
 }

@@ -3,7 +3,7 @@
 import { readFile } from 'node:fs/promises';
 
 const args = process.argv.slice(2);
-const knownOptions = new Set(['--taxonomy', '--source-check', '--browser', '--evidence', '--json', '--all', '--help']);
+const knownOptions = new Set(['--taxonomy', '--source-check', '--browser', '--evidence', '--owner-checklist', '--json', '--all', '--help']);
 const unknownOptions = args.filter((arg) => arg.startsWith('--') && !knownOptions.has(arg));
 
 if (unknownOptions.length > 0) {
@@ -21,6 +21,7 @@ const selectedModes = new Set(args.filter((arg) => arg.startsWith('--')));
 if (selectedModes.size === 0 || selectedModes.has('--all')) {
   selectedModes.add('--taxonomy');
   selectedModes.add('--source-check');
+  selectedModes.add('--owner-checklist');
   selectedModes.add('--browser');
   selectedModes.add('--evidence');
 }
@@ -37,6 +38,7 @@ const output = {
   modes: Array.from(selectedModes).filter((mode) => mode !== '--json').map((mode) => mode.replace(/^--/, '')),
   taxonomy,
   source_check: sourceCheck,
+  owner_checklist: selectedModes.has('--owner-checklist') ? buildOwnerChecklist(baseUrl, taxonomy) : null,
   browser_observer: selectedModes.has('--browser') ? buildBrowserObserverSnippet(counterId) : null,
   evidence_template: selectedModes.has('--evidence') ? buildEvidenceTemplate(counterId, baseUrl, taxonomy) : null,
   evidence_rules: [
@@ -164,7 +166,17 @@ function buildEvidenceTemplate(counterIdValue, baseUrlValue, taxonomyValue) {
     counter_id: counterIdValue,
     checked_at: '<YYYY-MM-DDTHH:mm:ss+03:00>',
     checked_by: '<owner>',
+    observed_after: '<YYYY-MM-DDTHH:mm:ss+03:00>',
     goals: requiredGoals,
+    goal_observations: requiredGoals.map((goal) => ({
+      goal,
+      status: 'observed',
+      params_safe: true,
+    })),
+    checked_markers: {
+      manual_success_flow: '<safe-manual-qa-marker-or-not_applicable>',
+      staff_sale_upstream: '<safe-staff-qa-marker-or-not_applicable>',
+    },
     staff_order_goal_note: 'price-specialist observed through tacticum_form_success; use form_id=price-specialist in Metrika/tag-manager evidence',
     pii_check: 'goal params contain no name, phone, email, message, summary, raw payload, cookie/session material or raw URL query',
     checked_urls: [
@@ -177,6 +189,65 @@ function buildEvidenceTemplate(counterIdValue, baseUrlValue, taxonomyValue) {
       `${baseUrlValue}/forum/`,
     ],
     external_evidence: '<safe-internal-ticket-or-screenshot-link>',
+  };
+}
+
+function buildOwnerChecklist(baseUrlValue, taxonomyValue) {
+  const requiredGoals = Array.from(new Set(taxonomyValue.flatMap((group) => group.required_for_gate)));
+  return {
+    counter_id: '103471113',
+    where_to_check: 'Yandex.Metrika counter 103471113 or connected tag manager goal/event evidence view',
+    checked_urls: [
+      `${baseUrlValue}/price/`,
+      `${baseUrlValue}/`,
+      `${baseUrlValue}/calculator/`,
+      `${baseUrlValue}/platform/`,
+      `${baseUrlValue}/agents/`,
+      `${baseUrlValue}/dev/`,
+      `${baseUrlValue}/forum/`,
+    ],
+    required_goals: requiredGoals,
+    acceptable_flow_results: [
+      'forms: tacticum_form_submit and tacticum_form_success for controlled default/modal/staff forms',
+      'product funnel: tacticum_product_view, tacticum_product_cta_click and tacticum_product_form_submit for product pages/CTA',
+      'ai chat: tacticum_chat_send and tacticum_chat_success for controlled AI chat response, or tacticum_chat_error only if the controlled flow failed as expected and is documented',
+      'prefill: tacticum_prefill_success for real group_id prefill, or tacticum_prefill_error with code/status for controlled empty group_id',
+    ],
+    safe_params_allowlist: [
+      'page_path',
+      'form_id',
+      'endpoint',
+      'surface',
+      'status',
+      'code',
+      'product',
+      'page_role',
+      'scenario',
+      'cta',
+      'has_group_id',
+      'has_offer_url',
+      'has_prefill_summary',
+    ],
+    forbidden_params: [
+      'name',
+      'phone',
+      'email',
+      'message',
+      'summary',
+      'payload',
+      'raw URL query',
+      'cookie/session material',
+      'token/secret',
+    ],
+    transfer_back: [
+      'counter_id',
+      'checked_at',
+      'checked_by',
+      'observed_after',
+      'goals list',
+      'goal_observations with observed/status and params_safe=true',
+      'safe internal evidence link/id if screenshots are stored outside repo',
+    ],
   };
 }
 
@@ -251,6 +322,11 @@ function printText(outputValue) {
     console.log(`missing_events: ${outputValue.source_check.missing_events.length > 0 ? outputValue.source_check.missing_events.join(', ') : '-'}`);
   }
 
+  if (outputValue.owner_checklist) {
+    printSection('Owner Checklist');
+    console.log(JSON.stringify(outputValue.owner_checklist, null, 2));
+  }
+
   if (outputValue.browser_observer) {
     printSection('Browser Observer Snippet');
     console.log('Paste this into a browser console before running owner-controlled flows.');
@@ -281,7 +357,7 @@ function trimTrailingSlash(value) {
 }
 
 function printUsage() {
-  console.error('Usage: npm run metrika:goals:helper -- [--taxonomy] [--source-check] [--browser] [--evidence] [--json] [--all]');
+  console.error('Usage: npm run metrika:goals:helper -- [--taxonomy] [--source-check] [--owner-checklist] [--browser] [--evidence] [--json] [--all]');
   console.error('');
   console.error('Environment:');
   console.error('  TACTICUM_METRIKA_COUNTER_ID=103471113');
