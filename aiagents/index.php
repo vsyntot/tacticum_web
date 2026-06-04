@@ -3,8 +3,8 @@ require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_be
 
 $APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
 $APPLICATION->SetPageProperty("tacticum_body_class", "bg-white font-sans tacticum-aiagents-page");
-$APPLICATION->SetTitle("AI-боты и Telegram-агенты для B2B-сценариев - Тактикум");
-$APPLICATION->SetPageProperty("description", "Tacticum помогает быстро проверить и запустить AI-бота в Telegram для продаж, консультаций и лидогенерации: демо, прототип и внедрение.");
+$APPLICATION->SetTitle("Telegram-бот прототип для B2B-сценариев - Тактикум");
+$APPLICATION->SetPageProperty("description", "Service route Tacticum для быстрого Telegram-бот прототипа: проверьте диалог, квалификацию лида и следующий шаг перед внедрением Tacticum Agents.");
 tacticum_apply_seo_defaults('/aiagents/', [
     'image' => SITE_TEMPLATE_PATH . '/images/aibot_hero_bg_big.png',
     'image_width' => 1536,
@@ -13,8 +13,8 @@ tacticum_apply_seo_defaults('/aiagents/', [
     'schema' => [
         '@type' => 'Service',
         '@id' => tacticum_public_url('/aiagents/#ai-bot-service'),
-        'name' => 'AI-боты и Telegram-агенты для B2B-сценариев',
-        'serviceType' => 'AI agents and Telegram bots',
+        'name' => 'Telegram-бот прототип для B2B-сценариев',
+        'serviceType' => 'Telegram bot prototype and service route',
         'provider' => [
             '@id' => tacticum_public_url('/#organization'),
         ],

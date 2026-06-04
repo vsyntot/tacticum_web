@@ -64,7 +64,7 @@ php tools/product-content-check.php --strict
    - checker не заменяет rendered smoke, но ловит рассинхрон Bitrix content/config до открытия публичных страниц.
 15. Bitrix product content кешируется через `Bitrix\Main\Data\Cache` в `/tacticum/product_content`:
    - TTL задаётся `products.cache_ttl`;
-   - cache key включает IDs `products`, `product_blocks`, `product_use_cases`;
+   - cache key включает schema version, source mode and IDs `products`, `product_blocks`, `product_use_cases`;
    - managed tags регистрируются как `iblock_id_*` для product-инфоблоков;
    - event handlers чистят cache при add/update/delete/property update product elements;
    - `npm run product:content:cache-clear` gives owners a Bitrix/PHP CLI cache clear for switch/rollback, with `--dry-run` evidence available through `product:content:cache-clear:dry-run`.

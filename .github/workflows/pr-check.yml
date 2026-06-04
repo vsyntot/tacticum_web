@@ -65,9 +65,17 @@ jobs:
           node --check tools/config-contract-check.mjs
           node --check tools/legacy-sale-sunset-check.mjs
           node --check tools/bitrix-architecture-check.mjs
+          node --check tools/product-content-schema-check.mjs
+          node --check tools/product-content-target-evidence-check.mjs
+          node --check tools/product-tech-challenge-board-check.mjs
+          node --check tools/product-tech-challenge-approval-check.mjs
+          node --check tools/product-tech-challenge-owner-status-check.mjs
+          node --check tools/product-tech-challenge-issue-backlog-check.mjs
           npm run config:check
           npm run seo:check
           npm run bitrix:check
+          npm run product:content:safety:check
+          npm run product:challenge:check
           npm run sale:sunset:check
           npm run release:signoff:check -- docs/workflow/release-signoff.example.json
           npm run release:signoff:self-test

@@ -210,6 +210,87 @@ const productSeoWithoutSchemaManifest = {
   ],
 };
 
+function cloneSource() {
+  return JSON.parse(JSON.stringify(source));
+}
+
+function validCspEnforceGate() {
+  return {
+    status: 'passed',
+    owner: 'Security + Frontend + QA',
+    evidence: {
+      environment: 'staging',
+      checked_at: '2026-06-04T12:00:00+03:00',
+      checked_by: 'Security Owner',
+      mode: 'enforce',
+      report_only_baseline: 'aggregate report-only baseline has no unexpected violations',
+      inline_inventory: 'Bitrix inline inventory reviewed without raw script content',
+      vendor_inventory: 'Yandex widgets and Bitrix toolbar origins reviewed',
+      staging_enforce_smoke: 'public pages, forms, chat, price, map and toolbar smoke passed',
+      rollback: 'config switch back to security.csp_mode=report-only is documented',
+      violations_triaged: true,
+      rollback_to_report_only_documented: true,
+    },
+  };
+}
+
+function validSensitiveEndpointAccessGate() {
+  return {
+    status: 'passed',
+    owner: 'Security + Backend + QA',
+    evidence: {
+      environment: 'staging',
+      checked_at: '2026-06-04T12:10:00+03:00',
+      checked_by: 'Security Owner',
+      flow: 'private proof request fixture',
+      access_model: 'authenticated-session',
+      allowed_result: 'qualified owner session reaches allowed state',
+      denied_result: 'anonymous request reaches denied state',
+      expired_or_malformed_result: 'expired or malformed credential reaches denied state',
+      noindex_or_cache_policy: 'noindex and private/no-cache policy confirmed',
+      logging_pii_check: 'logs and release evidence contain safe aggregate IDs only',
+    },
+  };
+}
+
+function validEndpointRiskClassGate() {
+  return {
+    status: 'passed',
+    owner: 'Security + Backend + DevOps',
+    evidence: {
+      checked_at: '2026-06-04T12:20:00+03:00',
+      checked_by: 'Backend Owner',
+      endpoint: '/local/rest/private_proof.php',
+      risk_class: 'PRIVATE_PROOF_DOC',
+      origin_csrf: 'origin and CSRF requirements match Sprint 22 matrix',
+      rate_limit: 'rl-sensitive policy selected',
+      auth_ip_proxy: 'authenticated access required; proxy ownership documented',
+      logging_evidence: 'aggregate status counters only; no contact fields',
+    },
+  };
+}
+
+function validLegacyFinalModeGate() {
+  return {
+    status: 'passed',
+    owner: 'Architect + Backend + DevOps + PM',
+    evidence: {
+      checked_at: '2026-07-01T12:00:00+03:00',
+      checked_by: 'Backend Owner',
+      aliases: [
+        '/local/rest/tacticum_offer.php',
+        '/local/rest/tacticum_sale.php',
+      ],
+      final_mode: '410',
+      inventory_window: 'full external inventory window complete; aggregate only',
+      access_log_aggregate: 'zero hits by endpoint, day and status; safe counts only',
+      crm_upstream_report: 'zero legacy source leads; safe counts only',
+      implementation_result: 'final mode smoke passed for both aliases',
+      rollback_or_support_plan: 'restore compatibility endpoint if owner evidence requires support extension',
+    },
+  };
+}
+
 const cases = [
   {
     name: 'placeholder manual evidence',
@@ -343,6 +424,46 @@ const cases = [
       payload.release.commit = 'abc123 + working-tree changes';
     },
   },
+  {
+    name: 'csp enforce missing rollback evidence',
+    expected: /csp-enforce: missing rollback/,
+    mutate(payload) {
+      payload.gates['csp-enforce'] = validCspEnforceGate();
+      delete payload.gates['csp-enforce'].evidence.rollback;
+    },
+  },
+  {
+    name: 'sensitive endpoint invalid access model',
+    expected: /access_model/,
+    mutate(payload) {
+      payload.gates['sensitive-endpoint-access'] = validSensitiveEndpointAccessGate();
+      payload.gates['sensitive-endpoint-access'].evidence.access_model = 'plain-public-url';
+    },
+  },
+  {
+    name: 'endpoint risk class http endpoint',
+    expected: /endpoint URL must use HTTPS/,
+    mutate(payload) {
+      payload.gates['endpoint-risk-class'] = validEndpointRiskClassGate();
+      payload.gates['endpoint-risk-class'].evidence.endpoint = 'http://example.test/local/rest/private_proof.php';
+    },
+  },
+  {
+    name: 'legacy final mode missing alias',
+    expected: /aliases must include \/local\/rest\/tacticum_sale\.php/,
+    mutate(payload) {
+      payload.gates['legacy-final-mode'] = validLegacyFinalModeGate();
+      payload.gates['legacy-final-mode'].evidence.aliases = ['/local/rest/tacticum_offer.php'];
+    },
+  },
+  {
+    name: 'future gate raw logs key',
+    expected: /unsafe key.*raw_logs/,
+    mutate(payload) {
+      payload.gates['legacy-final-mode'] = validLegacyFinalModeGate();
+      payload.gates['legacy-final-mode'].evidence.raw_logs = 'raw access log lines are not allowed';
+    },
+  },
 ];
 const draftCases = [
   {
@@ -388,8 +509,25 @@ try {
     `${JSON.stringify(productSeoWithoutBlocksManifest, null, 2)}\n`,
   );
 
+  const validFutureGatePayload = cloneSource();
+  validFutureGatePayload.gates['csp-enforce'] = validCspEnforceGate();
+  validFutureGatePayload.gates['sensitive-endpoint-access'] = validSensitiveEndpointAccessGate();
+  validFutureGatePayload.gates['endpoint-risk-class'] = validEndpointRiskClassGate();
+  validFutureGatePayload.gates['legacy-final-mode'] = validLegacyFinalModeGate();
+  const validFutureGateFile = join(tempDir, 'valid-future-gates.json');
+  await writeFile(validFutureGateFile, `${JSON.stringify(validFutureGatePayload, null, 2)}\n`);
+  const validFutureGateResult = spawnSync(process.execPath, [checker, validFutureGateFile], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  });
+  if (validFutureGateResult.status !== 0) {
+    console.error('Release sign-off self-test failed: valid future security gates did not pass.');
+    console.error(`${validFutureGateResult.stderr}\n${validFutureGateResult.stdout}`.trim());
+    process.exit(1);
+  }
+
   for (const testCase of cases) {
-    const payload = JSON.parse(JSON.stringify(source));
+    const payload = cloneSource();
     testCase.mutate(payload);
 
     const file = join(tempDir, `${testCase.name.replace(/[^a-z0-9]+/gi, '-')}.json`);
@@ -414,7 +552,7 @@ try {
   }
 
   for (const testCase of draftCases) {
-    const payload = JSON.parse(JSON.stringify(source));
+    const payload = cloneSource();
     testCase.mutate(payload);
 
     const file = join(tempDir, `${testCase.name.replace(/[^a-z0-9]+/gi, '-')}.json`);

@@ -136,9 +136,14 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
         'errors' => $errors,
         'iblocks' => $iblocks,
         'products' => [
-            'source' => (string)($productsConfig['source'] ?? 'auto'),
+            'source' => (string)($productsConfig['source'] ?? 'bitrix'),
+            'allow_fallback' => (bool)($productsConfig['allow_fallback'] ?? false),
             'cache_ttl' => isset($productsConfig['cache_ttl']) ? (int)$productsConfig['cache_ttl'] : null,
+            'schema_version' => function_exists('tacticum_product_content_schema_version')
+                ? tacticum_product_content_schema_version()
+                : 'unknown',
             'source_config' => tacticum_config_runtime_check_value_source($config, 'products', 'source'),
+            'allow_fallback_config' => tacticum_config_runtime_check_value_source($config, 'products', 'allow_fallback'),
             'cache_ttl_config' => tacticum_config_runtime_check_value_source($config, 'products', 'cache_ttl'),
         ],
         'ai' => [
@@ -194,8 +199,11 @@ function tacticum_config_runtime_check_print(array $summary): void
     tacticum_config_runtime_check_line('');
     tacticum_config_runtime_check_line('Products: source=' . $summary['products']['source']
         . ' (' . $summary['products']['source_config'] . ')'
+        . ', allow_fallback=' . ($summary['products']['allow_fallback'] ? 'true' : 'false')
+        . ' (' . $summary['products']['allow_fallback_config'] . ')'
         . ', cache_ttl=' . (string)$summary['products']['cache_ttl']
-        . ' (' . $summary['products']['cache_ttl_config'] . ')');
+        . ' (' . $summary['products']['cache_ttl_config'] . ')'
+        . ', schema_version=' . $summary['products']['schema_version']);
 
     tacticum_config_runtime_check_line('');
     tacticum_config_runtime_check_line('AI base URLs:');

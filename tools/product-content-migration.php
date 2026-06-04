@@ -620,7 +620,7 @@ final class TacticumProductContentMigration
         $this->line("'product_use_cases' => {$useCasesIblockId},");
         $this->line('');
         $this->line("Product source flag:");
-        $this->line("'products' => ['source' => 'auto'],");
+        $this->line("'products' => ['source' => 'bitrix', 'allow_fallback' => false],");
     }
 }
 

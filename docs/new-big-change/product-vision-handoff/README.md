@@ -29,6 +29,7 @@
 - `../../design-system-handoff/` - AS IS дизайн-система, компоненты и JS-контракты;
 - `../../workflow/current-state.md` - фактическое состояние сайта;
 - `../../workflow/gap-analysis.md` - текущие технологические и продуктовые gaps сайта.
+- `../../workflow/product-tech-challenge-gap-register-2026-06-04.md` - актуальный workflow register UX/UI/Arch/Components/Stack/Security/Content/SEO/Release gaps после 04.06.2026 runtime/config challenge.
 
 PDF-файлы в `docs/new-big-change/` рассматриваются как презентационные экспорты соответствующих markdown/html материалов.
 
@@ -86,6 +87,8 @@ PDF-файлы в `docs/new-big-change/` рассматриваются как �
 - какие gaps нельзя считать закрытыми без внешней evidence.
 
 Документы `17-23` переводят gaps из `14` в review/approval packages. Документы `24-28` фиксируют повторный post-challenge: они детализируют слабые места текущего решения, но не создают новую систему gap ID и не закрывают gaps без owner approval and evidence.
+
+04.06.2026 поверх этого пакета добавлен workflow-level runtime/config challenge layer: `../../workflow/product-tech-challenge-gap-register-2026-06-04.md` and `../../workflow/product-tech-challenge-execution-roadmap-2026-06-04.md`. Он вводит практические task IDs `CFG-*`, `UX-*`, `UI-*`, `ARCH-*`, `CMP-*`, `STACK-*`, `CONTENT-*`, `SEC-*`, `REL-*` для execution planning, не заменяя product handoff gaps `PB-*`, `CJM-*`, `UI-*`, `ARCH-*`, `SEO-TOBE-*`, `REL-*` and `16-gap-closure-action-register.json`. Детальная sprint-сетка для этого слоя зафиксирована в `../../workflow/sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md` and Sprint 17-23 docs.
 
 Sprint-пакет в `sprints/` теперь содержит две волны: baseline `00-08` and post-challenge `09-14`. Вторая волна напрямую опирается на `24-28` and decision IDs `D-01` - `D-13`.
 

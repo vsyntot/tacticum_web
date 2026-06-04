@@ -46,8 +46,11 @@ if (!function_exists('tacticum_product_page_render_use_cases')) {
                         ?>
                         <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                             <?php if ($itemTitle !== ''): ?>
-                                <h3 class="mb-5 text-xl font-bold text-secondary"><?=tacticum_product_page_html($itemTitle)?></h3>
+                                <h3 class="mb-3 text-xl font-bold text-secondary"><?=tacticum_product_page_html($itemTitle)?></h3>
                             <?php endif; ?>
+                            <div class="mb-5">
+                                <?php tacticum_product_page_render_proof_status($item, 'pilot-artifact'); ?>
+                            </div>
                             <dl class="space-y-4 text-sm">
                                 <?php if ($trigger !== ''): ?>
                                     <div>

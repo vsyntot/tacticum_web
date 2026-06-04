@@ -28,6 +28,8 @@
 - подтвердить Метрику, Bitrix admin toolbar, contact modal, forms, chat и `/price/` actions;
 - иметь rollback на `report-only`.
 
+Sprint 22 follow-up 04.06.2026: `docs/workflow/product-security-release-legacy-closure-decision-2026-06-04.md` expands this future gate into an approval package for `ARCH-007` and `SEC-003`: endpoint-sensitive release gate support, report-only triage, inline/vendor inventory, staging enforce smoke and rollback remain required before production enforce.
+
 ## Acceptance
 
 `FSC-010` закрыт как accepted decision: report-only CSP является target state для стабилизации, enforce остаётся будущим hardening scope.

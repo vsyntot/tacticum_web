@@ -61,18 +61,11 @@ const expectedProductMenuUrls = [
 ];
 
 const expectedProductScenarioValues = [
-  'platform-assessment',
-  'platform-pilot',
-  'deployment-readiness',
-  'agent-scenario-selection',
-  'rag-documents-check',
-  'pilot-rollout',
-  'ai-workflow-assessment',
-  'quality-gates-pilot',
-  'design-system-guardrails',
-  'dialog-flow-assessment',
-  'scenario-llm-pilot',
-  'support-analytics-review'
+  'pilot',
+  'architecture-session',
+  'procurement-security',
+  'team-delivery',
+  'estimate'
 ];
 
 const forbiddenProductSchemaFields = [
@@ -582,8 +575,13 @@ function assertPublicPageComponentization() {
       fail(`tacticum_config.example.php must document ${configKey} iblock key`);
     }
   }
-  if (!configExampleSource.includes("'products' => [") || !configExampleSource.includes("'source' => 'auto'") || !configExampleSource.includes("'cache_ttl' => 300")) {
-    fail('tacticum_config.example.php must document products.source=auto and products.cache_ttl');
+  if (
+    !configExampleSource.includes("'products' => [")
+    || !configExampleSource.includes("'source' => 'bitrix'")
+    || !configExampleSource.includes("'allow_fallback' => false")
+    || !configExampleSource.includes("'cache_ttl' => 300")
+  ) {
+    fail('tacticum_config.example.php must document products.source=bitrix, disabled fallback and products.cache_ttl');
   }
   if (
     !restHelpersSource.includes("in_array('products', $scopes, true)")
@@ -935,6 +933,9 @@ function assertPublicPageComponentization() {
   if (!productRendererSource.includes('tacticum_product_page_render_proof')) {
     fail('product page renderer must support product proof readiness blocks');
   }
+  if (!productRendererSource.includes('tacticum_product_page_render_proof_status') || !productRendererSource.includes('data-product-proof-status')) {
+    fail('product page renderer must expose safe product proof status badges for owner-evidence UI');
+  }
   if (!productRendererSource.includes('tacticum_product_page_schema') || !productRendererSource.includes('tacticum_product_page_software_schema')) {
     fail('product page renderer must build product JSON-LD schema from shared product page data');
   }
@@ -949,6 +950,25 @@ function assertPublicPageComponentization() {
   }
   if (!leadCtaFormTemplateSource.includes('name="lead_scenario"')) {
     fail('tacticum:lead.cta template must render optional lead_scenario select');
+  }
+  if (!leadCtaFormTemplateSource.includes('data-tacticum-returning-lead-panel') || !formsSource.includes('tacticum:returningLead:v1')) {
+    fail('tacticum:lead.cta and forms.js must support no-PII returning lead state');
+  }
+  const returningLeadStart = formsSource.indexOf('const markReturningLead');
+  const returningLeadEnd = formsSource.indexOf('const applyReturningLeadState');
+  const returningLeadSource = returningLeadStart >= 0 && returningLeadEnd > returningLeadStart
+    ? formsSource.slice(returningLeadStart, returningLeadEnd)
+    : '';
+  if (!returningLeadSource.includes('product:') || !returningLeadSource.includes('form_id:')) {
+    fail('forms.js returning lead marker must persist only safe product/form metadata');
+  }
+  for (const forbiddenReturningLeadField of ['email', 'phone', 'name', 'message', 'company']) {
+    if (
+      returningLeadSource.includes(`payload.${forbiddenReturningLeadField}`)
+      || returningLeadSource.includes(`${forbiddenReturningLeadField}:`)
+    ) {
+      fail(`forms.js returning lead marker must not persist PII field ${forbiddenReturningLeadField}`);
+    }
   }
   if (!homepageSource.includes('Как выбрать продукт') || !homepageSource.includes('Начните с ситуации') || !homepageSource.includes('Старт: architecture assessment')) {
     fail('homepage must include product fit matrix decision-support block');

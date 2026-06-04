@@ -106,3 +106,5 @@ JS сейчас зависит от конкретных DOM-контракто�
 ## Связанный TO BE Approval Pack
 
 Для закрытия design-system gaps в AS IS / TO BE product backlog использовать `../new-big-change/product-vision-handoff/22-phase-2-design-system-approval-pack.md`. Он связывает этот AS IS handoff with approval rules for `UI-001`, `UI-002`, `UI-003`, `UI-005`, `UI-006` and `UI-007`: token source, product components, form states, proof/status UI, `/price/` mobile UX and chat states.
+
+04.06.2026 для product-tech challenge Sprint 20 добавлен workflow-level TO BE decision pack: `../workflow/product-to-be-design-system-decision-2026-06-04.md`. Он не заменяет AS IS contracts in this folder; он задаёт approval decisions for token source, enterprise density, CSS pipeline, hero taxonomy, proof/status UI, diagrams, forms/chat states, `/price/` mobile behavior, icon taxonomy and traceability before implementation.

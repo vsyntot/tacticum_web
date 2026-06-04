@@ -68,3 +68,5 @@ AS IS contract уже даёт воспроизводимый снимок те�
 - mapping from new design tokens to Bitrix templates and generated Tailwind utilities.
 
 Не закрывать `UI-001` как полностью done, пока TO BE source of truth и naming/mapping не утверждены дизайнером и frontend.
+
+Sprint 20 draft decision 04.06.2026: `docs/workflow/product-to-be-design-system-decision-2026-06-04.md` recommends a hybrid TO BE source model: Figma variables as design source, repo-owned token JSON bridge for review/guards, and Tailwind source + `styles/global.css` as runtime implementation. This is not approved final token source until Designer + Frontend sign-off.

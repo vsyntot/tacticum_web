@@ -38,11 +38,30 @@ Status: `completed on production`; runbook retained for repeat switches and roll
 ```bash
 npm run product:content:cache-clear:dry-run
 ```
+Dry-run evidence must include source mode, TTL, schema version and managed tags.
+- Local Git seed/fallback content passes typed schema guard before migration/update:
+
+```bash
+npm run product:content:schema:self-test
+npm run product:content:schema:negative-test
+npm run product:content:schema:check
+npm run product:content:safety:check
+```
 - Target Bitrix/PHP environment passed:
 
 ```bash
 npm run product:content:check
 npm run product:content:check:strict
+npm run product:content:check:strict:json
+```
+
+Strict mode validates live assembled product page schema and prints `schema_issues` per product in addition to source, use-case and missing-block evidence. JSON mode is the preferred release evidence artifact.
+
+Save and validate strict JSON evidence:
+
+```bash
+npm run product:content:check:strict:json > /tmp/tacticum-product-content-strict.json
+npm run product:content:target-evidence:check -- --file=/tmp/tacticum-product-content-strict.json --allow-source=bitrix
 ```
 
 - Public source marker passed:
@@ -99,7 +118,10 @@ npm run product:content:cache-clear
 4. Run:
 
 ```bash
+npm run product:content:safety:check
 npm run product:content:check:strict
+npm run product:content:check:strict:json > /tmp/tacticum-product-content-strict.json
+npm run product:content:target-evidence:check -- --file=/tmp/tacticum-product-content-strict.json --allow-source=bitrix
 npm run product:source:http:prod
 npm run release:public-precheck:prod
 ```
@@ -147,16 +169,18 @@ Production `products.source=bitrix` switch completed on 03.06.2026.
     "status": "passed",
     "source_mode": "bitrix",
     "cache_ttl": 300,
+    "schema_version": "v1",
     "managed_tags": ["iblock_id_21", "iblock_id_22", "iblock_id_23"]
   },
   "product_content_check_strict": {
     "status": "passed",
     "source_mode": "bitrix",
+    "schema_version": "v1",
     "products": {
-      "platform": {"source": "bitrix", "use_cases": 3, "missing_blocks": []},
-      "agents": {"source": "bitrix", "use_cases": 3, "missing_blocks": []},
-      "dev": {"source": "bitrix", "use_cases": 3, "missing_blocks": []},
-      "forum": {"source": "bitrix", "use_cases": 3, "missing_blocks": []}
+      "platform": {"source": "bitrix", "use_cases": 3, "missing_blocks": [], "schema_issues": 0},
+      "agents": {"source": "bitrix", "use_cases": 3, "missing_blocks": [], "schema_issues": 0},
+      "dev": {"source": "bitrix", "use_cases": 3, "missing_blocks": [], "schema_issues": 0},
+      "forum": {"source": "bitrix", "use_cases": 3, "missing_blocks": [], "schema_issues": 0}
     }
   },
   "product_source_http": {
@@ -182,7 +206,9 @@ Production `products.source=bitrix` switch completed on 03.06.2026.
   "source_after": "bitrix",
   "product_content_check": "passed",
   "product_content_check_strict": "passed",
+  "product_content_check_strict_json": "passed",
   "product_content_cache_clear": "passed",
+  "product_schema_version": "v1",
   "product_source_http": "passed",
   "release_public_precheck": "passed",
   "content_review": {

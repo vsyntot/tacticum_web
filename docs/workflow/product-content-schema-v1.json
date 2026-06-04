@@ -1,0 +1,156 @@
+{
+  "schema_id": "tacticum-product-content-v1",
+  "version": 1,
+  "source": "local/php_interface/include/product_data/*.php",
+  "target_iblocks": ["products", "product_blocks", "product_use_cases"],
+  "product_codes": ["platform", "agents", "dev", "forum"],
+  "allowed_block_types": [
+    "hero",
+    "fit_guide",
+    "section",
+    "architecture",
+    "use_cases",
+    "comparison",
+    "procurement",
+    "rollout",
+    "proof",
+    "faq",
+    "cta"
+  ],
+  "required_blocks": [
+    "fit_guide",
+    "architecture",
+    "use_cases",
+    "comparison",
+    "procurement",
+    "rollout",
+    "proof",
+    "faq",
+    "cta"
+  ],
+  "top_level": {
+    "required_strings": [
+      "eyebrow",
+      "title",
+      "lead",
+      "primary_cta_text",
+      "secondary_cta_text",
+      "secondary_cta_href"
+    ],
+    "required_arrays": ["badges", "hero_cards", "sections"],
+    "required_objects": [
+      "fit_guide",
+      "architecture",
+      "use_cases",
+      "comparison",
+      "procurement",
+      "rollout",
+      "proof",
+      "faq",
+      "cta"
+    ]
+  },
+  "blocks": {
+    "hero_cards": {
+      "min_items": 1,
+      "item_required_strings": ["title", "text"]
+    },
+    "fit_guide": {
+      "required_columns": ["fits", "not_fits", "start"],
+      "column_min_items": 1
+    },
+    "section": {
+      "min_items": 1,
+      "item_required_strings_any": ["title", "text"],
+      "cards_min_items": 1,
+      "card_required_strings": ["title", "text"]
+    },
+    "architecture": {
+      "required_strings": ["title", "text"],
+      "layers_min_items": 1,
+      "layer_required_strings": ["title", "text"],
+      "layer_items_min_items": 1
+    },
+    "use_cases": {
+      "required_strings": ["title", "text"],
+      "items_min_items": 3,
+      "item_required_strings": [
+        "title",
+        "trigger",
+        "owner",
+        "pilot_input",
+        "pilot_output",
+        "limitation"
+      ],
+      "allowed_proof_statuses": [
+        "pilot-artifact",
+        "private-evidence",
+        "public-safe",
+        "pending",
+        "blocked"
+      ]
+    },
+    "comparison": {
+      "required_strings": ["title", "text"],
+      "columns_min_items": 2,
+      "column_required_strings": ["title", "text"],
+      "column_items_min_items": 1
+    },
+    "procurement": {
+      "required_strings": ["title", "text", "note_text"],
+      "items_min_items": 1,
+      "item_required_strings": ["title", "text"],
+      "item_optional_icon": true
+    },
+    "rollout": {
+      "required_strings": ["title", "text"],
+      "steps_min_items": 3,
+      "step_required_strings": ["title", "text"]
+    },
+    "proof": {
+      "required_strings": ["title", "text"],
+      "items_min_items": 3,
+      "item_required_strings": ["meta", "title", "text"]
+    },
+    "faq": {
+      "required_strings": ["title", "text"],
+      "items_min_items": 3,
+      "item_required_strings": ["question", "answer"]
+    },
+    "cta": {
+      "required_strings": [
+        "form_id",
+        "field_prefix",
+        "title",
+        "text",
+        "form_title",
+        "button_text",
+        "scenario_label",
+        "scenario_empty_label"
+      ],
+      "scenario_options_min_items": 1,
+      "scenario_option_required_strings": ["VALUE", "LABEL"],
+      "allowed_scenario_values": [
+        "pilot",
+        "architecture-session",
+        "procurement-security",
+        "team-delivery",
+        "estimate"
+      ],
+      "lead_context_required_strings": [
+        "lead_entry",
+        "lead_page_role",
+        "lead_product",
+        "lead_intent",
+        "lead_cta",
+        "lead_next_step"
+      ]
+    }
+  },
+  "url_fields": [
+    "secondary_cta_href",
+    "comparison.columns[].href",
+    "procurement.cta_href"
+  ],
+  "safe_url_prefixes": ["/", "#", "https://"]
+}

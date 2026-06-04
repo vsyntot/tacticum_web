@@ -122,6 +122,8 @@ jobs:
           npm run config:check
           npm run seo:check
           npm run bitrix:check
+          npm run product:content:safety:check
+          npm run product:challenge:check
           npm run sale:sunset:check
           npm run gaps:known
           npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-06-01-product-first.draft.json

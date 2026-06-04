@@ -41,7 +41,8 @@ return [
         ],
     ],
     'products' => [
-        'source' => 'auto',
+        'source' => 'bitrix',
+        'allow_fallback' => false,
         'cache_ttl' => 300,
     ],
     'ai' => [

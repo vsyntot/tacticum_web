@@ -327,16 +327,24 @@ return [
         'scenario_empty_label' => 'Выберите ближайший сценарий',
         'scenario_options' => [
             [
-                'VALUE' => 'ai-workflow-assessment',
-                'LABEL' => 'Оценить текущий AI-assisted workflow',
+                'VALUE' => 'pilot',
+                'LABEL' => 'Пилот на одной команде',
             ],
             [
-                'VALUE' => 'quality-gates-pilot',
-                'LABEL' => 'Пилот quality gates на команде',
+                'VALUE' => 'architecture-session',
+                'LABEL' => 'Архитектура workflow и gates',
             ],
             [
-                'VALUE' => 'design-system-guardrails',
-                'LABEL' => 'Связать AI-разработку с дизайн-системой',
+                'VALUE' => 'procurement-security',
+                'LABEL' => 'Security и доступы к репозиториям',
+            ],
+            [
+                'VALUE' => 'team-delivery',
+                'LABEL' => 'Команда внедрения практик',
+            ],
+            [
+                'VALUE' => 'estimate',
+                'LABEL' => 'Оценка внедрения',
             ],
         ],
         'lead_context' => [

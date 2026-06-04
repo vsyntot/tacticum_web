@@ -1,7 +1,7 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 24.05.2026
+Дата последнего обновления: 04.06.2026
 
 Статусы:
 
@@ -16,6 +16,67 @@
 - `P1` — важно для ближайшего спринта;
 - `P2` — плановый backlog;
 - `P3` — nice-to-have.
+
+## Current Product Tech Challenge Layer — 04.06.2026
+
+Свежий технологический challenge текущего product-first решения зафиксирован отдельным документальным слоем:
+
+- полный source register: `docs/workflow/product-tech-challenge-gap-register-2026-06-04.md`;
+- execution roadmap: `docs/workflow/product-tech-challenge-execution-roadmap-2026-06-04.md`;
+- owner status tracker: `docs/workflow/product-tech-challenge-owner-status-tracker-2026-06-04.json`;
+- issue backlog: `docs/workflow/product-tech-challenge-issue-backlog-2026-06-04.md` / `.json`;
+- owner review runbook: `docs/workflow/product-tech-challenge-owner-review-runbook-2026-06-04.md`;
+- sprint roadmap Sprint 17-23: `docs/workflow/sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md`;
+- Codex plan: `docs/workflow/plans/2026-06-04-product-tech-challenge-documentation.md`.
+
+Этот слой покрывает 100% выявленных на 04.06.2026 gaps/tasks по UX, UI, Architecture, Components, Stack, Security, Content, SEO and Release. Он не заменяет исторические sprint closure sections ниже и не меняет machine-readable product handoff register `docs/new-big-change/product-vision-handoff/16-gap-closure-action-register.json`.
+
+### Challenge Verdict
+
+Текущее решение является сильным transitional MVP: Bitrix SSR, product-first pages, unified lead CTA, safe analytics and release guards уже дают рабочую основу. Главные риски теперь не в выборе стека, а в зрелости product content governance, structured sales qualification, proof/claims evidence, TO BE design system, frontend modularity and release/security hardening.
+
+### Current Gap Coverage
+
+| Cluster | Gap IDs | Current Risk |
+|---|---|---|
+| Config/runtime/content source | `CFG-001` - `CFG-006` | `products.source=bitrix` требует schema validation, fail-fast checks, cache/version discipline and config sync evidence |
+| UX/product journey | `UX-001` - `UX-010` | Product pages still need role-based CJM, CTA taxonomy, returning-lead path, pilot kits and `/agents/` vs `/aiagents/` decision |
+| UI/design system | `UI-001` - `UI-010` | TO BE tokens, density, proof/status UI, diagrams, form/chat states and `/price/` mobile UX are not approved yet |
+| Architecture/data/security | `ARCH-001` - `ARCH-012` | Product content governance, renderer ordering, CRM/upstream fields, analytics depth, CSP and release evidence need explicit decisions |
+| Components/frontend modules | `CMP-001` - `CMP-008` | Product partial boundaries, price/forms/chat module decomposition and design traceability need planned hardening |
+| Stack/build/quality | `STACK-001` - `STACK-007` | Stack should stay Bitrix SSR, but JS module policy, CSS/token pipeline and product schema guards need maturation |
+| Content/SEO/claims | `CONTENT-001` - `CONTENT-005` | Packaging, taxonomy, proof/claims, product evidence mapping and metadata need owner approval |
+| Security/release/legacy | `SEC-001` - `SEC-003`, `REL-001` - `REL-002` | Sensitive future flows, CSP enforce path, legacy sale alias inventory and future product sign-off discipline remain active |
+
+### Planning Rule
+
+Any future task that touches product pages, product content, forms/CRM, proof/claims, `/agents/` or `/aiagents/`, `/price/`, design system, CSP, frontend modules or release evidence should reference affected IDs from `product-tech-challenge-gap-register-2026-06-04.md` and follow the phase order in `product-tech-challenge-execution-roadmap-2026-06-04.md`.
+
+Implementation planning should use Sprint 17-23 documents under `docs/workflow/sprints/2026-06-04-sprint-*.md`; each sprint lists in-scope gap IDs, gates, acceptance criteria, QA/smoke and risks.
+
+Sprint 17 local progress 04.06.2026: `CFG-001`, `CFG-002`, `CFG-003`, `ARCH-001`, `ARCH-003` and `STACK-004` moved to local `in-progress` baseline through `docs/workflow/product-content-schema-contract.md`, `docs/workflow/product-content-schema-v1.json`, `tools/product-content-schema-check.mjs`, local negative fixture `tools/fixtures/product-content-schema-invalid/platform.php`, target evidence validator `tools/product-content-target-evidence-check.mjs`, npm scripts `product:content:schema:self-test` / `product:content:schema:negative-test` / `product:content:target-evidence:self-test` / `product:content:target-evidence:check` / `product:content:schema:check` / `product:content:safety:check`, typed validation and JSON evidence mode inside `tools/product-content-check.php --strict`, and schema/source-aware product cache keys. This validates schema logic, expected invalid fixture failure, saved target strict JSON evidence shape and Git seed/fallback schema, wires local schema safety into PR check, deploy lifecycle guard and `release:product-first:prod-check`, strengthens live assembled Bitrix page checks, documents fail-fast policy and prevents source/schema changes from reusing old product cache entries; target PHP/Bitrix run evidence, cache-clear dry-run evidence and Legal/Sales claim evidence remain separate Sprint 17 gates.
+
+Sprint 18 decision progress 04.06.2026: `docs/workflow/product-taxonomy-seo-packaging-decision-2026-06-04.md` now records the local approval package for `CONTENT-005`, `UX-004`, `ARCH-010`, `UX-005`, `CONTENT-001`, `CONTENT-003` and `CONTENT-004`. It recommends keeping `Platform / Agents / Dev / Forum` taxonomy, preserving `/agents/` and `/aiagents/` as separate self-canonical routes until SEO approval, framing `/price/` as product implementation/team route rather than license pricing, and using a public/private/blocked packaging matrix. This is decision evidence only: Sales/PM/SEO/Legal approval, keyword validation, product evidence tagging and any route/meta implementation remain blocked or in-progress gates.
+
+Sprint 19 decision progress 04.06.2026: `docs/workflow/product-cjm-cta-crm-qualification-decision-2026-06-04.md` now records the local approval package for `UX-001`, `UX-002`, `UX-003`, `UX-007`, `UX-008`, `UX-009`, `UX-010`, `CMP-003`, `ARCH-005`, `ARCH-006` and `CFG-004`. It defines role-based enterprise CJM, procurement/security journey, product pilot kits, static fit-guide v1 recommendation, CTA taxonomy, returning-lead path, success-state copy targets, CRM fallback decision and no-PII funnel goal map. Runtime form/upstream/analytics behavior was intentionally not changed: current `lead_*` canonical profile remains text fallback inside `task`, and structured CRM fields stay blocked until Sales/upstream/Security approval.
+
+Sprint 20 decision progress 04.06.2026: `docs/workflow/product-to-be-design-system-decision-2026-06-04.md` now records the local approval package for `UI-001` - `UI-010`, `STACK-003` and `CMP-008`. It defines token source recommendation, enterprise density/card/radius policy, palette/gradient boundaries, CSS/token pipeline, hero/page taxonomy, proof/status visual states, architecture/procurement diagram rules, form/chat state matrices, `/price/` mobile direction, icon taxonomy and AS IS -> TO BE traceability. No visual implementation was made; design/legal/QA/frontend approvals and any CSS/JS smoke remain future gates.
+
+Sprint 21 decision progress 04.06.2026: `docs/workflow/product-frontend-component-hardening-decision-2026-06-04.md` now records the local approval package for `ARCH-002`, `CMP-001`, `CMP-002`, `CMP-004`, `CMP-005`, `CMP-006`, `CMP-007`, `CFG-005`, `STACK-002`, `STACK-005` and `SEC-001`. It fixes the v1 product renderer order decision, partial-to-component promotion criteria, preview fixture scope, `/price/` split plan, forms/chat modularity plans, vanilla JS module/test policy, fixture-driven smoke map, FAQ fallback config rule and CSRF accepted-risk triggers. No frontend/runtime refactor was made; implementation requires approval plus baseline/post-change smoke.
+
+Sprint 22 decision/tooling progress 04.06.2026: `docs/workflow/product-security-release-legacy-closure-decision-2026-06-04.md` now records the local approval package for `CFG-006`, `ARCH-007`, `ARCH-008`, `ARCH-012`, `REL-001`, `REL-002`, `SEC-002` and `SEC-003`. It defines endpoint sensitivity and rate classes, IP allowlist/trusted proxy usage rules, private proof/document access blocking model, CSP report-only to enforce checklist, CSP cleanup backlog, release evidence extension rules and legacy sale alias final-mode matrix. `release-signoff-check.mjs` now supports the future gates `csp-enforce`, `sensitive-endpoint-access`, `endpoint-risk-class` and `legacy-final-mode` with safe evidence validators and negative self-tests. No security runtime change was made; CSP enforce, private access and alias finalization remain gated by owner approval and external evidence.
+
+Sprint 23 monitoring progress 04.06.2026: `docs/workflow/product-accepted-risk-monitoring-decision-2026-06-04.md` now records accepted-risk monitoring for `STACK-001`, `STACK-006`, `SEC-001`, `ARCH-007` and `REL-002`. It keeps Bitrix SSR + vanilla JS, current asset guard model, public CSRF posture, CSP report-only and product release sign-off discipline as monitored baselines with owner cadence and concrete revisit triggers. This does not close the risks; it makes future reopen/ADR/Security scope mandatory when a trigger fires.
+
+Execution board progress 04.06.2026: `docs/workflow/product-tech-challenge-execution-board-2026-06-04.md` now converts Sprint 17-23 outputs into nine issue-ready work packages with status, owners, gates, acceptance criteria, verification commands, owner approval matrix, do-not-start board and full coverage index. `npm run product:challenge:board:check` validates that all 63 challenge gap IDs from the source register are covered and that the board references no unknown IDs.
+
+Owner approval/evidence progress 04.06.2026: `docs/workflow/product-tech-challenge-owner-approval-request-2026-06-04.md` and `docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md` now make Sprint 17-23 transferable to owners. The package defines required responses by owner, allowed approval statuses, cross-owner safe defaults and no-PII evidence intake tables for WP-01 - WP-09. `npm run product:challenge:approval:check` validates work package coverage, owner coverage, status vocabulary and explicit evidence constraints.
+
+Owner status tracker progress 04.06.2026: `docs/workflow/product-tech-challenge-owner-status-tracker-2026-06-04.json` now makes WP-01 - WP-09 owner/evidence status machine-readable without pretending approvals exist. It records board status, owner status, owners, gap IDs, blockers, next actions, required evidence and do-not-start notes; `npm run product:challenge:owner-status:check` validates exact board alignment and all 63 challenge gap IDs.
+
+Issue backlog progress 04.06.2026: `docs/workflow/product-tech-challenge-issue-backlog-2026-06-04.md` and `.json` now convert WP-01 - WP-09 into `PTC-WP-01` - `PTC-WP-09` tracker-ready issues. Each issue has start policy, priority, owners, gap IDs, objective, affected areas, DoR, acceptance criteria, verification, evidence, blockers and do-not-start rules. `npm run product:challenge:issue-backlog:check` validates tracker alignment and all 63 challenge gap IDs.
+
+Owner review runbook progress 04.06.2026: `docs/workflow/product-tech-challenge-owner-review-runbook-2026-06-04.md` now defines the operational flow for owner review, issue import, allowed status transitions, safe evidence intake, update order, implementation handoff and no-go rules. `npm run product:challenge:check` is the aggregate local/CI guard for board, approval/evidence, owner status and issue backlog consistency.
 
 ## Executive Summary
 

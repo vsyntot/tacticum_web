@@ -20,6 +20,10 @@ PM не закрывает release issue, пока для затронутых �
 | `bitrix-admin` | Изменён template/header/assets/deploy/cache | QA/Admin | Авторизованный вход в Bitrix admin panel после deploy |
 | `legacy-sunset` | Изменены legacy sale aliases или дата >= 30.09.2026 | Architect + Backend | Решение по Sprint 09 matrix: удалить aliases, вернуть `410/redirect` или продлить поддержку |
 | `staff-sale-upstream` | Изменён `ai.endpoint_paths.staff_sale` или upstream workers contract | Architect + Backend + QA + DevOps | Config-sync, health-check и staging staff-order success-flow |
+| `csp-enforce` | `security.csp_mode=enforce` или CSP policy меняется в сторону blocking behavior | Security + Frontend + QA | Report-only baseline, inline/vendor inventory, staging enforce smoke, rollback to report-only |
+| `sensitive-endpoint-access` | Добавлен private proof/doc/procurement endpoint, gated download or sensitive access flow | Security + PM + Backend + QA | Allowed/denied/expired access smoke, noindex/cache policy, no-PII logging evidence |
+| `endpoint-risk-class` | Добавлен endpoint class или изменены auth/rate/origin/IP/proxy rules | Security + Backend + DevOps | Sprint 22 endpoint class, origin/CSRF, rate-limit, auth/IP/proxy and logging evidence |
+| `legacy-final-mode` | Legacy alias удаляется, возвращает `410`, redirect или получает support-extension final mode | Architect + Backend + DevOps + PM | Full-window aggregate inventory, CRM/upstream source report, implementation smoke and rollback/support plan |
 
 ## Manual Success-Flow Matrix
 
@@ -93,6 +97,19 @@ npm run release:manual-gates:helper -- docs/workflow/release-signoff-2026-05-24-
 Для owner-run проверки `metrika-goals` использовать `npm run metrika:goals:helper`: он показывает expected goals/events, проверяет deployed JS taxonomy and даёт browser observer snippet, но не заменяет проверку goals в Яндекс.Метрике.
 Для owner-run проверки `bitrix-admin` использовать `npm run bitrix:admin:gate-helper`: он показывает authenticated admin/public toolbar checklist and safe evidence skeleton, но не логинится в Bitrix и не сохраняет cookie/session data.
 
+Sprint 22 implementation follow-up 04.06.2026: `release-signoff-check.mjs`, `release-signoff-self-test.mjs` and this document now support security-sensitive gates `csp-enforce`, `sensitive-endpoint-access`, `endpoint-risk-class` and `legacy-final-mode`. Current releases must include them as `not_applicable` when the trigger does not apply; when a trigger applies, `passed` evidence must follow the safe shapes below.
+
+## Security-Sensitive Gate Evidence
+
+All security-sensitive gates reject raw payload/log/request/response keys, contact fields, cookie/session/token/secret keys, email-like values and phone-like values.
+
+| Gate | Required passed evidence |
+|---|---|
+| `csp-enforce` | `environment`, `checked_at`, `checked_by`, `mode=enforce`, `report_only_baseline`, `inline_inventory`, `vendor_inventory`, `staging_enforce_smoke`, `rollback`, `violations_triaged=true`, `rollback_to_report_only_documented=true` |
+| `sensitive-endpoint-access` | `environment`, `checked_at`, `checked_by`, `flow`, `access_model` one of `authenticated-session`, `expiring-signed-link`, `owner-approved-token`, `allowed_result`, `denied_result`, `expired_or_malformed_result`, `noindex_or_cache_policy`, `logging_pii_check` |
+| `endpoint-risk-class` | `checked_at`, `checked_by`, `endpoint` as site path or HTTPS URL, `risk_class` from Sprint 22 endpoint sensitivity matrix, `origin_csrf`, `rate_limit`, `auth_ip_proxy`, `logging_evidence` |
+| `legacy-final-mode` | `checked_at`, `checked_by`, both legacy aliases in `aliases`, `final_mode` one of `remove`, `410`, `redirect`, `extend-support`, `compatibility-endpoint`, `inventory_window`, `access_log_aggregate`, `crm_upstream_report`, `implementation_result`, `rollback_or_support_plan` |
+
 Если evidence указывает на локальный `manifest.json`, checker парсит его и дополнительно проверяет:
 
 - нет `errors`, `pageErrors`, `consoleErrors`, `networkErrors`, `actionErrors`;
@@ -101,6 +118,7 @@ npm run release:manual-gates:helper -- docs/workflow/release-signoff-2026-05-24-
 - для `css-js-e2e-readiness` production visual/browser/price manifests проходят общие browser guards, а `/price/` manifest дополнительно проверяет team presets.
 - release metadata содержит `id`, `date`, `commit`; `date` имеет формат `YYYY-MM-DD`, `base_url` при наличии использует HTTPS, strict mode не принимает `working-tree` commit marker;
 - неизвестные gates запрещены: release JSON должен использовать только список из этого документа;
+- security-sensitive gates `csp-enforce`, `sensitive-endpoint-access`, `endpoint-risk-class`, `legacy-final-mode` имеют обязательные evidence fields, no-PII/raw evidence scan and dedicated negative self-tests;
 - для manual gates в статусе `passed` evidence должен быть объектом с обязательными полями из runbook; checker дополнительно отсекает placeholder-ы, email/phone-like значения и ключи, похожие на raw payload, cookie/session/token/secret.
 - для manual gates в статусе `pending` draft должен содержать `due`, а evidence должен ссылаться на runbook и evidence template.
 
@@ -116,6 +134,10 @@ npm run release:manual-gates:helper -- docs/workflow/release-signoff-2026-05-24-
 - bitrix-admin: not applicable / pending / passed, owner:
 - legacy-sunset: not applicable / pending / passed, decision:
 - staff-sale-upstream: not applicable / pending / passed, evidence with team_preset, workers_count, monthly_budget_estimate_present, end_date_present, upstream_request_id/lead_id:
+- csp-enforce: not applicable / pending / passed, safe evidence:
+- sensitive-endpoint-access: not applicable / pending / passed, safe evidence:
+- endpoint-risk-class: not applicable / pending / passed, safe evidence:
+- legacy-final-mode: not applicable / pending / passed, safe evidence:
 ```
 
 ## Escalation

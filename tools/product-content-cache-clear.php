@@ -87,6 +87,9 @@ try {
     $ttl = function_exists('tacticum_product_content_cache_ttl')
         ? tacticum_product_content_cache_ttl()
         : 0;
+    $schemaVersion = function_exists('tacticum_product_content_schema_version')
+        ? tacticum_product_content_schema_version()
+        : 'unknown';
     $iblockIds = function_exists('tacticum_product_content_related_iblock_ids')
         ? tacticum_product_content_related_iblock_ids()
         : [];
@@ -96,6 +99,7 @@ try {
     tacticum_product_content_cache_clear_line('Cache dir: ' . $cacheDir);
     tacticum_product_content_cache_clear_line('Product source mode: ' . $source);
     tacticum_product_content_cache_clear_line('Product cache TTL: ' . $ttl);
+    tacticum_product_content_cache_clear_line('Product schema version: ' . $schemaVersion);
     tacticum_product_content_cache_clear_line('Managed tags: ' . (empty($iblockIds)
         ? '-'
         : implode(', ', array_map(static fn (int $id): string => 'iblock_id_' . $id, $iblockIds))));
