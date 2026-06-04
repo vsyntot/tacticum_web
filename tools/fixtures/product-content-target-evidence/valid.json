@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "strict": true,
+  "source_mode": "bitrix",
+  "configured_source": "bitrix",
+  "fallback_allowed": false,
+  "cache_ttl": 300,
+  "schema_version": "v1",
+  "iblocks": {
+    "products": 21,
+    "product_blocks": 22,
+    "product_use_cases": 23
+  },
+  "rows": [
+    {
+      "code": "platform",
+      "status": "ok",
+      "source": "bitrix",
+      "use_cases": 3,
+      "missing_blocks": [],
+      "schema_issues": 0
+    },
+    {
+      "code": "agents",
+      "status": "ok",
+      "source": "bitrix",
+      "use_cases": 3,
+      "missing_blocks": [],
+      "schema_issues": 0
+    },
+    {
+      "code": "dev",
+      "status": "ok",
+      "source": "bitrix",
+      "use_cases": 3,
+      "missing_blocks": [],
+      "schema_issues": 0
+    },
+    {
+      "code": "forum",
+      "status": "ok",
+      "source": "bitrix",
+      "use_cases": 3,
+      "missing_blocks": [],
+      "schema_issues": 0
+    }
+  ],
+  "warnings": [],
+  "errors": []
+}

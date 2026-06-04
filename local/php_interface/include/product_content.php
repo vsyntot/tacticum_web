@@ -26,9 +26,53 @@ if (!function_exists('tacticum_product_content_source')) {
             ? tacticum_rest_get_config_section('products')
             : [];
 
-        $source = strtolower(trim((string)($productsConfig['source'] ?? 'auto')));
+        $source = strtolower(trim((string)($productsConfig['source'] ?? 'bitrix')));
+        if (!in_array($source, ['auto', 'bitrix', 'fallback'], true)) {
+            return 'bitrix';
+        }
 
-        return in_array($source, ['auto', 'bitrix', 'fallback'], true) ? $source : 'auto';
+        if ($source !== 'bitrix' && !tacticum_product_content_fallback_allowed()) {
+            return 'bitrix';
+        }
+
+        return $source;
+    }
+}
+
+if (!function_exists('tacticum_product_content_configured_source')) {
+    function tacticum_product_content_configured_source(): string
+    {
+        $productsConfig = function_exists('tacticum_rest_get_config_section')
+            ? tacticum_rest_get_config_section('products')
+            : [];
+
+        $source = strtolower(trim((string)($productsConfig['source'] ?? 'bitrix')));
+
+        return in_array($source, ['auto', 'bitrix', 'fallback'], true) ? $source : 'bitrix';
+    }
+}
+
+if (!function_exists('tacticum_product_content_fallback_allowed')) {
+    function tacticum_product_content_fallback_allowed(): bool
+    {
+        $productsConfig = function_exists('tacticum_rest_get_config_section')
+            ? tacticum_rest_get_config_section('products')
+            : [];
+        $value = $productsConfig['allow_fallback'] ?? false;
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int)$value === 1;
+        }
+
+        if (is_string($value)) {
+            return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'y'], true);
+        }
+
+        return false;
     }
 }
 
@@ -60,6 +104,13 @@ if (!function_exists('tacticum_product_content_cache_dir')) {
     }
 }
 
+if (!function_exists('tacticum_product_content_schema_version')) {
+    function tacticum_product_content_schema_version(): string
+    {
+        return 'v1';
+    }
+}
+
 if (!function_exists('tacticum_product_content_cache_key')) {
     function tacticum_product_content_cache_key(string $productCode): string
     {
@@ -70,7 +121,18 @@ if (!function_exists('tacticum_product_content_cache_key')) {
                 : 0;
         }
 
-        return 'product_content_' . $productCode . '_' . md5(serialize($iblockIds));
+        $cacheIdentity = [
+            'schema_version' => tacticum_product_content_schema_version(),
+            'source_mode' => tacticum_product_content_source(),
+            'configured_source' => function_exists('tacticum_product_content_configured_source')
+                ? tacticum_product_content_configured_source()
+                : tacticum_product_content_source(),
+            'fallback_allowed' => function_exists('tacticum_product_content_fallback_allowed')
+                && tacticum_product_content_fallback_allowed(),
+            'iblock_ids' => $iblockIds,
+        ];
+
+        return 'product_content_' . $productCode . '_' . md5(serialize($cacheIdentity));
     }
 }
 

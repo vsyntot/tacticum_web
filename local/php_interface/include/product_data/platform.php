@@ -159,7 +159,7 @@ return [
             [
                 'title' => 'Контур заказчика',
                 'text' => 'Архитектура deployment и интеграций уточняется на discovery и зависит от требований к данным, системам и эксплуатации.',
-                'items' => ['SaaS', 'on-prem', 'hybrid', 'integration'],
+                'items' => ['Контур размещения', 'Интеграции', 'Доступы', 'Эксплуатация'],
             ],
         ],
     ],
@@ -308,7 +308,7 @@ return [
             ],
             [
                 'question' => 'Что уточняется перед выбором deployment-модели?',
-                'answer' => 'Нужно понять требования к данным, моделям и провайдерам, ролям доступа, журналированию, интеграциям и эксплуатации. После этого можно обсуждать SaaS, on-prem или гибридный вариант.',
+                'answer' => 'Нужно понять требования к данным, моделям и провайдерам, ролям доступа, журналированию, интеграциям и эксплуатации. После этого можно обсуждать подходящий контур размещения и поддержки.',
             ],
         ],
     ],
@@ -323,23 +323,31 @@ return [
         'scenario_empty_label' => 'Выберите ближайший сценарий',
         'scenario_options' => [
             [
-                'VALUE' => 'platform-assessment',
-                'LABEL' => 'Assessment текущего AI-контура',
+                'VALUE' => 'pilot',
+                'LABEL' => 'Пилот продукта',
             ],
             [
-                'VALUE' => 'platform-pilot',
-                'LABEL' => 'Пилот платформенного ядра',
+                'VALUE' => 'architecture-session',
+                'LABEL' => 'Архитектурная сессия',
             ],
             [
-                'VALUE' => 'deployment-readiness',
-                'LABEL' => 'Проверка deployment-модели',
+                'VALUE' => 'procurement-security',
+                'LABEL' => 'Закупка и безопасность',
+            ],
+            [
+                'VALUE' => 'team-delivery',
+                'LABEL' => 'Команда внедрения',
+            ],
+            [
+                'VALUE' => 'estimate',
+                'LABEL' => 'Оценка сроков и бюджета',
             ],
         ],
         'lead_context' => [
             'lead_entry' => 'platform',
             'lead_page_role' => 'product-page',
             'lead_product' => 'platform',
-            'lead_intent' => 'platform-assessment',
+            'lead_intent' => 'architecture-session',
             'lead_cta' => 'platform-cta',
             'lead_next_step' => 'architecture-session',
         ],

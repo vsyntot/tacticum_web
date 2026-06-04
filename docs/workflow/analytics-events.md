@@ -10,6 +10,7 @@
 - В события нельзя передавать PII: имя, телефон, email, текст сообщения, summary, raw URL с query.
 - Допустимые параметры: `page_path`, `form_id`, `endpoint`, `surface`, `status`, `code`, controlled `product`, controlled `page_role`, controlled `scenario`, `cta`, boolean-флаги и счётчики.
 - Sprint 15 lead qualification fields (`lead_budget`, `lead_timeline`, `lead_offer_code`, `lead_offer_title`, `lead_industry`, `lead_scenario`) отправляются в lead payload only. Backend normalizes them into a canonical lead qualification profile for CRM/upstream fallback text. Product funnel analytics may use only allowlisted controlled `product`, `page_role` and `scenario`; budget, timeline, offer code/title, industry, user message, name, email and phone must not be sent to analytics.
+- Sprint 19 CJM/CRM decision is documented in `docs/workflow/product-cjm-cta-crm-qualification-decision-2026-06-04.md`; it keeps current no-PII product funnel analytics and blocks structured CRM/upstream analytics params until owner approval.
 
 ## Event Taxonomy
 

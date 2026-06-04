@@ -40,6 +40,58 @@ if (!function_exists('tacticum_product_page_canonical_path')) {
     }
 }
 
+if (!function_exists('tacticum_product_page_standard_scenario_options')) {
+    function tacticum_product_page_standard_scenario_options(): array
+    {
+        return [
+            'pilot' => 'Пилот продукта',
+            'architecture-session' => 'Архитектурная сессия',
+            'procurement-security' => 'Закупка и безопасность',
+            'team-delivery' => 'Команда внедрения',
+            'estimate' => 'Оценка сроков и бюджета',
+        ];
+    }
+}
+
+if (!function_exists('tacticum_product_page_cta_scenario_options')) {
+    function tacticum_product_page_cta_scenario_options(array $cta): array
+    {
+        $standard = tacticum_product_page_standard_scenario_options();
+        $labels = [];
+        $rawOptions = is_array($cta['scenario_options'] ?? null) ? $cta['scenario_options'] : [];
+
+        foreach ($rawOptions as $option) {
+            if (!is_array($option)) {
+                continue;
+            }
+
+            $value = trim((string)($option['VALUE'] ?? $option['value'] ?? ''));
+            $label = trim((string)($option['LABEL'] ?? $option['label'] ?? ''));
+            if ($value === '' || $label === '' || !array_key_exists($value, $standard)) {
+                continue;
+            }
+
+            $labels[$value] = $label;
+        }
+
+        foreach ($standard as $value => $label) {
+            if (!array_key_exists($value, $labels)) {
+                $labels[$value] = $label;
+            }
+        }
+
+        $options = [];
+        foreach ($standard as $value => $defaultLabel) {
+            $options[] = [
+                'VALUE' => $value,
+                'LABEL' => $labels[$value] ?? $defaultLabel,
+            ];
+        }
+
+        return $options;
+    }
+}
+
 if (!function_exists('tacticum_product_page_data')) {
     function tacticum_product_page_data(string $productCode): array
     {
@@ -54,17 +106,78 @@ if (!function_exists('tacticum_product_page_data')) {
                     ? tacticum_product_content_is_minimum_renderable($bitrixData)
                     : true;
 
-                if ($isRenderable || $source === 'bitrix') {
+                if ($isRenderable) {
                     return $bitrixData;
                 }
+
+                if ($source === 'bitrix') {
+                    return tacticum_product_page_unavailable_data($productCode, $bitrixData);
+                }
+            }
+
+            if ($source === 'bitrix') {
+                return tacticum_product_page_unavailable_data($productCode, $bitrixData);
             }
         }
 
         if ($source === 'bitrix') {
-            return [];
+            return tacticum_product_page_unavailable_data($productCode, []);
         }
 
         return tacticum_product_page_fallback_data($productCode);
+    }
+}
+
+if (!function_exists('tacticum_product_page_unavailable_data')) {
+    function tacticum_product_page_unavailable_data(string $productCode, array $bitrixData = []): array
+    {
+        if (!headers_sent()) {
+            http_response_code(503);
+        }
+
+        $diagnostics = [];
+        if (function_exists('tacticum_product_content_completeness_diagnostics')) {
+            $diagnostics = tacticum_product_content_completeness_diagnostics($bitrixData);
+        }
+
+        return [
+            'eyebrow' => 'Tacticum product',
+            'title' => 'Материалы продукта обновляются',
+            'lead' => 'Страница временно недоступна: продуктовый контент проверяется в Bitrix. Оставьте заявку, и команда вернется с актуальным описанием сценария.',
+            'primary_cta_text' => 'Связаться с командой',
+            'secondary_cta_text' => 'Все услуги',
+            'secondary_cta_href' => '/services/',
+            'badges' => [],
+            'hero_cards' => [],
+            'sections' => [],
+            'cta' => [
+                'form_id' => 'product-unavailable',
+                'field_prefix' => 'product',
+                'title' => 'Уточнить продуктовый сценарий',
+                'text' => 'Напишите, какой продукт или сценарий вам нужен. Мы ответим без публикации неподтвержденных материалов на сайте.',
+                'form_title' => 'Заявка на уточнение',
+                'button_text' => 'Отправить запрос',
+                'scenario_label' => 'Сценарий',
+                'scenario_empty_label' => 'Выберите сценарий',
+                'scenario_options' => [
+                    ['VALUE' => 'architecture-session', 'LABEL' => 'Архитектурная сессия'],
+                    ['VALUE' => 'pilot', 'LABEL' => 'Пилот'],
+                    ['VALUE' => 'estimate', 'LABEL' => 'Оценка внедрения'],
+                ],
+                'lead_context' => [
+                    'lead_entry' => 'product-unavailable',
+                    'lead_page_role' => 'product-page',
+                    'lead_product' => $productCode,
+                    'lead_intent' => 'content-unavailable',
+                    'lead_cta' => 'contact-team',
+                    'lead_next_step' => 'manual-follow-up',
+                ],
+            ],
+            '_source' => 'bitrix',
+            '_status' => 'unavailable',
+            '_product_code' => $productCode,
+            '_diagnostics' => $diagnostics,
+        ];
     }
 }
 

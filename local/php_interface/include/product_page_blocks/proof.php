@@ -42,9 +42,12 @@ if (!function_exists('tacticum_product_page_render_proof')) {
                         $itemText = tacticum_product_page_string($item, 'text');
                         ?>
                         <article class="rounded-xl border border-gray-200 bg-gray-50 p-6">
-                            <?php if ($itemMeta !== ''): ?>
-                                <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-primary"><?=tacticum_product_page_html($itemMeta)?></p>
-                            <?php endif; ?>
+                            <div class="mb-3 flex flex-wrap items-center gap-2">
+                                <?php if ($itemMeta !== ''): ?>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-primary"><?=tacticum_product_page_html($itemMeta)?></p>
+                                <?php endif; ?>
+                                <?php tacticum_product_page_render_proof_status($item, 'pilot-artifact'); ?>
+                            </div>
                             <?php if ($itemTitle !== ''): ?>
                                 <h3 class="mb-3 text-xl font-bold text-secondary"><?=tacticum_product_page_html($itemTitle)?></h3>
                             <?php endif; ?>

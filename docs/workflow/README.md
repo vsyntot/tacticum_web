@@ -133,10 +133,26 @@ QA подключается до разработки, если задача к�
 - `design-token-contract.md` — AS IS token contract, guard и правила обновления design tokens handoff.
 - `component-state-contract.md` — AS IS component/state contract, guard и правила сохранения/migration behavior-bearing selectors.
 - `design-migration-map.md` — AS IS -> TO BE migration map, migration types and gates для дизайн-системной миграции.
+- `product-content-schema-contract.md` — typed schema baseline для product seed/fallback data and release fail-fast policy.
 - `product-content-source-switch-runbook.md` — порядок проверки, переключения и rollback для `products.source=bitrix`.
+- `product-taxonomy-seo-packaging-decision-2026-06-04.md` — Sprint 18 approval package для product taxonomy, `/agents/` vs `/aiagents/`, `/price/`, packaging, SEO metadata and evidence mapping.
+- `product-cjm-cta-crm-qualification-decision-2026-06-04.md` — Sprint 19 approval package для role CJM, CTA taxonomy, returning-lead path, pilot kits, CRM fallback and no-PII analytics.
+- `product-to-be-design-system-decision-2026-06-04.md` — Sprint 20 approval package для TO BE tokens, density/card policy, proof/status UI, diagrams, form/chat/price states and AS IS -> TO BE traceability.
+- `product-frontend-component-hardening-decision-2026-06-04.md` — Sprint 21 approval package для product renderer/component boundary, `/price/`, forms/chat modularity, JS module policy, fixture smoke, FAQ fallback and CSRF accepted-risk triggers.
+- `product-security-release-legacy-closure-decision-2026-06-04.md` — Sprint 22 approval package для endpoint sensitivity, rate classes, private proof/document access, CSP enforce path, release evidence discipline and legacy sale alias final mode.
+- `product-accepted-risk-monitoring-decision-2026-06-04.md` — Sprint 23 monitoring package для accepted stack, asset, CSRF, CSP and release-evidence baselines with owners and revisit triggers.
+- `product-tech-challenge-gap-register-2026-06-04.md` — полный 2026-06-04 register UX/UI/Arch/Components/Stack/Security/Content/SEO/Release gaps and tasks после технологического challenge.
+- `product-tech-challenge-execution-roadmap-2026-06-04.md` — phase roadmap, bundles, gates and ready-to-implement checklist для закрытия challenge gaps.
+- `product-tech-challenge-execution-board-2026-06-04.md` — issue-ready execution board for Sprint 17-23: work packages, owner approval matrix, do-not-start board and 100% gap coverage index.
+- `product-tech-challenge-owner-approval-request-2026-06-04.md` — owner-review request for Sprint 17-23 work packages: required responses by PM/Sales/Legal/SEO/Design/Engineering/Security/QA/DevOps/Content/Analytics.
+- `product-tech-challenge-evidence-intake-2026-06-04.md` — no-PII evidence intake templates for WP-01 - WP-09: claims, SEO, CRM/analytics, design/frontend, security/release and target checks.
+- `product-tech-challenge-owner-status-tracker-2026-06-04.json` — machine-readable owner/evidence status tracker for WP-01 - WP-09; keeps board status, owner status, gap IDs, blockers and required evidence aligned.
+- `product-tech-challenge-issue-backlog-2026-06-04.md` / `.json` — issue-ready backlog for WP-01 - WP-09: tracker import rules, start policies, issue fields, acceptance criteria, verification and evidence requirements.
+- `product-tech-challenge-owner-review-runbook-2026-06-04.md` — operational runbook for owner review, `PTC-WP-*` issue import, safe evidence intake, status updates and implementation handoff.
+- `sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md` — master sprint roadmap Sprint 17-23 для закрытия 2026-06-04 challenge gaps.
 - `offer-example-seed-runbook.md` — запуск и контроль CLI-сидера synthetic offer examples для `/offer/`.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
-- `release-signoff-gates.md` — ручные/staging sign-off gates для success-flow, Метрики, config sync и Bitrix admin.
+- `release-signoff-gates.md` — release sign-off gates для deploy smoke, success-flow, Метрики, config sync, Bitrix admin, staff sale and Sprint 22 security-sensitive future gates.
 - `rest-response-contract-decision.md` — решение по сохранению доменных success/error response shapes.
 - `sprints/` — snapshot-ы спринтов.
 
@@ -146,14 +162,25 @@ QA подключается до разработки, если задача к�
 - `npm run config:runtime:check` — Bitrix/PHP runtime check для ignored `tacticum_config.php`: health scopes, iblock IDs, product source, endpoint path explicit/default status, CSP mode and REST summary without secret values.
 - `npm run gaps:known` — PM/QA guard для текущего известного хвоста: code-level open gaps, pending release gates, legacy inventory и post-deploy/cache smoke.
 - `npm run product:content:cache-clear:dry-run` / `npm run product:content:cache-clear` — Bitrix/PHP helper для проверки и очистки product content cache dir plus managed-cache tags перед switch/rollback.
+- `npm run product:content:schema:self-test` / `npm run product:content:schema:negative-test` / `npm run product:content:schema:check` — локальные Node guards для typed product seed/fallback schema без PHP/Bitrix; self-test checks validator logic, negative-test proves invalid fixture failure, schema check validates `product_data/*.php`.
+- `npm run product:content:target-evidence:self-test` / `npm run product:content:target-evidence:check -- --file=/path/to/evidence.json` — локальный validator для safe JSON output from target `product:content:check:strict:json`; проверяет structure, source/schema, product rows, empty errors/missing blocks/schema issues and no raw/PII-like evidence keys.
+- `npm run product:content:safety:check` — aggregate local safety guard for product content schema self-test + negative fixture + target evidence validator self-test + seed/fallback schema check; included in PR check, deploy lifecycle guard and `release:product-first:prod-check`.
+- `npm run product:content:check:strict:json` — target Bitrix/PHP evidence mode для strict product content check: source, schema version, product rows, missing blocks and `schema_issues` без raw content/PII.
 - `npm run product:content:switch-readiness:prod` — HTTP/readiness guard перед переключением `products.source=bitrix`: проверяет health `products` scope, rendered `data-product-source=bitrix` and required product blocks.
 - `npm run release:manual-gates:helper` — read-only helper для ручных release gates: читает текущий sign-off draft, показывает pending `manual-success-flow`, `metrika-goals`, `bitrix-admin`, `staff-sale-upstream`, next actions and safe evidence skeletons без PII; если `docs/` не выгружен на production, работает в standalone skeleton mode без draft-контекста.
+- `npm run release:signoff:self-test` — regression guard для release sign-off checker; обязателен при изменении evidence gates, manual/security-sensitive evidence rules or checker behavior.
+- `npm run sale:sunset:check` — guard для legacy sale aliases: до `2026-09-30` подтверждает runway, после sunset требует final alias mode decision before deploy.
 - `npm run manual:success-flow:helper` — read-only helper для controlled `manual-success-flow`: генерирует marker-based payload/browser/curl templates and safe evidence skeleton для default form, modal form, AI chat and prefill без отправки запроса; browser output отдаёт sanitized summary без raw response/body.
 - `npm run metrika:goals:helper` — read-only helper для `metrika-goals`: показывает expected goals/events, проверяет deployed JS taxonomy, даёт owner checklist, browser observer snippet and safe evidence skeleton без доступа к кабинету Метрики.
 - `npm run bitrix:admin:gate-helper` — read-only helper для `bitrix-admin`: выдаёт authenticated admin/public toolbar checklist, browser observer snippet and safe evidence skeleton без логина, запросов, cookie/session data.
 - `npm run staff:sale:gate-helper` — helper для controlled `staff-sale-upstream` gate: генерирует staff-order payload, curl template и safe evidence block без отправки запроса.
 - `npm run legacy:sale:inventory:logs` — aggregate-only parser для production access logs по legacy sale aliases; выводит endpoint/method/status/day counts без IP, query, referrer, cookie, user-agent и raw log lines.
 - `npm run product:gaps:check` — guard для AS IS / TO BE product gap closure: сверяет source backlog `14-gap-backlog-and-decision-register.md`, master plan and `16-gap-closure-action-register.json`, чтобы каждый non-closed gap имел owner, next action, blocker/evidence model, review artifact coverage and package script.
+- `npm run product:challenge:board:check` — guard для 2026-06-04 challenge execution board: сверяет, что все source gap IDs из `product-tech-challenge-gap-register-2026-06-04.md` покрыты в issue-ready board and no unknown IDs are referenced.
+- `npm run product:challenge:approval:check` — guard для owner approval/evidence package: сверяет покрытие WP-01 - WP-09, обязательные owner sections, statuses and no-PII evidence rules.
+- `npm run product:challenge:owner-status:check` — guard для machine-readable owner status tracker: сверяет WP-01 - WP-09 с execution board, покрытие всех 63 challenge gap IDs, допустимые статусы, blockers, evidence requirements and no raw-evidence keys.
+- `npm run product:challenge:issue-backlog:check` — guard для issue-ready backlog: сверяет `PTC-WP-01` - `PTC-WP-09` с owner status tracker, start policies, issue statuses, owners, gaps, required sections and 63 gap ID coverage.
+- `npm run product:challenge:check` — aggregate guard для всего 2026-06-04 challenge package: board, approval/evidence, owner status tracker and issue backlog.
 - `npm run template-styles:check` — guard для CSS retirement и template public asset hygiene, включая запрет возврата Remixicon demo HTML в `local/templates/tacticum/fonts/`.
 - `npm run design:tokens:check` — guard для AS IS token contract: сверяет `05-design-tokens-as-is.json` с Tailwind theme, `global.css`, `forms.js` и package script.
 - `npm run design:components:check` — guard для AS IS component/state contract: сверяет `07-component-state-contract.json` с behavior-bearing templates/JS и package script.

@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "document_date": "2026-06-04",
+  "status": "issue-backlog-draft-owner-approval-pending",
+  "purpose": "Machine-readable issue backlog for the 2026-06-04 product tech challenge work packages. Issues are ready to copy into a tracker only within their start_policy; they do not grant approval, close gaps or permit blocked runtime work.",
+  "rules": {
+    "no_runtime_change_by_default": true,
+    "no_pii_evidence": true,
+    "do_not_commit_raw_evidence": true,
+    "source_register_status_changes_require_evidence": true,
+    "allowed_start_policies": [
+      "target-evidence-only",
+      "owner-review-required",
+      "blocked-external",
+      "monitor-only"
+    ],
+    "allowed_issue_statuses": [
+      "draft-ready",
+      "pending-target-evidence",
+      "pending-owner-review",
+      "blocked-external",
+      "accepted-monitor"
+    ]
+  },
+  "source_documents": {
+    "gap_register": "docs/workflow/product-tech-challenge-gap-register-2026-06-04.md",
+    "execution_board": "docs/workflow/product-tech-challenge-execution-board-2026-06-04.md",
+    "owner_status_tracker": "docs/workflow/product-tech-challenge-owner-status-tracker-2026-06-04.json",
+    "approval_request": "docs/workflow/product-tech-challenge-owner-approval-request-2026-06-04.md",
+    "evidence_intake": "docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md",
+    "sprint_roadmap": "docs/workflow/sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md"
+  },
+  "issues": [
+    {
+      "issue_id": "PTC-WP-01",
+      "work_package_id": "WP-01",
+      "title": "Product content validation and target evidence closure",
+      "issue_status": "pending-target-evidence",
+      "start_policy": "target-evidence-only",
+      "workflow_lane": "Security / Integration + Full Feature",
+      "priority": "P0",
+      "primary_sprints": [
+        "17"
+      ],
+      "owners": [
+        "Backend",
+        "QA",
+        "Content",
+        "DevOps"
+      ],
+      "gap_ids": [
+        "CFG-001",
+        "CFG-002",
+        "CFG-003",
+        "ARCH-001",
+        "ARCH-003",
+        "STACK-004"
+      ],
+      "objective": "Collect target Bitrix/PHP evidence that editor-owned product content cannot silently pass release with invalid schema, stale cache or unsafe diagnostics; keep local negative fixture guard green.",
+      "affected_areas": [
+        "tools/product-content-check.php",
+        "tools/product-content-schema-check.mjs",
+        "product iblocks",
+        "product cache",
+        "release evidence"
+      ],
+      "definition_of_ready": [
+        "Target Bitrix/PHP access exists",
+        "Negative fixture method is approved",
+        "No-PII evidence path is approved"
+      ],
+      "acceptance_criteria": [
+        "Strict live Bitrix product content check passes on target",
+        "Negative fixture fails as expected",
+        "Product cache-clear dry-run evidence is captured",
+        "Release evidence uses schema_issues without raw content"
+      ],
+      "verification_commands": [
+        "npm run product:content:safety:check",
+        "npm run product:content:check:strict:json",
+        "npm run product:content:target-evidence:check -- --file=/path/to/product-content-strict.json --allow-source=bitrix",
+        "npm run product:content:cache-clear:dry-run",
+        "npm run product:content:switch-readiness:prod"
+      ],
+      "evidence_required": [
+        "Local negative fixture guard evidence",
+        "Product strict target check evidence",
+        "Validated strict JSON target evidence",
+        "Target negative fixture failure evidence",
+        "Product cache-clear dry-run evidence"
+      ],
+      "blockers": [
+        "Target Bitrix/PHP access",
+        "Target cache-clear dry-run evidence",
+        "Target live Bitrix negative fixture or owner-approved simulated target evidence"
+      ],
+      "do_not_start": [
+        "Do not publish stronger product copy or claims as part of target validation"
+      ],
+      "source_documents": [
+        "docs/workflow/product-content-schema-contract.md",
+        "docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md",
+        "docs/workflow/sprints/2026-06-04-sprint-17-product-source-and-claims-safety.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-02",
+      "work_package_id": "WP-02",
+      "title": "Product content ownership and environment automation",
+      "issue_status": "pending-owner-review",
+      "start_policy": "owner-review-required",
+      "workflow_lane": "Security / Integration",
+      "priority": "P1",
+      "primary_sprints": [
+        "17"
+      ],
+      "owners": [
+        "Content",
+        "Backend",
+        "DevOps",
+        "Architect"
+      ],
+      "gap_ids": [
+        "ARCH-004",
+        "ARCH-011",
+        "STACK-007"
+      ],
+      "objective": "Decide who owns product facts, proof, fallback data, environment parity, cache clear, source switch and rollback before automation is introduced.",
+      "affected_areas": [
+        "Product content workflow",
+        "Bitrix admin ownership",
+        "source switch/cache runbooks",
+        "staging/prod parity"
+      ],
+      "definition_of_ready": [
+        "Content owner is named",
+        "Backend owner is named",
+        "DevOps owner is named",
+        "Target environments are listed"
+      ],
+      "acceptance_criteria": [
+        "Ownership matrix says what lives in Bitrix, Git fallback, existing iblocks or private evidence docs",
+        "Environment matrix covers local, staging and production",
+        "Automation decision covers cache clear, source switch, strict checks and rollback"
+      ],
+      "verification_commands": [
+        "npm run config:check",
+        "npm run config:runtime:check",
+        "npm run product:content:switch-readiness:prod"
+      ],
+      "evidence_required": [
+        "Product content ownership matrix",
+        "Environment matrix",
+        "Cache/source switch runbook decision"
+      ],
+      "blockers": [
+        "Named Content owner",
+        "Named DevOps owner",
+        "Environment ownership decision",
+        "Automation or manual-runbook decision"
+      ],
+      "do_not_start": [
+        "Do not automate deploy/source switch before rollback and owner sign-off are explicit"
+      ],
+      "source_documents": [
+        "docs/workflow/product-content-source-switch-runbook.md",
+        "docs/workflow/product-content-schema-contract.md",
+        "docs/workflow/sprints/2026-06-04-sprint-17-product-source-and-claims-safety.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-03",
+      "work_package_id": "WP-03",
+      "title": "Public proof, claims and evidence approval",
+      "issue_status": "blocked-external",
+      "start_policy": "blocked-external",
+      "workflow_lane": "Full Feature",
+      "priority": "P0",
+      "primary_sprints": [
+        "17",
+        "18",
+        "20"
+      ],
+      "owners": [
+        "PM",
+        "Sales",
+        "Legal",
+        "SEO",
+        "Security"
+      ],
+      "gap_ids": [
+        "UX-006",
+        "CONTENT-001",
+        "CONTENT-002",
+        "CONTENT-003",
+        "ARCH-009",
+        "UI-005"
+      ],
+      "objective": "Approve which product claims, proof assets and evidence states may be public, private, rewritten or blocked.",
+      "affected_areas": [
+        "Product copy",
+        "proof/status UI",
+        "cases/offers/FAQ/services evidence mapping",
+        "packaging claims"
+      ],
+      "definition_of_ready": [
+        "PM, Sales, Legal and SEO owners can review actual evidence",
+        "Public, private and blocked evidence categories are agreed"
+      ],
+      "acceptance_criteria": [
+        "Claims matrix has source, owner, confidence, public wording and blocked wording",
+        "Product evidence map tags cases, offers, FAQ and services by product",
+        "Proof/status UI can only display approved evidence state"
+      ],
+      "verification_commands": [
+        "npm run seo:check",
+        "Owner approval notes",
+        "No-PII evidence references",
+        "Design/claims review before public changes"
+      ],
+      "evidence_required": [
+        "EV-CLAIM-001",
+        "EV-CLAIM-002",
+        "EV-CLAIM-003",
+        "EV-CLAIM-004",
+        "EV-CLAIM-005"
+      ],
+      "blockers": [
+        "Sales proof source availability",
+        "Legal public wording approval",
+        "SEO product evidence mapping",
+        "Security constraints for private proof"
+      ],
+      "do_not_start": [
+        "Do not publish metrics, logos, certifications, registry claims, guarantees or private proof links before owner approval"
+      ],
+      "source_documents": [
+        "docs/workflow/product-taxonomy-seo-packaging-decision-2026-06-04.md",
+        "docs/workflow/product-to-be-design-system-decision-2026-06-04.md",
+        "docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-04",
+      "work_package_id": "WP-04",
+      "title": "Product taxonomy, packaging and SEO route approval",
+      "issue_status": "pending-owner-review",
+      "start_policy": "owner-review-required",
+      "workflow_lane": "Full Feature",
+      "priority": "P1",
+      "primary_sprints": [
+        "18"
+      ],
+      "owners": [
+        "PM",
+        "Sales",
+        "SEO",
+        "Content",
+        "Architect"
+      ],
+      "gap_ids": [
+        "CONTENT-004",
+        "CONTENT-005",
+        "UX-004",
+        "UX-005",
+        "ARCH-010"
+      ],
+      "objective": "Approve taxonomy, packaging boundaries, route/canonical model, price route intent and metadata direction before public route or SEO changes.",
+      "affected_areas": [
+        "/agents/",
+        "/aiagents/",
+        "/price/",
+        "product metadata",
+        "sitemap/canonical decisions"
+      ],
+      "definition_of_ready": [
+        "PM/Sales/SEO decision session is scheduled",
+        "Keyword and intent evidence is available"
+      ],
+      "acceptance_criteria": [
+        "Product taxonomy is approved or amended",
+        "/agents/ versus /aiagents/ canonical/compatibility decision is recorded",
+        "/price/ route intent is approved",
+        "Title, description, H1 and intro copy are approved"
+      ],
+      "verification_commands": [
+        "npm run seo:check",
+        "Rendered SEO smoke after implementation",
+        "Sitemap/canonical review if URLs change"
+      ],
+      "evidence_required": [
+        "EV-SEO-001",
+        "EV-SEO-002",
+        "EV-SEO-003",
+        "EV-CLAIM-005"
+      ],
+      "blockers": [
+        "SEO keyword and route intent evidence",
+        "Sales validation of product names and buyer triggers",
+        "PM approval of packaging boundaries"
+      ],
+      "do_not_start": [
+        "Do not redirect, canonicalize or deindex /agents/ or /aiagents/ before SEO approval"
+      ],
+      "source_documents": [
+        "docs/workflow/product-taxonomy-seo-packaging-decision-2026-06-04.md",
+        "docs/workflow/sprints/2026-06-04-sprint-18-taxonomy-seo-packaging.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-05",
+      "work_package_id": "WP-05",
+      "title": "Enterprise CJM, CTA and CRM qualification approval",
+      "issue_status": "pending-owner-review",
+      "start_policy": "owner-review-required",
+      "workflow_lane": "Full Feature + Security / Integration if payload changes",
+      "priority": "P1",
+      "primary_sprints": [
+        "19"
+      ],
+      "owners": [
+        "PM",
+        "UX",
+        "Sales",
+        "Backend",
+        "Security",
+        "Analytics",
+        "QA"
+      ],
+      "gap_ids": [
+        "CFG-004",
+        "UX-001",
+        "UX-002",
+        "UX-003",
+        "UX-007",
+        "UX-008",
+        "UX-009",
+        "UX-010",
+        "ARCH-005",
+        "ARCH-006",
+        "CMP-003"
+      ],
+      "objective": "Approve role journeys, CTA taxonomy, returning-lead path, pilot kits, CRM fallback or structured-field scope and no-PII analytics.",
+      "affected_areas": [
+        "Role CJM",
+        "CTA taxonomy",
+        "success states",
+        "docs/workflow/lead-form-contract.md",
+        "analytics events",
+        "CRM/upstream"
+      ],
+      "definition_of_ready": [
+        "PM/UX/Sales approve journeys",
+        "Sales/CRM owner decides text fallback versus structured fields"
+      ],
+      "acceptance_criteria": [
+        "Role journeys are approved",
+        "Pilot kits are approved",
+        "CTA taxonomy and returning-lead path are approved",
+        "Success states are defined",
+        "CRM fallback or structured-field scope is explicit",
+        "No-PII funnel goals are approved"
+      ],
+      "verification_commands": [
+        "npm run js:check",
+        "npm run browser:smoke",
+        "Controlled success-flow if forms/chat/upstream change"
+      ],
+      "evidence_required": [
+        "EV-CRM-001",
+        "EV-CRM-002",
+        "EV-AN-001"
+      ],
+      "blockers": [
+        "Sales approval of pilot kits and follow-up usefulness",
+        "Security review for any structured upstream fields",
+        "Analytics approval of product funnel goals",
+        "QA success-state and smoke scope"
+      ],
+      "do_not_start": [
+        "Do not add hidden fields, upstream payload fields or analytics params beyond the approved no-PII taxonomy"
+      ],
+      "source_documents": [
+        "docs/workflow/product-cjm-cta-crm-qualification-decision-2026-06-04.md",
+        "docs/workflow/lead-form-contract.md",
+        "docs/workflow/analytics-events.md",
+        "docs/workflow/sprints/2026-06-04-sprint-19-cjm-cta-crm-qualification.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-06",
+      "work_package_id": "WP-06",
+      "title": "TO BE design system implementation readiness",
+      "issue_status": "pending-owner-review",
+      "start_policy": "owner-review-required",
+      "workflow_lane": "Full Feature",
+      "priority": "P1",
+      "primary_sprints": [
+        "20"
+      ],
+      "owners": [
+        "Designer",
+        "Frontend",
+        "QA",
+        "Legal",
+        "PM"
+      ],
+      "gap_ids": [
+        "UI-001",
+        "UI-002",
+        "UI-003",
+        "UI-004",
+        "UI-005",
+        "UI-006",
+        "UI-007",
+        "UI-008",
+        "UI-009",
+        "UI-010",
+        "STACK-003",
+        "CMP-008"
+      ],
+      "objective": "Approve TO BE token source, density/card/radius policy, proof/status states, diagrams and form/chat/price state matrices before broad visual implementation.",
+      "affected_areas": [
+        "Design tokens",
+        "local/templates/tacticum/styles/global.css",
+        "component states",
+        "proof/status UI",
+        "diagrams",
+        "forms/chat/price states"
+      ],
+      "definition_of_ready": [
+        "Designer/Frontend/QA/Legal approve token source",
+        "Density/card/radius policy is approved",
+        "Proof/status rules and state matrices are approved"
+      ],
+      "acceptance_criteria": [
+        "TO BE token source is approved",
+        "Design states cover form, chat, price and proof",
+        "Migration map classifies visual-restyle, contract-preserving-split and contract-migration",
+        "Implementation batch has smoke scope"
+      ],
+      "verification_commands": [
+        "npm run design:handoff:check",
+        "npm run css:check",
+        "npm run template-styles:check",
+        "npm run js:check",
+        "Focused browser smoke for touched surfaces"
+      ],
+      "evidence_required": [
+        "EV-DES-001",
+        "EV-DES-002",
+        "EV-DES-003"
+      ],
+      "blockers": [
+        "Designer token-source decision",
+        "Legal approval for proof/status states",
+        "QA smoke scope for form/chat/price states",
+        "Frontend implementation feasibility review"
+      ],
+      "do_not_start": [
+        "Do not start broad restyle, proof/status components or price mobile rewrite before approved states and smoke scope"
+      ],
+      "source_documents": [
+        "docs/workflow/product-to-be-design-system-decision-2026-06-04.md",
+        "docs/workflow/design-token-contract.md",
+        "docs/workflow/component-state-contract.md",
+        "docs/workflow/design-migration-map.md",
+        "docs/workflow/sprints/2026-06-04-sprint-20-to-be-design-system.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-07",
+      "work_package_id": "WP-07",
+      "title": "Frontend/component hardening implementation path",
+      "issue_status": "pending-owner-review",
+      "start_policy": "owner-review-required",
+      "workflow_lane": "Full Feature, Fast Fix for FAQ guard, Security / Integration if forms/chat payload changes",
+      "priority": "P1",
+      "primary_sprints": [
+        "21"
+      ],
+      "owners": [
+        "Architect",
+        "Frontend",
+        "QA",
+        "Security",
+        "Backend"
+      ],
+      "gap_ids": [
+        "CFG-005",
+        "ARCH-002",
+        "CMP-001",
+        "CMP-002",
+        "CMP-004",
+        "CMP-005",
+        "CMP-006",
+        "CMP-007",
+        "STACK-002",
+        "STACK-005",
+        "SEC-001"
+      ],
+      "objective": "Approve product renderer boundary, component promotion criteria, price/forms/chat split path, JS module policy, fixture plan and CSRF trigger handling.",
+      "affected_areas": [
+        "Product renderer",
+        "product partials",
+        "/price/ script",
+        "forms.js",
+        "chat-agent.js",
+        "FAQ/content wrappers"
+      ],
+      "definition_of_ready": [
+        "Sprint 21 decision package is approved or amended",
+        "Baseline smoke is available for touched surface"
+      ],
+      "acceptance_criteria": [
+        "Product block order/component boundary is approved",
+        "/price/, forms and chat split is contract-preserving",
+        "FAQ fallback explicit/default decision is captured",
+        "Fixture/smoke map is approved"
+      ],
+      "verification_commands": [
+        "npm run js:check",
+        "npm run design:components:check",
+        "npm run design:migration:check",
+        "npm run browser:smoke:price",
+        "npm run browser:smoke"
+      ],
+      "evidence_required": [
+        "EV-FE-001",
+        "EV-FE-002",
+        "EV-DES-003"
+      ],
+      "blockers": [
+        "Baseline smoke evidence for touched surfaces",
+        "Security review if form/chat sensitivity or payload changes",
+        "Architect approval of component promotion criteria"
+      ],
+      "do_not_start": [
+        "Do not split price, forms and chat simultaneously",
+        "Do not change payloads while doing UI modularity"
+      ],
+      "source_documents": [
+        "docs/workflow/product-frontend-component-hardening-decision-2026-06-04.md",
+        "docs/workflow/component-state-contract.md",
+        "docs/workflow/design-migration-map.md",
+        "docs/workflow/sprints/2026-06-04-sprint-21-frontend-component-hardening.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-08",
+      "work_package_id": "WP-08",
+      "title": "Security, release evidence and legacy alias closure",
+      "issue_status": "blocked-external",
+      "start_policy": "blocked-external",
+      "workflow_lane": "Security / Integration",
+      "priority": "P1",
+      "primary_sprints": [
+        "22"
+      ],
+      "owners": [
+        "Security",
+        "Backend",
+        "DevOps",
+        "QA",
+        "PM",
+        "Legal"
+      ],
+      "gap_ids": [
+        "CFG-006",
+        "ARCH-007",
+        "ARCH-008",
+        "ARCH-012",
+        "SEC-002",
+        "SEC-003",
+        "REL-001",
+        "REL-002"
+      ],
+      "objective": "Approve endpoint sensitivity/rate classes, private proof/document access model, CSP enforce checklist, future release gates and legacy alias final-mode evidence path.",
+      "affected_areas": [
+        "Endpoint sensitivity",
+        "CSP",
+        "release sign-off",
+        "private proof/doc access",
+        "legacy sale aliases"
+      ],
+      "definition_of_ready": [
+        "Security/Backend/DevOps/QA approve endpoint classes",
+        "Legacy inventory window is complete for alias final mode"
+      ],
+      "acceptance_criteria": [
+        "Endpoint sensitivity and rate classes are approved",
+        "Private proof/doc access model is approved before implementation",
+        "CSP enforce checklist is complete before config switch",
+        "Future release gates have checker support",
+        "Legacy final mode is chosen after full-window logs and CRM/upstream report"
+      ],
+      "verification_commands": [
+        "npm run release:signoff:self-test",
+        "npm run release:signoff:check -- docs/workflow/release-signoff.example.json",
+        "npm run sale:sunset:check",
+        "npm run gaps:known",
+        "npm run legacy:sale:inventory:logs",
+        "Production smoke if runtime changes"
+      ],
+      "evidence_required": [
+        "EV-SEC-001",
+        "EV-SEC-002",
+        "EV-CSP-001",
+        "EV-REL-001",
+        "EV-REL-002",
+        "EV-REL-003"
+      ],
+      "blockers": [
+        "Security approval of endpoint classes",
+        "Legal/PM approval of private proof/document access model",
+        "CSP report-only inventory and staging enforce evidence",
+        "Legacy alias access-log aggregate after 2026-06-30",
+        "Legacy alias CRM/upstream source report"
+      ],
+      "do_not_start": [
+        "Do not enforce CSP, add private downloads, remove aliases, return 410 or redirect aliases before gates and evidence"
+      ],
+      "source_documents": [
+        "docs/workflow/product-security-release-legacy-closure-decision-2026-06-04.md",
+        "docs/workflow/csp-target-state-decision-2026-05-25.md",
+        "docs/workflow/release-signoff-gates.md",
+        "docs/workflow/legacy-sale-alias-consumer-inventory.md",
+        "docs/workflow/sprints/2026-06-04-sprint-22-security-release-legacy-closure.md"
+      ]
+    },
+    {
+      "issue_id": "PTC-WP-09",
+      "work_package_id": "WP-09",
+      "title": "Accepted-risk monitoring and reopen rules",
+      "issue_status": "accepted-monitor",
+      "start_policy": "monitor-only",
+      "workflow_lane": "Monitoring; implementation lane depends on trigger",
+      "priority": "P2",
+      "primary_sprints": [
+        "23"
+      ],
+      "owners": [
+        "PM",
+        "Architect",
+        "Security",
+        "Frontend",
+        "QA"
+      ],
+      "gap_ids": [
+        "STACK-001",
+        "STACK-006",
+        "SEC-001",
+        "ARCH-007",
+        "REL-002"
+      ],
+      "objective": "Keep accepted stack, asset, CSRF, CSP and release-evidence risks visible and reopen through the correct lane when a trigger fires.",
+      "affected_areas": [
+        "Stack",
+        "assets",
+        "CSRF",
+        "CSP",
+        "release evidence discipline"
+      ],
+      "definition_of_ready": [
+        "PM/Architect/Security/QA review cadence is accepted"
+      ],
+      "acceptance_criteria": [
+        "Accepted risks have owners, triggers and issue snippet",
+        "Future work references affected accepted risk IDs",
+        "Triggers open ADR/Security/Full Feature scope before implementation"
+      ],
+      "verification_commands": [
+        "npm run product:challenge:board:check",
+        "npm run product:challenge:owner-status:check",
+        "npm run gaps:known",
+        "npm run release:signoff:self-test"
+      ],
+      "evidence_required": [
+        "Accepted-risk review cadence",
+        "Trigger-to-issue mapping",
+        "Release sign-off reference for future affected gaps"
+      ],
+      "blockers": [
+        "Owner cadence approval",
+        "Future trigger evidence if scope changes"
+      ],
+      "do_not_start": [
+        "Do not treat accepted-monitor as closed or as permission to bypass gates"
+      ],
+      "source_documents": [
+        "docs/workflow/product-accepted-risk-monitoring-decision-2026-06-04.md",
+        "docs/workflow/sprints/2026-06-04-sprint-23-accepted-risk-monitoring.md"
+      ]
+    }
+  ]
+}

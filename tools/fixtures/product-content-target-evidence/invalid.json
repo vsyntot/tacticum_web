@@ -1,0 +1,29 @@
+{
+  "success": false,
+  "strict": true,
+  "source_mode": "fallback",
+  "configured_source": "fallback",
+  "fallback_allowed": true,
+  "cache_ttl": 300,
+  "schema_version": "old",
+  "iblocks": {
+    "products": 21,
+    "product_blocks": 0,
+    "product_use_cases": 23
+  },
+  "rows": [
+    {
+      "code": "platform",
+      "status": "ok",
+      "source": "fallback",
+      "use_cases": 1,
+      "missing_blocks": ["proof"],
+      "schema_issues": 2,
+      "raw_payload": {
+        "contact": "owner@example.invalid"
+      }
+    }
+  ],
+  "warnings": [],
+  "errors": ["Product platform has unsafe evidence for owner@example.invalid"]
+}

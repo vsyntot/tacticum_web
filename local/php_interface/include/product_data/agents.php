@@ -326,16 +326,24 @@ return [
         'scenario_empty_label' => 'Выберите ближайший сценарий',
         'scenario_options' => [
             [
-                'VALUE' => 'agent-scenario-selection',
-                'LABEL' => 'Выбрать первый бизнес-сценарий',
+                'VALUE' => 'pilot',
+                'LABEL' => 'Пилот ассистента',
             ],
             [
-                'VALUE' => 'rag-documents-check',
-                'LABEL' => 'Проверить документы для RAG',
+                'VALUE' => 'architecture-session',
+                'LABEL' => 'Архитектура знаний и доступа',
             ],
             [
-                'VALUE' => 'pilot-rollout',
-                'LABEL' => 'Спланировать пилот и rollout',
+                'VALUE' => 'procurement-security',
+                'LABEL' => 'Безопасность и ограничения',
+            ],
+            [
+                'VALUE' => 'team-delivery',
+                'LABEL' => 'Команда для внедрения',
+            ],
+            [
+                'VALUE' => 'estimate',
+                'LABEL' => 'Оценка пилота',
             ],
         ],
         'lead_context' => [

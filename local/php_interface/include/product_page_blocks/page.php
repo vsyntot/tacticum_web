@@ -9,6 +9,11 @@ if (!function_exists('tacticum_render_product_page')) {
     {
         global $APPLICATION;
 
+        if (($page['_status'] ?? '') === 'unavailable') {
+            tacticum_render_product_page_unavailable($page);
+            return;
+        }
+
         $eyebrow = tacticum_product_page_string($page, 'eyebrow', 'Tacticum product');
         $title = tacticum_product_page_string($page, 'title');
         $lead = tacticum_product_page_string($page, 'lead');
@@ -111,7 +116,70 @@ if (!function_exists('tacticum_render_product_page')) {
                     'SHOW_QUALIFICATION' => 'Y',
                     'SCENARIO_LABEL' => tacticum_product_page_string($cta, 'scenario_label', 'Сценарий'),
                     'SCENARIO_EMPTY_LABEL' => tacticum_product_page_string($cta, 'scenario_empty_label', 'Выберите сценарий'),
-                    'SCENARIO_OPTIONS' => is_array($cta['scenario_options'] ?? null) ? $cta['scenario_options'] : [],
+                    'SCENARIO_OPTIONS' => tacticum_product_page_cta_scenario_options($cta),
+                    'LEAD_CONTEXT' => is_array($cta['lead_context'] ?? null) ? $cta['lead_context'] : [],
+                ],
+                false
+            );
+            ?>
+        </div>
+        <?php
+    }
+}
+
+if (!function_exists('tacticum_render_product_page_unavailable')) {
+    function tacticum_render_product_page_unavailable(array $page): void
+    {
+        global $APPLICATION;
+
+        $eyebrow = tacticum_product_page_string($page, 'eyebrow', 'Tacticum product');
+        $title = tacticum_product_page_string($page, 'title', 'Материалы продукта обновляются');
+        $lead = tacticum_product_page_string($page, 'lead');
+        $primaryCtaText = tacticum_product_page_string($page, 'primary_cta_text', 'Связаться с командой');
+        $secondaryCtaText = tacticum_product_page_string($page, 'secondary_cta_text', 'Все услуги');
+        $secondaryCtaHref = tacticum_product_page_string($page, 'secondary_cta_href', '/services/');
+        $cta = is_array($page['cta'] ?? null) ? $page['cta'] : [];
+        $source = tacticum_product_page_string($page, '_source', 'bitrix');
+        ?>
+        <section class="bg-gradient-to-r from-secondary to-primary pt-24 text-white" data-product-block="hero" data-product-source="<?=tacticum_product_page_html($source)?>" data-product-status="unavailable">
+            <div class="container mx-auto px-4 py-20">
+                <div class="max-w-3xl">
+                    <p class="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-200"><?=tacticum_product_page_html($eyebrow)?></p>
+                    <h1 class="mb-6 text-4xl font-bold leading-tight md:text-5xl"><?=tacticum_product_page_html($title)?></h1>
+                    <p class="mb-8 text-lg text-blue-100 md:text-xl"><?=tacticum_product_page_html($lead)?></p>
+                    <div class="flex flex-col gap-3 sm:flex-row">
+                        <a href="#contact-form" class="inline-flex items-center justify-center rounded-button bg-white px-8 py-3 font-medium text-primary transition-colors hover:bg-white/90">
+                            <?=tacticum_product_page_html($primaryCtaText)?>
+                        </a>
+                        <a href="<?=tacticum_product_page_html($secondaryCtaHref)?>" class="inline-flex items-center justify-center rounded-button border border-white/30 bg-white/10 px-8 py-3 font-medium text-white transition-colors hover:bg-white/20">
+                            <?=tacticum_product_page_html($secondaryCtaText)?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div data-product-block="lead-cta">
+            <?php
+            $APPLICATION->IncludeComponent(
+                'tacticum:lead.cta',
+                '',
+                [
+                    'TYPE' => 'project-discussion',
+                    'VISUAL_VARIANT' => 'glass',
+                    'SECTION_ID' => 'contact-form',
+                    'FORM_ID' => tacticum_product_page_string($cta, 'form_id', 'product-unavailable'),
+                    'FIELD_PREFIX' => tacticum_product_page_string($cta, 'field_prefix', 'product'),
+                    'TITLE' => tacticum_product_page_string($cta, 'title', 'Уточнить продуктовый сценарий'),
+                    'TEXT' => tacticum_product_page_string($cta, 'text', 'Напишите, какой продукт или сценарий вам нужен. Мы ответим без публикации неподтвержденных материалов на сайте.'),
+                    'FORM_TITLE' => tacticum_product_page_string($cta, 'form_title', 'Заявка на уточнение'),
+                    'MESSAGE_LABEL' => tacticum_product_page_string($cta, 'message_label', 'Что хотите проверить или внедрить'),
+                    'MESSAGE_PLACEHOLDER' => tacticum_product_page_string($cta, 'message_placeholder', 'Кратко опишите задачу, системы, ограничения и желаемый следующий шаг'),
+                    'BUTTON_TEXT' => tacticum_product_page_string($cta, 'button_text', 'Отправить запрос'),
+                    'SHOW_QUALIFICATION' => 'Y',
+                    'SCENARIO_LABEL' => tacticum_product_page_string($cta, 'scenario_label', 'Сценарий'),
+                    'SCENARIO_EMPTY_LABEL' => tacticum_product_page_string($cta, 'scenario_empty_label', 'Выберите сценарий'),
+                    'SCENARIO_OPTIONS' => tacticum_product_page_cta_scenario_options($cta),
                     'LEAD_CONTEXT' => is_array($cta['lead_context'] ?? null) ? $cta['lead_context'] : [],
                 ],
                 false

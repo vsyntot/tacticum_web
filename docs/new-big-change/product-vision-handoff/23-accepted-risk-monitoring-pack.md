@@ -4,6 +4,8 @@
 
 Статус: monitoring package для accepted gaps. Документ не переводит risks в `closed`; он фиксирует условия пересмотра, owners and guardrails для решений, которые команда явно принимает на текущем этапе.
 
+Workflow follow-up 04.06.2026: `docs/workflow/product-accepted-risk-monitoring-decision-2026-06-04.md` extends accepted-risk monitoring for the 2026-06-04 challenge register: `STACK-001`, `STACK-006`, `SEC-001`, `ARCH-007` and `REL-002`.
+
 ## Назначение
 
 В `14-gap-backlog-and-decision-register.md` есть gaps со статусом `accepted`: они не блокируют текущую реализацию, но должны оставаться видимыми. Этот pack задает monitoring rules для:

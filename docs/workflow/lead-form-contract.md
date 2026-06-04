@@ -145,6 +145,18 @@ Product page CTAs дополнительно показывают optional `lead
 | `/dev/` | `ai-workflow-assessment`, `quality-gates-pilot`, `design-system-guardrails` |
 | `/forum/` | `dialog-flow-assessment`, `scenario-llm-pilot`, `support-analytics-review` |
 
+## Sprint 19 CJM / CRM Qualification Decision
+
+04.06.2026 Sprint 19 decision baseline зафиксирован в `docs/workflow/product-cjm-cta-crm-qualification-decision-2026-06-04.md`.
+
+Contract decision:
+
+- current `lead_*` profile remains approved v1 text fallback inside upstream `task`;
+- top-level structured CRM/upstream fields remain blocked until Sales/upstream/Security approval;
+- role/stage CTA taxonomy may use existing `lead_product`, `lead_page_role`, `lead_scenario`, `lead_cta`, `lead_next_step` only as controlled context;
+- returning-lead, procurement/security and private proof/document flows must not add hidden fields or new endpoints before separate Security / Integration scope;
+- any structured field migration must update this contract, smoke cases and release evidence.
+
 ## Consent И CSRF
 
 - Каждая публичная форма должна иметь чекбокс с `data-tacticum-consent` и ссылкой на `/policies/`.

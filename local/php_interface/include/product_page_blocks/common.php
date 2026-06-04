@@ -27,6 +27,71 @@ if (!function_exists('tacticum_product_page_render_badges')) {
     }
 }
 
+if (!function_exists('tacticum_product_page_proof_statuses')) {
+    function tacticum_product_page_proof_statuses(): array
+    {
+        return [
+            'pilot-artifact' => [
+                'label' => 'Артефакт пилота',
+                'class' => 'border-blue-100 bg-blue-50 text-blue-700',
+                'icon' => 'ri-flask-line',
+            ],
+            'private-evidence' => [
+                'label' => 'Доступно по запросу',
+                'class' => 'border-violet-100 bg-violet-50 text-violet-700',
+                'icon' => 'ri-lock-line',
+            ],
+            'public-safe' => [
+                'label' => 'Публичная выдержка',
+                'class' => 'border-emerald-100 bg-emerald-50 text-emerald-700',
+                'icon' => 'ri-shield-check-line',
+            ],
+            'pending' => [
+                'label' => 'На проверке',
+                'class' => 'border-amber-100 bg-amber-50 text-amber-700',
+                'icon' => 'ri-time-line',
+            ],
+            'blocked' => [
+                'label' => 'Не публикуется',
+                'class' => 'border-gray-200 bg-gray-100 text-gray-700',
+                'icon' => 'ri-forbid-2-line',
+            ],
+        ];
+    }
+}
+
+if (!function_exists('tacticum_product_page_proof_status')) {
+    function tacticum_product_page_proof_status(array $item, string $default = 'pilot-artifact'): array
+    {
+        $statuses = tacticum_product_page_proof_statuses();
+        $status = strtolower(tacticum_product_page_string($item, 'proof_status', $default));
+
+        if (!array_key_exists($status, $statuses)) {
+            $status = 'pending';
+        }
+
+        return [
+            'value' => $status,
+            'label' => $statuses[$status]['label'],
+            'class' => $statuses[$status]['class'],
+            'icon' => $statuses[$status]['icon'],
+        ];
+    }
+}
+
+if (!function_exists('tacticum_product_page_render_proof_status')) {
+    function tacticum_product_page_render_proof_status(array $item, string $default = 'pilot-artifact'): void
+    {
+        $status = tacticum_product_page_proof_status($item, $default);
+        ?>
+        <span class="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold <?=$status['class']?>" data-product-proof-status="<?=tacticum_product_page_html($status['value'])?>">
+            <i class="<?=tacticum_product_page_html($status['icon'])?>"></i>
+            <?=tacticum_product_page_html($status['label'])?>
+        </span>
+        <?php
+    }
+}
+
 if (!function_exists('tacticum_product_page_render_cards')) {
     function tacticum_product_page_render_cards(array $cards, string $columnsClass = 'lg:grid-cols-3'): void
     {

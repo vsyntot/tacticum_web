@@ -45,6 +45,9 @@ $consentLinkClass = $isGlassVariant ? 'underline hover:text-white' : 'text-prima
 $submitClass = $isGlassVariant
     ? 'w-full bg-white text-primary font-medium px-6 py-3 rounded-button hover:bg-white/90 transition-colors whitespace-nowrap'
     : 'tacticum-personal-offer-form__submit w-full bg-primary text-white font-medium px-6 py-3 rounded-lg transition-colors whitespace-nowrap';
+$returningLeadClass = $isGlassVariant
+    ? 'hidden mb-4 rounded-lg border border-white/20 bg-white/10 p-3 text-sm text-blue-100'
+    : 'hidden mb-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm text-gray-700';
 $requiredMark = $isGlassVariant ? '' : ' <span class="tacticum-personal-offer-form__required text-primary">*</span>';
 $namePlaceholder = 'Иван';
 $companyPlaceholder = 'Название компании';

@@ -16,6 +16,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
         <input type="hidden" name="<?=htmlspecialcharsbx($contextName)?>" value="<?=htmlspecialcharsbx($contextValue)?>">
     <?php endforeach; ?>
 
+    <div class="<?=htmlspecialcharsbx($returningLeadClass)?>" data-tacticum-returning-lead-panel>
+        <div class="flex items-start gap-2">
+            <i class="ri-history-line mt-0.5"></i>
+            <span>Заявка уже отправлена в этой сессии. Можно уточнить детали или выбрать другой сценарий.</span>
+        </div>
+    </div>
+
     <?php if ($arResult['FORM_TITLE'] !== ''): ?>
         <h3 class="text-xl font-bold mb-6"><?=htmlspecialcharsbx($arResult['FORM_TITLE'])?></h3>
     <?php endif; ?>

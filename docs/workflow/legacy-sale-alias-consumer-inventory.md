@@ -4,6 +4,8 @@
 
 Status: `in progress` до завершения access logs / CRM inventory к `30.06.2026`.
 
+Sprint 22 follow-up 04.06.2026: `docs/workflow/product-security-release-legacy-closure-decision-2026-06-04.md` records the final-mode matrix for these aliases. No removal, `410`, redirect or support extension is allowed until the full-window access-log aggregate and CRM/upstream source report are captured without PII.
+
 ## Purpose
 
 Этот artifact закрывает операционную часть sunset-плана для legacy sale aliases:

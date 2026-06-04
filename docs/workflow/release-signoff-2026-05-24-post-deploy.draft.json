@@ -257,6 +257,26 @@
         "upstream_request_id": "planka-card-masked-4804",
         "result": "upstream/CRM received team summary, team_preset, monthly_budget_estimate and end_date"
       }
+    },
+    "csp-enforce": {
+      "status": "not_applicable",
+      "owner": "Security + Frontend + QA",
+      "reason": "Release closure kept CSP report-only; no enforce mode or blocking CSP policy change was implemented."
+    },
+    "sensitive-endpoint-access": {
+      "status": "not_applicable",
+      "owner": "Security + PM + Backend + QA",
+      "reason": "Release closure did not introduce private proof, procurement document, gated download or sensitive endpoint access flow."
+    },
+    "endpoint-risk-class": {
+      "status": "not_applicable",
+      "owner": "Security + Backend + DevOps",
+      "reason": "Release closure did not introduce a new endpoint class or change auth/rate/origin policy."
+    },
+    "legacy-final-mode": {
+      "status": "not_applicable",
+      "owner": "Architect + Backend + DevOps + PM",
+      "reason": "Release closure kept legacy aliases in compatibility mode; final mode remains blocked until full external inventory."
     }
   }
 }

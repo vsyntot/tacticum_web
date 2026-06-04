@@ -54,7 +54,7 @@ const summary = {
     'Run rendered SEO/browser smoke where Chrome/Chromium is available.',
   ],
   rollback_steps: [
-    'Set products.source=auto to restore Git fallback protection, or fallback to force Git product data.',
+    'Keep products.source=bitrix and fix Bitrix product content; silent Git fallback is disabled by owner decision.',
     'Run npm run product:content:cache-clear.',
     'Clear Bitrix composite/template cache if enabled.',
     'Run npm run product:source:http:prod and confirm rendered source/blocks recover.',

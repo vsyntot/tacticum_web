@@ -95,6 +95,26 @@
       "status": "not_applicable",
       "owner": "Architect + Backend + QA + DevOps",
       "reason": "No staff_sale path change and no new upstream workers contract"
+    },
+    "csp-enforce": {
+      "status": "not_applicable",
+      "owner": "Security + Frontend + QA",
+      "reason": "No CSP enforce mode or blocking CSP policy change in this release"
+    },
+    "sensitive-endpoint-access": {
+      "status": "not_applicable",
+      "owner": "Security + PM + Backend + QA",
+      "reason": "No private proof, procurement document, gated download or sensitive endpoint access flow in this release"
+    },
+    "endpoint-risk-class": {
+      "status": "not_applicable",
+      "owner": "Security + Backend + DevOps",
+      "reason": "No new endpoint class and no auth/rate/origin policy change in this release"
+    },
+    "legacy-final-mode": {
+      "status": "not_applicable",
+      "owner": "Architect + Backend + DevOps + PM",
+      "reason": "No legacy alias removal, 410, redirect or support-extension final mode change in this release"
     }
   }
 }

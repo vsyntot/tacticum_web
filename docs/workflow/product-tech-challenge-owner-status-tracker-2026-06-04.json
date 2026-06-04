@@ -1,0 +1,471 @@
+{
+  "schema_version": 1,
+  "document_date": "2026-06-04",
+  "status": "owner-review-open",
+  "purpose": "Machine-readable owner approval and evidence status tracker for the 2026-06-04 product tech challenge work packages. This file records pending decisions only; it does not grant approval or close gaps by itself.",
+  "rules": {
+    "no_runtime_change": true,
+    "no_pii_evidence": true,
+    "do_not_commit_raw_evidence": true,
+    "source_register_status_changes_require_evidence": true,
+    "allowed_owner_statuses": [
+      "pending-target-evidence",
+      "pending-owner-review",
+      "blocked-external",
+      "accepted-monitor",
+      "approved",
+      "approved-v1-safe",
+      "rewrite-required",
+      "evidence-blocked",
+      "deferred",
+      "rejected"
+    ],
+    "allowed_board_statuses": [
+      "ready-local",
+      "ready-target-evidence",
+      "owner-review",
+      "blocked-external",
+      "accepted-monitor"
+    ]
+  },
+  "source_documents": {
+    "gap_register": "docs/workflow/product-tech-challenge-gap-register-2026-06-04.md",
+    "execution_board": "docs/workflow/product-tech-challenge-execution-board-2026-06-04.md",
+    "approval_request": "docs/workflow/product-tech-challenge-owner-approval-request-2026-06-04.md",
+    "evidence_intake": "docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md",
+    "sprint_roadmap": "docs/workflow/sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md"
+  },
+  "work_packages": [
+    {
+      "id": "WP-01",
+      "title": "Product content validation and target evidence closure",
+      "board_status": "ready-target-evidence",
+      "owner_status": "pending-target-evidence",
+      "primary_sprints": [
+        "17"
+      ],
+      "gap_ids": [
+        "CFG-001",
+        "CFG-002",
+        "CFG-003",
+        "ARCH-001",
+        "ARCH-003",
+        "STACK-004"
+      ],
+      "owners": [
+        "Backend",
+        "QA",
+        "Content",
+        "DevOps"
+      ],
+      "required_owner_response": "Approve the target evidence path for strict Bitrix product content validation, negative fixture behavior and cache-clear dry-run evidence.",
+      "next_action": "Run target Bitrix/PHP checks, save strict JSON evidence and validate it without raw content; local negative fixture guard and target-evidence validator self-test are already implemented.",
+      "blockers": [
+        "Target Bitrix/PHP access",
+        "Target cache-clear dry-run evidence",
+        "Target live Bitrix negative fixture or owner-approved simulated target evidence"
+      ],
+      "evidence_required": [
+        "Local negative fixture guard evidence",
+        "Target evidence validator self-test evidence",
+        "Product strict target check evidence",
+        "Validated strict JSON target evidence",
+        "Target negative fixture failure evidence",
+        "Product cache-clear dry-run evidence"
+      ],
+      "source_documents": [
+        "docs/workflow/product-content-schema-contract.md",
+        "docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md",
+        "docs/workflow/sprints/2026-06-04-sprint-17-product-source-and-claims-safety.md"
+      ],
+      "do_not_start": [
+        "Do not publish stronger product copy or claims as part of target validation."
+      ]
+    },
+    {
+      "id": "WP-02",
+      "title": "Product content ownership and environment automation",
+      "board_status": "owner-review",
+      "owner_status": "pending-owner-review",
+      "primary_sprints": [
+        "17"
+      ],
+      "gap_ids": [
+        "ARCH-004",
+        "ARCH-011",
+        "STACK-007"
+      ],
+      "owners": [
+        "Content",
+        "Backend",
+        "DevOps",
+        "Architect"
+      ],
+      "required_owner_response": "Decide ownership across Bitrix, Git fallback, private evidence documents, cache clear, source switch and environment automation.",
+      "next_action": "Collect owner matrix for local, staging and production product content lifecycle.",
+      "blockers": [
+        "Named Content owner",
+        "Named DevOps owner",
+        "Environment ownership decision",
+        "Automation or manual-runbook decision"
+      ],
+      "evidence_required": [
+        "Product content ownership matrix",
+        "Environment matrix",
+        "Cache/source switch runbook decision"
+      ],
+      "source_documents": [
+        "docs/workflow/product-content-source-switch-runbook.md",
+        "docs/workflow/product-content-schema-contract.md",
+        "docs/workflow/sprints/2026-06-04-sprint-17-product-source-and-claims-safety.md"
+      ],
+      "do_not_start": [
+        "Do not automate deploy/source switch before rollback and owner sign-off are explicit."
+      ]
+    },
+    {
+      "id": "WP-03",
+      "title": "Public proof, claims and evidence approval",
+      "board_status": "blocked-external",
+      "owner_status": "blocked-external",
+      "primary_sprints": [
+        "17",
+        "18",
+        "20"
+      ],
+      "gap_ids": [
+        "UX-006",
+        "CONTENT-001",
+        "CONTENT-002",
+        "CONTENT-003",
+        "ARCH-009",
+        "UI-005"
+      ],
+      "owners": [
+        "PM",
+        "Sales",
+        "Legal",
+        "SEO",
+        "Security"
+      ],
+      "required_owner_response": "Approve public, private, blocked and rewrite-required proof/claims states for product pages and related evidence.",
+      "next_action": "Collect claim-source matrix with owner, confidence, currentness, public wording and blocked wording.",
+      "blockers": [
+        "Sales proof source availability",
+        "Legal public wording approval",
+        "SEO product evidence mapping",
+        "Security constraints for private proof"
+      ],
+      "evidence_required": [
+        "EV-CLAIM-001",
+        "EV-CLAIM-002",
+        "EV-CLAIM-003",
+        "EV-CLAIM-004",
+        "EV-CLAIM-005"
+      ],
+      "source_documents": [
+        "docs/workflow/product-taxonomy-seo-packaging-decision-2026-06-04.md",
+        "docs/workflow/product-to-be-design-system-decision-2026-06-04.md",
+        "docs/workflow/product-tech-challenge-evidence-intake-2026-06-04.md"
+      ],
+      "do_not_start": [
+        "Do not publish metrics, logos, certifications, registry claims, guarantees or private proof links before owner approval."
+      ]
+    },
+    {
+      "id": "WP-04",
+      "title": "Product taxonomy, packaging and SEO route approval",
+      "board_status": "owner-review",
+      "owner_status": "pending-owner-review",
+      "primary_sprints": [
+        "18"
+      ],
+      "gap_ids": [
+        "CONTENT-004",
+        "CONTENT-005",
+        "UX-004",
+        "UX-005",
+        "ARCH-010"
+      ],
+      "owners": [
+        "PM",
+        "Sales",
+        "SEO",
+        "Content",
+        "Architect"
+      ],
+      "required_owner_response": "Approve product taxonomy, packaging boundaries, route/canonical model, price route intent and metadata direction.",
+      "next_action": "Run PM/Sales/SEO review of taxonomy, packaging and route decisions.",
+      "blockers": [
+        "SEO keyword and route intent evidence",
+        "Sales validation of product names and buyer triggers",
+        "PM approval of packaging boundaries"
+      ],
+      "evidence_required": [
+        "EV-SEO-001",
+        "EV-SEO-002",
+        "EV-SEO-003",
+        "EV-CLAIM-005"
+      ],
+      "source_documents": [
+        "docs/workflow/product-taxonomy-seo-packaging-decision-2026-06-04.md",
+        "docs/workflow/sprints/2026-06-04-sprint-18-taxonomy-seo-packaging.md"
+      ],
+      "do_not_start": [
+        "Do not redirect, canonicalize or deindex /agents/ or /aiagents/ before SEO approval."
+      ]
+    },
+    {
+      "id": "WP-05",
+      "title": "Enterprise CJM, CTA and CRM qualification approval",
+      "board_status": "owner-review",
+      "owner_status": "pending-owner-review",
+      "primary_sprints": [
+        "19"
+      ],
+      "gap_ids": [
+        "CFG-004",
+        "UX-001",
+        "UX-002",
+        "UX-003",
+        "UX-007",
+        "UX-008",
+        "UX-009",
+        "UX-010",
+        "ARCH-005",
+        "ARCH-006",
+        "CMP-003"
+      ],
+      "owners": [
+        "PM",
+        "UX",
+        "Sales",
+        "Backend",
+        "Security",
+        "Analytics",
+        "QA"
+      ],
+      "required_owner_response": "Approve role journeys, CTA taxonomy, returning-lead path, pilot kits, CRM fallback or structured-field scope and no-PII analytics.",
+      "next_action": "Collect PM/Sales/Security/Analytics decision on v1 text fallback versus structured CRM field scope.",
+      "blockers": [
+        "Sales approval of pilot kits and follow-up usefulness",
+        "Security review for any structured upstream fields",
+        "Analytics approval of product funnel goals",
+        "QA success-state and smoke scope"
+      ],
+      "evidence_required": [
+        "EV-CRM-001",
+        "EV-CRM-002",
+        "EV-AN-001"
+      ],
+      "source_documents": [
+        "docs/workflow/product-cjm-cta-crm-qualification-decision-2026-06-04.md",
+        "docs/workflow/lead-form-contract.md",
+        "docs/workflow/analytics-events.md",
+        "docs/workflow/sprints/2026-06-04-sprint-19-cjm-cta-crm-qualification.md"
+      ],
+      "do_not_start": [
+        "Do not add hidden fields, upstream payload fields or analytics params beyond the approved no-PII taxonomy."
+      ]
+    },
+    {
+      "id": "WP-06",
+      "title": "TO BE design system implementation readiness",
+      "board_status": "owner-review",
+      "owner_status": "pending-owner-review",
+      "primary_sprints": [
+        "20"
+      ],
+      "gap_ids": [
+        "UI-001",
+        "UI-002",
+        "UI-003",
+        "UI-004",
+        "UI-005",
+        "UI-006",
+        "UI-007",
+        "UI-008",
+        "UI-009",
+        "UI-010",
+        "STACK-003",
+        "CMP-008"
+      ],
+      "owners": [
+        "Designer",
+        "Frontend",
+        "QA",
+        "Legal",
+        "PM"
+      ],
+      "required_owner_response": "Approve TO BE token source, density/card/radius policy, proof/status rules, diagrams, state matrices and implementation batch scope.",
+      "next_action": "Collect design-system owner review and attach implementation-ready state approval.",
+      "blockers": [
+        "Designer token-source decision",
+        "Legal approval for proof/status states",
+        "QA smoke scope for form/chat/price states",
+        "Frontend implementation feasibility review"
+      ],
+      "evidence_required": [
+        "EV-DES-001",
+        "EV-DES-002",
+        "EV-DES-003"
+      ],
+      "source_documents": [
+        "docs/workflow/product-to-be-design-system-decision-2026-06-04.md",
+        "docs/workflow/design-token-contract.md",
+        "docs/workflow/component-state-contract.md",
+        "docs/workflow/design-migration-map.md",
+        "docs/workflow/sprints/2026-06-04-sprint-20-to-be-design-system.md"
+      ],
+      "do_not_start": [
+        "Do not start broad restyle, proof/status components or price mobile rewrite before approved states and smoke scope."
+      ]
+    },
+    {
+      "id": "WP-07",
+      "title": "Frontend/component hardening implementation path",
+      "board_status": "owner-review",
+      "owner_status": "pending-owner-review",
+      "primary_sprints": [
+        "21"
+      ],
+      "gap_ids": [
+        "CFG-005",
+        "ARCH-002",
+        "CMP-001",
+        "CMP-002",
+        "CMP-004",
+        "CMP-005",
+        "CMP-006",
+        "CMP-007",
+        "STACK-002",
+        "STACK-005",
+        "SEC-001"
+      ],
+      "owners": [
+        "Architect",
+        "Frontend",
+        "QA",
+        "Security",
+        "Backend"
+      ],
+      "required_owner_response": "Approve product renderer boundary, component promotion criteria, price/forms/chat split path, JS module policy, fixture plan and CSRF trigger handling.",
+      "next_action": "Collect Frontend/QA/Architect approval for contract-preserving split sequence and smoke baseline.",
+      "blockers": [
+        "Baseline smoke evidence for touched surfaces",
+        "Security review if form/chat sensitivity or payload changes",
+        "Architect approval of component promotion criteria"
+      ],
+      "evidence_required": [
+        "EV-FE-001",
+        "EV-FE-002",
+        "EV-DES-003"
+      ],
+      "source_documents": [
+        "docs/workflow/product-frontend-component-hardening-decision-2026-06-04.md",
+        "docs/workflow/component-state-contract.md",
+        "docs/workflow/design-migration-map.md",
+        "docs/workflow/sprints/2026-06-04-sprint-21-frontend-component-hardening.md"
+      ],
+      "do_not_start": [
+        "Do not split price, forms and chat simultaneously.",
+        "Do not change payloads while doing UI modularity."
+      ]
+    },
+    {
+      "id": "WP-08",
+      "title": "Security, release evidence and legacy alias closure",
+      "board_status": "blocked-external",
+      "owner_status": "blocked-external",
+      "primary_sprints": [
+        "22"
+      ],
+      "gap_ids": [
+        "CFG-006",
+        "ARCH-007",
+        "ARCH-008",
+        "ARCH-012",
+        "SEC-002",
+        "SEC-003",
+        "REL-001",
+        "REL-002"
+      ],
+      "owners": [
+        "Security",
+        "Backend",
+        "DevOps",
+        "QA",
+        "PM",
+        "Legal"
+      ],
+      "required_owner_response": "Approve endpoint sensitivity/rate classes, private proof/document access model, CSP enforce checklist, future release gates and legacy alias final-mode evidence path.",
+      "next_action": "Checker support for future release gates is implemented; collect Security/DevOps/QA review and wait for full-window legacy alias aggregate after 2026-06-30.",
+      "blockers": [
+        "Security approval of endpoint classes",
+        "Legal/PM approval of private proof/document access model",
+        "CSP report-only inventory and staging enforce evidence",
+        "Legacy alias access-log aggregate after 2026-06-30",
+        "Legacy alias CRM/upstream source report"
+      ],
+      "evidence_required": [
+        "EV-SEC-001",
+        "EV-SEC-002",
+        "EV-CSP-001",
+        "EV-REL-001",
+        "EV-REL-002",
+        "EV-REL-003"
+      ],
+      "source_documents": [
+        "docs/workflow/product-security-release-legacy-closure-decision-2026-06-04.md",
+        "docs/workflow/csp-target-state-decision-2026-05-25.md",
+        "docs/workflow/release-signoff-gates.md",
+        "docs/workflow/legacy-sale-alias-consumer-inventory.md",
+        "docs/workflow/sprints/2026-06-04-sprint-22-security-release-legacy-closure.md"
+      ],
+      "do_not_start": [
+        "Do not enforce CSP, add private downloads, remove aliases, return 410 or redirect aliases before gates and evidence."
+      ]
+    },
+    {
+      "id": "WP-09",
+      "title": "Accepted-risk monitoring and reopen rules",
+      "board_status": "accepted-monitor",
+      "owner_status": "accepted-monitor",
+      "primary_sprints": [
+        "23"
+      ],
+      "gap_ids": [
+        "STACK-001",
+        "STACK-006",
+        "SEC-001",
+        "ARCH-007",
+        "REL-002"
+      ],
+      "owners": [
+        "PM",
+        "Architect",
+        "Security",
+        "Frontend",
+        "QA"
+      ],
+      "required_owner_response": "Approve accepted-risk monitoring cadence, owner accountability and reopen triggers.",
+      "next_action": "Track triggers during future product work and reopen through the relevant lane when a trigger fires.",
+      "blockers": [
+        "Owner cadence approval",
+        "Future trigger evidence if scope changes"
+      ],
+      "evidence_required": [
+        "Accepted-risk review cadence",
+        "Trigger-to-issue mapping",
+        "Release sign-off reference for future affected gaps"
+      ],
+      "source_documents": [
+        "docs/workflow/product-accepted-risk-monitoring-decision-2026-06-04.md",
+        "docs/workflow/sprints/2026-06-04-sprint-23-accepted-risk-monitoring.md"
+      ],
+      "do_not_start": [
+        "Do not treat accepted-monitor as closed or as permission to bypass gates."
+      ]
+    }
+  ]
+}

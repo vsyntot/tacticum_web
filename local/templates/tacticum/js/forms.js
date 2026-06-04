@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const FORM_ENDPOINT = "/local/rest/tacticum_form.php";
     const DEFAULT_SUCCESS_MESSAGE = "Заявка отправлена! Мы скоро свяжемся с вами.";
     const DEFAULT_ERROR_MESSAGE = "Не удалось отправить форму. Попробуйте позже.";
+    const RETURNING_LEAD_STORAGE_KEY = "tacticum:returningLead:v1";
 
     const trackEvent = (eventName, params = {}) => {
         if (typeof window.tacticumTrackEvent === "function") {
@@ -37,18 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "product-estimate",
             "product-team",
             "contact-routing",
-            "platform-assessment",
-            "platform-pilot",
-            "deployment-readiness",
-            "agent-scenario-selection",
-            "rag-documents-check",
-            "pilot-rollout",
-            "ai-workflow-assessment",
-            "quality-gates-pilot",
-            "design-system-guardrails",
-            "dialog-flow-assessment",
-            "scenario-llm-pilot",
-            "support-analytics-review",
+            "pilot",
+            "architecture-session",
+            "procurement-security",
+            "team-delivery",
+            "estimate",
         ]),
     };
 
@@ -72,6 +66,63 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return meta;
+    };
+
+    const readReturningLeadState = () => {
+        try {
+            const raw = window.sessionStorage?.getItem(RETURNING_LEAD_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            return parsed && typeof parsed === "object" && parsed.entries && typeof parsed.entries === "object"
+                ? parsed
+                : { entries: {} };
+        } catch (error) {
+            return { entries: {} };
+        }
+    };
+
+    const writeReturningLeadState = (state) => {
+        try {
+            window.sessionStorage?.setItem(RETURNING_LEAD_STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+            // Storage can be unavailable in private or locked-down browser modes.
+        }
+    };
+
+    const buildReturningLeadKey = (form, payload = null) => {
+        const source = payload || Object.fromEntries(new FormData(form).entries());
+        const product = normalizeControlledValue(source.lead_product, productAnalyticsValues.product);
+        if (!product) return "";
+
+        return `${product}:${getFormId(form)}`;
+    };
+
+    const markReturningLead = (form, payload) => {
+        const key = buildReturningLeadKey(form, payload);
+        if (!key) return;
+
+        const state = readReturningLeadState();
+        state.entries[key] = {
+            product: normalizeControlledValue(payload.lead_product, productAnalyticsValues.product),
+            form_id: getFormId(form),
+            updated_at: Date.now(),
+        };
+        writeReturningLeadState(state);
+    };
+
+    const applyReturningLeadState = (form) => {
+        const panel = form.querySelector("[data-tacticum-returning-lead-panel]");
+        if (!panel) return;
+
+        const key = buildReturningLeadKey(form);
+        const hasReturningLead = key !== "" && Boolean(readReturningLeadState().entries[key]);
+        form.dataset.tacticumReturningLead = hasReturningLead ? "true" : "false";
+        panel.classList.toggle("hidden", !hasReturningLead);
+    };
+
+    const initReturningLeadPanels = () => {
+        document.querySelectorAll("[data-tacticum-form]").forEach((form) => {
+            applyReturningLeadState(form);
+        });
     };
 
     const ensureToastContainer = () => {
@@ -310,6 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const successMessage = form.dataset.successMessage || DEFAULT_SUCCESS_MESSAGE;
+            markReturningLead(form, payload);
             trackEvent("tacticum_form_success", {
                 ...formMeta,
                 status: response.status,
@@ -323,6 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             showToast(successMessage, "success");
             form.reset();
+            applyReturningLeadState(form);
             delete form.dataset.tacticumOfferGroupId;
             closeModalIfNeeded(form);
         } catch (error) {
@@ -368,4 +421,5 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     initPrefillTriggers();
+    initReturningLeadPanels();
 });

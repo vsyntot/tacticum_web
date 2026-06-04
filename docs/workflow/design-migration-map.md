@@ -74,3 +74,7 @@ First TO BE implementation should default to `visual-restyle` for:
 `/price/` team builder and product page blocks are marked as `contract-preserving-split`, because their current behavior/data contracts should survive, but implementation may need better component boundaries.
 
 New proof/status, architecture diagram and procurement document request components are tracked in `toBeBacklog`; they should not be implemented as incidental visual additions without their gates.
+
+Sprint 20 draft decision 04.06.2026: `docs/workflow/product-to-be-design-system-decision-2026-06-04.md` keeps visual restyle as the default for navigation, contact modal, lead CTA, chat and FAQ; keeps `/price/` team builder and product blocks as contract-preserving split candidates; and treats proof/status UI plus architecture/procurement diagrams as gated new interactions.
+
+Sprint 21 draft decision 04.06.2026: `docs/workflow/product-frontend-component-hardening-decision-2026-06-04.md` turns the high-risk split candidates into implementation rules: product blocks remain PHP partials until promotion criteria trigger, `/price/`, forms and chat split only as contract-preserving changes, and fixture-driven smoke must cover the affected behavior before runtime work is accepted.

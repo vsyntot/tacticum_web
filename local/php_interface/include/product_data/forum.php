@@ -318,23 +318,31 @@ return [
         'scenario_empty_label' => 'Выберите ближайший сценарий',
         'scenario_options' => [
             [
-                'VALUE' => 'dialog-flow-assessment',
-                'LABEL' => 'Разобрать текущий поток обращений',
+                'VALUE' => 'pilot',
+                'LABEL' => 'Пилот на одном потоке',
             ],
             [
-                'VALUE' => 'scenario-llm-pilot',
-                'LABEL' => 'Пилот сценариев с LLM-обогащением',
+                'VALUE' => 'architecture-session',
+                'LABEL' => 'Архитектура сценариев и данных',
             ],
             [
-                'VALUE' => 'support-analytics-review',
-                'LABEL' => 'Проверить аналитику и эскалации',
+                'VALUE' => 'procurement-security',
+                'LABEL' => 'Безопасность клиентских данных',
+            ],
+            [
+                'VALUE' => 'team-delivery',
+                'LABEL' => 'Команда для запуска',
+            ],
+            [
+                'VALUE' => 'estimate',
+                'LABEL' => 'Оценка пилота',
             ],
         ],
         'lead_context' => [
             'lead_entry' => 'forum',
             'lead_page_role' => 'product-page',
             'lead_product' => 'forum',
-            'lead_intent' => 'dialog-flow-assessment',
+            'lead_intent' => 'pilot',
             'lead_cta' => 'forum-cta',
             'lead_next_step' => 'flow-assessment',
         ],

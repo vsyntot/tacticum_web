@@ -83,3 +83,7 @@ Guard проверяет:
 - `/price/` mobile team builder UX remains a dedicated design task;
 - chat visual/state spec remains a dedicated product pattern decision;
 - product proof/status components still need claim governance mapping.
+
+Sprint 20 draft decision 04.06.2026: `docs/workflow/product-to-be-design-system-decision-2026-06-04.md` adds TO BE state matrices for forms/modal/CTA, chat and `/price/` mobile behavior. These matrices are approval inputs; selectors and behavior-bearing contracts from `07-component-state-contract.json` remain mandatory until a separate contract migration is approved.
+
+Sprint 21 draft decision 04.06.2026: `docs/workflow/product-frontend-component-hardening-decision-2026-06-04.md` defines the runtime-safe component boundary for product blocks, `/price/`, forms, chat and FAQ wrappers. It keeps current behavior-bearing selectors as mandatory and treats any selector/payload/endpoint change as a separate contract migration with smoke evidence.

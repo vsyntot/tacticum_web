@@ -144,9 +144,15 @@ function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram',
         }
 
         $products = tacticum_rest_get_config_section('products');
-        $source = $products['source'] ?? 'auto';
+        $source = $products['source'] ?? 'bitrix';
         if (!is_string($source) || !in_array($source, ['auto', 'bitrix', 'fallback'], true)) {
             $addError('products.source', 'invalid_value');
+        } elseif ($source !== 'bitrix') {
+            $addError('products.source', 'must_be_bitrix');
+        }
+
+        if (($products['allow_fallback'] ?? false) !== false) {
+            $addError('products.allow_fallback', 'must_be_false');
         }
 
         $cacheTtl = $products['cache_ttl'] ?? null;

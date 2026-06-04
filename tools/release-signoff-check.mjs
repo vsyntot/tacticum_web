@@ -19,6 +19,10 @@ const requiredGates = [
   'bitrix-admin',
   'legacy-sunset',
   'staff-sale-upstream',
+  'csp-enforce',
+  'sensitive-endpoint-access',
+  'endpoint-risk-class',
+  'legacy-final-mode',
 ];
 const requiredGateSet = new Set(requiredGates);
 const manualEvidenceGates = new Set([
@@ -27,22 +31,69 @@ const manualEvidenceGates = new Set([
   'bitrix-admin',
   'staff-sale-upstream',
 ]);
+const safetyScannedEvidenceGates = new Set([
+  ...manualEvidenceGates,
+  'csp-enforce',
+  'sensitive-endpoint-access',
+  'endpoint-risk-class',
+  'legacy-final-mode',
+]);
 const forbiddenManualEvidenceKeys = [
   'cookie',
   'email',
+  'contact',
+  'contacts',
+  'document_url',
   'message',
   'password',
   'payload',
   'phone',
+  'raw',
+  'raw_body',
+  'raw_log',
+  'raw_logs',
   'raw_payload',
+  'raw_request',
   'raw_response',
+  'referer',
+  'referrer',
   'secret',
   'session',
   'sessid',
+  'signed_url',
   'token',
+  'user_agent',
 ];
 const allowedStatuses = new Set(allowPending ? ['passed', 'not_applicable', 'pending'] : ['passed', 'not_applicable']);
 const productPages = new Set(['/platform/', '/agents/', '/dev/', '/forum/']);
+const endpointRiskClasses = new Set([
+  'PUBLIC_READ',
+  'PUBLIC_CONFIG_HEALTH',
+  'PUBLIC_LEAD_POST',
+  'PUBLIC_CHAT_POST',
+  'PUBLIC_STAFF_POST',
+  'SCOPED_PREFILL_POST',
+  'PUBLIC_RESOLVER_POST',
+  'LEGACY_ALIAS_POST',
+  'PRIVATE_PROOF_DOC',
+  'INTERNAL_ADMIN_OR_INTEGRATION',
+]);
+const sensitiveAccessModels = new Set([
+  'authenticated-session',
+  'expiring-signed-link',
+  'owner-approved-token',
+]);
+const legacyFinalModes = new Set([
+  'remove',
+  '410',
+  'redirect',
+  'extend-support',
+  'compatibility-endpoint',
+]);
+const legacyAliasPaths = [
+  '/local/rest/tacticum_offer.php',
+  '/local/rest/tacticum_sale.php',
+];
 const requiredProductBlocks = [
   'hero',
   'fit-guide',
@@ -286,8 +337,8 @@ async function validateGateEvidence(gateName, evidence) {
     }
   }
 
-  if (manualEvidenceGates.has(gateName)) {
-    validateManualEvidenceSafety(gateName, evidence);
+  if (safetyScannedEvidenceGates.has(gateName)) {
+    validateEvidenceSafety(gateName, evidence);
   }
 
   if (gateName === 'manual-success-flow') {
@@ -304,6 +355,22 @@ async function validateGateEvidence(gateName, evidence) {
 
   if (gateName === 'staff-sale-upstream') {
     validateStaffSaleUpstream(evidence);
+  }
+
+  if (gateName === 'csp-enforce') {
+    validateCspEnforce(evidence);
+  }
+
+  if (gateName === 'sensitive-endpoint-access') {
+    validateSensitiveEndpointAccess(evidence);
+  }
+
+  if (gateName === 'endpoint-risk-class') {
+    validateEndpointRiskClass(evidence);
+  }
+
+  if (gateName === 'legacy-final-mode') {
+    validateLegacyFinalMode(evidence);
   }
 }
 
@@ -523,7 +590,114 @@ function validateStaffSaleUpstream(evidence) {
   }
 }
 
-function validateManualEvidenceSafety(gateName, evidence) {
+function validateCspEnforce(evidence) {
+  requireFields('csp-enforce', evidence, [
+    'environment',
+    'checked_at',
+    'checked_by',
+    'mode',
+    'report_only_baseline',
+    'inline_inventory',
+    'vendor_inventory',
+    'staging_enforce_smoke',
+    'rollback',
+  ]);
+  validateIsoDateTime('csp-enforce', evidence.checked_at);
+
+  if (String(evidence.mode || '').trim() !== 'enforce') {
+    fail('csp-enforce: mode must be enforce');
+  }
+
+  if (evidence.violations_triaged !== true) {
+    fail('csp-enforce: violations_triaged must be true');
+  }
+
+  if (evidence.rollback_to_report_only_documented !== true) {
+    fail('csp-enforce: rollback_to_report_only_documented must be true');
+  }
+}
+
+function validateSensitiveEndpointAccess(evidence) {
+  requireFields('sensitive-endpoint-access', evidence, [
+    'environment',
+    'checked_at',
+    'checked_by',
+    'flow',
+    'access_model',
+    'allowed_result',
+    'denied_result',
+    'expired_or_malformed_result',
+    'noindex_or_cache_policy',
+    'logging_pii_check',
+  ]);
+  validateIsoDateTime('sensitive-endpoint-access', evidence.checked_at);
+
+  const accessModel = String(evidence.access_model || '').trim();
+  if (!sensitiveAccessModels.has(accessModel)) {
+    fail('sensitive-endpoint-access: access_model must be one of authenticated-session, expiring-signed-link, owner-approved-token');
+  }
+}
+
+function validateEndpointRiskClass(evidence) {
+  requireFields('endpoint-risk-class', evidence, [
+    'checked_at',
+    'checked_by',
+    'endpoint',
+    'risk_class',
+    'origin_csrf',
+    'rate_limit',
+    'auth_ip_proxy',
+    'logging_evidence',
+  ]);
+  validateIsoDateTime('endpoint-risk-class', evidence.checked_at);
+
+  const endpoint = String(evidence.endpoint || '').trim();
+  if (endpoint && !endpoint.startsWith('/') && !/^https:\/\//i.test(endpoint)) {
+    fail('endpoint-risk-class: endpoint must be a site path or HTTPS URL');
+  }
+
+  if (/^http:\/\//i.test(endpoint)) {
+    fail('endpoint-risk-class: endpoint URL must use HTTPS');
+  }
+
+  const riskClass = String(evidence.risk_class || '').trim();
+  if (!endpointRiskClasses.has(riskClass)) {
+    fail('endpoint-risk-class: risk_class must match the Sprint 22 endpoint sensitivity matrix');
+  }
+}
+
+function validateLegacyFinalMode(evidence) {
+  requireFields('legacy-final-mode', evidence, [
+    'checked_at',
+    'checked_by',
+    'aliases',
+    'final_mode',
+    'inventory_window',
+    'access_log_aggregate',
+    'crm_upstream_report',
+    'implementation_result',
+    'rollback_or_support_plan',
+  ]);
+  validateIsoDateTime('legacy-final-mode', evidence.checked_at);
+
+  const finalMode = String(evidence.final_mode || '').trim();
+  if (!legacyFinalModes.has(finalMode)) {
+    fail('legacy-final-mode: final_mode must be one of remove, 410, redirect, extend-support, compatibility-endpoint');
+  }
+
+  if (!Array.isArray(evidence.aliases)) {
+    fail('legacy-final-mode: aliases must be an array');
+    return;
+  }
+
+  for (const alias of legacyAliasPaths) {
+    if (!evidence.aliases.includes(alias)) {
+      fail(`legacy-final-mode: aliases must include ${alias}`);
+    }
+  }
+}
+
+function validateEvidenceSafety(gateName, evidence) {
   for (const item of flattenEvidence(evidence)) {
     const key = item.path.split('.').at(-1) || '';
     const normalizedKey = key.toLowerCase();

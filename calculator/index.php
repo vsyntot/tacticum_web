@@ -104,7 +104,7 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.p
                             <div>
                                 <h4 class="text-lg font-semibold text-secondary mb-2">Риски и вопросы</h4>
                                 <p class="text-gray-600">
-                                    Что нужно уточнить перед точной сметой: данные, интеграции, SLA, безопасность и нагрузка.
+                                    Что нужно уточнить перед точной сметой: данные, интеграции, уровень поддержки, безопасность и нагрузка.
                                 </p>
                             </div>
                         </div>
