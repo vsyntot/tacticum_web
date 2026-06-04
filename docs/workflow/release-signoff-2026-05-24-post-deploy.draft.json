@@ -2,7 +2,7 @@
   "release": {
     "id": "2026-05-25-post-deploy-closure",
     "date": "2026-05-25",
-    "commit": "working-tree-2026-05-25",
+    "commit": "46e2521edaa7f24a7e1ab242c4d9cd6626f341f3",
     "base_url": "https://tacticum.ru"
   },
   "gates": {
