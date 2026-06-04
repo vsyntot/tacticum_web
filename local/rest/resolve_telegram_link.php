@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=UTF-8');
 tacticum_rest_send_noindex_header();
 
 tacticum_rest_validate_origin();
-tacticum_rest_rate_limit('resolve_telegram_link');
+tacticum_rest_rate_limit_by_class('PUBLIC_RESOLVER_POST', 'resolve_telegram_link');
 tacticum_rest_require_method('POST');
 
 $data = tacticum_rest_read_json_body();

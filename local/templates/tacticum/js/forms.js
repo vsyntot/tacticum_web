@@ -170,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const setFieldError = (field, hasError) => {
         if (!field) return;
+        field.setAttribute("aria-invalid", hasError ? "true" : "false");
         if (hasError) {
             field.classList.add("ring-2", "ring-red-500", "border-transparent");
         } else {
@@ -182,6 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const hint = form.querySelector(`[data-error="${field.id}"]`);
         if (!hint) return;
         hint.classList.toggle("hidden", !show);
+        hint.id ||= `${field.id}-error`;
+        if (show) {
+            field.setAttribute("aria-describedby", hint.id);
+        } else if (field.getAttribute("aria-describedby") === hint.id) {
+            field.removeAttribute("aria-describedby");
+        }
     };
 
     const validateForm = (form) => {
@@ -217,6 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 consent.classList.remove("ring-2", "ring-red-500");
             }
+            consent.setAttribute("aria-invalid", consentError ? "true" : "false");
             if (consentError) isValid = false;
         }
 
@@ -258,11 +266,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const setLoadingState = (form, isLoading) => {
         const submitBtn = form.querySelector("button[type='submit']");
+        form.setAttribute("aria-busy", isLoading ? "true" : "false");
+        form.dataset.tacticumSubmitting = isLoading ? "true" : "false";
+
+        const controls = form.querySelectorAll("input:not([type='hidden']), textarea, select, button");
+        controls.forEach((control) => {
+            if (isLoading) {
+                if (!control.dataset.tacticumWasDisabled) {
+                    control.dataset.tacticumWasDisabled = control.disabled ? "true" : "false";
+                }
+                control.disabled = true;
+                return;
+            }
+
+            if (control.dataset.tacticumWasDisabled === "false") {
+                control.disabled = false;
+            }
+            delete control.dataset.tacticumWasDisabled;
+        });
+
         if (!submitBtn) return;
+
         const spinner = submitBtn.querySelector("[data-role='spinner']");
         const btnText = submitBtn.querySelector("[data-role='btn-text']");
-
-        submitBtn.disabled = isLoading;
+        submitBtn.classList.toggle("opacity-70", isLoading);
+        submitBtn.classList.toggle("cursor-wait", isLoading);
         if (spinner) {
             spinner.classList.toggle("hidden", !isLoading);
         }
@@ -271,6 +299,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnText.dataset.defaultText = btnText.textContent;
             }
             btnText.textContent = isLoading ? "Отправляем..." : btnText.dataset.defaultText;
+        } else if (submitBtn.children.length === 0) {
+            if (!submitBtn.dataset.defaultText) {
+                submitBtn.dataset.defaultText = submitBtn.textContent.trim();
+            }
+            submitBtn.textContent = isLoading ? "Отправляем..." : submitBtn.dataset.defaultText;
         }
     };
 

@@ -192,6 +192,32 @@ function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram',
         if (isset($rest['trusted_proxies']) && !is_array($rest['trusted_proxies'])) {
             $addError('rest.trusted_proxies', 'invalid_type');
         }
+
+        $rateLimits = $rest['rate_limits'] ?? [];
+        if ($rateLimits !== [] && !is_array($rateLimits)) {
+            $addError('rest.rate_limits', 'invalid_type');
+        } elseif (is_array($rateLimits)) {
+            $knownRateLimitClasses = tacticum_rest_rate_limit_classes();
+            foreach ($rateLimits as $riskClass => $settings) {
+                $riskClassKey = strtoupper(trim((string)$riskClass));
+                if (!array_key_exists($riskClassKey, $knownRateLimitClasses)) {
+                    $addError('rest.rate_limits.' . (string)$riskClass, 'unknown_class');
+                    continue;
+                }
+                if (!is_array($settings)) {
+                    $addError('rest.rate_limits.' . (string)$riskClass, 'invalid_type');
+                    continue;
+                }
+                foreach (['limit', 'ttl'] as $key) {
+                    if (!array_key_exists($key, $settings)) {
+                        continue;
+                    }
+                    if (!is_numeric($settings[$key]) || (int)$settings[$key] <= 0) {
+                        $addError('rest.rate_limits.' . $riskClassKey . '.' . $key, 'invalid_value');
+                    }
+                }
+            }
+        }
     }
 
     return $errors;
@@ -631,6 +657,65 @@ function tacticum_rest_rate_limit(string $action, int $limit = 20, int $ttl = 60
     if ($count > $limit) {
         tacticum_rest_error(429, 'rate_limited', 'Слишком много запросов. Попробуйте позже.');
     }
+}
+
+function tacticum_rest_rate_limit_classes(): array
+{
+    return [
+        'CONFIG_HEALTH_GET' => ['limit' => 5, 'ttl' => 60],
+        'PUBLIC_LEAD_POST' => ['limit' => 20, 'ttl' => 60],
+        'PUBLIC_CHAT_POST' => ['limit' => 20, 'ttl' => 60],
+        'PUBLIC_STAFF_POST' => ['limit' => 20, 'ttl' => 60],
+        'SCOPED_PREFILL_POST' => ['limit' => 20, 'ttl' => 60],
+        'PUBLIC_RESOLVER_POST' => ['limit' => 20, 'ttl' => 60],
+        'LEGACY_ALIAS_POST' => ['limit' => 20, 'ttl' => 60],
+    ];
+}
+
+function tacticum_rest_rate_limit_class_settings(string $riskClass): array
+{
+    $riskClass = strtoupper(trim($riskClass));
+    $classes = tacticum_rest_rate_limit_classes();
+    $settings = $classes[$riskClass] ?? $classes['PUBLIC_LEAD_POST'];
+    $rest = tacticum_rest_get_config_section('rest');
+    $overrides = $rest['rate_limits'] ?? [];
+    $override = [];
+
+    if (is_array($overrides)) {
+        foreach ($overrides as $configuredRiskClass => $configuredSettings) {
+            if (
+                strtoupper(trim((string)$configuredRiskClass)) === $riskClass
+                && is_array($configuredSettings)
+            ) {
+                $override = $configuredSettings;
+                break;
+            }
+        }
+    }
+
+    foreach (['limit', 'ttl'] as $key) {
+        if (array_key_exists($key, $override) && is_numeric($override[$key])) {
+            $settings[$key] = (int)$override[$key];
+        }
+        if ((int)$settings[$key] <= 0) {
+            $settings[$key] = $classes[$riskClass][$key] ?? $classes['PUBLIC_LEAD_POST'][$key];
+        }
+    }
+
+    return $settings;
+}
+
+function tacticum_rest_rate_limit_by_class(string $riskClass, string $action): void
+{
+    $riskClass = strtoupper(trim($riskClass));
+    $action = trim($action);
+    $settings = tacticum_rest_rate_limit_class_settings($riskClass);
+
+    tacticum_rest_rate_limit(
+        $action !== '' ? $action : strtolower($riskClass),
+        (int)$settings['limit'],
+        (int)$settings['ttl']
+    );
 }
 
 function tacticum_api_bootstrap(string $action): int

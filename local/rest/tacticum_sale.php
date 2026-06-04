@@ -11,7 +11,7 @@ header('Sunset: Wed, 30 Sep 2026 00:00:00 GMT');
 header('Link: </local/rest/tacticum_form.php>; rel="successor-version"');
 
 tacticum_rest_validate_origin();
-tacticum_rest_rate_limit('tacticum_sale');
+tacticum_rest_rate_limit_by_class('LEGACY_ALIAS_POST', 'tacticum_sale');
 tacticum_rest_require_method('POST');
 
 $data = tacticum_rest_read_json_body();

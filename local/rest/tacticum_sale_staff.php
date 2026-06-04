@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=UTF-8');
 tacticum_rest_send_noindex_header();
 
 tacticum_rest_validate_origin();
-tacticum_rest_rate_limit('tacticum_sale_staff');
+tacticum_rest_rate_limit_by_class('PUBLIC_STAFF_POST', 'tacticum_sale_staff');
 tacticum_rest_require_method('POST');
 
 $data = tacticum_rest_read_json_body();

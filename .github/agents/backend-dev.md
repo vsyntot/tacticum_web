@@ -49,9 +49,9 @@ require_once(__DIR__ . '/rest_helpers.php');
 
 header('Content-Type: application/json; charset=UTF-8');
 
-tacticum_rest_validate_origin();         // 1. CORS/Referer — ВСЕГДА первым
-tacticum_rest_rate_limit('action_name'); // 2. Rate limit — ВСЕГДА вторым
-tacticum_rest_require_method('POST');    // 3. Method guard до чтения тела
+tacticum_rest_validate_origin();                                  // 1. CORS/Referer — ВСЕГДА первым
+tacticum_rest_rate_limit_by_class('PUBLIC_LEAD_POST', 'action_name'); // 2. Rate limit — ВСЕГДА вторым
+tacticum_rest_require_method('POST');                             // 3. Method guard до чтения тела
 
 $data = tacticum_rest_read_json_body();  // 4. JSON parse
 tacticum_rest_check_csrf($data);         // 5. CSRF — перед бизнес-логикой

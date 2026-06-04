@@ -104,6 +104,12 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
     $securityConfig = tacticum_rest_get_config_section('security');
     $contentConfig = tacticum_rest_get_config_section('content');
     $restConfig = tacticum_rest_get_config_section('rest');
+    $rateLimits = is_array($restConfig['rate_limits'] ?? null)
+        ? $restConfig['rate_limits']
+        : [];
+    $rateLimitClasses = function_exists('tacticum_rest_rate_limit_classes')
+        ? tacticum_rest_rate_limit_classes()
+        : [];
 
     $iblocks = [];
     foreach ([
@@ -169,6 +175,13 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
             'allowed_origins_count' => is_array($restConfig['allowed_origins'] ?? null) ? count($restConfig['allowed_origins']) : 0,
             'allowed_ips_count' => is_array($restConfig['allowed_ips'] ?? null) ? count($restConfig['allowed_ips']) : 0,
             'trusted_proxies_count' => is_array($restConfig['trusted_proxies'] ?? null) ? count($restConfig['trusted_proxies']) : 0,
+            'rate_limit_classes_count' => count($rateLimitClasses),
+            'rate_limits_override_count' => count($rateLimits),
+            'rate_limits_config' => (
+                isset($config['rest'])
+                && is_array($config['rest'])
+                && array_key_exists('rate_limits', $config['rest'])
+            ) ? 'explicit' : 'default',
         ],
     ];
 }
@@ -227,7 +240,10 @@ function tacticum_config_runtime_check_print(array $summary): void
     tacticum_config_runtime_check_line('REST: allow_no_origin=' . ($summary['rest']['allow_no_origin'] ? 'true' : 'false')
         . ', allowed_origins_count=' . $summary['rest']['allowed_origins_count']
         . ', allowed_ips_count=' . $summary['rest']['allowed_ips_count']
-        . ', trusted_proxies_count=' . $summary['rest']['trusted_proxies_count']);
+        . ', trusted_proxies_count=' . $summary['rest']['trusted_proxies_count']
+        . ', rate_limit_classes_count=' . $summary['rest']['rate_limit_classes_count']
+        . ', rate_limits_override_count=' . $summary['rest']['rate_limits_override_count']
+        . ' (' . $summary['rest']['rate_limits_config'] . ')');
 }
 
 try {
