@@ -208,6 +208,57 @@ Production `products.source=bitrix` switch completed on 03.06.2026.
 }
 ```
 
+## Production V2 Retirement Evidence — 05.06.2026
+
+Production admin-editable V2 retirement completed on 05.06.2026 after deploying the current codebase and running the one-time data migration on the production Bitrix DB:
+
+```bash
+php tools/product-content-check.php --strict --json > /tmp/tacticum-product-content-before.json || true
+php tools/product-content-migration.php --apply --update-seed-content --retire-legacy-json
+php tools/product-content-check.php --strict
+php tools/product-content-check.php --strict --json > /tmp/tacticum-product-content-after.json
+node ./tools/product-content-target-evidence-check.mjs --file=/tmp/tacticum-product-content-after.json --allow-source=bitrix
+php tools/product-content-cache-clear.php
+php tools/product-content-check.php --strict --json > /tmp/tacticum-product-content-after-cache-clear.json
+node ./tools/product-content-target-evidence-check.mjs --file=/tmp/tacticum-product-content-after-cache-clear.json --allow-source=bitrix
+```
+
+Safe summary:
+
+```json
+{
+  "environment": "production",
+  "checked_at": "2026-06-05T00:00:00+03:00",
+  "source_mode": "bitrix",
+  "configured_source": "bitrix",
+  "fallback_allowed": false,
+  "schema_version": "v1",
+  "admin_model": {
+    "legacy_json": {
+      "products_json_properties": 0,
+      "products_active_json_properties": 0,
+      "product_blocks_json_texts": 0,
+      "product_use_cases_json_texts": 0
+    }
+  },
+  "products": {
+    "platform": {"status": "ok", "source": "bitrix", "use_cases": 3, "schema_issues": 0},
+    "agents": {"status": "ok", "source": "bitrix", "use_cases": 3, "schema_issues": 0},
+    "dev": {"status": "ok", "source": "bitrix", "use_cases": 3, "schema_issues": 0},
+    "forum": {"status": "ok", "source": "bitrix", "use_cases": 3, "schema_issues": 0}
+  },
+  "cache_clear": "passed",
+  "target_evidence_check": "passed",
+  "product_content_switch_readiness_prod": "passed",
+  "product_source_http_prod": "passed",
+  "release_public_precheck_prod": "passed",
+  "seo_check_prod": "passed",
+  "browser_automation_on_server": "skipped: Chrome/Chromium executable is not installed on production server"
+}
+```
+
+Production `seo:check:prod` passed after `tools/seo-check.mjs` was made compatible with production checkouts that do not include `.github` / full `docs` and with older Node runtimes without global `fetch`.
+
 ## Evidence Template
 
 ```json

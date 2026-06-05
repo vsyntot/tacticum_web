@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import http from 'node:http';
+import https from 'node:https';
 
 const SITE = 'https://tacticum.ru';
 const ROOT_SITEMAP_FILE = 'sitemap.xml';
@@ -100,6 +102,61 @@ function readOptional(path) {
 
   return fs.readFileSync(path, 'utf8');
 }
+
+function nodeFetch(input, options = {}, redirectCount = 0) {
+  return new Promise((resolve, reject) => {
+    const url = input instanceof URL ? input : new URL(String(input));
+    const client = url.protocol === 'https:' ? https : http;
+    const request = client.request(url, {
+      method: options.method || 'GET',
+      headers: options.headers || {},
+    }, (response) => {
+      const status = response.statusCode || 0;
+      const headers = response.headers || {};
+      const location = typeof headers.location === 'string' ? headers.location : '';
+      if (
+        options.redirect !== 'manual'
+        && [301, 302, 303, 307, 308].includes(status)
+        && location !== ''
+        && redirectCount < 5
+      ) {
+        response.resume();
+        resolve(nodeFetch(new URL(location, url), options, redirectCount + 1));
+        return;
+      }
+
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => {
+        const body = Buffer.concat(chunks);
+        resolve({
+          status,
+          ok: status >= 200 && status < 300,
+          headers: {
+            get(name) {
+              const value = headers[name.toLowerCase()];
+              if (Array.isArray(value)) {
+                return value.join(', ');
+              }
+
+              return typeof value === 'string' ? value : null;
+            }
+          },
+          text() {
+            return Promise.resolve(body.toString('utf8'));
+          }
+        });
+      });
+    });
+
+    request.on('error', reject);
+    request.end();
+  });
+}
+
+const fetch = typeof globalThis.fetch === 'function'
+  ? globalThis.fetch.bind(globalThis)
+  : nodeFetch;
 
 const componentizedPageRenderSources = new Map([
   ['calculator/index.php', ['local/components/tacticum/calculator.page/templates/.default/template.php']],
@@ -512,6 +569,18 @@ function assertOfferCatalogRouting() {
 }
 
 function assertPublicPageComponentization() {
+  const sourceOnlyDocs = [
+    'docs/workflow/product-content-schema-v1.json',
+    'docs/adr/ADR-010-product-content-bitrix-model.md',
+    'docs/workflow/product-block-preview-workflow.md',
+    'docs/workflow/product-content-source-switch-runbook.md',
+    'docs/workflow/manual-release-gates-runbook.md',
+    'docs/workflow/release-signoff-gates.md',
+  ];
+  if (CHECK_HTTP && sourceOnlyDocs.some((file) => !fs.existsSync(file))) {
+    return;
+  }
+
   const productPages = [
     {
       file: 'platform/index.php',
@@ -1826,8 +1895,8 @@ const staticSitemap = readOptional(STATIC_SITEMAP_FILE);
 const robots = read('robots.txt');
 const staticSitemapGenerator = read('tools/static-sitemap-generate.mjs');
 const packageJsonForSitemap = read('package.json');
-const deployWorkflow = read('.github/workflows/deploy.yml');
-const sitemapWorkflow = read('.github/workflows/sitemap.yml');
+const deployWorkflow = readOptional('.github/workflows/deploy.yml');
+const sitemapWorkflow = readOptional('.github/workflows/sitemap.yml');
 
 validateRootSitemap(sitemapIndex, ROOT_SITEMAP_FILE);
 if (staticSitemap !== null) {
@@ -1845,7 +1914,11 @@ if (
 ) {
   fail('package.json must expose static sitemap generation/check scripts');
 }
-if (
+if (deployWorkflow === null) {
+  if (!CHECK_HTTP) {
+    fail('.github/workflows/deploy.yml is required for local SEO guard.');
+  }
+} else if (
   !deployWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
   || !deployWorkflow.includes('static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
   || !deployWorkflow.includes('static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
@@ -1853,7 +1926,11 @@ if (
 ) {
   fail('deploy workflow must generate, verify and rsync sitemap-basic-files.xml as a build artifact');
 }
-if (
+if (sitemapWorkflow === null) {
+  if (!CHECK_HTTP) {
+    fail('.github/workflows/sitemap.yml is required for local SEO guard.');
+  }
+} else if (
   !sitemapWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
   || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
   || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
