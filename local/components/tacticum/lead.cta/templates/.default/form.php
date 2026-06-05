@@ -18,7 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
     <div class="<?=htmlspecialcharsbx($returningLeadClass)?>" data-tacticum-returning-lead-panel>
         <div class="flex items-start gap-2">
-            <i class="ri-history-line mt-0.5"></i>
+            <i class="ri-history-line mt-0.5" aria-hidden="true"></i>
             <span>Заявка уже отправлена в этой сессии. Можно уточнить детали или выбрать другой сценарий.</span>
         </div>
     </div>

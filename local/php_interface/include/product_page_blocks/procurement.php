@@ -19,7 +19,7 @@ if (!function_exists('tacticum_product_page_render_procurement')) {
         $noteTitle = tacticum_product_page_string($procurement, 'note_title', 'Что не обещаем без assessment');
         $noteText = tacticum_product_page_string($procurement, 'note_text', 'Deployment-модель, сертификационный статус, SLA, перечень интеграций и регуляторные формулировки фиксируются только после проверки требований и evidence.');
         $ctaText = tacticum_product_page_string($procurement, 'cta_text', 'Запросить архитектурную сессию');
-        $ctaHref = tacticum_product_page_string($procurement, 'cta_href', '#contact-form');
+        $ctaHref = tacticum_product_page_safe_href($procurement['cta_href'] ?? '', '#contact-form');
         ?>
         <section class="bg-secondary py-16 text-white" data-product-block="procurement">
             <div class="container mx-auto px-4">
@@ -55,14 +55,14 @@ if (!function_exists('tacticum_product_page_render_procurement')) {
                                 continue;
                             }
 
-                            $itemIcon = tacticum_product_page_string($item, 'icon', 'ri-shield-check-line');
+                            $itemIcon = tacticum_product_page_icon_class($item['icon'] ?? '', 'ri-shield-check-line');
                             $itemTitle = tacticum_product_page_string($item, 'title');
                             $itemText = tacticum_product_page_string($item, 'text');
                             ?>
                             <article class="rounded-xl border border-white/10 bg-white/5 p-5">
                                 <div class="flex gap-4">
                                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/10 text-blue-100">
-                                        <i class="<?=tacticum_product_page_html($itemIcon)?> text-2xl"></i>
+                                        <i class="<?=tacticum_product_page_html($itemIcon)?> text-2xl" aria-hidden="true"></i>
                                     </div>
                                     <div>
                                         <?php if ($itemTitle !== ''): ?>

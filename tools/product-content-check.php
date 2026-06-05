@@ -76,6 +76,21 @@ final class TacticumProductContentCheck
         'estimate',
     ];
 
+    private const ALLOWED_LEAD_CONTEXT_KEYS = [
+        'lead_entry',
+        'lead_page_role',
+        'lead_product',
+        'lead_intent',
+        'lead_cta',
+        'lead_next_step',
+    ];
+
+    private const ALLOWED_COLUMNS_CLASSES = [
+        'lg:grid-cols-2',
+        'lg:grid-cols-3',
+        'lg:grid-cols-4',
+    ];
+
     public function __construct(string $documentRoot, bool $strict, bool $json)
     {
         $this->documentRoot = rtrim($documentRoot, '/');
@@ -307,12 +322,27 @@ final class TacticumProductContentCheck
             if (!$this->isNonEmptyString($section['title'] ?? null) && !$this->isNonEmptyString($section['text'] ?? null)) {
                 $issues[] = "{$sectionPath} must have at least title or text.";
             }
+            if (array_key_exists('columns_class', $section)) {
+                $this->validateColumnsClass((string)$section['columns_class'], "{$sectionPath}.columns_class", $issues);
+            }
             if (array_key_exists('cards', $section)) {
                 $this->requireArray($section, 'cards', "{$sectionPath}.cards", $issues, 1);
                 if (is_array($section['cards'] ?? null)) {
                     $this->validateCardItems($section['cards'], ['title', 'text'], "{$sectionPath}.cards", $issues);
                 }
             }
+        }
+    }
+
+    private function validateColumnsClass(string $value, string $path, array &$issues): void
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        if (!in_array($value, self::ALLOWED_COLUMNS_CLASSES, true)) {
+            $issues[] = "{$path} must be one of: " . implode(', ', self::ALLOWED_COLUMNS_CLASSES) . '.';
         }
     }
 
@@ -450,10 +480,19 @@ final class TacticumProductContentCheck
         $leadContext = $cta['lead_context'];
         $this->requireStrings(
             $leadContext,
-            ['lead_entry', 'lead_page_role', 'lead_product', 'lead_intent', 'lead_cta', 'lead_next_step'],
+            self::ALLOWED_LEAD_CONTEXT_KEYS,
             "{$path}.lead_context",
             $issues
         );
+        foreach ($leadContext as $key => $value) {
+            if (!in_array((string)$key, self::ALLOWED_LEAD_CONTEXT_KEYS, true)) {
+                $issues[] = "{$path}.lead_context.{$key} is not an allowed key.";
+                continue;
+            }
+            if (is_scalar($value) && !preg_match('/^[a-z0-9_.-]+$/', (string)$value)) {
+                $issues[] = "{$path}.lead_context.{$key} must use a slug-like controlled value.";
+            }
+        }
         if (($leadContext['lead_product'] ?? '') !== $productCode) {
             $issues[] = "{$path}.lead_context.lead_product must match product code {$productCode}.";
         }
@@ -468,6 +507,21 @@ final class TacticumProductContentCheck
                 continue;
             }
             $this->requireStrings($item, $requiredStrings, $itemPath, $issues);
+            if (array_key_exists('icon', $item)) {
+                $this->validateIconClass((string)$item['icon'], "{$itemPath}.icon", $issues);
+            }
+        }
+    }
+
+    private function validateIconClass(string $value, string $path, array &$issues): void
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        if (!preg_match('/^ri-[a-z0-9]+(?:-[a-z0-9]+)*$/', $value)) {
+            $issues[] = "{$path} must be a single RemixIcon class token.";
         }
     }
 
@@ -482,18 +536,32 @@ final class TacticumProductContentCheck
 
     private function validateUrl(string $value, string $path, array &$issues): void
     {
+        $value = trim($value);
         if (!$this->isNonEmptyString($value)) {
             $issues[] = "{$path} must be a non-empty URL/path string.";
             return;
         }
 
-        foreach (self::SAFE_URL_PREFIXES as $prefix) {
-            if (str_starts_with($value, $prefix)) {
-                return;
-            }
+        if ($this->isSafeUrl($value)) {
+            return;
         }
 
         $issues[] = "{$path} must start with one of: " . implode(', ', self::SAFE_URL_PREFIXES) . '.';
+    }
+
+    private function isSafeUrl(string $value): bool
+    {
+        if ($value === '' || preg_match('/[\x00-\x1F\x7F]/', $value)) {
+            return false;
+        }
+
+        if (str_starts_with($value, 'https://') || str_starts_with($value, '#')) {
+            return true;
+        }
+
+        return str_starts_with($value, '/')
+            && !str_starts_with($value, '//')
+            && !str_starts_with($value, '/\\');
     }
 
     private function requireStrings(array $data, array $keys, string $path, array &$issues): void

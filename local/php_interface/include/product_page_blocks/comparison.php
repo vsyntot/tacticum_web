@@ -40,7 +40,7 @@ if (!function_exists('tacticum_product_page_render_comparison')) {
                         $columnTitle = tacticum_product_page_string($column, 'title');
                         $columnText = tacticum_product_page_string($column, 'text');
                         $items = is_array($column['items'] ?? null) ? $column['items'] : [];
-                        $href = tacticum_product_page_string($column, 'href');
+                        $href = tacticum_product_page_safe_href($column['href'] ?? '', '');
                         $linkText = tacticum_product_page_string($column, 'link_text', 'Подробнее');
                         ?>
                         <article class="rounded-xl border border-gray-200 bg-gray-50 p-6">
@@ -55,7 +55,7 @@ if (!function_exists('tacticum_product_page_render_comparison')) {
                                     <?php foreach ($items as $item): ?>
                                         <?php if (!is_scalar($item)) { continue; } ?>
                                         <li class="flex gap-2">
-                                            <i class="ri-arrow-right-s-line mt-0.5 text-primary"></i>
+                                            <i class="ri-arrow-right-s-line mt-0.5 text-primary" aria-hidden="true"></i>
                                             <span><?=tacticum_product_page_html($item)?></span>
                                         </li>
                                     <?php endforeach; ?>
@@ -64,7 +64,7 @@ if (!function_exists('tacticum_product_page_render_comparison')) {
                             <?php if ($href !== '' && $linkText !== ''): ?>
                                 <a href="<?=tacticum_product_page_html($href)?>" class="mt-5 inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80">
                                     <?=tacticum_product_page_html($linkText)?>
-                                    <i class="ri-arrow-right-line ml-1"></i>
+                                    <i class="ri-arrow-right-line ml-1" aria-hidden="true"></i>
                                 </a>
                             <?php endif; ?>
                         </article>

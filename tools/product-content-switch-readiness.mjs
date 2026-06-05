@@ -40,6 +40,7 @@ const summary = {
     'npm run product:content:check on target Bitrix/PHP environment',
     'npm run product:content:check:strict on target Bitrix/PHP environment',
     'npm run product:content:cache-clear:dry-run on target Bitrix/PHP environment',
+    'npm run product:content:cache-clear:dry-run:json on target Bitrix/PHP environment, then validate with product:content:cache-clear:evidence:check',
     'npm run product:source:http:prod on target/public URL',
     'npm run release:public-precheck:prod on target/public URL',
     'Bitrix admin/content review for products, product_blocks and product_use_cases',
@@ -88,7 +89,8 @@ function printHuman(summary) {
   console.log('Product pages:');
   for (const product of summary.product_pages) {
     const missing = product.missing_blocks.length > 0 ? ` missing=${product.missing_blocks.join(',')}` : '';
-    console.log(`- ${product.page}: status=${product.status}, source=${product.source || 'empty'}, blocks=${product.blocks.length}${missing}`);
+    const unsafe = product.unsafe_hrefs.length > 0 ? ` unsafe_hrefs=${product.unsafe_hrefs.length}` : '';
+    console.log(`- ${product.page}: status=${product.status}, source=${product.source || 'empty'}, code=${product.code || 'empty'}, lead_product=${product.lead_product || 'empty'}, blocks=${product.blocks.length}${missing}${unsafe}`);
   }
 
   console.log('');
@@ -163,10 +165,17 @@ async function checkProductPage(page) {
   const sources = unique([...html.matchAll(/\bdata-product-source=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
+  const codes = unique([...html.matchAll(/\bdata-product-code=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter(Boolean));
   const blocks = unique([...html.matchAll(/\bdata-product-block=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
   const missingBlocks = REQUIRED_PRODUCT_BLOCKS.filter((block) => !blocks.includes(block));
+  const unsafeHrefs = unsafeHrefValues(html);
+  const expectedCode = page.replace(/^\/+|\/+$/g, '');
+  const leadProduct = hiddenValue(html, 'lead_product');
+  const leadPageRole = hiddenValue(html, 'lead_page_role');
 
   if (response.status < 200 || response.status >= 300) {
     failures.push(`${page}: HTTP ${response.status}`);
@@ -174,19 +183,48 @@ async function checkProductPage(page) {
   if (sources.length !== 1 || sources[0] !== 'bitrix') {
     failures.push(`${page}: expected data-product-source=bitrix, got ${sources.join(',') || 'empty'}`);
   }
+  if (codes.length !== 1 || codes[0] !== expectedCode) {
+    failures.push(`${page}: expected data-product-code=${expectedCode}, got ${codes.join(',') || 'empty'}`);
+  }
+  if (leadProduct !== expectedCode) {
+    failures.push(`${page}: expected hidden lead_product=${expectedCode}, got ${leadProduct || 'empty'}`);
+  }
+  if (leadPageRole !== 'product-page') {
+    failures.push(`${page}: expected hidden lead_page_role=product-page, got ${leadPageRole || 'empty'}`);
+  }
   if (missingBlocks.length > 0) {
     failures.push(`${page}: missing product blocks ${missingBlocks.join(',')}`);
+  }
+  if (unsafeHrefs.length > 0) {
+    failures.push(`${page}: protocol-relative or backslash product hrefs are not allowed: ${unsafeHrefs.slice(0, 3).join(',')}`);
   }
 
   return {
     page,
     status: response.status,
     source: sources[0] || '',
+    code: codes[0] || '',
+    lead_product: leadProduct,
+    lead_page_role: leadPageRole,
     sources,
+    codes,
     blocks,
     missing_blocks: missingBlocks,
+    unsafe_hrefs: unsafeHrefs,
     bytes: Buffer.byteLength(html),
   };
+}
+
+function hiddenValue(html, name) {
+  const pattern = new RegExp(`<input\\b[^>]*\\bname=["']${name}["'][^>]*\\bvalue=["']([^"']*)["'][^>]*>`, 'i');
+  const match = html.match(pattern);
+  return match ? match[1].trim() : '';
+}
+
+function unsafeHrefValues(html) {
+  return unique([...html.matchAll(/<a\b[^>]*\bhref=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter((href) => href.startsWith('//') || href.startsWith('/\\')));
 }
 
 function requestText(url, headers = {}, redirects = 0) {

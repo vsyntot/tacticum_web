@@ -54,6 +54,9 @@ const waitMs = Number.parseInt(process.env.TACTICUM_VISUAL_WAIT_MS || '2500', 10
 const minScreenshotBytes = Number.parseInt(process.env.TACTICUM_VISUAL_MIN_BYTES || '50000', 10);
 const maxHorizontalOverflow = Number.parseInt(process.env.TACTICUM_VISUAL_MAX_OVERFLOW || '8', 10);
 const maxProductBlockPreviewHeight = Number.parseInt(process.env.TACTICUM_PRODUCT_BLOCK_MAX_HEIGHT || '2600', 10);
+const cdpTimeoutMs = parsePositiveInt(process.env.TACTICUM_VISUAL_CDP_TIMEOUT_MS, 45000);
+const pageTimeoutMs = parsePositiveInt(process.env.TACTICUM_VISUAL_PAGE_TIMEOUT_MS, 120000);
+const fullPageScreenshotMaxHeight = parsePositiveInt(process.env.TACTICUM_VISUAL_FULLPAGE_MAX_HEIGHT, 16000);
 
 let chrome;
 let userDataDir;
@@ -91,14 +94,24 @@ try {
       const url = new URL(page, baseUrl).toString();
       const label = `${slugify(page || '/')}-${viewport.name}`;
       const screenshotPath = join(outputDir, `${label}.png`);
-      const result = await smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions });
+      let result;
+      try {
+        result = await withTimeout(
+          smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions }),
+          pageTimeoutMs,
+          `visual smoke timed out after ${pageTimeoutMs}ms for ${page} ${viewport.name}`
+        );
+      } catch (error) {
+        result = createSmokeResult({ page, viewport, url, screenshotPath });
+        result.errors.push(error instanceof Error ? error.message : String(error));
+      }
       results.push(result);
       console.log(formatResult(result));
     }
   }
 
   const manifestPath = join(outputDir, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectProductBlocks, expectedProductSource, captureProductBlocks, expectPriceTeamPresets, failOnWarnings, results }, null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify({ baseUrl, outputDir, generatedAt: new Date().toISOString(), removeCssPatterns, injectedCssFiles, injectedJsFiles, runActions, expectSeoHead, expectProductBlocks, expectedProductSource, captureProductBlocks, expectPriceTeamPresets, failOnWarnings, fullPageScreenshotMaxHeight, results }, null, 2)}\n`);
 
   const failures = results.filter((result) => result.errors.length > 0);
   console.log(`\nScreenshots: ${outputDir}`);
@@ -124,11 +137,8 @@ try {
   }
 }
 
-async function smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions }) {
-  const target = await createTarget(port, 'about:blank');
-  const cdp = await connectCdp(target.webSocketDebuggerUrl);
-  const errors = [];
-  const result = {
+function createSmokeResult({ page, viewport, url, screenshotPath }) {
+  return {
     page,
     viewport: viewport.name,
     url,
@@ -152,10 +162,22 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     productBlocks: null,
     productBlockErrors: [],
     productBlockScreenshots: [],
+    homepageRouter: null,
+    homepageCalculator: null,
+    homepageRouterErrors: [],
+    pageFaq: null,
+    pageFaqErrors: [],
     screenshotPath,
     screenshotBytes: 0,
-    errors,
+    errors: [],
   };
+}
+
+async function smokePage({ port, url, page, viewport, screenshotPath, removeCssPatterns, injectedCss, injectedJs, runActions }) {
+  const target = await createTarget(port, 'about:blank');
+  const cdp = await connectCdp(target.webSocketDebuggerUrl);
+  const result = createSmokeResult({ page, viewport, url, screenshotPath });
+  const errors = result.errors;
 
   let loaded;
   try {
@@ -433,8 +455,35 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           .flatMap((item) => normalizeSchemaTypes(item?.['@type']))
           .filter((type, index, types) => type && types.indexOf(type) === index);
         const currentPath = normalizePath(window.location.pathname);
+        const isHomepage = currentPath === '/';
+        const expectedPageFaqPaths = ['/', '/services', '/price', '/calculator', '/aiagents'];
+        const expectsPageFaq = expectedPageFaqPaths.includes(currentPath);
         const productPaths = ['/platform', '/agents', '/dev', '/forum'];
         const isProductPage = productPaths.includes(currentPath);
+        const pageFaqItems = Array.from(document.querySelectorAll('.faq-item'));
+        const visiblePageFaqItems = pageFaqItems.filter((item) => {
+          const rect = item.getBoundingClientRect();
+          const styles = window.getComputedStyle(item);
+          return rect.width > 0 && rect.height > 0 && styles.display !== 'none' && styles.visibility !== 'hidden';
+        });
+        const pageFaqMissingMarkers = Array.from(document.querySelectorAll('[data-faq-section-status="missing"]'))
+          .map((element) => ({
+            key: (element.getAttribute('data-faq-section-key') || '').trim(),
+            status: (element.getAttribute('data-faq-section-status') || '').trim()
+          }));
+        const pageFaq = {
+          expects: expectsPageFaq,
+          items: pageFaqItems.length,
+          visibleItems: visiblePageFaqItems.length,
+          missingMarkers: pageFaqMissingMarkers
+        };
+        const pageFaqErrors = [];
+        if (expectsPageFaq && pageFaqMissingMarkers.length > 0) {
+          pageFaqErrors.push('expected rendered FAQ, got missing FAQ section marker: ' + pageFaqMissingMarkers.map((item) => item.key || 'unknown').join(', '));
+        }
+        if (expectsPageFaq && visiblePageFaqItems.length < 1) {
+          pageFaqErrors.push('expected rendered FAQ items on ' + currentPath + ', got ' + visiblePageFaqItems.length);
+        }
         const expectedProductSource = ${JSON.stringify(expectedProductSource)};
         const requiredProductBlocks = [
           'hero',
@@ -454,6 +503,19 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           .filter(Boolean)
           .filter((block, index, blocks) => blocks.indexOf(block) === index);
         const productSource = (document.querySelector('[data-product-source]')?.getAttribute('data-product-source') || '').trim();
+        const productCode = (document.querySelector('[data-product-code]')?.getAttribute('data-product-code') || '').trim();
+        const expectedProductCode = isProductPage ? currentPath.replace(/^\\//, '') : '';
+        const productLeadForm = isProductPage
+          ? document.querySelector('[data-tacticum-form] input[name="lead_product"]')?.closest('[data-tacticum-form]') || null
+          : null;
+        const productLeadContext = productLeadForm
+          ? {
+              formId: (productLeadForm.getAttribute('data-form-id') || '').trim(),
+              leadProduct: (productLeadForm.querySelector('input[name="lead_product"]')?.value || '').trim(),
+              leadPageRole: (productLeadForm.querySelector('input[name="lead_page_role"]')?.value || '').trim(),
+              leadCta: (productLeadForm.querySelector('input[name="lead_cta"]')?.value || '').trim()
+            }
+          : null;
         const missingProductBlocks = isProductPage
           ? requiredProductBlocks.filter((block) => !foundProductBlocks.includes(block))
           : [];
@@ -462,7 +524,9 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           required: isProductPage ? requiredProductBlocks : [],
           found: foundProductBlocks,
           missing: missingProductBlocks,
-          source: isProductPage ? productSource : ''
+          source: isProductPage ? productSource : '',
+          code: isProductPage ? productCode : '',
+          leadContext: isProductPage ? productLeadContext : null
         };
         const productBlockErrors = [];
         if (isProductPage && expectProductBlocks && missingProductBlocks.length > 0) {
@@ -470,6 +534,109 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         }
         if (isProductPage && expectedProductSource && productSource !== expectedProductSource) {
           productBlockErrors.push('product source mismatch on ' + currentPath + ': expected ' + expectedProductSource + ', got ' + (productSource || 'empty'));
+        }
+        if (isProductPage && productCode !== expectedProductCode) {
+          productBlockErrors.push('product code mismatch on ' + currentPath + ': expected ' + expectedProductCode + ', got ' + (productCode || 'empty'));
+        }
+        if (isProductPage && (!productLeadContext || productLeadContext.leadProduct !== expectedProductCode)) {
+          productBlockErrors.push('product lead context mismatch on ' + currentPath + ': expected lead_product=' + expectedProductCode + ', got ' + (productLeadContext?.leadProduct || 'empty'));
+        }
+        if (isProductPage && productLeadContext && productLeadContext.leadPageRole !== 'product-page') {
+          productBlockErrors.push('product lead context mismatch on ' + currentPath + ': expected lead_page_role=product-page, got ' + (productLeadContext.leadPageRole || 'empty'));
+        }
+        const visibleProductIconsWithoutHidden = isProductPage
+          ? Array.from(document.querySelectorAll('[data-product-block] i'))
+              .filter((icon) => icon.getAttribute('aria-hidden') !== 'true')
+              .length
+          : 0;
+        if (visibleProductIconsWithoutHidden > 0) {
+          productBlockErrors.push('product decorative icons must be aria-hidden; found ' + visibleProductIconsWithoutHidden);
+        }
+        const unsafeProductHrefs = isProductPage
+          ? Array.from(document.querySelectorAll('[data-product-block] a[href]'))
+              .map((link) => (link.getAttribute('href') || '').trim())
+              .filter((href) => href.startsWith('//') || href.startsWith('/\\\\'))
+          : [];
+        if (unsafeProductHrefs.length > 0) {
+          productBlockErrors.push('product links must not use protocol-relative hrefs; found ' + unsafeProductHrefs.slice(0, 3).join(', '));
+        }
+        const requiredHomeBlocks = ['hero', 'ecosystem-map', 'fit-matrix', 'commercial-next-steps', 'calculator-preview'];
+        const requiredHomeProductLinks = ['platform', 'agents', 'dev', 'forum'];
+        const requiredHomeCommercialLinks = ['offer', 'services', 'price', 'aiagents'];
+        const foundHomeBlocks = Array.from(document.querySelectorAll('[data-home-block]'))
+          .map((element) => (element.getAttribute('data-home-block') || '').trim())
+          .filter(Boolean)
+          .filter((block, index, blocks) => blocks.indexOf(block) === index);
+        const foundHomeProductLinks = Array.from(document.querySelectorAll('[data-home-product-link]'))
+          .map((element) => (element.getAttribute('data-home-product-link') || '').trim())
+          .filter(Boolean)
+          .filter((link, index, links) => links.indexOf(link) === index);
+        const foundHomeCommercialLinks = Array.from(document.querySelectorAll('[data-home-commercial-link]'))
+          .map((element) => (element.getAttribute('data-home-commercial-link') || '').trim())
+          .filter(Boolean)
+          .filter((link, index, links) => links.indexOf(link) === index);
+        const missingHomeBlocks = isHomepage
+          ? requiredHomeBlocks.filter((block) => !foundHomeBlocks.includes(block))
+          : [];
+        const missingHomeProductLinks = isHomepage
+          ? requiredHomeProductLinks.filter((link) => !foundHomeProductLinks.includes(link))
+          : [];
+        const missingHomeCommercialLinks = isHomepage
+          ? requiredHomeCommercialLinks.filter((link) => !foundHomeCommercialLinks.includes(link))
+          : [];
+        const homepageRouter = {
+          isHomepage,
+          requiredBlocks: isHomepage ? requiredHomeBlocks : [],
+          blocks: foundHomeBlocks,
+          missingBlocks: missingHomeBlocks,
+          productLinks: foundHomeProductLinks,
+          missingProductLinks: missingHomeProductLinks,
+          commercialLinks: foundHomeCommercialLinks,
+          missingCommercialLinks: missingHomeCommercialLinks
+        };
+        const calculatorChatLog = document.querySelector('#chatMessages');
+        const calculatorInput = document.querySelector('#userMessage');
+        const calculatorButton = document.querySelector('#sendMessage');
+        const calculatorProgressbars = Array.from(document.querySelectorAll('#calculator [role="progressbar"]'))
+          .map((element) => ({
+            valueNow: (element.getAttribute('aria-valuenow') || '').trim(),
+            valueMin: (element.getAttribute('aria-valuemin') || '').trim(),
+            valueMax: (element.getAttribute('aria-valuemax') || '').trim(),
+            label: (element.getAttribute('aria-label') || '').trim()
+          }));
+        const homepageCalculator = {
+          isHomepage,
+          chatLogRole: isHomepage && calculatorChatLog ? (calculatorChatLog.getAttribute('role') || '').trim() : '',
+          chatLogLive: isHomepage && calculatorChatLog ? (calculatorChatLog.getAttribute('aria-live') || '').trim() : '',
+          inputLabel: isHomepage && calculatorInput ? (calculatorInput.getAttribute('aria-label') || '').trim() : '',
+          buttonLabel: isHomepage && calculatorButton ? (calculatorButton.getAttribute('aria-label') || '').trim() : '',
+          progressbars: isHomepage ? calculatorProgressbars : []
+        };
+        const homepageRouterErrors = [];
+        if (isHomepage && missingHomeBlocks.length > 0) {
+          homepageRouterErrors.push('missing homepage router blocks: ' + missingHomeBlocks.join(', '));
+        }
+        if (isHomepage && missingHomeProductLinks.length > 0) {
+          homepageRouterErrors.push('missing homepage product links: ' + missingHomeProductLinks.join(', '));
+        }
+        if (isHomepage && missingHomeCommercialLinks.length > 0) {
+          homepageRouterErrors.push('missing homepage commercial links: ' + missingHomeCommercialLinks.join(', '));
+        }
+        if (isHomepage && (homepageCalculator.chatLogRole !== 'log' || homepageCalculator.chatLogLive !== 'polite')) {
+          homepageRouterErrors.push('homepage calculator chat log must expose role=log and aria-live=polite');
+        }
+        if (isHomepage && homepageCalculator.inputLabel === '') {
+          homepageRouterErrors.push('homepage calculator input must expose aria-label');
+        }
+        if (isHomepage && homepageCalculator.buttonLabel === '') {
+          homepageRouterErrors.push('homepage calculator send button must expose aria-label');
+        }
+        const calculatorProgressValues = homepageCalculator.progressbars.map((item) => item.valueNow).sort().join(',');
+        if (isHomepage && calculatorProgressValues !== '35,65,85') {
+          homepageRouterErrors.push('homepage calculator progressbars must expose aria-valuenow 35,65,85');
+        }
+        if (isHomepage && homepageCalculator.progressbars.some((item) => item.valueMin !== '0' || item.valueMax !== '100' || item.label === '')) {
+          homepageRouterErrors.push('homepage calculator progressbars must expose aria-valuemin/max and label');
         }
         const softwareSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('SoftwareApplication'));
         const faqSchemas = schemaItems.filter((item) => normalizeSchemaTypes(item?.['@type']).includes('FAQPage'));
@@ -669,7 +836,12 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           seoHead,
           seoErrors,
           productBlocks,
-          productBlockErrors
+          productBlockErrors,
+          homepageRouter,
+          homepageCalculator,
+          homepageRouterErrors,
+          pageFaq,
+          pageFaqErrors
         };
       })()`,
     });
@@ -679,7 +851,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     const screenshot = await cdp.send('Page.captureScreenshot', {
       format: 'png',
       fromSurface: true,
-      captureBeyondViewport: true,
+      captureBeyondViewport: !viewport.mobile && result.scrollHeight <= fullPageScreenshotMaxHeight,
     });
     const png = Buffer.from(screenshot.data, 'base64');
     await writeFile(screenshotPath, png);
@@ -726,6 +898,12 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
     }
     if (result.productBlockErrors.length > 0) {
       errors.push(`product block errors: ${result.productBlockErrors.slice(0, 3).join(' | ')}`);
+    }
+    if (result.homepageRouterErrors.length > 0) {
+      errors.push(`homepage router errors: ${result.homepageRouterErrors.slice(0, 3).join(' | ')}`);
+    }
+    if (result.pageFaqErrors.length > 0) {
+      errors.push(`page FAQ errors: ${result.pageFaqErrors.slice(0, 3).join(' | ')}`);
     }
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
@@ -939,6 +1117,14 @@ async function runActionSmoke(cdp) {
           await sleep(120);
           if (!item.classList.contains('active')) {
             throw new Error('FAQ item did not become active after click');
+          }
+          if (question.getAttribute('aria-expanded') !== 'true') {
+            throw new Error('FAQ question did not set aria-expanded=true after click');
+          }
+          const answerId = question.getAttribute('aria-controls');
+          const answer = answerId ? document.getElementById(answerId) : item.querySelector('.faq-answer');
+          if (!answer || answer.getAttribute('aria-hidden') === 'true') {
+            throw new Error('FAQ controlled answer did not become accessible after click');
           }
           return 'faq opened';
         }, ['/platform/', '/agents/', '/dev/', '/forum/'].includes(path));
@@ -1216,7 +1402,10 @@ async function runActionSmoke(cdp) {
 }
 
 async function createTarget(port, url) {
-  const response = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(url)}`, { method: 'PUT' });
+  const response = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(url)}`, {
+    method: 'PUT',
+    signal: AbortSignal.timeout(cdpTimeoutMs),
+  });
   if (!response.ok) {
     throw new Error(`Cannot create Chrome target: ${response.status}`);
   }
@@ -1224,7 +1413,9 @@ async function createTarget(port, url) {
 }
 
 async function closeTarget(port, targetId) {
-  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`).catch(() => {});
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`, {
+    signal: AbortSignal.timeout(Math.min(cdpTimeoutMs, 5000)),
+  }).catch(() => {});
 }
 
 async function connectCdp(webSocketDebuggerUrl) {
@@ -1241,8 +1432,9 @@ async function connectCdp(webSocketDebuggerUrl) {
   ws.addEventListener('message', (event) => {
     const message = JSON.parse(String(event.data));
     if (message.id && pending.has(message.id)) {
-      const { resolve, reject } = pending.get(message.id);
+      const { resolve, reject, timer } = pending.get(message.id);
       pending.delete(message.id);
+      clearTimeout(timer);
       if (message.error) {
         reject(new Error(message.error.message || JSON.stringify(message.error)));
       } else {
@@ -1259,12 +1451,26 @@ async function connectCdp(webSocketDebuggerUrl) {
     }
   });
 
+  const rejectPending = (error) => {
+    for (const { reject, timer } of pending.values()) {
+      clearTimeout(timer);
+      reject(error);
+    }
+    pending.clear();
+  };
+  ws.addEventListener('close', () => rejectPending(new Error('CDP socket closed')));
+  ws.addEventListener('error', () => rejectPending(new Error('CDP socket error')));
+
   return {
-    send(method, params = {}) {
+    send(method, params = {}, timeoutMs = cdpTimeoutMs) {
       const messageId = ++id;
       ws.send(JSON.stringify({ id: messageId, method, params }));
       return new Promise((resolve, reject) => {
-        pending.set(messageId, { resolve, reject });
+        const timer = setTimeout(() => {
+          pending.delete(messageId);
+          reject(new Error(`Timed out waiting for CDP ${method} after ${timeoutMs}ms`));
+        }, timeoutMs);
+        pending.set(messageId, { resolve, reject, timer });
       });
     },
     on(method, callback) {
@@ -1298,7 +1504,9 @@ async function waitForChrome(port) {
   let lastError;
   while (Date.now() - startedAt < 15000) {
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/json/version`);
+      const response = await fetch(`http://127.0.0.1:${port}/json/version`, {
+        signal: AbortSignal.timeout(2000),
+      });
       if (response.ok) {
         return response.json();
       }
@@ -1335,6 +1543,11 @@ function parseList(value, fallback) {
 
 function isTruthy(value) {
   return ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
+}
+
+function parsePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(String(value || ''), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 async function resolveChromePath() {
@@ -1381,6 +1594,24 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function withTimeout(promise, timeoutMs, message) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(message));
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
 async function readCssForInjection(file) {
   const css = await readFile(file, 'utf8');
   const cssPath = normalizeWebPath(file);
@@ -1421,13 +1652,22 @@ function formatResult(result) {
   const productSourceSummary = result.productBlocks?.isProductPage && result.productBlocks?.source
     ? ` source=${result.productBlocks.source}`
     : '';
+  const productCodeSummary = result.productBlocks?.isProductPage && result.productBlocks?.code
+    ? ` code=${result.productBlocks.code}`
+    : '';
   const blockSummary = result.productBlocks?.isProductPage
-    ? ` blocks=${result.productBlockErrors.length > 0 ? 'bad' : missingProductBlocks > 0 ? 'missing' : 'ok'}${productSourceSummary}`
+    ? ` blocks=${result.productBlockErrors.length > 0 ? 'bad' : missingProductBlocks > 0 ? 'missing' : 'ok'}${productSourceSummary}${productCodeSummary}`
+    : '';
+  const homepageSummary = result.homepageRouter?.isHomepage
+    ? ` home=${result.homepageRouterErrors.length > 0 ? 'bad' : 'ok'}`
+    : '';
+  const pageFaqSummary = result.pageFaq?.expects
+    ? ` faq=${result.pageFaqErrors.length > 0 ? 'bad' : 'ok'}`
     : '';
   const actionSummary = result.actions.length > 0
     ? ` actions=${result.actions.filter((action) => action.status === 'ok').length}/${result.actions.length}`
     : '';
-  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${warningSummary}${seoSummary}${blockSummary}${actionSummary}`;
+  return `${marker} ${result.viewport.padEnd(7)} ${result.page.padEnd(13)} status=${status} text=${result.textLength} bytes=${result.screenshotBytes} runtime=${runtimeIssues}${warningSummary}${seoSummary}${blockSummary}${homepageSummary}${pageFaqSummary}${actionSummary}`;
 }
 
 function addUnique(items, item) {

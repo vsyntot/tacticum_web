@@ -43,6 +43,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js for deploy tooling
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -74,8 +79,11 @@ jobs:
 
       - name: Sync корневые файлы
         run: |
+          STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"
+          node ./tools/static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"
+          node ./tools/static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check
           rsync -avz \
-            index.php 404.php robots.txt sitemap.xml urlrewrite.php \
+            index.php 404.php robots.txt sitemap.xml sitemap-basic-files.xml urlrewrite.php \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
 
       - name: Remove legacy sitemap artifact
