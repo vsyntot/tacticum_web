@@ -38,7 +38,7 @@
 |---|---|---|
 | Architecture / Bitrix layering | `BPC-ARCH-001` - `BPC-ARCH-005` | Closed locally: product shell/block policy, service/facade slices, lazy bootstrap, offer request snapshot and shared content repository are implemented and guarded |
 | Components / public pages | `BPC-CMP-001` - `BPC-CMP-005` | Closed locally: public entries are thin, product/page components and wrapper/cache policies are explicit, and component metadata/cache/state guards run in PR/deploy lifecycle |
-| Frontend modules / CSS | `BPC-FE-001` - `BPC-FE-004` | Closed locally: `/price/` configurator, forms runtime, chat runtime/surfaces and fixed template CSS split are under current file-size and ownership budgets |
+| Frontend modules / CSS | `BPC-FE-001` - `BPC-FE-004` | Closed locally: `/price/` configurator, forms runtime, chat runtime/surfaces and fixed template CSS split are under current file-size and ownership budgets; `/price/` chunks are guarded against late component-template asset registration after 05.06.2026 production smoke exposed missing split modules in the rendered bundle |
 | REST / API / integration | `BPC-REST-001` - `BPC-REST-003` | Closed locally: REST facade/service split, admin-only REST hook route, endpoint taxonomy/risk classes and thin lead/staff payload services are implemented and guarded |
 | Guards / maintainability | `BPC-GUARD-001` - `BPC-GUARD-004` | Current BPC guardrails are enforced; `BPC-GUARD-001` remains `accepted-monitor` only for future domain/repository guard expansion |
 
@@ -47,6 +47,33 @@
 Any future task touching product pages, public page entries, `/price/`, forms/chat JS, `rest_helpers.php`, product/offer helpers, local components or architecture guards must reference affected `BPC-*` IDs from `bitrix-componentization-gap-analysis-2026-06-05.md` and preserve the implemented guardrails from `bitrix-componentization-execution-roadmap-2026-06-05.md`.
 
 New BPC work should start only when a future code/domain change reopens a boundary or extends the system beyond current guard coverage. Do not mark a future `BPC-*` gap closed because docs exist; closure requires code changes, verification commands and owner/review evidence where applicable.
+
+## Current Content Storage Target Layer — 05.06.2026
+
+Свежий challenge целевого хранения контента в Bitrix зафиксирован отдельным слоем:
+
+- gap analysis: `docs/workflow/content-storage-target-gap-analysis-2026-06-05.md`;
+- execution roadmap: `docs/workflow/content-storage-target-roadmap-2026-06-05.md`;
+- issue backlog: `docs/workflow/content-storage-target-issue-backlog-2026-06-05.md`;
+- Codex plan: `docs/workflow/plans/2026-06-05-content-storage-target-model.md`.
+
+Этот слой не о file-size/componentization, а о смысловом владении контентом. Product content migration закрыла редактируемость продуктовых страниц через `products`, `product_blocks` and `product_use_cases`, но не закрыла финальное распределение доменных сущностей по existing iblocks. Самый явный подтверждённый gap: product FAQ сейчас живёт в `product_blocks`, а не в `faq #10`.
+
+### Challenge Verdict
+
+Текущее решение является рабочей transitional model, но не финальной content governance model. `faq`, `services`, `cases`, `feedback`, `clients`, `aiagents`, `rates`, `team`, `vacancies`, `policies/static materials` должны иметь явные границы владения. Generic page sections должны перейти в structured page-content model, а не в узкие catalog iblocks и не в raw HTML/JSON editor workflow.
+
+### Current Gap Coverage
+
+| Cluster | Gap IDs | Current Risk |
+|---|---|---|
+| Domain iblock placement | `CSG-001` - `CSG-006` | Product FAQ, services fallback, clients registry, feedback/clients relations and proof/cases mapping need implementation |
+| Page section content | `CSG-007`, `CSG-008`, `CSG-012` | Many page-level sections remain PHP partials; existing narrow iblocks must not be polluted |
+| Guards / release evidence | `CSG-009` - `CSG-011` | Current strict product checks do not validate semantic placement, admin/public parity or non-product content source switches |
+
+### Planning Rule
+
+Any future task touching product FAQ, product proof, existing content iblocks from the admin screenshots, service cards, `/agents/` vs `/aiagents/`, static page sections or content storage migrations must reference the relevant `CSG-*` IDs and preserve the do-not-move rules from `content-storage-target-gap-analysis-2026-06-05.md`.
 
 ## Current Product Tech Challenge Layer — 04.06.2026
 
@@ -332,7 +359,7 @@ Sprint 10 owner-review readiness 02.06.2026: `sprint-10-review-workbook.md`, `sp
 
 Sprint 11 owner-review readiness 02.06.2026: `sprint-11-review-workbook.md`, `sprint-11-decision-records.md`, `sprint-11-state-matrix.md` and `sprint-11-approval-request.md` complete local preparation for `D-07`, `D-08` and `D-09`. This advances `UI-001` - `UI-008`, `ARCH-002`, `PB-005`, `PB-006` and `SEO-TOBE-003` into concrete design-system owner-review artifacts, but statuses remain non-closed until token/Figma/component deliverables, Frontend feasibility, QA state/smoke review, Legal/PM proof-status approval and Architect diagram approval exist.
 
-Product Bitrix content foundation 02.06.2026: `ARCH-001` moved from Git-only baseline toward the accepted Bitrix target model through ADR-010 and code foundation. New runtime reads Bitrix product content in `auto` mode only when minimum renderable content exists, with fallback to `product_data/*.php`; the CLI migration creates/seeds `products`, `product_blocks` and `product_use_cases` plus product relation properties on existing content iblocks. Manual local migration and ignored config ID sync have been completed, and `product-content-check.php` now gives a repeatable Bitrix runtime check for minimum-renderable records, TO BE block coverage, use cases and relation properties. On 03.06.2026 target Bitrix/PHP environment passed normal and strict product content checks: `source=auto`, rows resolve from `bitrix`, each product has three use cases and no missing TO BE blocks. Production rendered `npm run seo:smoke` also passed on 03.06.2026; product pages are `seo=ok` and `blocks=ok` on desktop/mobile. Production source switch to `products.source=bitrix` completed on 03.06.2026; strict product content check, product source HTTP check and release public precheck passed after cache clear. Production admin-editable V2 retirement completed on 05.06.2026: `--retire-legacy-json` migration passed on production, after-cache-clear strict evidence passed with `admin_model.legacy_json` counters all `0`, product rows `ok`, `source=bitrix`, `use_cases=3` and `schema_issues=0`; `product:content:switch-readiness:prod`, `product:source:http:prod`, `release:public-precheck:prod` and `seo:check:prod` passed. Product Bitrix content verification, source switch and JSON retirement are code/rendered closed; remaining release evidence is manual browser/admin smoke and optional browser automation from an environment with Chrome/Chromium.
+Product Bitrix content foundation 02.06.2026: `ARCH-001` moved from Git-only baseline toward the accepted Bitrix target model through ADR-010 and code foundation. New runtime reads Bitrix product content in `auto` mode only when minimum renderable content exists, with fallback to `product_data/*.php`; the CLI migration creates/seeds `products`, `product_blocks` and `product_use_cases` plus product relation properties on existing content iblocks. Manual local migration and ignored config ID sync have been completed, and `product-content-check.php` now gives a repeatable Bitrix runtime check for minimum-renderable records, TO BE block coverage, use cases and relation properties. On 03.06.2026 target Bitrix/PHP environment passed normal and strict product content checks: `source=auto`, rows resolve from `bitrix`, each product has three use cases and no missing TO BE blocks. Production rendered `npm run seo:smoke` also passed on 03.06.2026; product pages are `seo=ok` and `blocks=ok` on desktop/mobile. Production source switch to `products.source=bitrix` completed on 03.06.2026; strict product content check, product source HTTP check and release public precheck passed after cache clear. Production admin-editable V2 retirement completed on 05.06.2026: `--retire-legacy-json` migration passed on production, after-cache-clear strict evidence passed with `admin_model.legacy_json` counters all `0`, product rows `ok`, `source=bitrix`, `use_cases=3` and `schema_issues=0`; strengthened target audit then confirmed all required V2 properties are present, active and type/multiplicity/link correct (`products` 22, `product_blocks` 32, `product_use_cases` 8) with empty `missing_properties`, `inactive_properties` and `mismatched_properties`; `product:content:switch-readiness:prod`, `product:source:http:prod`, `release:public-precheck:prod` and `seo:check:prod` passed. Product Bitrix content verification, source switch and JSON retirement are code/rendered closed; remaining release evidence is manual browser/admin smoke and optional browser automation from an environment with Chrome/Chromium.
 
 Product source marker guard 03.06.2026: product renderer now exposes `data-product-source`; `tools/visual-smoke.mjs` supports `TACTICUM_EXPECT_PRODUCT_SOURCE=bitrix`, and `tools/product-source-http-check.mjs` provides a Chrome-free server check for the same marker plus product block inventory. `npm run product:source:smoke:prod` verifies source through browser-rendered HTML where Chrome/Chromium is available; `npm run product:source:http:prod` is the production-server-safe fallback and does not require `node_modules` or Chrome. Browser attempt on production server confirmed the failure mode when Chrome is absent: install Chrome/Chromium or use the HTTP check. `npm run product:source:http:prod` passed on 03.06.2026: `/platform/`, `/agents/`, `/dev/`, `/forum/` returned `source=bitrix` and 11 product blocks each, closing S12-015.
 

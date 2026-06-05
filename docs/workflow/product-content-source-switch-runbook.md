@@ -108,7 +108,7 @@ npm run product:content:check:strict:json > /tmp/tacticum-product-content-strict
 npm run product:content:target-evidence:check -- --file=/tmp/tacticum-product-content-strict.json --allow-source=bitrix
 ```
 
-The strict JSON evidence must include `admin_model.v2_schema` with no missing required properties and `admin_model.legacy_json` counters equal to zero. Non-zero `products_json_properties`, `products_active_json_properties`, `product_blocks_json_texts` or `product_use_cases_json_texts` means the admin model is still in compatibility mode and cannot be declared editor-owned.
+The strict JSON evidence must include `admin_model.v2_schema` with no missing, inactive or mismatched required properties and `admin_model.legacy_json` counters equal to zero. Non-zero `products_json_properties`, `products_active_json_properties`, `product_blocks_json_texts` or `product_use_cases_json_texts` means the admin model is still in compatibility mode and cannot be declared editor-owned. Non-empty `inactive_properties` or `mismatched_properties` means the property exists but is not a valid target editor field because its active flag, type, multiplicity or linked iblock is wrong.
 
 ## Switch Steps
 
@@ -234,6 +234,26 @@ Safe summary:
   "fallback_allowed": false,
   "schema_version": "v1",
   "admin_model": {
+    "v2_schema": {
+      "products": {
+        "required_properties": 22,
+        "missing_properties": [],
+        "inactive_properties": [],
+        "mismatched_properties": []
+      },
+      "product_blocks": {
+        "required_properties": 32,
+        "missing_properties": [],
+        "inactive_properties": [],
+        "mismatched_properties": []
+      },
+      "product_use_cases": {
+        "required_properties": 8,
+        "missing_properties": [],
+        "inactive_properties": [],
+        "mismatched_properties": []
+      }
+    },
     "legacy_json": {
       "products_json_properties": 0,
       "products_active_json_properties": 0,
@@ -258,6 +278,8 @@ Safe summary:
 ```
 
 Production `seo:check:prod` passed after `tools/seo-check.mjs` was made compatible with production checkouts that do not include `.github` / full `docs` and with older Node runtimes without global `fetch`.
+
+Follow-up production target audit with the strengthened checker also passed on 05.06.2026. It confirmed that all required V2 properties are present, active, have the expected property type and multiplicity, and element-link properties point to the target product iblocks (`products=#21`, `product_blocks=#22`, `product_use_cases=#23`). This makes the current product iblock structure, data and runtime model the target state; remaining browser automation evidence is environment-bound because Chrome/Chromium is absent on the production server.
 
 ## Evidence Template
 

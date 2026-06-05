@@ -140,98 +140,49 @@ final class TacticumProductContentCheck
 
     private function checkAdminEditableSchema(): void
     {
-        $required = [
-            'products' => [
-                'PRODUCT_CODE',
-                'EYEBROW',
-                'PRODUCT_TITLE',
-                'PRODUCT_LEAD',
-                'PRIMARY_CTA_TEXT',
-                'SECONDARY_CTA_TEXT',
-                'SECONDARY_CTA_HREF',
-                'BADGE',
-                'CTA_FORM_ID',
-                'CTA_FIELD_PREFIX',
-                'CTA_TITLE',
-                'CTA_TEXT',
-                'CTA_FORM_TITLE',
-                'CTA_BUTTON_TEXT',
-                'CTA_SCENARIO_LABEL',
-                'CTA_SCENARIO_EMPTY_LABEL',
-                'CTA_LEAD_ENTRY',
-                'CTA_LEAD_PAGE_ROLE',
-                'CTA_LEAD_PRODUCT',
-                'CTA_LEAD_INTENT',
-                'CTA_LEAD_CTA',
-                'CTA_LEAD_NEXT_STEP',
-            ],
-            'product_blocks' => [
-                'PRODUCT',
-                'BLOCK_TYPE',
-                'BLOCK_KEY',
-                'PARENT_BLOCK',
-                'ITEM_TYPE',
-                'EYEBROW',
-                'THEME',
-                'TONE',
-                'COLUMNS_CLASS',
-                'NOTE_TITLE',
-                'NOTE_TEXT',
-                'CTA_TEXT',
-                'CTA_HREF',
-                'ICON',
-                'META',
-                'HREF',
-                'PROOF_STATUS',
-                'ITEMS',
-                'VALUE',
-                'LABEL',
-                'FORM_ID',
-                'FIELD_PREFIX',
-                'FORM_TITLE',
-                'BUTTON_TEXT',
-                'SCENARIO_LABEL',
-                'SCENARIO_EMPTY_LABEL',
-                'LEAD_ENTRY',
-                'LEAD_PAGE_ROLE',
-                'LEAD_PRODUCT',
-                'LEAD_INTENT',
-                'LEAD_CTA',
-                'LEAD_NEXT_STEP',
-            ],
-            'product_use_cases' => [
-                'PRODUCT',
-                'TRIGGER',
-                'OWNER',
-                'PILOT_INPUT',
-                'PILOT_OUTPUT',
-                'LIMITATION',
-                'PROOF_STATUS',
-                'CTA_INTENT',
-            ],
-        ];
+        $required = $this->expectedAdminEditableSchema();
 
         $summary = [];
-        foreach ($required as $iblockKey => $propertyCodes) {
+        foreach ($required as $iblockKey => $propertySpecs) {
             $iblockId = $this->iblockId($iblockKey);
             if ($iblockId <= 0) {
                 continue;
             }
 
             $missing = [];
-            foreach ($propertyCodes as $propertyCode) {
-                if ($this->propertyId($iblockId, $propertyCode) <= 0) {
+            $inactive = [];
+            $mismatched = [];
+            foreach ($propertySpecs as $propertyCode => $propertySpec) {
+                $property = $this->propertyFields($iblockId, $propertyCode);
+                if ($property === null) {
                     $missing[] = $propertyCode;
+                    continue;
+                }
+
+                if (($property['ACTIVE'] ?? 'N') !== 'Y') {
+                    $inactive[] = $propertyCode;
+                }
+
+                foreach ($this->propertySchemaMismatches($property, $propertySpec) as $mismatch) {
+                    $mismatched[] = $propertyCode . ': ' . $mismatch;
                 }
             }
 
             $summary[$iblockKey] = [
-                'required_properties' => count($propertyCodes),
+                'required_properties' => count($propertySpecs),
                 'missing_properties' => $missing,
+                'inactive_properties' => $inactive,
+                'mismatched_properties' => $mismatched,
             ];
 
             if (!empty($missing)) {
                 $this->warnOrError("Iblock {$iblockKey} misses admin-editable V2 properties: " . implode(', ', $missing));
+            }
+            if (!empty($inactive)) {
+                $this->warnOrError("Iblock {$iblockKey} has inactive admin-editable V2 properties: " . implode(', ', $inactive));
+            }
+            if (!empty($mismatched)) {
+                $this->warnOrError("Iblock {$iblockKey} has mismatched admin-editable V2 properties: " . implode('; ', $mismatched));
             }
         }
 
@@ -246,6 +197,103 @@ final class TacticumProductContentCheck
             'v2_schema' => $summary,
             'legacy_json' => $legacyJson,
         ];
+    }
+
+    private function expectedAdminEditableSchema(): array
+    {
+        $string = ['type' => 'S', 'multiple' => 'N'];
+        $list = ['type' => 'S', 'multiple' => 'Y'];
+
+        return [
+            'products' => [
+                'PRODUCT_CODE' => $string,
+                'EYEBROW' => $string,
+                'PRODUCT_TITLE' => $string,
+                'PRODUCT_LEAD' => $string,
+                'PRIMARY_CTA_TEXT' => $string,
+                'SECONDARY_CTA_TEXT' => $string,
+                'SECONDARY_CTA_HREF' => $string,
+                'BADGE' => $list,
+                'CTA_FORM_ID' => $string,
+                'CTA_FIELD_PREFIX' => $string,
+                'CTA_TITLE' => $string,
+                'CTA_TEXT' => $string,
+                'CTA_FORM_TITLE' => $string,
+                'CTA_BUTTON_TEXT' => $string,
+                'CTA_SCENARIO_LABEL' => $string,
+                'CTA_SCENARIO_EMPTY_LABEL' => $string,
+                'CTA_LEAD_ENTRY' => $string,
+                'CTA_LEAD_PAGE_ROLE' => $string,
+                'CTA_LEAD_PRODUCT' => $string,
+                'CTA_LEAD_INTENT' => $string,
+                'CTA_LEAD_CTA' => $string,
+                'CTA_LEAD_NEXT_STEP' => $string,
+            ],
+            'product_blocks' => [
+                'PRODUCT' => ['type' => 'E', 'multiple' => 'N', 'link_iblock_key' => 'products'],
+                'BLOCK_TYPE' => $string,
+                'BLOCK_KEY' => $string,
+                'PARENT_BLOCK' => ['type' => 'E', 'multiple' => 'N', 'link_iblock_key' => 'product_blocks'],
+                'ITEM_TYPE' => $string,
+                'EYEBROW' => $string,
+                'THEME' => $string,
+                'TONE' => $string,
+                'COLUMNS_CLASS' => $string,
+                'NOTE_TITLE' => $string,
+                'NOTE_TEXT' => $string,
+                'CTA_TEXT' => $string,
+                'CTA_HREF' => $string,
+                'ICON' => $string,
+                'META' => $string,
+                'HREF' => $string,
+                'PROOF_STATUS' => $string,
+                'ITEMS' => $list,
+                'VALUE' => $string,
+                'LABEL' => $string,
+                'FORM_ID' => $string,
+                'FIELD_PREFIX' => $string,
+                'FORM_TITLE' => $string,
+                'BUTTON_TEXT' => $string,
+                'SCENARIO_LABEL' => $string,
+                'SCENARIO_EMPTY_LABEL' => $string,
+                'LEAD_ENTRY' => $string,
+                'LEAD_PAGE_ROLE' => $string,
+                'LEAD_PRODUCT' => $string,
+                'LEAD_INTENT' => $string,
+                'LEAD_CTA' => $string,
+                'LEAD_NEXT_STEP' => $string,
+            ],
+            'product_use_cases' => [
+                'PRODUCT' => ['type' => 'E', 'multiple' => 'N', 'link_iblock_key' => 'products'],
+                'TRIGGER' => $string,
+                'OWNER' => $string,
+                'PILOT_INPUT' => $string,
+                'PILOT_OUTPUT' => $string,
+                'LIMITATION' => $string,
+                'PROOF_STATUS' => $string,
+                'CTA_INTENT' => $string,
+            ],
+        ];
+    }
+
+    private function propertySchemaMismatches(array $property, array $expected): array
+    {
+        $mismatches = [];
+        if ((string)($property['PROPERTY_TYPE'] ?? '') !== (string)($expected['type'] ?? '')) {
+            $mismatches[] = 'type expected ' . (string)($expected['type'] ?? '') . ', got ' . (string)($property['PROPERTY_TYPE'] ?? '');
+        }
+        if ((string)($property['MULTIPLE'] ?? '') !== (string)($expected['multiple'] ?? '')) {
+            $mismatches[] = 'multiple expected ' . (string)($expected['multiple'] ?? '') . ', got ' . (string)($property['MULTIPLE'] ?? '');
+        }
+        if (isset($expected['link_iblock_key'])) {
+            $expectedIblockId = $this->iblockId((string)$expected['link_iblock_key']);
+            $actualIblockId = (int)($property['LINK_IBLOCK_ID'] ?? 0);
+            if ($expectedIblockId <= 0 || $actualIblockId !== $expectedIblockId) {
+                $mismatches[] = "link iblock expected #{$expectedIblockId}, got #{$actualIblockId}";
+            }
+        }
+
+        return $mismatches;
     }
 
     private function checkProducts(): void
@@ -854,6 +902,13 @@ final class TacticumProductContentCheck
 
     private function propertyId(int $iblockId, string $code): int
     {
+        $property = $this->propertyFields($iblockId, $code);
+
+        return is_array($property) ? (int)$property['ID'] : 0;
+    }
+
+    private function propertyFields(int $iblockId, string $code): ?array
+    {
         $result = CIBlockProperty::GetList(
             ['ID' => 'ASC'],
             [
@@ -863,7 +918,7 @@ final class TacticumProductContentCheck
         );
         $property = $result->Fetch();
 
-        return is_array($property) ? (int)$property['ID'] : 0;
+        return is_array($property) ? $property : null;
     }
 
     private function propertyLinkIblockId(int $propertyId): int

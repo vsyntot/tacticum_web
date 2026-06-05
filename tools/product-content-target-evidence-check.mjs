@@ -105,6 +105,16 @@ function validateAdminModel(adminModel, errors) {
       } else if (entry.missing_properties.length > 0) {
         errors.push(`admin_model.v2_schema.${key}.missing_properties must be empty.`);
       }
+      if (!Array.isArray(entry.inactive_properties)) {
+        errors.push(`admin_model.v2_schema.${key}.inactive_properties must be an array.`);
+      } else if (entry.inactive_properties.length > 0) {
+        errors.push(`admin_model.v2_schema.${key}.inactive_properties must be empty.`);
+      }
+      if (!Array.isArray(entry.mismatched_properties)) {
+        errors.push(`admin_model.v2_schema.${key}.mismatched_properties must be an array.`);
+      } else if (entry.mismatched_properties.length > 0) {
+        errors.push(`admin_model.v2_schema.${key}.mismatched_properties must be empty.`);
+      }
     }
   }
 

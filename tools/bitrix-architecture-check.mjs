@@ -136,6 +136,19 @@ for (const file of componentFiles) {
   }
 }
 
+const bitrixTemplateFiles = [];
+await collectFiles('local/templates/tacticum/components', bitrixTemplateFiles, (file) => path.basename(file) === 'template.php');
+for (const file of bitrixTemplateFiles) {
+  const source = await readFile(file, 'utf8');
+  const assetVars = Array.from(source.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)\s*=\s*Asset::getInstance\(\)/g))
+    .map((match) => match[1]);
+  const usesDirectAssetRegistration = /Asset::getInstance\(\)\s*->\s*add(?:Js|Css)\s*\(/.test(source)
+    || assetVars.some((variable) => new RegExp(`\\$${variable}\\s*->\\s*add(?:Js|Css)\\s*\\(`).test(source));
+  if (usesDirectAssetRegistration) {
+    failures.push(`${file} must register component-owned JS/CSS through $this->addExternalJs/addExternalCss, not late Asset::getInstance()->addJs/addCss.`);
+  }
+}
+
 for (const publicFile of publicPageEntries) {
   const source = await readFile(publicFile, 'utf8');
   if (/IncludeComponent\(\s*[\r\n\t ]*['"]bitrix:/m.test(source)) {
