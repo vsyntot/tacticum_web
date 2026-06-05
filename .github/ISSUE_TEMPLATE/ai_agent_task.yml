@@ -54,7 +54,7 @@ body:
       placeholder: |
         Ключевые файлы:
         - local/rest/tacticum_form.php (эталон POST-эндпоинта)
-        - local/rest/rest_helpers.php (все утилиты)
+        - local/rest/rest_helpers.php (facade), local/lib/Tacticum/Rest/* (реализация)
         - local/php_interface/include/tacticum_config.php (конфиг)
 
         Инфоблок: offer (ID=5)
@@ -97,7 +97,7 @@ body:
       options:
         - label: "Не редактировать файлы в bitrix/"
           required: true
-        - label: "Использовать существующие хелперы из rest_helpers.php, не дублировать"
+        - label: "Использовать существующие REST helpers/facades, не дублировать"
           required: true
         - label: "Не логировать PII без маскировки"
           required: true

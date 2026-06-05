@@ -18,7 +18,7 @@
 ├── local/
 │   ├── api/                        # GET-эндпоинты (cases, faq, rates, services)
 │   ├── rest/                       # POST-эндпоинты (форма, чат, оффер, продажи)
-│   │   ├── rest_helpers.php        # ВСЕ общие утилиты: CSRF, rate limit, IP, origin, curl
+│   │   ├── rest_helpers.php        # Facade для общих REST/API функций: CSRF, rate limit, IP, origin, curl
 │   │   ├── tacticum_form.php       # ЭТАЛОН для новых POST-эндпоинтов
 │   │   ├── tacticum_chat.php       # Чат-агент → AI_SERVICE_BASE_URL/tacticum/v1/chat_agent
 │   │   ├── tacticum_offer.php      # Коммерческое предложение
@@ -36,6 +36,7 @@
 │   │       ├── calcrequests_rest.php # Bitrix REST calcrequests.*
 │   │       ├── offer_catalog_cache.php # Лёгкий cache/event layer для /offer/
 │   │       └── menu_helpers.php
+│   ├── lib/Tacticum/Rest/         # Реализация REST/API runtime: config, response, security, rate, masking, outbound
 │   └── templates/tacticum/        # Активный шаблон Bitrix
 │       ├── header.php              # Подключение JS/CSS, Яндекс.Метрика (ID: 103471113)
 │       ├── footer.php              # Футер, попап "Связаться с нами", мобильное меню
@@ -73,7 +74,7 @@
 - PHP 8.4: `match`, `readonly`, named arguments, `enum` — приветствуется.
 - `init.php` должен оставаться тонким bootstrap/registration файлом; domain helpers и REST callbacks выносить в `local/php_interface/include/`.
 - Функции в `local/php_interface/include/*.php` — префикс `tacticum_`, shared component parameter helpers — через `TacticumComponentParams`.
-- Функции в `rest_helpers.php` — префикс `tacticum_rest_` или `tacticum_api_`.
+- Функции в `rest_helpers.php` — только compatibility facade с префиксом `tacticum_rest_` или `tacticum_api_`; новую реализацию класть в `local/lib/Tacticum/Rest/*`.
 - Предпочитать Bitrix D7 / ORM над старым API где возможно.
 - Загрузка модулей: `Loader::includeModule()`, не `CModule::IncludeModule()`.
 
@@ -177,7 +178,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICOD
 - ❌ Не редактировать файлы в `bitrix/`
 - ❌ Не хардкодить ID инфоблоков — только `tacticum_rest_get_iblock_id('key')`
 - ❌ Не хардкодить URL AI-сервиса — только `tacticum_rest_get_ai_setting('AI_SERVICE_BASE_URL')`
-- ❌ Не дублировать логику из `rest_helpers.php`
+- ❌ Не дублировать логику из `rest_helpers.php` / `local/lib/Tacticum/Rest/*`
 - ❌ Не добавлять файловое/debug runtime-логирование payload/response
 - ❌ Не использовать `$_GET`/`$_POST` напрямую — только Bitrix Context или `php://input`
 - ❌ Не использовать `http://` для внешних curl-запросов в production

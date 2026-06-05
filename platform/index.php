@@ -5,20 +5,35 @@ $APPLICATION->SetTitle("Tacticum Platform - платформа для корпо
 $APPLICATION->SetPageProperty("description", "Tacticum Platform - единое инфраструктурное ядро для корпоративных AI-продуктов: LLM-шлюз, RAG, память, MCP-инструменты, права доступа, аудит и контроль стоимости.");
 $APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
 
-$tacticumProductPage = tacticum_product_page_data('platform');
-
-tacticum_apply_seo_defaults('/platform/', [
-    'schema' => tacticum_product_page_schema(
-        $tacticumProductPage,
-        '/platform/',
-        'BusinessApplication',
-        'Платформенное ядро для корпоративных AI-продуктов: runtime, LLM Gateway, RAG, память, MCP-инструменты, доступы, аудит и наблюдаемость.'
-    ),
-]);
+$tacticumProductPageResult = $APPLICATION->IncludeComponent(
+    'tacticum:product.page',
+    '',
+    [
+        'PRODUCT_CODE' => 'platform',
+        'CANONICAL_PATH' => '/platform/',
+        'APPLICATION_CATEGORY' => 'BusinessApplication',
+        'SCHEMA_DESCRIPTION' => 'Платформенное ядро для корпоративных AI-продуктов: runtime, LLM Gateway, RAG, память, MCP-инструменты, доступы, аудит и наблюдаемость.',
+        'PREPARE_ONLY' => 'Y',
+    ],
+    false
+);
+$tacticumProductPage = is_array($tacticumProductPageResult) && is_array($tacticumProductPageResult['PAGE'] ?? null)
+    ? $tacticumProductPageResult['PAGE']
+    : [];
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 
-tacticum_render_product_page($tacticumProductPage);
+$APPLICATION->IncludeComponent(
+    'tacticum:product.page',
+    '',
+    [
+        'PRODUCT_CODE' => 'platform',
+        'CANONICAL_PATH' => '/platform/',
+        'APPLY_SEO_DEFAULTS' => 'N',
+        'PAGE_DATA' => $tacticumProductPage,
+    ],
+    false
+);
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
 ?>

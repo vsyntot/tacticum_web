@@ -90,4 +90,6 @@ function tacticum_content_migration_fix_policy_contacts(): void
     Option::set('tacticum', $optionName, 'Y');
 }
 
-tacticum_content_migration_fix_policy_contacts();
+if (defined('TACTICUM_RUN_CONTENT_MIGRATIONS') && TACTICUM_RUN_CONTENT_MIGRATIONS === true) {
+    tacticum_content_migration_fix_policy_contacts();
+}

@@ -8,8 +8,14 @@
 @source "../../../../../offer/**/*.php";
 @source "../../../../../policies/**/*.php";
 @source "../../../../../price/**/*.php";
+@source "../../../../../platform/**/*.php";
+@source "../../../../../agents/**/*.php";
+@source "../../../../../dev/**/*.php";
+@source "../../../../../forum/**/*.php";
 @source "../../../../../services/**/*.php";
 @source "../../../../../local/components/**/*.php";
+@source "../../../../../local/php_interface/include/product_page.php";
+@source "../../../../../local/php_interface/include/product_page_blocks/**/*.php";
 @source "../../components/**/*.php";
 @source "../../components/**/*.js";
 @source "../../js/**/*.js";

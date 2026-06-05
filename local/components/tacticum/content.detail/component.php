@@ -1,5 +1,7 @@
 <?php
 
+use Tacticum\Content\IblockRepository;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
@@ -10,23 +12,6 @@ if (!class_exists('TacticumComponentParams')) {
         require_once $helperPath;
     }
 }
-
-$resolveFirstElementId = static function (int $iblockId): int {
-    if ($iblockId <= 0 || !\Bitrix\Main\Loader::includeModule('iblock')) {
-        return 0;
-    }
-
-    $result = \CIBlockElement::GetList(
-        ['SORT' => 'ASC', 'ID' => 'ASC'],
-        ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y'],
-        false,
-        ['nTopCount' => 1],
-        ['ID']
-    );
-    $element = $result->Fetch();
-
-    return $element ? (int)$element['ID'] : 0;
-};
 
 $template = TacticumComponentParams::string($arParams, 'DETAIL_TEMPLATE');
 if ($template === '') {
@@ -43,7 +28,7 @@ if ($iblockId <= 0 && $iblockKey !== '' && function_exists('tacticum_iblock_id')
 $elementCode = TacticumComponentParams::token(TacticumComponentParams::string($arParams, 'ELEMENT_CODE'));
 $elementId = max(0, (int)($arParams['ELEMENT_ID'] ?? 0));
 if ($elementId <= 0 && $elementCode === '') {
-    $elementId = $resolveFirstElementId($iblockId);
+    $elementId = IblockRepository::firstActiveElementId($iblockId);
 }
 
 $arResult['DETAIL_TEMPLATE'] = $template;

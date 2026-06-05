@@ -10,6 +10,13 @@ const tailwindStylesPath = 'local/templates/tacticum/tailwind.generated.css';
 const tailwindSourcePath = 'local/templates/tacticum/assets/src/tailwind.css';
 const headerPath = 'local/templates/tacticum/header.php';
 const remixIconStylesPath = 'local/templates/tacticum/fonts/remixicon.css';
+const approvedTemplateStyleFiles = new Set([
+  'global.css',
+  'components.css',
+  'page-about-calculator.css',
+  'page-offer-price-services.css',
+  'page-aiagents.css',
+]);
 const forbiddenTemplateAssetPaths = [
   'local/templates/tacticum/include',
   'local/templates/tacticum/fonts/index.html',
@@ -64,6 +71,11 @@ const [templateStyles, globalStyles, tailwindStyles, tailwindSource, header, rem
   readFile(remixIconStylesPath, 'utf8'),
   readdir(stylesDir),
 ]);
+const templateStyleSources = await Promise.all(
+  styleFiles
+    .filter((file) => file.endsWith('.css'))
+    .map(async (file) => [path.join(stylesDir, file), await readFile(path.join(stylesDir, file), 'utf8')])
+);
 
 const activeTemplateStyles = templateStyles.replace(/\/\*[\s\S]*?\*\//g, '').trim();
 const failures = [];
@@ -88,18 +100,20 @@ if (tailwindSource.includes('../../include/**/*.php')) {
   failures.push(`${tailwindSourcePath} must not scan removed template include directory.`);
 }
 
-if (!header.includes('styles/global.css')) {
-  failures.push(`${headerPath} must load styles/global.css through Bitrix Asset.`);
+for (const styleFile of approvedTemplateStyleFiles) {
+  if (!header.includes(`styles/${styleFile}`)) {
+    failures.push(`${headerPath} must load styles/${styleFile} through Bitrix Asset.`);
+  }
 }
 
 if (/aiagents_css|styles\/aiagents\.css/.test(header)) {
-  failures.push(`${headerPath} must not load a separate aiagents CSS asset; /aiagents/ rules live in scoped styles/global.css.`);
+  failures.push(`${headerPath} must not load legacy styles/aiagents.css; /aiagents/ rules live in scoped styles/page-aiagents.css.`);
 }
 
 const unexpectedTemplateStyles = styleFiles
-  .filter((file) => file.endsWith('.css') && file !== 'global.css');
+  .filter((file) => file.endsWith('.css') && !approvedTemplateStyleFiles.has(file));
 for (const file of unexpectedTemplateStyles) {
-  failures.push(`${stylesDir}/${file} is not an approved template-level CSS file; keep manual runtime CSS in styles/global.css or component style.css.`);
+  failures.push(`${stylesDir}/${file} is not an approved template-level CSS file; use the fixed template CSS split or component style.css.`);
 }
 
 if (/@import\b/.test(templateStyles)) {
@@ -108,7 +122,7 @@ if (/@import\b/.test(templateStyles)) {
 
 for (const [file, source] of [
   [templateStylesPath, templateStyles],
-  [globalStylesPath, globalStyles],
+  ...templateStyleSources,
   [tailwindStylesPath, tailwindStyles],
 ]) {
   failures.push(...checkCssUrls(file, source));

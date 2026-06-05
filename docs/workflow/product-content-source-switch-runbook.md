@@ -91,11 +91,24 @@ npm run product:content:switch-readiness:prod
 | Products | Four active product records with codes `platform`, `agents`, `dev`, `forum` |
 | Hero / CTA | Title, lead, primary CTA, secondary CTA and CTA context are present |
 | Blocks | Required TO BE blocks are present for every product: fit guide, architecture, use cases, comparison, procurement, rollout, proof, FAQ, lead CTA |
-| Use cases | At least three active use cases per product |
+| Admin-editable V2 model | Editors use scalar/multiple properties and `product_blocks` container/item rows, not manual JSON editing, as primary workflow |
+| Use cases | At least three active use cases per product; `product_use_cases` properties are primary over legacy JSON |
 | Safe copy | No unapproved numeric claims, guarantees, registry/certification/КИИ/SLA/ПАК claims, customer logos or legal statements |
 | Relations | `PRODUCT` relation properties exist on FAQ/cases/offer/services/aiagents where configured |
 
 Allowed evidence in docs/release issue: owner, checked_at, product codes, counts, missing items, safe internal admin report ID. Do not store raw admin screenshots with user/session data.
+
+## V2 Admin Model Migration
+
+05.06.2026 model update: JSON fields are compatibility fallback, not the desired editor workflow. Before declaring product content fully editor-owned, target owners must run:
+
+```bash
+php tools/product-content-migration.php --apply --update-seed-content --retire-legacy-json
+npm run product:content:check:strict:json > /tmp/tacticum-product-content-strict.json
+npm run product:content:target-evidence:check -- --file=/tmp/tacticum-product-content-strict.json --allow-source=bitrix
+```
+
+The strict JSON evidence must include `admin_model.v2_schema` with no missing required properties and `admin_model.legacy_json` counters equal to zero. Non-zero `products_json_properties`, `products_active_json_properties`, `product_blocks_json_texts` or `product_use_cases_json_texts` means the admin model is still in compatibility mode and cannot be declared editor-owned.
 
 ## Switch Steps
 

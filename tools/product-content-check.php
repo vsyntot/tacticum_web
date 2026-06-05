@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use Bitrix\Main\Loader;
 
+require_once __DIR__ . '/bitrix-cli-env.php';
+
+tacticum_tools_reexec_with_short_open_tag($argv);
+
 final class TacticumProductContentCheck
 {
     private string $documentRoot;
@@ -18,6 +22,7 @@ final class TacticumProductContentCheck
     private ?bool $productFallbackAllowed = null;
     private ?int $productCacheTtl = null;
     private string $productSchemaVersion = 'unknown';
+    private array $adminModel = [];
 
     private const SAFE_URL_PREFIXES = ['/', '#', 'https://'];
 
@@ -91,6 +96,13 @@ final class TacticumProductContentCheck
         'lg:grid-cols-4',
     ];
 
+    private const LEGACY_PRODUCT_JSON_PROPERTIES = [
+        'BADGES_JSON',
+        'HERO_CARDS_JSON',
+        'CTA_JSON',
+        'SOURCE_DATA_JSON',
+    ];
+
     public function __construct(string $documentRoot, bool $strict, bool $json)
     {
         $this->documentRoot = rtrim($documentRoot, '/');
@@ -117,12 +129,123 @@ final class TacticumProductContentCheck
         }
 
         $productsIblockId = $this->iblockId('products');
+        $this->checkAdminEditableSchema();
         $this->checkProducts();
         if ($productsIblockId > 0) {
             $this->checkRelationProperties($productsIblockId);
         }
 
         return $this->finish();
+    }
+
+    private function checkAdminEditableSchema(): void
+    {
+        $required = [
+            'products' => [
+                'PRODUCT_CODE',
+                'EYEBROW',
+                'PRODUCT_TITLE',
+                'PRODUCT_LEAD',
+                'PRIMARY_CTA_TEXT',
+                'SECONDARY_CTA_TEXT',
+                'SECONDARY_CTA_HREF',
+                'BADGE',
+                'CTA_FORM_ID',
+                'CTA_FIELD_PREFIX',
+                'CTA_TITLE',
+                'CTA_TEXT',
+                'CTA_FORM_TITLE',
+                'CTA_BUTTON_TEXT',
+                'CTA_SCENARIO_LABEL',
+                'CTA_SCENARIO_EMPTY_LABEL',
+                'CTA_LEAD_ENTRY',
+                'CTA_LEAD_PAGE_ROLE',
+                'CTA_LEAD_PRODUCT',
+                'CTA_LEAD_INTENT',
+                'CTA_LEAD_CTA',
+                'CTA_LEAD_NEXT_STEP',
+            ],
+            'product_blocks' => [
+                'PRODUCT',
+                'BLOCK_TYPE',
+                'BLOCK_KEY',
+                'PARENT_BLOCK',
+                'ITEM_TYPE',
+                'EYEBROW',
+                'THEME',
+                'TONE',
+                'COLUMNS_CLASS',
+                'NOTE_TITLE',
+                'NOTE_TEXT',
+                'CTA_TEXT',
+                'CTA_HREF',
+                'ICON',
+                'META',
+                'HREF',
+                'PROOF_STATUS',
+                'ITEMS',
+                'VALUE',
+                'LABEL',
+                'FORM_ID',
+                'FIELD_PREFIX',
+                'FORM_TITLE',
+                'BUTTON_TEXT',
+                'SCENARIO_LABEL',
+                'SCENARIO_EMPTY_LABEL',
+                'LEAD_ENTRY',
+                'LEAD_PAGE_ROLE',
+                'LEAD_PRODUCT',
+                'LEAD_INTENT',
+                'LEAD_CTA',
+                'LEAD_NEXT_STEP',
+            ],
+            'product_use_cases' => [
+                'PRODUCT',
+                'TRIGGER',
+                'OWNER',
+                'PILOT_INPUT',
+                'PILOT_OUTPUT',
+                'LIMITATION',
+                'PROOF_STATUS',
+                'CTA_INTENT',
+            ],
+        ];
+
+        $summary = [];
+        foreach ($required as $iblockKey => $propertyCodes) {
+            $iblockId = $this->iblockId($iblockKey);
+            if ($iblockId <= 0) {
+                continue;
+            }
+
+            $missing = [];
+            foreach ($propertyCodes as $propertyCode) {
+                if ($this->propertyId($iblockId, $propertyCode) <= 0) {
+                    $missing[] = $propertyCode;
+                }
+            }
+
+            $summary[$iblockKey] = [
+                'required_properties' => count($propertyCodes),
+                'missing_properties' => $missing,
+            ];
+
+            if (!empty($missing)) {
+                $this->warnOrError("Iblock {$iblockKey} misses admin-editable V2 properties: " . implode(', ', $missing));
+            }
+        }
+
+        $legacyJson = $this->legacyJsonUsage();
+        foreach ($legacyJson as $key => $count) {
+            if ($count > 0) {
+                $this->warnOrError("Legacy JSON retirement is incomplete: {$key}={$count}.");
+            }
+        }
+
+        $this->adminModel = [
+            'v2_schema' => $summary,
+            'legacy_json' => $legacyJson,
+        ];
     }
 
     private function checkProducts(): void
@@ -226,6 +349,127 @@ final class TacticumProductContentCheck
                 $this->warnOrError("Iblock {$key} PRODUCT relation points to #{$linkIblockId}, expected #{$productsIblockId}.");
             }
         }
+    }
+
+    private function legacyJsonUsage(): array
+    {
+        return [
+            'products_json_properties' => $this->countProductJsonProperties(),
+            'products_active_json_properties' => $this->countActiveProductJsonProperties(),
+            'product_blocks_json_texts' => $this->countJsonDetailTexts($this->iblockId('product_blocks')),
+            'product_use_cases_json_texts' => $this->countJsonDetailTexts($this->iblockId('product_use_cases')),
+        ];
+    }
+
+    private function countProductJsonProperties(): int
+    {
+        $iblockId = $this->iblockId('products');
+        if ($iblockId <= 0 || !class_exists('CIBlockElement')) {
+            return 0;
+        }
+
+        $count = 0;
+        $result = CIBlockElement::GetList(
+            ['ID' => 'ASC'],
+            [
+                'IBLOCK_ID' => $iblockId,
+                'ACTIVE' => 'Y',
+                'CHECK_PERMISSIONS' => 'N',
+            ],
+            false,
+            false,
+            ['ID']
+        );
+        while ($element = $result->Fetch()) {
+            $elementId = (int)($element['ID'] ?? 0);
+            if ($elementId <= 0) {
+                continue;
+            }
+
+            foreach (self::LEGACY_PRODUCT_JSON_PROPERTIES as $code) {
+                $value = $this->propertyValue($iblockId, $elementId, $code);
+                if ($this->looksLikeJson($value)) {
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    private function countActiveProductJsonProperties(): int
+    {
+        $iblockId = $this->iblockId('products');
+        if ($iblockId <= 0 || !class_exists('CIBlockProperty')) {
+            return 0;
+        }
+
+        $count = 0;
+        $result = CIBlockProperty::GetList(
+            ['ID' => 'ASC'],
+            [
+                'IBLOCK_ID' => $iblockId,
+                'ACTIVE' => 'Y',
+            ]
+        );
+        while ($property = $result->Fetch()) {
+            if (in_array((string)($property['CODE'] ?? ''), self::LEGACY_PRODUCT_JSON_PROPERTIES, true)) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    private function countJsonDetailTexts(int $iblockId): int
+    {
+        if ($iblockId <= 0 || !class_exists('CIBlockElement')) {
+            return 0;
+        }
+
+        $count = 0;
+        $result = CIBlockElement::GetList(
+            ['ID' => 'ASC'],
+            [
+                'IBLOCK_ID' => $iblockId,
+                'ACTIVE' => 'Y',
+                'CHECK_PERMISSIONS' => 'N',
+            ],
+            false,
+            false,
+            ['ID', 'DETAIL_TEXT']
+        );
+        while ($element = $result->Fetch()) {
+            if ($this->looksLikeJson($element['DETAIL_TEXT'] ?? null)) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    private function propertyValue(int $iblockId, int $elementId, string $code): mixed
+    {
+        $result = CIBlockElement::GetProperty($iblockId, $elementId, ['sort' => 'asc'], ['CODE' => $code]);
+        $property = $result->Fetch();
+
+        return is_array($property) ? ($property['VALUE'] ?? null) : null;
+    }
+
+    private function looksLikeJson(mixed $value): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        $value = trim($value);
+        if ($value === '' || (!str_starts_with($value, '{') && !str_starts_with($value, '['))) {
+            return false;
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded);
     }
 
     private function fallbackDiagnostics(array $page): array
@@ -671,6 +915,7 @@ final class TacticumProductContentCheck
                 'cache_ttl' => $this->productCacheTtl,
                 'schema_version' => $this->productSchemaVersion,
                 'iblocks' => $this->iblocks,
+                'admin_model' => $this->adminModel,
                 'rows' => $this->rows,
                 'warnings' => $this->warnings,
                 'errors' => $this->errors,
@@ -701,6 +946,17 @@ final class TacticumProductContentCheck
                     (int)($row['schema_issues'] ?? 0)
                 ));
             }
+        }
+
+        if (!empty($this->adminModel)) {
+            $legacyJson = $this->adminModel['legacy_json'] ?? [];
+            $this->line('');
+            $this->line('Product content admin model:');
+            $this->line('- V2 schema properties: ' . (empty($this->adminModel['v2_schema'] ?? []) ? 'not checked' : 'checked'));
+            $this->line('- Legacy JSON usage: products_json_properties=' . (int)($legacyJson['products_json_properties'] ?? 0)
+                . ', products_active_json_properties=' . (int)($legacyJson['products_active_json_properties'] ?? 0)
+                . ', product_blocks_json_texts=' . (int)($legacyJson['product_blocks_json_texts'] ?? 0)
+                . ', product_use_cases_json_texts=' . (int)($legacyJson['product_use_cases_json_texts'] ?? 0));
         }
 
         if (!empty($this->warnings)) {
@@ -799,6 +1055,7 @@ try {
     define('NOT_CHECK_PERMISSIONS', true);
 
     require $prolog;
+    tacticum_tools_require_product_content_runtime($documentRoot);
 
     $check = new TacticumProductContentCheck($documentRoot, (bool)$options['strict'], (bool)$options['json']);
     exit($check->run());

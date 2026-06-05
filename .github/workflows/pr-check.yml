@@ -77,6 +77,7 @@ jobs:
           npm run rest:endpoints:check
           npm run seo:check
           npm run bitrix:check
+          npm run component:states:check
           npm run product:content:safety:check
           npm run product:challenge:check
           npm run sale:sunset:check
@@ -463,13 +464,15 @@ jobs:
             echo "✅ Chat endpoint has explicit POST-only method guard."
           fi
 
-          RESULT=$(grep -RInE 'curl_init|curl_exec|curl_errno|CURLOPT_TIMEOUT' local/rest/*.php | grep -v 'local/rest/rest_helpers.php')
+          RESULT=$(grep -RInE 'curl_init|curl_exec|curl_errno|CURLOPT_TIMEOUT' local/rest/*.php local/lib/Tacticum \
+            | grep -v 'local/rest/rest_helpers.php' \
+            | grep -v 'local/lib/Tacticum/Rest/Outbound.php')
           if [ -n "$RESULT" ]; then
-            echo "❌ ERROR: Direct curl usage in /local/rest must go through rest_helpers.php."
+            echo "❌ ERROR: Direct curl usage must go through Tacticum\\Rest\\Outbound / rest helper facade."
             echo "$RESULT"
             FAIL=1
           else
-            echo "✅ Direct curl usage is isolated in rest_helpers.php."
+            echo "✅ Direct curl usage is isolated in Tacticum\\Rest\\Outbound."
           fi
 
           if [ "$FAIL" -ne 0 ]; then

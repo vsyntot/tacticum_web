@@ -1,0 +1,50 @@
+
+.tacticum-anchor-target,
+.tacticum-anchor-alias {
+    scroll-margin-top: 96px;
+}
+
+.tacticum-anchor-alias {
+    display: block;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+/* Page: /aiagents/. Kept in the single manual runtime CSS file, scoped by body class. */
+.tacticum-aiagents-page {
+    font-family: 'Inter', sans-serif;
+}
+
+.tacticum-aiagents-page .hero-section {
+    background-image: url('/local/templates/tacticum/images/aibot_hero_bg.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.tacticum-aiagents-page .hero-overlay {
+    background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.5) 100%);
+}
+
+.tacticum-aiagents-page .step-connector {
+    position: absolute;
+    top: 40px;
+    left: calc(16.6667% + 2rem);
+    right: calc(16.6667% + 2rem);
+    width: auto;
+    height: 2px;
+    background-color: #e5e7eb;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.tacticum-aiagents-page #how-it-works .grid > .bg-white {
+    position: relative;
+    z-index: 1;
+}
+
+.tacticum-aiagents-page #contactFormInline input:focus,
+.tacticum-aiagents-page #contactFormInline textarea:focus {
+    outline: none;
+    border-color: #1e88e5;
+}

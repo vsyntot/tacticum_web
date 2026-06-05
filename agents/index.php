@@ -5,20 +5,35 @@ $APPLICATION->SetTitle("Tacticum Agents - корпоративные AI-асси
 $APPLICATION->SetPageProperty("description", "Tacticum Agents помогает запускать корпоративных AI-ассистентов для HR, юридического, бухгалтерского, клиентского и внутреннего IT-контуров поверх общей AI-платформы.");
 $APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
 
-$tacticumProductPage = tacticum_product_page_data('agents');
-
-tacticum_apply_seo_defaults('/agents/', [
-    'schema' => tacticum_product_page_schema(
-        $tacticumProductPage,
-        '/agents/',
-        'BusinessApplication',
-        'Продуктовый слой для корпоративных AI-ассистентов в HR, legal, finance, support, IT helpdesk и базе знаний поверх общей Tacticum Platform.'
-    ),
-]);
+$tacticumProductPageResult = $APPLICATION->IncludeComponent(
+    'tacticum:product.page',
+    '',
+    [
+        'PRODUCT_CODE' => 'agents',
+        'CANONICAL_PATH' => '/agents/',
+        'APPLICATION_CATEGORY' => 'BusinessApplication',
+        'SCHEMA_DESCRIPTION' => 'Продуктовый слой для корпоративных AI-ассистентов в HR, legal, finance, support, IT helpdesk и базе знаний поверх общей Tacticum Platform.',
+        'PREPARE_ONLY' => 'Y',
+    ],
+    false
+);
+$tacticumProductPage = is_array($tacticumProductPageResult) && is_array($tacticumProductPageResult['PAGE'] ?? null)
+    ? $tacticumProductPageResult['PAGE']
+    : [];
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 
-tacticum_render_product_page($tacticumProductPage);
+$APPLICATION->IncludeComponent(
+    'tacticum:product.page',
+    '',
+    [
+        'PRODUCT_CODE' => 'agents',
+        'CANONICAL_PATH' => '/agents/',
+        'APPLY_SEO_DEFAULTS' => 'N',
+        'PAGE_DATA' => $tacticumProductPage,
+    ],
+    false
+);
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
 ?>

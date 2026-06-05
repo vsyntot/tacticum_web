@@ -145,7 +145,7 @@ Recommendation: keep current text fallback v1 until Sales/upstream approval.
 Current flow:
 
 1. Frontend sends allowlisted `lead_*` fields and optional controlled `lead_scenario`.
-2. Backend builds canonical profile with `tacticum_form_build_lead_profile(...)`.
+2. Backend builds canonical profile with `Tacticum\Rest\LeadPayload` / `LeadContext`.
 3. Backend appends safe `Контекст заявки` block to existing upstream `task`.
 4. Backend does not send `product_interest`, `use_case_interest`, `deployment_interest`, `budget_band` or similar top-level upstream JSON fields.
 

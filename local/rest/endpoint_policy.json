@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "risk_classes": {
+    "CONFIG_HEALTH_GET": {
+      "limit": 5,
+      "ttl": 60,
+      "sensitivity": "config_status_no_secrets"
+    },
+    "PUBLIC_LEAD_POST": {
+      "limit": 20,
+      "ttl": 60,
+      "sensitivity": "public_lead_pii"
+    },
+    "PUBLIC_CHAT_POST": {
+      "limit": 20,
+      "ttl": 60,
+      "sensitivity": "public_chat_message"
+    },
+    "PUBLIC_STAFF_POST": {
+      "limit": 20,
+      "ttl": 60,
+      "sensitivity": "public_staff_order_pii"
+    },
+    "SCOPED_PREFILL_POST": {
+      "limit": 20,
+      "ttl": 60,
+      "sensitivity": "scoped_offer_lookup"
+    },
+    "PUBLIC_RESOLVER_POST": {
+      "limit": 20,
+      "ttl": 60,
+      "sensitivity": "public_resolver_url"
+    },
+    "LEGACY_ALIAS_POST": {
+      "limit": 20,
+      "ttl": 60,
+      "sensitivity": "legacy_public_lead_pii"
+    },
+    "PRIVATE_PROOF_DOC": {
+      "limit": 5,
+      "ttl": 60,
+      "sensitivity": "private_proof_or_document",
+      "future": true,
+      "requires": "approved_auth_or_signed_token"
+    },
+    "INTERNAL_ADMIN_OR_INTEGRATION": {
+      "limit": 10,
+      "ttl": 60,
+      "sensitivity": "internal_admin_or_webhook",
+      "future": true,
+      "requires": "approved_auth_or_signed_token_or_devops_owned_allowlist"
+    }
+  },
+  "endpoints": {
+    "health_config.php": {
+      "method": "GET",
+      "risk_class": "CONFIG_HEALTH_GET",
+      "action": "health_config",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "none",
+      "body": "none",
+      "noindex": true,
+      "contract": "config_health_summary"
+    },
+    "resolve_telegram_link.php": {
+      "method": "POST",
+      "risk_class": "PUBLIC_RESOLVER_POST",
+      "action": "resolve_telegram_link",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required",
+      "body": "json",
+      "noindex": true,
+      "upstream": "telegram_resolver",
+      "contract": "telegram_link_or_204"
+    },
+    "tacticum_chat.php": {
+      "method": "POST",
+      "risk_class": "PUBLIC_CHAT_POST",
+      "action": "tacticum_chat",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required_with_trusted_browser_fallback",
+      "body": "json",
+      "noindex": true,
+      "upstream": "chat_agent",
+      "contract": "upstream_chat_response"
+    },
+    "tacticum_form.php": {
+      "method": "POST",
+      "risk_class": "PUBLIC_LEAD_POST",
+      "action": "tacticum_form",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required_with_trusted_browser_fallback",
+      "body": "json",
+      "noindex": true,
+      "upstream": "chat_agent_sale",
+      "contract": "lead_success_error_shape"
+    },
+    "tacticum_offer.php": {
+      "method": "POST",
+      "risk_class": "LEGACY_ALIAS_POST",
+      "action": "tacticum_offer",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required",
+      "body": "json",
+      "noindex": true,
+      "legacy_alias": {
+        "successor": "/local/rest/tacticum_form.php",
+        "sunset": "2026-09-30"
+      },
+      "upstream": "chat_agent_sale",
+      "contract": "legacy_offer_success_shape"
+    },
+    "tacticum_prefill.php": {
+      "method": "POST",
+      "risk_class": "SCOPED_PREFILL_POST",
+      "action": "tacticum_prefill",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required_with_trusted_browser_fallback",
+      "body": "json",
+      "noindex": true,
+      "contract": "group_prefill_or_404"
+    },
+    "tacticum_sale.php": {
+      "method": "POST",
+      "risk_class": "LEGACY_ALIAS_POST",
+      "action": "tacticum_sale",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required",
+      "body": "json",
+      "noindex": true,
+      "legacy_alias": {
+        "successor": "/local/rest/tacticum_form.php",
+        "sunset": "2026-09-30"
+      },
+      "upstream": "chat_agent_sale",
+      "contract": "legacy_sale_success_shape"
+    },
+    "tacticum_sale_staff.php": {
+      "method": "POST",
+      "risk_class": "PUBLIC_STAFF_POST",
+      "action": "tacticum_sale_staff",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required_with_trusted_browser_fallback",
+      "body": "json",
+      "noindex": true,
+      "upstream": "staff_sale",
+      "contract": "staff_order_success_error_shape"
+    }
+  }
+}

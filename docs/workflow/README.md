@@ -95,8 +95,9 @@ QA подключается до разработки, если задача к�
 ### REST/API
 
 - POST endpoints живут в `local/rest/`, GET endpoints — в `local/api/`.
-- `rest_helpers.php` — единственная точка для CORS/origin, rate limit, CSRF, curl defaults, masking, config access.
-- `tacticum_form.php` — текущий эталон POST endpoint.
+- `rest_helpers.php` — compatibility facade для CORS/origin, rate limit, CSRF, curl defaults, masking, config access; реализация живёт в `local/lib/Tacticum/Rest/*`.
+- `local/rest/endpoint_policy.json` — обязательная taxonomy для REST endpoints: method, action, risk class, CSRF/noindex/legacy policy and future sensitive classes.
+- `tacticum_form.php` — текущий эталон тонкого POST endpoint over payload service.
 - Контракт лид-форм зафиксирован в `docs/workflow/lead-form-contract.md`; изменения payload, `form_id`, consent/CSRF или error model требуют обновления этого документа.
 - `local/api/cases.php` — текущий эталон GET endpoint.
 - Для новых API контрактов добавить section в Issue или отдельную spec в `docs/workflow/`.
@@ -108,6 +109,19 @@ QA подключается до разработки, если задача к�
 - Подключение через `\Bitrix\Main\Page\Asset::getInstance()->addJs/addCss/addString`.
 - Формы должны использовать `data-tacticum-form`, `data-form-id`, `data-tacticum-consent`.
 - Inline JS/CSS допустим только как legacy, при доработке выносить в asset-файлы.
+
+### Definition Of Componentized Done
+
+Новая или переработанная публичная страница считается достаточно componentized, если:
+
+- public `index.php` содержит только split prolog, `SetTitle`/page properties/SEO defaults, `IncludeComponent` calls and minimal page params;
+- repeated, behavior-bearing or content-heavy blocks live in `local/components/tacticum/*`, component templates or documented service/template boundaries;
+- local component has `component.php`, `.parameters.php`, `.description.php` and a template under `templates/.default/`;
+- component params are explicit and sanitized; no new global `tacticum_*` functions are declared inside `component.php`;
+- component cache/result policy is explicit: child `bitrix:*` cache params, `StartResultCache` usage, managed-cache tags or documented no-cache reason;
+- JS/CSS behavior is owned by template assets or component assets, not inline public-page scripts/styles;
+- REST/form/upstream payload contracts are unchanged unless the issue uses Security / Integration lane;
+- affected pages pass required smoke: `bitrix:check`, `seo:check`, and relevant CSS/browser smoke.
 
 ### SEO
 
@@ -150,6 +164,9 @@ QA подключается до разработки, если задача к�
 - `product-tech-challenge-issue-backlog-2026-06-04.md` / `.json` — issue-ready backlog for WP-01 - WP-09: tracker import rules, start policies, issue fields, acceptance criteria, verification and evidence requirements.
 - `product-tech-challenge-owner-review-runbook-2026-06-04.md` — operational runbook for owner review, `PTC-WP-*` issue import, safe evidence intake, status updates and implementation handoff.
 - `sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md` — master sprint roadmap Sprint 17-23 для закрытия 2026-06-04 challenge gaps.
+- `bitrix-componentization-gap-analysis-2026-06-05.md` — source register для Bitrix best-practices challenge: file-size budgets, component boundaries, `local/lib`, product renderer, public page entries, `/price/`, forms/chat, REST helpers and architecture guards.
+- `bitrix-componentization-execution-roadmap-2026-06-05.md` — phase roadmap для закрытия `BPC-*` gaps: guardrails, product page component, public page thinning, `/price/`, service layer, REST split, forms/chat and CSS.
+- `bitrix-componentization-issue-backlog-2026-06-05.md` — issue-ready backlog `BPC-WP-01` - `BPC-WP-09` для последовательной реализации componentization gaps.
 - `offer-example-seed-runbook.md` — запуск и контроль CLI-сидера synthetic offer examples для `/offer/`.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
 - `release-signoff-gates.md` — release sign-off gates для deploy smoke, success-flow, Метрики, config sync, Bitrix admin, staff sale and Sprint 22 security-sensitive future gates.
@@ -158,7 +175,8 @@ QA подключается до разработки, если задача к�
 
 ## Static Guards
 
-- `npm run bitrix:check` — guard для Bitrix architecture: thin `init.php`, отсутствие direct `bitrix:*` в public page entries, отсутствие component-level global helper functions, наличие `/offer/` service/cache hardening и footer modal component.
+- `npm run bitrix:check` — guard для Bitrix architecture: thin/lazy `init.php`, отсутствие direct `bitrix:*` в public page entries, отсутствие component-level global helper functions, local component metadata/cache policy, `/offer/` service/cache hardening и footer modal component.
+- `npm run component:states:check` — deterministic source-level fixture guard для product blocks/degraded state, `/price/` team builder, forms, chat and FAQ/content wrappers; also validates `component_wrapper_policy.json` for `content.list`, `content.detail` and `faq.section` and product block policy evidence; запускается в PR/deploy lifecycle.
 - `npm run config:runtime:check` — Bitrix/PHP runtime check для ignored `tacticum_config.php`: health scopes, iblock IDs, product source, endpoint path explicit/default status, CSP mode and REST summary without secret values.
 - `npm run gaps:known` — PM/QA guard для текущего известного хвоста: code-level open gaps, pending release gates, legacy inventory и post-deploy/cache smoke.
 - `npm run product:content:cache-clear:dry-run` / `npm run product:content:cache-clear` — Bitrix/PHP helper для проверки и очистки product content cache dir plus managed-cache tags перед switch/rollback.
@@ -181,6 +199,7 @@ QA подключается до разработки, если задача к�
 - `npm run product:challenge:owner-status:check` — guard для machine-readable owner status tracker: сверяет WP-01 - WP-09 с execution board, покрытие всех 63 challenge gap IDs, допустимые статусы, blockers, evidence requirements and no raw-evidence keys.
 - `npm run product:challenge:issue-backlog:check` — guard для issue-ready backlog: сверяет `PTC-WP-01` - `PTC-WP-09` с owner status tracker, start policies, issue statuses, owners, gaps, required sections and 63 gap ID coverage.
 - `npm run product:challenge:check` — aggregate guard для всего 2026-06-04 challenge package: board, approval/evidence, owner status tracker and issue backlog.
+- `npm run bitrix:check` — guard для Bitrix architecture and BPC guardrails: thin/lazy `init.php`, no eager product runtime/renderers/migrations in global bootstrap, `local/lib/Tacticum` autoload boundary, shared content/API repository boundary, product block policy, offer request boundary over Bitrix Context, local component metadata, local component cache/result policy, no component-level global helper functions, no direct public `bitrix:*` content calls, enforced REST endpoint policy/services and `local/rest/index.php` admin-only/noindex/private route markers, line budgets with current BPC allowlist, offer service/cache markers and footer modal component. Known remaining limitation: it does not yet enforce future-domain repository coverage automatically.
 - `npm run template-styles:check` — guard для CSS retirement и template public asset hygiene, включая запрет возврата Remixicon demo HTML в `local/templates/tacticum/fonts/`.
 - `npm run design:tokens:check` — guard для AS IS token contract: сверяет `05-design-tokens-as-is.json` с Tailwind theme, `global.css`, `forms.js` и package script.
 - `npm run design:components:check` — guard для AS IS component/state contract: сверяет `07-component-state-contract.json` с behavior-bearing templates/JS и package script.

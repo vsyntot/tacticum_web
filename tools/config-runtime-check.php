@@ -2,6 +2,10 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/bitrix-cli-env.php';
+
+tacticum_tools_reexec_with_short_open_tag($argv);
+
 function tacticum_config_runtime_check_usage(): string
 {
     return <<<TEXT
@@ -269,6 +273,7 @@ try {
     define('NOT_CHECK_PERMISSIONS', true);
 
     require $prolog;
+    tacticum_tools_require_product_content_runtime($documentRoot);
 
     if (!function_exists('tacticum_rest_validate_config')) {
         throw new RuntimeException('REST config helper tacticum_rest_validate_config() is unavailable.');

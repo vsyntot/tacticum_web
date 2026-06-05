@@ -85,13 +85,14 @@ The local negative fixture guard validates the validator path itself against `to
 On target Bitrix/PHP environments `npm run product:content:check:strict` now validates:
 
 - product iblock IDs and source mode;
+- admin-editable V2 property schema for `products`, `product_blocks` and `product_use_cases`;
 - minimum-renderable product data;
 - required TO BE blocks and use cases;
 - assembled live product page schema using the same v1 contract shape;
 - relation properties on FAQ/cases/offer/services/aiagents;
 - per-product summary including `schema_issues` count.
 
-For release evidence use `npm run product:content:check:strict:json`. The JSON output is safe to store in release evidence because it contains product codes, counts, source mode, schema version, iblock IDs, warnings and error codes/messages only; it does not include raw content, admin session data, contact data or request payloads.
+For release evidence use `npm run product:content:check:strict:json`. The JSON output is safe to store in release evidence because it contains product codes, counts, source mode, schema version, iblock IDs, admin model property coverage, legacy JSON counters, warnings and error codes/messages only; it does not include raw content, admin session data, contact data or request payloads.
 
 After saving target JSON evidence, validate it locally or on target with:
 
@@ -106,13 +107,15 @@ The validator requires `success=true`, `strict=true`, schema version `v1`, confi
 The local guard does not replace:
 
 - live Bitrix iblock presence;
-- live Bitrix `product_blocks` raw JSON diagnostics;
-- live `product_use_cases` element/property values;
+- target V2 migration/apply evidence;
+- content owner review that old JSON fields are no longer edited as primary content;
+- live `product_blocks` child item completeness beyond the assembled page schema;
+- live `product_use_cases` element/property values beyond the assembled page schema;
 - relation properties on FAQ/cases/offer/services/aiagents;
 - rendered HTML/source marker smoke;
 - Legal/Sales proof or claims approval.
 
-Those checks remain target environment gates through `product:content:check:strict`, `product:source:http:prod`, release precheck and owner evidence. Invalid or partial Bitrix block JSON is expected to surface through missing blocks, typed assembled-page schema issues or rendered block smoke.
+Those checks remain target environment gates through `product:content:check:strict`, `product:source:http:prod`, release precheck and owner evidence. Invalid or partial legacy Bitrix block JSON is expected to surface through missing blocks, typed assembled-page schema issues or rendered block smoke until V2 item rows fully replace it.
 
 ## Fail-Fast Policy
 
@@ -124,7 +127,8 @@ For product content changes, the release sequence should fail before public smok
 4. `product:content:target-evidence:check` rejects saved strict JSON evidence.
 5. Public product pages do not render expected `data-product-source=bitrix`.
 6. Required product blocks are missing from rendered HTML.
-7. Claim-source review marks a public proof/packaging statement as blocked.
+7. Target admin model lacks required V2 properties for editor-owned content.
+8. Claim-source review marks a public proof/packaging statement as blocked.
 
 `products.source=bitrix` remains an operationally strict mode. If live Bitrix content is invalid, the safe rollback is:
 
@@ -142,7 +146,7 @@ npm run product:content:cache-clear
 
 | Stage | Owner | Required Evidence |
 |---|---|---|
-| Draft | Content | Product code, block type and required payload fields present |
+| Draft | Content | Product code, block type and required V2 fields/properties present; no manual JSON editing as primary workflow |
 | Review | PM + Content | Product narrative, CTA and pilot use cases reviewed |
 | Claims review | PM + Sales + Legal | Public/private/blocked claim status confirmed |
 | Pre-publish | QA + Backend | Local schema guard and target strict check passed |

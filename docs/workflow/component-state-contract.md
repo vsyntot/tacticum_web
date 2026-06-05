@@ -54,10 +54,14 @@ Guard проверяет:
 - `local/components/tacticum/lead.cta/`;
 - `local/components/tacticum/contact.modal/`;
 - `local/components/tacticum/chat.surface/`;
+- `local/templates/tacticum/js/forms-runtime.js`;
 - `local/templates/tacticum/js/forms.js`;
 - `local/templates/tacticum/js/modal.js`;
 - `local/templates/tacticum/js/menu.js`;
 - `local/templates/tacticum/js/faq.js`;
+- `local/templates/tacticum/js/chat-runtime.js`;
+- `local/templates/tacticum/js/chat-hero.js`;
+- `local/templates/tacticum/js/chat-calculators.js`;
 - `local/templates/tacticum/js/chat-agent.js`;
 - `local/templates/tacticum/components/bitrix/news.list/price/`;
 - `local/php_interface/include/product_page_blocks/`;

@@ -2,7 +2,7 @@
 
 Дата фиксации: 20.05.2026
 
-Документ описывает текущий контракт публичных лид-форм, которые отправляются через `local/templates/tacticum/js/forms.js`. По умолчанию формы идут в `/local/rest/tacticum_form.php`; доменные сценарии могут задать свой backend через `data-endpoint`. Это рабочий контракт для smoke-check, QA и будущих правок форм.
+Документ описывает текущий контракт публичных лид-форм, которые обслуживаются `local/templates/tacticum/js/forms-runtime.js` и отправляются через `local/templates/tacticum/js/forms.js`. По умолчанию формы идут в `/local/rest/tacticum_form.php`; доменные сценарии могут задать свой backend через `data-endpoint`. Это рабочий контракт для smoke-check, QA и будущих правок форм.
 
 ## Endpoint
 
@@ -63,7 +63,7 @@
 
 ## Canonical Lead Qualification Profile
 
-Backend строит внутренний canonical profile через `tacticum_form_build_lead_profile(...)`. На текущем этапе профиль не отправляется отдельными upstream JSON fields, потому что внешний sale/CRM contract не подтвержден. Он используется как нормализованный источник для блока `Контекст заявки` внутри `task`.
+Backend строит внутренний canonical profile через `Tacticum\Rest\LeadPayload` / `LeadContext`. На текущем этапе профиль не отправляется отдельными upstream JSON fields, потому что внешний sale/CRM contract не подтвержден. Он используется как нормализованный источник для блока `Контекст заявки` внутри `task`.
 
 | Canonical field | Source field(s) | Meaning |
 |---|---|---|
@@ -84,7 +84,7 @@ Migration rule: до подтверждения CRM/upstream support нельз�
 
 `tacticum:lead.cta` поддерживает scenario select через параметр `SCENARIO_OPTIONS`. Значения должны быть короткими controlled slugs без PII/free text; подписи видны пользователю, но analytics events продолжают отправлять только form-level metadata. Product pages `/platform/`, `/agents/`, `/dev/`, `/forum/` используют этот механизм для уточнения ближайшего следующего шага без изменения REST/upstream contract.
 
-Backend `tacticum_form_build_lead_profile(...)` сначала переводит входные `lead_*` fields в canonical profile, а `tacticum_form_build_lead_context(...)` переводит известные `lead_scenario`, budget and timeline slugs в человекочитаемые подписи перед добавлением блока `Контекст заявки` в upstream `task`. Unknown slugs не блокируются, но попадают в контекст как короткая строка после общей нормализации.
+Backend `Tacticum\Rest\LeadContext` сначала переводит входные `lead_*` fields в canonical profile, затем переводит известные `lead_scenario`, budget and timeline slugs в человекочитаемые подписи перед добавлением блока `Контекст заявки` в upstream `task`. Unknown slugs не блокируются, но попадают в контекст как короткая строка после общей нормализации.
 
 Light chat handoff на `/calculator/` и `/price/` использует существующий `group_id` / prefill contract без новых upstream fields. После успешного AI-ответа пользователь может передать вводные в CTA: frontend пробует `POST /local/rest/tacticum_prefill.php` с `group_id + sessid`, заполняет только целевую CTA форму внутри `#contact-form`, сохраняет `group_id` в `form.dataset.tacticumOfferGroupId` и не пишет текст сообщения в analytics params. `forms.js` добавляет scoped `group_id` только для этой формы; глобальный `window.tacticum_offer_context` остаётся compatibility path для hero chat и не применяется к формам без `lead_*` context.
 

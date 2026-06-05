@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "groups": [
+    {
+      "id": "product-page",
+      "title": "Product page block and degraded-state fixtures",
+      "cases": [
+        {
+          "id": "required-product-block-markers",
+          "files": [
+            "local/components/tacticum/product.page/component.php",
+            "local/components/tacticum/product.page/templates/.default/template.php",
+            "local/components/tacticum/product_block_policy.json",
+            "local/components/tacticum/product.hero/component.php",
+            "local/components/tacticum/product.hero/templates/.default/template.php",
+            "local/components/tacticum/product.lead.cta/component.php",
+            "local/components/tacticum/product.lead.cta/templates/.default/template.php",
+            "local/php_interface/include/product_page_blocks/page.php",
+            "local/php_interface/include/product_page_blocks/common.php",
+            "local/php_interface/include/product_page_blocks/fit_guide.php",
+            "local/php_interface/include/product_page_blocks/architecture.php",
+            "local/php_interface/include/product_page_blocks/use_cases.php",
+            "local/php_interface/include/product_page_blocks/comparison.php",
+            "local/php_interface/include/product_page_blocks/procurement.php",
+            "local/php_interface/include/product_page_blocks/rollout.php",
+            "local/php_interface/include/product_page_blocks/proof.php",
+            "local/php_interface/include/product_page_blocks/faq.php",
+            "tools/visual-smoke.mjs"
+          ],
+          "requiredLiterals": [
+            "PREPARE_ONLY",
+            "nested-template",
+            "product.lead.cta",
+            "tacticum_render_product_page",
+            "data-product-block=\"hero\"",
+            "data-product-block=\"fit-guide\"",
+            "data-product-block=\"content-section\"",
+            "data-product-block=\"architecture\"",
+            "data-product-block=\"use-cases\"",
+            "data-product-block=\"comparison\"",
+            "data-product-block=\"procurement\"",
+            "data-product-block=\"rollout\"",
+            "data-product-block=\"proof\"",
+            "data-product-block=\"faq\"",
+            "data-product-block=\"lead-cta\"",
+            "data-product-source",
+            "data-product-code",
+            "data-product-status=\"unavailable\"",
+            "data-product-proof-status",
+            "product source mismatch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "price-team-builder",
+      "title": "Price team builder state and payload fixtures",
+      "cases": [
+        {
+          "id": "price-selector-and-empty-state-markers",
+          "files": [
+            "local/templates/tacticum/components/bitrix/news.list/price/template.php",
+            "local/templates/tacticum/components/bitrix/news.list/price/script.js",
+            "local/templates/tacticum/components/bitrix/news.list/price/parts/catalog.php",
+            "local/templates/tacticum/components/bitrix/news.list/price/parts/order-modal.php",
+            "local/templates/tacticum/components/bitrix/news.list/price/parts/price-card.php",
+            "local/templates/tacticum/components/bitrix/news.list/price/price-configurator-catalog.js",
+            "local/templates/tacticum/components/bitrix/news.list/price/price-configurator-filters.js",
+            "local/templates/tacticum/components/bitrix/news.list/price/price-configurator-order-state.js",
+            "local/templates/tacticum/components/bitrix/news.list/price/price-configurator-order-render.js",
+            "local/templates/tacticum/components/bitrix/news.list/price/price-configurator-modal.js",
+            "tools/visual-smoke.mjs"
+          ],
+          "requiredLiterals": [
+            "data-price-list",
+            "data-price-filter-tab",
+            "data-price-search",
+            "data-price-empty",
+            "data-price-team-preset",
+            "data-price-team-summary",
+            "data-price-team-summary-budget",
+            "data-price-order-modal",
+            "data-price-order-form",
+            "data-price-order-workers",
+            "data-price-worker-action",
+            "workers_json",
+            "team_preset",
+            "monthly_budget_estimate",
+            "/local/rest/tacticum_sale_staff.php",
+            "initOrderState",
+            "initOrderRender",
+            "initModal",
+            "createFallbackOrderModal",
+            "TACTICUM_EXPECT_PRICE_TEAM_PRESETS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "forms",
+      "title": "Lead/contact form state fixtures",
+      "cases": [
+        {
+          "id": "form-runtime-and-validation-markers",
+          "files": [
+            "local/components/tacticum/lead.cta/templates/.default/form.php",
+            "local/components/tacticum/contact.modal/templates/.default/template.php",
+            "local/templates/tacticum/js/forms-runtime.js",
+            "local/templates/tacticum/js/forms.js",
+            "tools/visual-smoke.mjs"
+          ],
+          "requiredLiterals": [
+            "data-tacticum-form",
+            "data-form-id",
+            "data-tacticum-consent",
+            "data-tacticum-returning-lead-panel",
+            "data-error",
+            "data-role=\"spinner\"",
+            "data-role=\"btn-text\"",
+            "lead_scenario",
+            "RETURNING_LEAD_STORAGE_KEY",
+            "applyReturningLeadState",
+            "markReturningLead",
+            "/local/rest/tacticum_form.php",
+            "tacticum_product_form_submit",
+            "tacticum_product_form_success",
+            "empty form validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chat",
+      "title": "Chat surface state and handoff fixtures",
+      "cases": [
+        {
+          "id": "chat-surface-and-handoff-markers",
+          "files": [
+            "local/components/tacticum/chat.surface/templates/.default/template.php",
+            "local/templates/tacticum/js/chat-runtime.js",
+            "local/templates/tacticum/js/chat-hero.js",
+            "local/templates/tacticum/js/chat-calculators.js",
+            "local/templates/tacticum/js/chat-agent.js",
+            "tools/visual-smoke.mjs"
+          ],
+          "requiredLiterals": [
+            "data-tacticum-chat=\"hero\"",
+            "data-tacticum-chat=\"light\"",
+            "data-chat-input",
+            "data-chat-send",
+            "data-chat-messages",
+            "data-chat-quick-reply",
+            "data-chat-lead-handoff",
+            "typing-indicator",
+            "buildLeadHandoffSummary",
+            "sendPrefillRequest",
+            "showLeadHandoff",
+            "hero chat empty send",
+            "light chat empty send"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "faq-content-wrappers",
+      "title": "FAQ/content wrapper state fixtures",
+      "cases": [
+        {
+          "id": "wrapper-cache-and-empty-state-markers",
+          "files": [
+            "local/components/tacticum/component_wrapper_policy.json",
+            "local/components/tacticum/content.list/component.php",
+            "local/components/tacticum/content.list/templates/.default/template.php",
+            "local/components/tacticum/content.detail/component.php",
+            "local/components/tacticum/content.detail/templates/.default/template.php",
+            "local/components/tacticum/faq.section/component.php",
+            "local/components/tacticum/faq.section/templates/.default/template.php",
+            "tools/visual-smoke.mjs"
+          ],
+          "requiredLiterals": [
+            "NEWS_LIST_TEMPLATE",
+            "DETAIL_TEMPLATE",
+            "templateOwnership",
+            "requiredChildParams",
+            "IBLOCK_KEY",
+            "bitrix:news.list",
+            "bitrix:news.detail",
+            "CACHE_TYPE",
+            "CACHE_TIME",
+            "FAQ_SECTION_STATUS",
+            "data-faq-section-key",
+            "data-faq-section-status=\"missing\"",
+            "expected rendered FAQ, got missing FAQ section marker"
+          ]
+        }
+      ]
+    }
+  ]
+}

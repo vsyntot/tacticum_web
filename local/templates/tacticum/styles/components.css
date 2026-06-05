@@ -1,0 +1,294 @@
+.tacticum-personal-offer-form {
+    background: #ffffff;
+    color: #1f2937;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+}
+
+.tacticum-personal-offer-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.tacticum-personal-offer-form__field {
+    min-width: 0;
+}
+
+.tacticum-personal-offer-form__label {
+    display: block;
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.tacticum-personal-offer-form__required {
+    color: #0066CC;
+}
+
+.tacticum-personal-offer-form__control {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tacticum-personal-offer-form__control::placeholder {
+    color: #9ca3af;
+}
+
+.tacticum-personal-offer-form__control:focus {
+    border-color: #0066CC;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.18);
+}
+
+.tacticum-personal-offer-form__message {
+    margin-bottom: 20px;
+}
+
+.tacticum-personal-offer-form__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.tacticum-personal-offer-form__checkbox {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    accent-color: #0066CC;
+}
+
+.tacticum-personal-offer-form__consent-text {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.tacticum-personal-offer-form__consent-text a {
+    color: #0066CC;
+    text-decoration: underline;
+}
+
+.tacticum-personal-offer-form__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    border-radius: 8px;
+    background: #0066CC;
+    color: #ffffff;
+    padding: 12px 24px;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.tacticum-personal-offer-form__submit:hover {
+    background: #0057ad;
+}
+
+@media (max-width: 767px) {
+    .tacticum-personal-offer-form {
+        padding: 20px;
+    }
+
+    .tacticum-personal-offer-form__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tacticum-contact-modal-shell {
+    width: min(92vw, 760px);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+}
+
+.tacticum-contact-modal-card {
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+}
+
+.tacticum-contact-modal-header {
+    gap: 20px;
+    background: #001f3f;
+}
+
+.tacticum-contact-modal-close {
+    border: 0;
+    color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.tacticum-contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px 28px;
+}
+
+.tacticum-contact-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.tacticum-contact-form__field {
+    min-width: 0;
+}
+
+.tacticum-contact-form__label {
+    display: block;
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.tacticum-contact-form__required {
+    color: #0066CC;
+}
+
+.tacticum-contact-form__control {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tacticum-contact-form__control::placeholder {
+    color: #9ca3af;
+}
+
+.tacticum-contact-form__control:focus {
+    border-color: #0066CC;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.18);
+}
+
+.tacticum-contact-form__control:-webkit-autofill,
+.tacticum-contact-form__control:-webkit-autofill:hover {
+    -webkit-text-fill-color: #111827;
+    box-shadow: 0 0 0 1000px #ffffff inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.tacticum-contact-form__control:-webkit-autofill:focus {
+    -webkit-text-fill-color: #111827;
+    box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 3px rgba(0, 102, 204, 0.18);
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+textarea.tacticum-contact-form__control {
+    min-height: 116px;
+    resize: vertical;
+}
+
+.tacticum-contact-form__consent {
+    padding: 12px;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.tacticum-contact-form__checkbox {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    accent-color: #0066CC;
+}
+
+.tacticum-contact-form__consent-text {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.tacticum-contact-form__consent-text a {
+    color: #0066CC;
+    text-decoration: underline;
+}
+
+.tacticum-contact-form__submit {
+    min-height: 48px;
+    border-radius: 8px;
+    background: #0066CC;
+    transition: background-color 0.2s ease;
+}
+
+.tacticum-contact-form__submit:hover {
+    background: #0057ad;
+}
+
+@media (max-width: 767px) {
+    .tacticum-contact-modal-shell {
+        width: calc(100vw - 24px);
+        max-height: calc(100vh - 32px);
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+
+    .tacticum-contact-modal-header {
+        padding: 18px 20px;
+    }
+
+    .tacticum-contact-form {
+        padding: 20px;
+    }
+
+    .tacticum-contact-form__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.faq-item {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    cursor: pointer;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 500px;
+}
+
+.faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+}
+

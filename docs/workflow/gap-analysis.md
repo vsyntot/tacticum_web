@@ -1,7 +1,7 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 04.06.2026
+Дата последнего обновления: 05.06.2026
 
 Статусы:
 
@@ -16,6 +16,37 @@
 - `P1` — важно для ближайшего спринта;
 - `P2` — плановый backlog;
 - `P3` — nice-to-have.
+
+## Current Bitrix Componentization Challenge Layer — 05.06.2026
+
+Свежий Bitrix best-practices challenge зафиксирован отдельным техническим слоем:
+
+- source register: `docs/workflow/bitrix-componentization-gap-analysis-2026-06-05.md`;
+- execution roadmap: `docs/workflow/bitrix-componentization-execution-roadmap-2026-06-05.md`;
+- issue backlog: `docs/workflow/bitrix-componentization-issue-backlog-2026-06-05.md`;
+- Codex plan: `docs/workflow/plans/2026-06-05-bitrix-componentization-challenge-documentation.md`.
+
+Этот слой покрывает 100% выявленных на 05.06.2026 engineering gaps по Bitrix componentization, file-size budgets, D7/service layer, REST/API boundaries, frontend modules, CSS ownership and architecture guards. После локальной реализации все известные `BPC-*` implementation gaps закрыты кодом и guard evidence; единственный оставшийся хвост — `BPC-GUARD-001` в статусе `accepted-monitor` для будущего расширения guardrails на новые домены.
+
+### Challenge Verdict
+
+Текущее решение больше не выглядит как бесконтрольный Bitrix legacy. `init.php` тонкий и не тянет product runtime / one-off migrations на каждый запрос; публичные entry points из sitemap являются короткими orchestrators поверх `tacticum:*`; `/platform/`, `/agents/`, `/dev/`, `/forum/` используют two-phase `tacticum:product.page`; hero и product lead CTA вынесены в `tacticum:product.hero` / `tacticum:product.lead.cta`; оставшиеся product blocks зафиксированы в `product_block_policy.json` как accepted nested-template boundaries. `/price/`, forms, chat and CSS split закрыты локально. Product/content, offer, SEO, REST, `calcrequests.*` and shared content/API reads управляются через `local/lib/Tacticum` slices and compatibility facades. `component_cache_policy.json`, `component_wrapper_policy.json`, `component:states:check`, `bitrix:check`, `seo:check`, `rest:endpoints:check` и deploy/PR wiring теперь закрывают текущие component/cache/state boundaries.
+
+### Current Gap Coverage
+
+| Cluster | Gap IDs | Current Risk |
+|---|---|---|
+| Architecture / Bitrix layering | `BPC-ARCH-001` - `BPC-ARCH-005` | Closed locally: product shell/block policy, service/facade slices, lazy bootstrap, offer request snapshot and shared content repository are implemented and guarded |
+| Components / public pages | `BPC-CMP-001` - `BPC-CMP-005` | Closed locally: public entries are thin, product/page components and wrapper/cache policies are explicit, and component metadata/cache/state guards run in PR/deploy lifecycle |
+| Frontend modules / CSS | `BPC-FE-001` - `BPC-FE-004` | Closed locally: `/price/` configurator, forms runtime, chat runtime/surfaces and fixed template CSS split are under current file-size and ownership budgets |
+| REST / API / integration | `BPC-REST-001` - `BPC-REST-003` | Closed locally: REST facade/service split, admin-only REST hook route, endpoint taxonomy/risk classes and thin lead/staff payload services are implemented and guarded |
+| Guards / maintainability | `BPC-GUARD-001` - `BPC-GUARD-004` | Current BPC guardrails are enforced; `BPC-GUARD-001` remains `accepted-monitor` only for future domain/repository guard expansion |
+
+### Planning Rule
+
+Any future task touching product pages, public page entries, `/price/`, forms/chat JS, `rest_helpers.php`, product/offer helpers, local components or architecture guards must reference affected `BPC-*` IDs from `bitrix-componentization-gap-analysis-2026-06-05.md` and preserve the implemented guardrails from `bitrix-componentization-execution-roadmap-2026-06-05.md`.
+
+New BPC work should start only when a future code/domain change reopens a boundary or extends the system beyond current guard coverage. Do not mark a future `BPC-*` gap closed because docs exist; closure requires code changes, verification commands and owner/review evidence where applicable.
 
 ## Current Product Tech Challenge Layer — 04.06.2026
 
@@ -207,7 +238,7 @@ Owner review runbook progress 04.06.2026: `docs/workflow/product-tech-challenge-
 | S11H-003 | done | Page properties | Public pages с page-specific assets используют split prolog + `SetPageProperty(...)`, а не `TACTICUM_*` globals |
 | S11H-004 | done | FAQ section model | FAQ-вызовы используют semantic `SECTION_KEY`; code-first lookup и numeric fallback централизованы внутри `tacticum:faq.section` |
 | S11H-005 | done | Bitrix param typo | Кириллическая опечатка `INCLUDE_IBLOCK_INТО_CHAIN` удалена и закреплена static guard |
-| S11H-006 | done | Offer catalog service boundary | High-level логика `/offer/` catalog вынесена в `TacticumOfferCatalogService`; старые функции оставлены wrappers |
+| S11H-006 | done | Offer catalog service boundary | High-level логика `/offer/` catalog вынесена в `Tacticum\Offer\CatalogService`; старые функции и legacy classes оставлены wrappers |
 | S11H-007 | done | Guards and docs | `seo-check`, ADR-008, `current-state`, `gap-analysis` и sprint artifact обновлены |
 | S11H-008 | done | Static detail pages | `/about/`, `/policies/` и `404.php` переведены на split prolog; `/policies/` использует `tacticum:content.detail`, а policy migration больше не привязана к hardcoded `ELEMENT_ID=515` |
 
@@ -352,7 +383,7 @@ Product renderer boundary 01.06.2026: `local/php_interface/include/product_page.
 | ID | Status | Area | Closure |
 |---|---|---|---|
 | S13-001 | done | `init.php` bootstrap | `init.php` стал тонким include/registration bootstrap; helpers вынесены в `site_helpers.php`, `seo_helpers.php`, `calcrequests_rest.php` |
-| S13-002 | done | `/offer/` cache/service | `/offer/` catalog получил лёгкий `offer_catalog_cache.php`, `TacticumOfferCatalogCache`, `TacticumOfferCatalogRepository`, managed tag/cache dir и очистку после add/update/delete/property-update offer events |
+| S13-002 | done | `/offer/` cache/service | `/offer/` catalog получил лёгкие compatibility facades `offer_catalog.php` / `offer_catalog_cache.php`, namespaced `Tacticum\Offer\CatalogRepository` / `CatalogCache`, managed tag/cache dir и очистку после add/update/delete/property-update offer events |
 | S13-003 | done | Component namespace | Локальные component.php больше не объявляют global helper functions; параметры нормализуются через `TacticumComponentParams` |
 | S13-004 | done | FAQ section fallback | Numeric fallback ID вынесены в config example `content.faq_section_fallback_ids`; code-first lookup остаётся основным |
 | S13-005 | done | SEO robots | 404/offer not-found используют общий `tacticum_add_robots_meta(...)` |
