@@ -10,7 +10,7 @@ return [
     'lead' => 'This fixture intentionally violates product content schema.',
     'primary_cta_text' => 'Primary',
     'secondary_cta_text' => 'Secondary',
-    'secondary_cta_href' => 'http://example.invalid/unsafe',
+    'secondary_cta_href' => '//example.invalid/unsafe',
     'badges' => ['invalid'],
     'hero_cards' => [
         ['title' => 'Hero', 'text' => 'Text'],
@@ -21,7 +21,7 @@ return [
         'start' => ['items' => ['start']],
     ],
     'sections' => [
-        ['title' => 'Section', 'cards' => [['title' => 'Card', 'text' => 'Text']]],
+        ['title' => 'Section', 'columns_class' => 'lg:grid-cols-3 text-red-500', 'cards' => [['title' => 'Card', 'text' => 'Text', 'icon' => 'ri-safe-line text-red-500']]],
     ],
     'architecture' => [
         'title' => 'Architecture',

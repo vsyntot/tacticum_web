@@ -496,9 +496,12 @@ function assertPublicPageComponentization() {
   ];
   const productRendererBootstrapSource = read('local/php_interface/include/product_page.php');
   const productContentSource = read('local/php_interface/include/product_content.php');
+  const productContentSchemaSource = read('docs/workflow/product-content-schema-v1.json');
+  const productContentSchemaCheckSource = read('tools/product-content-schema-check.mjs');
   const productMigrationSource = read('tools/product-content-migration.php');
   const productContentCheckSource = read('tools/product-content-check.php');
   const productContentCacheClearSource = read('tools/product-content-cache-clear.php');
+  const productContentCacheClearEvidenceCheckSource = read('tools/product-content-cache-clear-evidence-check.mjs');
   const productSourceHttpCheckSource = read('tools/product-source-http-check.mjs');
   const productContentSwitchReadinessSource = read('tools/product-content-switch-readiness.mjs');
   const releasePublicPrecheckSource = read('tools/release-public-precheck.mjs');
@@ -523,10 +526,12 @@ function assertPublicPageComponentization() {
   const faqSectionComponentSource = read('local/components/tacticum/faq.section/component.php');
   const faqSectionTemplateSource = read('local/components/tacticum/faq.section/templates/.default/template.php');
   const leadCtaComponentSource = read('local/components/tacticum/lead.cta/component.php');
+  const leadCtaTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/template.php');
   const leadCtaFormTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/form.php');
   const formEndpointSource = read('local/rest/tacticum_form.php');
   const analyticsSource = read('local/templates/tacticum/js/analytics.js');
   const formsSource = read('local/templates/tacticum/js/forms.js');
+  const faqJsSource = read('local/templates/tacticum/js/faq.js');
   const visualSmokeSource = read('tools/visual-smoke.mjs');
   const releaseSignoffCheckSource = read('tools/release-signoff-check.mjs');
   const releaseSignoffSelfTestSource = read('tools/release-signoff-self-test.mjs');
@@ -541,8 +546,44 @@ function assertPublicPageComponentization() {
   if (!productRendererSource.includes("'SCENARIO_OPTIONS'")) {
     fail('product page renderer must pass product scenario options into tacticum:lead.cta');
   }
+  if (
+    !productRendererBootstrapSource.includes('tacticum_product_page_cta_lead_context')
+    || !productRendererBootstrapSource.includes('lead_page_role')
+    || !productRendererBootstrapSource.includes('lead_product')
+    || !productRendererSource.includes("'LEAD_CONTEXT' => tacticum_product_page_cta_lead_context")
+  ) {
+    fail('product page renderer must sanitize product CTA lead context before passing it into tacticum:lead.cta');
+  }
+  if (
+    !productRendererBootstrapSource.includes('tacticum_product_page_safe_href')
+    || !productRendererBootstrapSource.includes('tacticum_product_page_is_safe_href')
+    || !productRendererBootstrapSource.includes('!str_starts_with($href, \'//\')')
+    || !productRendererSource.includes('tacticum_product_page_safe_href($page[\'secondary_cta_href\']')
+    || !productRendererSource.includes('tacticum_product_page_safe_href($procurement[\'cta_href\']')
+    || !productRendererSource.includes('tacticum_product_page_safe_href($column[\'href\']')
+  ) {
+    fail('product page renderer must normalize product hrefs and block protocol-relative URLs at runtime');
+  }
+  if (
+    !productRendererBootstrapSource.includes('tacticum_product_page_icon_class')
+    || !productRendererBootstrapSource.includes('^ri-[a-z0-9]+(?:-[a-z0-9]+)*$')
+    || !productRendererSource.includes('tacticum_product_page_icon_class($card[\'icon\']')
+    || !productRendererSource.includes('tacticum_product_page_icon_class($item[\'icon\']')
+  ) {
+    fail('product page renderer must normalize product icon classes from content');
+  }
+  if (
+    !productRendererBootstrapSource.includes('tacticum_product_page_columns_class')
+    || !productRendererBootstrapSource.includes("'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'")
+    || !productRendererSource.includes('tacticum_product_page_columns_class($section[\'columns_class\']')
+  ) {
+    fail('product page renderer must normalize product grid column classes from content');
+  }
   if (!productRendererBootstrapSource.includes('tacticum_product_content_bitrix_data') || !productRendererBootstrapSource.includes('tacticum_product_page_fallback_data')) {
     fail('product_page.php must support Bitrix product content with Git fallback');
+  }
+  if (!productRendererBootstrapSource.includes("$data['_product_code'] = $productCode") || !productContentSource.includes("'_product_code' => $productCode")) {
+    fail('product Bitrix and fallback data must carry _product_code for product CTA context enforcement');
   }
   if (!productRendererBootstrapSource.includes('tacticum_product_content_is_minimum_renderable') || !productRendererBootstrapSource.includes('$source === \'bitrix\'')) {
     fail('product_page.php must guard auto Bitrix product content by minimum renderability and preserve bitrix-only mode');
@@ -613,6 +654,14 @@ function assertPublicPageComponentization() {
   ) {
     fail('rest_helpers.php must define and validate REST endpoint risk classes');
   }
+  if (
+    !restHelpersSource.includes('tacticum_rest_get_config_section_defaults')
+    || !restHelpersSource.includes("'faq_section_fallback_ids'")
+    || !restHelpersSource.includes("'home' => 17")
+    || !restHelpersSource.includes('array_replace_recursive')
+  ) {
+    fail('rest_helpers.php must apply non-secret default content.faq_section_fallback_ids for FAQ wrapper fallback');
+  }
   if (!healthConfigSource.includes("'products'")) {
     fail('health_config.php must include products scope in config validation');
   }
@@ -667,12 +716,40 @@ function assertPublicPageComponentization() {
     'tacticum_product_content_bitrix_data',
     'tacticum_product_content_is_minimum_renderable',
     'missing_to_be_blocks',
+    'ALLOWED_LEAD_CONTEXT_KEYS',
+    'isSafeUrl',
+    '!str_starts_with($value, \'//\')',
+    'validateIconClass',
+    'single RemixIcon class token',
+    'ALLOWED_COLUMNS_CLASSES',
+    'validateColumnsClass',
     'checkRelationProperties',
     '--strict'
   ]) {
     if (!productContentCheckSource.includes(checkNeedle)) {
       fail(`product-content-check.php is missing ${checkNeedle}`);
     }
+  }
+  if (!productContentSchemaSource.includes('"lead_context_allowed_keys"') || !productContentSchemaSource.includes('"lead_product"')) {
+    fail('product-content-schema-v1.json must constrain product CTA lead_context allowed keys');
+  }
+  if (!productContentSchemaSource.includes('"blocked_url_prefixes"') || !productContentSchemaSource.includes('"//"')) {
+    fail('product-content-schema-v1.json must document blocked product URL prefixes');
+  }
+  if (!productContentSchemaSource.includes('"icon_class_pattern"') || !productContentSchemaSource.includes('^ri-[a-z0-9]+(?:-[a-z0-9]+)*$')) {
+    fail('product-content-schema-v1.json must document safe product icon class pattern');
+  }
+  if (!productContentSchemaSource.includes('"allowed_columns_classes"') || !productContentSchemaSource.includes('"lg:grid-cols-4"')) {
+    fail('product-content-schema-v1.json must document allowed product grid column classes');
+  }
+  if (!productContentSchemaCheckSource.includes('isSafeUrl') || !productContentSchemaCheckSource.includes('blocked_url_prefixes') || !productContentSchemaCheckSource.includes("!value.startsWith('//')")) {
+    fail('product-content-schema-check.mjs must block protocol-relative product URLs');
+  }
+  if (!productContentSchemaCheckSource.includes('validateIconClass') || !productContentSchemaCheckSource.includes('single RemixIcon class token')) {
+    fail('product-content-schema-check.mjs must validate optional product icon classes');
+  }
+  if (!productContentSchemaCheckSource.includes('validateColumnsClass') || !productContentSchemaCheckSource.includes('allowed_columns_classes')) {
+    fail('product-content-schema-check.mjs must validate product grid column classes');
   }
   if (!packageSource.includes('"product:content:check"') || !packageSource.includes('"product:content:check:strict"')) {
     fail('package.json must expose product content check scripts');
@@ -681,10 +758,25 @@ function assertPublicPageComponentization() {
     'tacticum_product_content_clear_cache',
     'tacticum_product_content_related_iblock_ids',
     '--dry-run',
+    '--json',
+    'configured_source',
+    'fallback_allowed',
+    'JSON_UNESCAPED_SLASHES',
     'Managed tags'
   ]) {
     if (!productContentCacheClearSource.includes(cacheClearNeedle)) {
       fail(`product-content-cache-clear.php is missing ${cacheClearNeedle}`);
+    }
+  }
+  for (const cacheClearEvidenceNeedle of [
+    'cache_cleared must be false for dry-run evidence',
+    'managed_tags must include',
+    'FORBIDDEN_KEYS',
+    'PII-like email value',
+    'Product content cache-clear evidence self-test passed'
+  ]) {
+    if (!productContentCacheClearEvidenceCheckSource.includes(cacheClearEvidenceNeedle)) {
+      fail(`product-content-cache-clear-evidence-check.mjs is missing ${cacheClearEvidenceNeedle}`);
     }
   }
   if (!productContentSource.includes('$tagIblockIds = $iblockId > 0 ? [$iblockId] : tacticum_product_content_related_iblock_ids()')) {
@@ -693,15 +785,26 @@ function assertPublicPageComponentization() {
   if (/if\s*\(\s*&&/.test(productContentSource)) {
     fail('product_content.php must not contain a leading && inside an if condition');
   }
-  if (!packageSource.includes('"product:content:cache-clear"') || !packageSource.includes('"product:content:cache-clear:dry-run"')) {
+  if (
+    !packageSource.includes('"product:content:cache-clear"')
+    || !packageSource.includes('"product:content:cache-clear:dry-run"')
+    || !packageSource.includes('"product:content:cache-clear:dry-run:json"')
+    || !packageSource.includes('"product:content:cache-clear:evidence:check"')
+    || !packageSource.includes('"product:content:cache-clear:evidence:self-test"')
+    || !packageSource.includes('product:content:cache-clear:evidence:self-test && npm run product:public-claims:self-test')
+  ) {
     fail('package.json must expose product content cache clear scripts');
   }
   for (const switchReadinessNeedle of [
     'TACTICUM_PRODUCT_SWITCH_BASE_URL',
     'health_config.php',
     'data-product-source=bitrix',
+    'data-product-code',
+    'lead_product',
     'products.source=bitrix',
     'product:content:cache-clear:dry-run',
+    'product:content:cache-clear:evidence:check',
+    'unsafe_hrefs',
     'rollback_steps',
     'required_pre_switch_evidence'
   ]) {
@@ -758,14 +861,53 @@ function assertPublicPageComponentization() {
   if (!productRendererSource.includes('data-product-source=')) {
     fail('product page renderer must expose data-product-source for Bitrix/fallback runtime verification');
   }
+  if (!productRendererSource.includes('data-product-code=')) {
+    fail('product page renderer must expose data-product-code for product route/runtime traceability');
+  }
   if (!visualSmokeSource.includes('expectProductBlocks') || !visualSmokeSource.includes('captureProductBlocks') || !visualSmokeSource.includes('captureProductBlockPreviews') || !visualSmokeSource.includes('productBlocks') || !visualSmokeSource.includes('productBlockErrors') || !visualSmokeSource.includes('productBlockScreenshots')) {
     fail('visual-smoke must expose rendered product block inventory and errors for product pages');
   }
   if (!visualSmokeSource.includes('TACTICUM_EXPECT_PRODUCT_SOURCE') || !visualSmokeSource.includes('product source mismatch')) {
     fail('visual-smoke must support expected product source verification');
   }
-  if (!productSourceHttpCheckSource.includes('data-product-source') || !productSourceHttpCheckSource.includes('TACTICUM_EXPECT_PRODUCT_SOURCE')) {
-    fail('product-source-http-check.mjs must support server-safe product source verification');
+  if (!visualSmokeSource.includes('data-product-code') || !visualSmokeSource.includes('product code mismatch')) {
+    fail('visual-smoke must support product code verification for product pages');
+  }
+  if (!visualSmokeSource.includes('lead_product') || !visualSmokeSource.includes('product lead context mismatch')) {
+    fail('visual-smoke must support product lead context verification for product pages');
+  }
+  const productIconLinesWithoutHidden = productRendererSource
+    .split(/\r?\n/)
+    .filter((line) => line.includes('<i ') && !line.includes('aria-hidden="true"'));
+  if (productIconLinesWithoutHidden.length > 0) {
+    fail('product page renderer decorative icons must include aria-hidden="true"');
+  }
+  if (!visualSmokeSource.includes('product decorative icons must be aria-hidden')) {
+    fail('visual-smoke must verify decorative product icons are hidden from assistive tech');
+  }
+  if (!visualSmokeSource.includes('product links must not use protocol-relative hrefs')) {
+    fail('visual-smoke must verify product links do not render protocol-relative hrefs');
+  }
+  if (!visualSmokeSource.includes('homepageRouter') || !visualSmokeSource.includes('missing homepage router blocks') || !visualSmokeSource.includes('data-home-product-link')) {
+    fail('visual-smoke must verify rendered homepage router markers');
+  }
+  if (!visualSmokeSource.includes('homepageCalculator') || !visualSmokeSource.includes('homepage calculator chat log must expose role=log') || !visualSmokeSource.includes('aria-valuenow 35,65,85')) {
+    fail('visual-smoke must verify rendered homepage calculator accessibility');
+  }
+  if (!visualSmokeSource.includes('pageFaqErrors') || !visualSmokeSource.includes('expected rendered FAQ items') || !visualSmokeSource.includes('data-faq-section-status="missing"')) {
+    fail('visual-smoke must verify rendered FAQ sections on public FAQ pages');
+  }
+  if (
+    !productSourceHttpCheckSource.includes('data-product-source')
+    || !productSourceHttpCheckSource.includes('data-product-code')
+    || !productSourceHttpCheckSource.includes('TACTICUM_EXPECT_PRODUCT_SOURCE')
+    || !productSourceHttpCheckSource.includes('unsafeHrefValues')
+    || !productSourceHttpCheckSource.includes('protocol-relative or backslash product hrefs are not allowed')
+  ) {
+    fail('product-source-http-check.mjs must support server-safe product source/code verification');
+  }
+  if (!releasePublicPrecheckSource.includes('unsafeHrefValues') || !releasePublicPrecheckSource.includes('safe hrefs')) {
+    fail('release-public-precheck.mjs must verify product links do not render protocol-relative hrefs');
   }
   if (!packageSource.includes('"product:block-previews"') || !packageSource.includes('TACTICUM_CAPTURE_PRODUCT_BLOCKS=1')) {
     fail('package.json must expose a product:block-previews script for design/QA screenshot handoff');
@@ -779,6 +921,7 @@ function assertPublicPageComponentization() {
   for (const releasePrecheckNeedle of [
     'health_config.php',
     'data-product-source',
+    'data-product-code',
     'metrika.js',
     '/bitrix/admin/',
     'tacticum_offer.php',
@@ -986,6 +1129,16 @@ function assertPublicPageComponentization() {
   if (!leadCtaFormTemplateSource.includes('name="lead_scenario"')) {
     fail('tacticum:lead.cta template must render optional lead_scenario select');
   }
+  const leadCtaSource = `${leadCtaTemplateSource}\n${leadCtaFormTemplateSource}`;
+  if (!leadCtaTemplateSource.includes('^ri-[a-z0-9]+(?:-[a-z0-9]+)*$')) {
+    fail('tacticum:lead.cta template must normalize feature icon classes');
+  }
+  const leadCtaIconLinesWithoutHidden = leadCtaSource
+    .split(/\r?\n/)
+    .filter((line) => line.includes('<i ') && !line.includes('aria-hidden="true"'));
+  if (leadCtaIconLinesWithoutHidden.length > 0) {
+    fail('tacticum:lead.cta decorative icons must include aria-hidden="true"');
+  }
   if (!leadCtaFormTemplateSource.includes('data-tacticum-returning-lead-panel') || !formsSource.includes('tacticum:returningLead:v1')) {
     fail('tacticum:lead.cta and forms.js must support no-PII returning lead state');
   }
@@ -1007,6 +1160,41 @@ function assertPublicPageComponentization() {
   }
   if (!homepageSource.includes('Как выбрать продукт') || !homepageSource.includes('Начните с ситуации') || !homepageSource.includes('Старт: architecture assessment')) {
     fail('homepage must include product fit matrix decision-support block');
+  }
+  for (const homeBlock of ['hero', 'ecosystem-map', 'fit-matrix', 'commercial-next-steps', 'calculator-preview']) {
+    if (!homepageSource.includes(`data-home-block="${homeBlock}"`)) {
+      fail(`homepage must expose data-home-block="${homeBlock}" for router smoke coverage`);
+    }
+  }
+  for (const productLink of ['platform', 'agents', 'dev', 'forum']) {
+    if (!homepageSource.includes(`data-home-product-link="${productLink}"`)) {
+      fail(`homepage must expose data-home-product-link="${productLink}"`);
+    }
+  }
+  for (const commercialLink of ['offer', 'services', 'price', 'aiagents']) {
+    if (!homepageSource.includes(`data-home-commercial-link="${commercialLink}"`)) {
+      fail(`homepage must expose data-home-commercial-link="${commercialLink}"`);
+    }
+  }
+  const homepageIconLinesWithoutHidden = homepageSource
+    .split(/\r?\n/)
+    .filter((line) => line.includes('<i ') && !line.includes('aria-hidden="true"'));
+  if (homepageIconLinesWithoutHidden.length > 0) {
+    fail('homepage decorative icons must include aria-hidden="true"');
+  }
+  for (const calculatorA11yNeedle of [
+    'id="chatMessages" role="log" aria-live="polite"',
+    'id="userMessage" aria-label=',
+    'id="sendMessage"',
+    'aria-label="Отправить сообщение AI-калькулятору"',
+    'role="progressbar"',
+    'aria-valuenow="35"',
+    'aria-valuenow="65"',
+    'aria-valuenow="85"'
+  ]) {
+    if (!homepageSource.includes(calculatorA11yNeedle)) {
+      fail(`homepage legacy calculator block must include ${calculatorA11yNeedle}`);
+    }
   }
   for (const scenarioValue of expectedProductScenarioValues) {
     if (!formEndpointSource.includes(`'${scenarioValue}'`)) {
@@ -1068,6 +1256,12 @@ function assertPublicPageComponentization() {
     }
     if (!source.includes('tacticum_render_product_page')) {
       fail(`${file} must render through the shared product page renderer`);
+    }
+    if (!new RegExp(`tacticum_apply_seo_defaults\\s*\\(\\s*['"]/${key}/['"]`).test(source)) {
+      fail(`${file} must bind SEO defaults to /${key}/`);
+    }
+    if (!new RegExp(`tacticum_product_page_schema\\s*\\([\\s\\S]*?['"]/${key}/['"]`).test(source)) {
+      fail(`${file} must bind product JSON-LD schema to /${key}/`);
     }
     if (source.includes('$tacticumProductPage = [')) {
       fail(`${file} must stay thin and must not inline the product page data array`);
@@ -1162,6 +1356,15 @@ function assertPublicPageComponentization() {
     || !faqSectionTemplateSource.includes('data-faq-section-status="missing"')
   ) {
     fail('tacticum:faq.section must fail closed when semantic SECTION_KEY cannot resolve');
+  }
+  if (!productRendererSource.includes('aria-expanded="false"') || !productRendererSource.includes('aria-controls=') || !productRendererSource.includes('aria-hidden="true"')) {
+    fail('product FAQ renderer must expose accessible accordion state attributes');
+  }
+  if (!faqJsSource.includes('aria-expanded') || !faqJsSource.includes('aria-hidden') || !faqJsSource.includes('keydown')) {
+    fail('faq.js must synchronize FAQ accordion ARIA state and keyboard access');
+  }
+  if (!visualSmokeSource.includes('aria-expanded=true') || !visualSmokeSource.includes('FAQ controlled answer did not become accessible')) {
+    fail('visual-smoke must verify accessible product FAQ toggle state');
   }
 
   for (const file of directContentListHosts) {
@@ -1339,19 +1542,15 @@ async function fetchHttpText(path, label) {
 
 async function checkHttpSitemapGovernance() {
   const robots = await fetchHttpText('/robots.txt', 'production robots.txt');
-  if (robots && !robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
+  if (!robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
     fail(`production robots.txt must point to ${ROOT_SITEMAP_URL}`);
   }
 
   const rootSitemap = await fetchHttpText('/sitemap.xml', 'production sitemap.xml');
-  if (rootSitemap) {
-    validateRootSitemap(rootSitemap, 'production sitemap.xml');
-  }
+  validateRootSitemap(rootSitemap, 'production sitemap.xml');
 
   const staticSitemap = await fetchHttpText('/sitemap-basic-files.xml', 'production sitemap-basic-files.xml');
-  if (staticSitemap) {
-    validateStaticSitemap(staticSitemap, 'production sitemap-basic-files.xml');
-  }
+  validateStaticSitemap(staticSitemap, 'production sitemap-basic-files.xml');
 }
 
 async function checkHttpOfferSitemap() {
@@ -1407,10 +1606,42 @@ async function checkHttpOfferDetailWithQuery(offerLoc) {
 const sitemapIndex = read(ROOT_SITEMAP_FILE);
 const staticSitemap = readOptional(STATIC_SITEMAP_FILE);
 const robots = read('robots.txt');
+const staticSitemapGenerator = read('tools/static-sitemap-generate.mjs');
+const packageJsonForSitemap = read('package.json');
+const deployWorkflow = read('.github/workflows/deploy.yml');
+const sitemapWorkflow = read('.github/workflows/sitemap.yml');
 
 validateRootSitemap(sitemapIndex, ROOT_SITEMAP_FILE);
 if (staticSitemap !== null) {
   validateStaticSitemap(staticSitemap, STATIC_SITEMAP_FILE);
+}
+
+for (const expectedPath of expectedStaticPages.values()) {
+  if (!staticSitemapGenerator.includes(`'${expectedPath}'`)) {
+    fail(`static sitemap generator is missing ${expectedPath}`);
+  }
+}
+if (
+  !packageJsonForSitemap.includes('"sitemap:static:generate"')
+  || !packageJsonForSitemap.includes('"sitemap:static:check"')
+) {
+  fail('package.json must expose static sitemap generation/check scripts');
+}
+if (
+  !deployWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
+  || !deployWorkflow.includes('static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
+  || !deployWorkflow.includes('static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
+  || !deployWorkflow.includes('sitemap-basic-files.xml urlrewrite.php')
+) {
+  fail('deploy workflow must generate, verify and rsync sitemap-basic-files.xml as a build artifact');
+}
+if (
+  !sitemapWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
+  || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
+  || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
+  || !sitemapWorkflow.includes('xmllint --noout /tmp/sitemap-basic-files.xml')
+) {
+  fail('sitemap workflow must generate and validate static sitemap artifact');
 }
 
 assertCanonicalPaths();

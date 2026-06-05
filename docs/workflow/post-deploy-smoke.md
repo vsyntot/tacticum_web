@@ -121,9 +121,9 @@ npm run product:block-previews:prod
 
 - [ ] `https://tacticum.ru/sitemap.xml` отдаёт XML.
 - [ ] `https://tacticum.ru/sitemap.xml` содержит `https://tacticum.ru/sitemap-basic-files.xml` и `https://tacticum.ru/offer/sitemap.php`.
-- [ ] `https://tacticum.ru/sitemap-basic-files.xml` отдаёт XML, сгенерированный штатным Bitrix sitemap.
+- [ ] `https://tacticum.ru/sitemap-basic-files.xml` отдаёт XML, сгенерированный deploy tooling.
 - [ ] `https://tacticum.ru/sitemap-basic-files.xml` не содержит `/404.php`, `/bitrix/` и `/local/`.
-- [ ] `https://tacticum.ru/sitemap-basic-files.xml` содержит product URLs `/platform/`, `/agents/`, `/dev/`, `/forum/` после штатной генерации Bitrix sitemap.
+- [ ] `https://tacticum.ru/sitemap-basic-files.xml` содержит product URLs `/platform/`, `/agents/`, `/dev/`, `/forum/` после deploy generation.
 - [ ] `https://tacticum.ru/offer/sitemap.php` отдаёт XML с активными canonical `/offer/<element-code>/`, если offer elements есть.
 - [ ] `/offer/sitemap.php` не содержит повторяющихся `<loc>` даже при старых offer elements с одинаковым `CODE`.
 - [ ] `npm run seo:check` проходит локально/в CI: sitemap, robots и canonical inventory синхронизированы.

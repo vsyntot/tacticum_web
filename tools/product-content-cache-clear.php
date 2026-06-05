@@ -6,7 +6,7 @@ function tacticum_product_content_cache_clear_usage(): string
 {
     return <<<TEXT
 Usage:
-  php tools/product-content-cache-clear.php [--dry-run] [--document-root=/path/to/site]
+  php tools/product-content-cache-clear.php [--dry-run] [--json] [--document-root=/path/to/site]
 
 Clears the Bitrix product content cache directory and managed-cache tags for configured
 product content iblocks. Use after product content migration, admin content edits,
@@ -20,6 +20,7 @@ function tacticum_product_content_cache_clear_options(array $argv): array
     $options = [
         'document_root' => dirname(__DIR__),
         'dry_run' => false,
+        'json' => false,
         'help' => false,
     ];
 
@@ -30,6 +31,10 @@ function tacticum_product_content_cache_clear_options(array $argv): array
         }
         if ($argument === '--dry-run') {
             $options['dry_run'] = true;
+            continue;
+        }
+        if ($argument === '--json') {
+            $options['json'] = true;
             continue;
         }
         if (str_starts_with($argument, '--document-root=')) {
@@ -52,6 +57,11 @@ function tacticum_product_content_cache_clear_options(array $argv): array
 function tacticum_product_content_cache_clear_line(string $message): void
 {
     echo $message . PHP_EOL;
+}
+
+function tacticum_product_content_cache_clear_json(array $payload): void
+{
+    echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
 }
 
 try {
@@ -84,6 +94,11 @@ try {
     $source = function_exists('tacticum_product_content_source')
         ? tacticum_product_content_source()
         : 'unknown';
+    $configuredSource = function_exists('tacticum_product_content_configured_source')
+        ? tacticum_product_content_configured_source()
+        : $source;
+    $fallbackAllowed = function_exists('tacticum_product_content_fallback_allowed')
+        && tacticum_product_content_fallback_allowed();
     $ttl = function_exists('tacticum_product_content_cache_ttl')
         ? tacticum_product_content_cache_ttl()
         : 0;
@@ -93,16 +108,45 @@ try {
     $iblockIds = function_exists('tacticum_product_content_related_iblock_ids')
         ? tacticum_product_content_related_iblock_ids()
         : [];
+    $managedTags = empty($iblockIds)
+        ? []
+        : array_map(static fn (int $id): string => 'iblock_id_' . $id, $iblockIds);
+    $payload = [
+        'success' => true,
+        'dry_run' => (bool)$options['dry_run'],
+        'cache_cleared' => false,
+        'source_mode' => $source,
+        'configured_source' => $configuredSource,
+        'fallback_allowed' => $fallbackAllowed,
+        'cache_ttl' => $ttl,
+        'schema_version' => $schemaVersion,
+        'cache_dir' => $cacheDir,
+        'iblock_ids' => array_values(array_map('intval', $iblockIds)),
+        'managed_tags' => $managedTags,
+        'warnings' => [],
+        'errors' => [],
+    ];
+
+    if ($options['json']) {
+        if (!$options['dry_run']) {
+            tacticum_product_content_clear_cache();
+            $payload['cache_cleared'] = true;
+        }
+        tacticum_product_content_cache_clear_json($payload);
+        exit(0);
+    }
 
     tacticum_product_content_cache_clear_line('Product content cache clear');
     tacticum_product_content_cache_clear_line('Document root: ' . $documentRoot);
     tacticum_product_content_cache_clear_line('Cache dir: ' . $cacheDir);
     tacticum_product_content_cache_clear_line('Product source mode: ' . $source);
+    tacticum_product_content_cache_clear_line('Configured product source: ' . $configuredSource);
+    tacticum_product_content_cache_clear_line('Product fallback allowed: ' . ($fallbackAllowed ? 'yes' : 'no'));
     tacticum_product_content_cache_clear_line('Product cache TTL: ' . $ttl);
     tacticum_product_content_cache_clear_line('Product schema version: ' . $schemaVersion);
     tacticum_product_content_cache_clear_line('Managed tags: ' . (empty($iblockIds)
         ? '-'
-        : implode(', ', array_map(static fn (int $id): string => 'iblock_id_' . $id, $iblockIds))));
+        : implode(', ', $managedTags)));
 
     if ($options['dry_run']) {
         tacticum_product_content_cache_clear_line('');
@@ -111,11 +155,27 @@ try {
     }
 
     tacticum_product_content_clear_cache();
+    $payload['cache_cleared'] = true;
+
+    if ($options['json']) {
+        tacticum_product_content_cache_clear_json($payload);
+        exit(0);
+    }
 
     tacticum_product_content_cache_clear_line('');
     tacticum_product_content_cache_clear_line('Product content cache clear completed.');
     exit(0);
 } catch (Throwable $exception) {
+    if (in_array('--json', $argv ?? [], true)) {
+        tacticum_product_content_cache_clear_json([
+            'success' => false,
+            'dry_run' => in_array('--dry-run', $argv ?? [], true),
+            'cache_cleared' => false,
+            'errors' => [$exception->getMessage()],
+            'warnings' => [],
+        ]);
+        exit(1);
+    }
     fwrite(STDERR, $exception->getMessage() . PHP_EOL);
     exit(1);
 }

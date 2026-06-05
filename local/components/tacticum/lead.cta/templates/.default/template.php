@@ -86,13 +86,16 @@ $agreementId = $arResult['FIELD_PREFIX'] . '-agreement';
                                 }
 
                                 $featureIcon = trim((string)($feature['ICON'] ?? ''));
+                                if (!preg_match('/^ri-[a-z0-9]+(?:-[a-z0-9]+)*$/', $featureIcon)) {
+                                    $featureIcon = '';
+                                }
                                 $featureTitle = trim((string)($feature['TITLE'] ?? ''));
                                 $featureText = trim((string)($feature['TEXT'] ?? ''));
                                 ?>
                                 <div class="flex items-start gap-4">
                                     <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                                         <?php if ($featureIcon !== ''): ?>
-                                            <i class="<?=htmlspecialcharsbx($featureIcon)?> text-2xl"></i>
+                                            <i class="<?=htmlspecialcharsbx($featureIcon)?> text-2xl" aria-hidden="true"></i>
                                         <?php endif; ?>
                                     </div>
                                     <div>

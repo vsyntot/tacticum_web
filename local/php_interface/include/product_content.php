@@ -529,6 +529,7 @@ if (!function_exists('tacticum_product_content_bitrix_data_uncached')) {
             'sections' => [],
             'cta' => tacticum_product_content_json_decode(tacticum_product_content_property_scalar($properties, 'CTA_JSON')),
             '_source' => 'bitrix',
+            '_product_code' => $productCode,
             '_product_element_id' => $productId,
         ];
 

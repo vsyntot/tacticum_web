@@ -22,6 +22,25 @@ function tacticum_rest_get_config(): array
     return $config;
 }
 
+function tacticum_rest_get_config_section_defaults(string $section): array
+{
+    if ($section !== 'content') {
+        return [];
+    }
+
+    return [
+        'faq_section_fallback_ids' => [
+            'home' => 17,
+            'main' => 17,
+            'aiagents' => 18,
+            'calculator' => 19,
+            'offer' => 19,
+            'services' => 20,
+            'price' => 21,
+        ],
+    ];
+}
+
 function tacticum_rest_send_noindex_header(): void
 {
     if (!headers_sent()) {
@@ -33,7 +52,14 @@ function tacticum_rest_get_config_section(string $section): array
 {
     $config = tacticum_rest_get_config();
     $section_data = $config[$section] ?? [];
-    return is_array($section_data) ? $section_data : [];
+    if (!is_array($section_data)) {
+        $section_data = [];
+    }
+
+    return array_replace_recursive(
+        tacticum_rest_get_config_section_defaults($section),
+        $section_data
+    );
 }
 
 function tacticum_rest_get_iblock_id(string $key, int $default = 0): int

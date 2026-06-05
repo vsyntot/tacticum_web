@@ -40,6 +40,75 @@ if (!function_exists('tacticum_product_page_canonical_path')) {
     }
 }
 
+if (!function_exists('tacticum_product_page_safe_href')) {
+    function tacticum_product_page_safe_href($value, string $default = '#'): string
+    {
+        $href = is_scalar($value) ? trim((string)$value) : '';
+        if (tacticum_product_page_is_safe_href($href)) {
+            return $href;
+        }
+
+        $fallback = trim($default);
+        if ($fallback === '') {
+            return '';
+        }
+        if (tacticum_product_page_is_safe_href($fallback)) {
+            return $fallback;
+        }
+
+        return '#';
+    }
+}
+
+if (!function_exists('tacticum_product_page_is_safe_href')) {
+    function tacticum_product_page_is_safe_href(string $href): bool
+    {
+        if ($href === '' || preg_match('/[\x00-\x1F\x7F]/', $href)) {
+            return false;
+        }
+
+        if (str_starts_with($href, 'https://') || str_starts_with($href, '#')) {
+            return true;
+        }
+
+        return str_starts_with($href, '/')
+            && !str_starts_with($href, '//')
+            && !str_starts_with($href, '/\\');
+    }
+}
+
+if (!function_exists('tacticum_product_page_icon_class')) {
+    function tacticum_product_page_icon_class($value, string $default = ''): string
+    {
+        $icon = is_scalar($value) ? trim((string)$value) : '';
+        if (preg_match('/^ri-[a-z0-9]+(?:-[a-z0-9]+)*$/', $icon)) {
+            return $icon;
+        }
+
+        $fallback = trim($default);
+        if ($fallback !== '' && preg_match('/^ri-[a-z0-9]+(?:-[a-z0-9]+)*$/', $fallback)) {
+            return $fallback;
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('tacticum_product_page_columns_class')) {
+    function tacticum_product_page_columns_class($value, string $default = 'lg:grid-cols-3'): string
+    {
+        $allowed = ['lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'];
+        $class = is_scalar($value) ? trim((string)$value) : '';
+        if (in_array($class, $allowed, true)) {
+            return $class;
+        }
+
+        $fallback = trim($default);
+
+        return in_array($fallback, $allowed, true) ? $fallback : 'lg:grid-cols-3';
+    }
+}
+
 if (!function_exists('tacticum_product_page_standard_scenario_options')) {
     function tacticum_product_page_standard_scenario_options(): array
     {
@@ -50,6 +119,58 @@ if (!function_exists('tacticum_product_page_standard_scenario_options')) {
             'team-delivery' => 'Команда внедрения',
             'estimate' => 'Оценка сроков и бюджета',
         ];
+    }
+}
+
+if (!function_exists('tacticum_product_page_context_slug')) {
+    function tacticum_product_page_context_slug($value, string $default = ''): string
+    {
+        if (!is_scalar($value)) {
+            return $default;
+        }
+
+        $normalized = strtolower(trim((string)$value));
+        $normalized = preg_replace('/[^a-z0-9_.-]+/', '-', $normalized) ?: '';
+        $normalized = trim($normalized, '-_.');
+        if ($normalized === '') {
+            return $default;
+        }
+
+        return mb_substr($normalized, 0, 80);
+    }
+}
+
+if (!function_exists('tacticum_product_page_cta_lead_context')) {
+    function tacticum_product_page_cta_lead_context(array $page, array $cta): array
+    {
+        $rawContext = is_array($cta['lead_context'] ?? null) ? $cta['lead_context'] : [];
+        $productCode = tacticum_product_page_context_slug(
+            $page['_product_code'] ?? ($rawContext['lead_product'] ?? ''),
+            'product'
+        );
+
+        $knownProducts = function_exists('tacticum_product_content_codes')
+            ? array_keys(tacticum_product_content_codes())
+            : ['platform', 'agents', 'dev', 'forum'];
+        if (!in_array($productCode, $knownProducts, true)) {
+            $productCode = 'product';
+        }
+
+        $formId = tacticum_product_page_context_slug($cta['form_id'] ?? '', $productCode . '-cta');
+        $context = [
+            'lead_entry' => tacticum_product_page_context_slug($rawContext['lead_entry'] ?? '', $productCode),
+            'lead_page_role' => 'product-page',
+            'lead_product' => $productCode,
+            'lead_intent' => tacticum_product_page_context_slug($rawContext['lead_intent'] ?? '', 'product-discussion'),
+            'lead_cta' => tacticum_product_page_context_slug($rawContext['lead_cta'] ?? '', $formId),
+            'lead_next_step' => tacticum_product_page_context_slug($rawContext['lead_next_step'] ?? '', 'manual-follow-up'),
+        ];
+
+        foreach ($context as $key => $value) {
+            $context[$key] = mb_substr($value, 0, 80);
+        }
+
+        return $context;
     }
 }
 
@@ -209,6 +330,7 @@ if (!function_exists('tacticum_product_page_fallback_data')) {
         }
 
         $data['_source'] = 'fallback';
+        $data['_product_code'] = $productCode;
 
         return $data;
     }

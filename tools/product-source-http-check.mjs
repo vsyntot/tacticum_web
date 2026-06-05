@@ -61,11 +61,17 @@ async function checkPage(url) {
   const sources = unique([...html.matchAll(/\bdata-product-source=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
+  const codes = unique([...html.matchAll(/\bdata-product-code=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter(Boolean));
   const blocks = unique([...html.matchAll(/\bdata-product-block=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
   const missingBlocks = REQUIRED_PRODUCT_BLOCKS.filter((block) => !blocks.includes(block));
+  const unsafeHrefs = unsafeHrefValues(html);
+  const expectedCode = url.pathname.replace(/^\/+|\/+$/g, '');
   const sourceOk = sources.length === 1 && sources[0] === expectedSource;
+  const codeOk = codes.length === 1 && codes[0] === expectedCode;
   const statusOk = response.status >= 200 && response.status < 300;
 
   if (!statusOk) {
@@ -74,19 +80,28 @@ async function checkPage(url) {
   if (!sourceOk) {
     failures.push(`${url.pathname}: expected data-product-source=${expectedSource}, got ${sources.length > 0 ? sources.join(',') : 'empty'}`);
   }
+  if (!codeOk) {
+    failures.push(`${url.pathname}: expected data-product-code=${expectedCode}, got ${codes.length > 0 ? codes.join(',') : 'empty'}`);
+  }
   if (missingBlocks.length > 0) {
     failures.push(`${url.pathname}: missing product blocks ${missingBlocks.join(',')}`);
+  }
+  if (unsafeHrefs.length > 0) {
+    failures.push(`${url.pathname}: protocol-relative or backslash product hrefs are not allowed: ${unsafeHrefs.slice(0, 3).join(',')}`);
   }
 
   return {
     page: url.pathname,
     status: response.status,
     source: sources[0] || '',
+    code: codes[0] || '',
     sources,
+    codes,
     blocks,
     missingBlocks,
+    unsafeHrefs,
     bytes: Buffer.byteLength(html),
-    ok: statusOk && sourceOk && missingBlocks.length === 0,
+    ok: statusOk && sourceOk && codeOk && missingBlocks.length === 0 && unsafeHrefs.length === 0,
   };
 }
 
@@ -131,9 +146,11 @@ function requestText(url, redirects = 0) {
 function formatResult(result) {
   const marker = result.ok ? 'OK' : 'FAIL';
   const source = result.source || 'empty';
+  const code = result.code || 'empty';
   const missing = result.missingBlocks.length > 0 ? ` missing=${result.missingBlocks.join(',')}` : '';
+  const unsafe = result.unsafeHrefs.length > 0 ? ` unsafe_hrefs=${result.unsafeHrefs.length}` : '';
 
-  return `${marker} ${result.page.padEnd(11)} status=${result.status} source=${source} blocks=${result.blocks.length} bytes=${result.bytes}${missing}`;
+  return `${marker} ${result.page.padEnd(11)} status=${result.status} source=${source} code=${code} blocks=${result.blocks.length} bytes=${result.bytes}${missing}${unsafe}`;
 }
 
 function parseList(value, fallback) {
@@ -159,4 +176,10 @@ function normalizeBaseUrl(value) {
 
 function unique(items) {
   return items.filter((item, index) => items.indexOf(item) === index);
+}
+
+function unsafeHrefValues(html) {
+  return unique([...html.matchAll(/<a\b[^>]*\bhref=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter((href) => href.startsWith('//') || href.startsWith('/\\')));
 }

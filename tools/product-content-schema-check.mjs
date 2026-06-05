@@ -314,21 +314,25 @@ function validateSections(sections, schema, pathPart, errors) {
     if (!hasAnyRequired) {
       errors.push(`${pathPart}[${index}] must have at least one of: ${rules.item_required_strings_any.join(', ')}.`);
     }
+    if ('columns_class' in section) {
+      validateColumnsClass(section.columns_class, rules.allowed_columns_classes, `${pathPart}[${index}].columns_class`, errors);
+    }
     if ('cards' in section) {
       requireArray(section, 'cards', `${pathPart}[${index}].cards`, errors, rules.cards_min_items);
       if (Array.isArray(section.cards)) {
-        section.cards.forEach((card, cardIndex) => {
-          if (!isPlainObject(card)) {
-            errors.push(`${pathPart}[${index}].cards[${cardIndex}] must be an object.`);
-            return;
-          }
-          for (const key of rules.card_required_strings) {
-            requireString(card, key, `${pathPart}[${index}].cards[${cardIndex}].${key}`, errors);
-          }
-        });
+        validateCardItems(section.cards, rules.card_required_strings, `${pathPart}[${index}].cards`, errors);
       }
     }
   });
+}
+
+function validateColumnsClass(value, allowedValues, pathPart, errors) {
+  if (value === undefined || value === null || value === '') {
+    return;
+  }
+  if (!Array.isArray(allowedValues) || !allowedValues.includes(String(value).trim())) {
+    errors.push(`${pathPart} must be one of: ${(allowedValues || []).join(', ')}.`);
+  }
 }
 
 function validateArchitecture(architecture, schema, pathPart, errors) {
@@ -443,6 +447,16 @@ function validateCta(productCode, cta, schema, pathPart, errors) {
   requireObject(cta, 'lead_context', `${pathPart}.lead_context`, errors);
   if (isPlainObject(cta.lead_context)) {
     requireStrings(cta.lead_context, rules.lead_context_required_strings, `${pathPart}.lead_context`, errors);
+    const allowedLeadContextKeys = new Set(rules.lead_context_allowed_keys ?? rules.lead_context_required_strings ?? []);
+    for (const [key, value] of Object.entries(cta.lead_context)) {
+      if (!allowedLeadContextKeys.has(key)) {
+        errors.push(`${pathPart}.lead_context.${key} is not an allowed key.`);
+        continue;
+      }
+      if (typeof value === 'string' && !/^[a-z0-9_.-]+$/.test(value)) {
+        errors.push(`${pathPart}.lead_context.${key} must use a slug-like controlled value.`);
+      }
+    }
     if (cta.lead_context.lead_product !== productCode) {
       errors.push(`${pathPart}.lead_context.lead_product must match product code ${productCode}.`);
     }
@@ -457,7 +471,19 @@ function validateCardItems(items, requiredStrings, pathPart, errors) {
       return;
     }
     requireStrings(item, requiredStrings, `${pathPart}[${index}]`, errors);
+    if ('icon' in item) {
+      validateIconClass(item.icon, `${pathPart}[${index}].icon`, errors);
+    }
   });
+}
+
+function validateIconClass(value, pathPart, errors) {
+  if (value === undefined || value === null || value === '') {
+    return;
+  }
+  if (typeof value !== 'string' || !/^ri-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.trim())) {
+    errors.push(`${pathPart} must be a single RemixIcon class token.`);
+  }
 }
 
 function validateStringArray(items, pathPart, errors) {
@@ -474,9 +500,26 @@ function validateUrl(value, pathPart, schema, errors) {
     errors.push(`${pathPart} must be a non-empty URL/path string.`);
     return;
   }
-  if (!schema.safe_url_prefixes.some((prefix) => value.startsWith(prefix))) {
+  const normalized = value.trim();
+  if (!isSafeUrl(normalized, schema)) {
     errors.push(`${pathPart} must start with one of: ${schema.safe_url_prefixes.join(', ')}.`);
   }
+}
+
+function isSafeUrl(value, schema = {}) {
+  if (value === '' || /[\x00-\x1F\x7F]/.test(value)) {
+    return false;
+  }
+  const blockedPrefixes = Array.isArray(schema.blocked_url_prefixes)
+    ? schema.blocked_url_prefixes
+    : ['//', '/\\'];
+  if (blockedPrefixes.some((prefix) => value.startsWith(prefix))) {
+    return false;
+  }
+  if (value.startsWith('https://') || value.startsWith('#')) {
+    return true;
+  }
+  return value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\');
 }
 
 function requireStrings(object, keys, pathPart, errors) {
@@ -587,11 +630,15 @@ function runSelfTest(schema) {
   invalid.title = '';
   invalid.use_cases.items = invalid.use_cases.items.slice(0, 2);
   invalid.cta.lead_context.lead_product = 'wrong';
+  invalid.cta.lead_context.lead_intent = 'unsafe value';
+  invalid.cta.lead_context.email = 'person@example.test';
   const invalidErrors = validateProduct('demo', invalid, schema);
   const expectedFragments = [
     'demo.title must be a non-empty string',
     'demo.use_cases.items must contain at least 3 item',
-    'demo.cta.lead_context.lead_product must match product code demo'
+    'demo.cta.lead_context.lead_product must match product code demo',
+    'demo.cta.lead_context.lead_intent must use a slug-like controlled value',
+    'demo.cta.lead_context.email is not an allowed key'
   ];
   for (const fragment of expectedFragments) {
     if (!invalidErrors.some((error) => error.includes(fragment))) {

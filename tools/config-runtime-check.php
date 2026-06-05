@@ -168,7 +168,11 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
         ],
         'content' => [
             'faq_section_fallback_ids_count' => count($faqFallbacks),
-            'faq_section_fallback_ids_config' => array_key_exists('content', $config) ? 'explicit' : 'default',
+            'faq_section_fallback_ids_config' => tacticum_config_runtime_check_value_source(
+                $config,
+                'content',
+                'faq_section_fallback_ids'
+            ),
         ],
         'rest' => [
             'allow_no_origin' => (bool)($restConfig['allow_no_origin'] ?? false),

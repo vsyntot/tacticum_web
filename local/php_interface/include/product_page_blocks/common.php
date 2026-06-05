@@ -85,7 +85,7 @@ if (!function_exists('tacticum_product_page_render_proof_status')) {
         $status = tacticum_product_page_proof_status($item, $default);
         ?>
         <span class="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold <?=$status['class']?>" data-product-proof-status="<?=tacticum_product_page_html($status['value'])?>">
-            <i class="<?=tacticum_product_page_html($status['icon'])?>"></i>
+            <i class="<?=tacticum_product_page_html($status['icon'])?>" aria-hidden="true"></i>
             <?=tacticum_product_page_html($status['label'])?>
         </span>
         <?php
@@ -106,7 +106,7 @@ if (!function_exists('tacticum_product_page_render_cards')) {
                     continue;
                 }
 
-                $icon = tacticum_product_page_string($card, 'icon');
+                $icon = tacticum_product_page_icon_class($card['icon'] ?? '', '');
                 $title = tacticum_product_page_string($card, 'title');
                 $text = tacticum_product_page_string($card, 'text');
                 $meta = tacticum_product_page_string($card, 'meta');
@@ -115,7 +115,7 @@ if (!function_exists('tacticum_product_page_render_cards')) {
                 <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                     <?php if ($icon !== ''): ?>
                         <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <i class="<?=tacticum_product_page_html($icon)?> text-2xl"></i>
+                            <i class="<?=tacticum_product_page_html($icon)?> text-2xl" aria-hidden="true"></i>
                         </div>
                     <?php endif; ?>
                     <?php if ($meta !== ''): ?>
@@ -132,7 +132,7 @@ if (!function_exists('tacticum_product_page_render_cards')) {
                             <?php foreach ($items as $item): ?>
                                 <?php if (!is_scalar($item)) { continue; } ?>
                                 <li class="flex gap-2">
-                                    <i class="ri-check-line mt-0.5 text-primary"></i>
+                                    <i class="ri-check-line mt-0.5 text-primary" aria-hidden="true"></i>
                                     <span><?=tacticum_product_page_html($item)?></span>
                                 </li>
                             <?php endforeach; ?>
@@ -153,7 +153,7 @@ if (!function_exists('tacticum_product_page_render_section')) {
         $title = tacticum_product_page_string($section, 'title');
         $text = tacticum_product_page_string($section, 'text');
         $cards = is_array($section['cards'] ?? null) ? $section['cards'] : [];
-        $columnsClass = tacticum_product_page_string($section, 'columns_class', 'lg:grid-cols-3');
+        $columnsClass = tacticum_product_page_columns_class($section['columns_class'] ?? '', 'lg:grid-cols-3');
         $sectionClass = $theme === 'muted' ? 'bg-gray-50' : 'bg-white';
         ?>
         <section class="py-16 <?=$sectionClass?>" data-product-block="content-section">
@@ -204,14 +204,14 @@ if (!function_exists('tacticum_product_page_render_fit_guide_column')) {
         ?>
         <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <div class="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg <?=$badgeClass?>">
-                <i class="<?=$iconClass?> text-2xl"></i>
+                <i class="<?=$iconClass?> text-2xl" aria-hidden="true"></i>
             </div>
             <h3 class="mb-4 text-xl font-bold text-secondary"><?=tacticum_product_page_html($title)?></h3>
             <ul class="space-y-3 text-sm text-gray-700">
                 <?php foreach ($items as $item): ?>
                     <?php if (!is_scalar($item)) { continue; } ?>
                     <li class="flex gap-2">
-                        <i class="ri-checkbox-circle-line mt-0.5 text-primary"></i>
+                        <i class="ri-checkbox-circle-line mt-0.5 text-primary" aria-hidden="true"></i>
                         <span><?=tacticum_product_page_html($item)?></span>
                     </li>
                 <?php endforeach; ?>

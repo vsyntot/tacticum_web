@@ -63,7 +63,8 @@
       "min_items": 1,
       "item_required_strings_any": ["title", "text"],
       "cards_min_items": 1,
-      "card_required_strings": ["title", "text"]
+      "card_required_strings": ["title", "text"],
+      "allowed_columns_classes": ["lg:grid-cols-2", "lg:grid-cols-3", "lg:grid-cols-4"]
     },
     "architecture": {
       "required_strings": ["title", "text"],
@@ -144,6 +145,14 @@
         "lead_intent",
         "lead_cta",
         "lead_next_step"
+      ],
+      "lead_context_allowed_keys": [
+        "lead_entry",
+        "lead_page_role",
+        "lead_product",
+        "lead_intent",
+        "lead_cta",
+        "lead_next_step"
       ]
     }
   },
@@ -152,5 +161,7 @@
     "comparison.columns[].href",
     "procurement.cta_href"
   ],
-  "safe_url_prefixes": ["/", "#", "https://"]
+  "safe_url_prefixes": ["/", "#", "https://"],
+  "blocked_url_prefixes": ["//", "/\\"],
+  "icon_class_pattern": "^ri-[a-z0-9]+(?:-[a-z0-9]+)*$"
 }

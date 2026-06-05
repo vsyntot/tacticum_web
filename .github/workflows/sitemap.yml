@@ -7,6 +7,7 @@ on:
       - 'robots.txt'
       - 'sitemap.xml'
       - 'offer/sitemap.php'
+      - 'tools/static-sitemap-generate.mjs'
       - 'tools/seo-check.mjs'
     branches:
       - main
@@ -28,6 +29,13 @@ jobs:
 
       - name: Validate sitemap.xml
         run: xmllint --noout sitemap.xml && echo "✅ sitemap.xml valid"
+
+      - name: Generate and validate static sitemap artifact
+        run: |
+          STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"
+          node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"
+          node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check
+          xmllint --noout /tmp/sitemap-basic-files.xml
 
       - name: Validate SEO sitemap governance
         run: npm run seo:check

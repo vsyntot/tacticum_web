@@ -316,9 +316,9 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 
 ## SEO State
 
-Текущий `sitemap.xml` — repo-owned sitemap index, указывает на Bitrix-generated static sitemap `https://tacticum.ru/sitemap-basic-files.xml` и динамический custom sitemap `https://tacticum.ru/offer/sitemap.php`.
+Текущий `sitemap.xml` — repo-owned sitemap index, указывает на deploy-generated static sitemap `https://tacticum.ru/sitemap-basic-files.xml` и динамический custom sitemap `https://tacticum.ru/offer/sitemap.php`.
 
-`sitemap-basic-files.xml` генерируется штатным механизмом Bitrix из файловой структуры и должен содержать публичные статические разделы:
+`sitemap-basic-files.xml` генерируется `tools/static-sitemap-generate.mjs` перед deploy как ignored build artifact и должен содержать публичные статические разделы:
 
 - `/`
 - `/about/`
@@ -334,7 +334,7 @@ REST contract `/local/rest/tacticum_chat.php` зафиксирован в `docs/
 - `/price/`
 - `/services/`
 
-Generated artifacts `sitemap-basic.xml`, `sitemap-basic-files.xml`, `sitemap-basic-iblock-*.xml` и legacy `sitemap-files.xml` не являются repo-owned файлами. В Git хранится только корневой `sitemap.xml`; `robots.txt` указывает именно на него. Bitrix-настройка sitemap должна оставлять выключенным автодобавление правила в `robots.txt` и не включать `/404.php` в файловую карту.
+Generated artifacts `sitemap-basic.xml`, `sitemap-basic-files.xml`, `sitemap-basic-iblock-*.xml` и legacy `sitemap-files.xml` не являются repo-owned файлами. В Git хранится только корневой `sitemap.xml`; `robots.txt` указывает именно на него. Deploy workflow генерирует и проверяет `sitemap-basic-files.xml` до rsync; legacy `sitemap-files.xml` удаляется на сервере.
 
 `/offer/sitemap.php` генерирует URL активных offer detail элементов с валидным `CODE` внутри `/offer/<ELEMENT_CODE>/` и дедуплицирует одинаковые canonical URL, если в старом контенте есть несколько активных элементов с одинаковым `CODE`.
 

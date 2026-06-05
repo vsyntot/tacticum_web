@@ -85,14 +85,25 @@ async function checkProductSource() {
     const sources = unique([...response.body.matchAll(/\bdata-product-source=(["'])(.*?)\1/gi)]
       .map((match) => match[2].trim())
       .filter(Boolean));
+    const codes = unique([...response.body.matchAll(/\bdata-product-code=(["'])(.*?)\1/gi)]
+      .map((match) => match[2].trim())
+      .filter(Boolean));
     const blocks = unique([...response.body.matchAll(/\bdata-product-block=(["'])(.*?)\1/gi)]
       .map((match) => match[2].trim())
       .filter(Boolean));
     const missingBlocks = REQUIRED_PRODUCT_BLOCKS.filter((block) => !blocks.includes(block));
-    const ok = response.status === 200 && sources.length === 1 && sources[0] === 'bitrix' && missingBlocks.length === 0;
-    addCheck(`product_source ${page}`, ok, `status=${response.status} source=${sources[0] || 'empty'} blocks=${blocks.length}`);
+    const unsafeHrefs = unsafeHrefValues(response.body);
+    const expectedCode = page.replace(/^\/+|\/+$/g, '');
+    const ok = response.status === 200
+      && sources.length === 1
+      && sources[0] === 'bitrix'
+      && codes.length === 1
+      && codes[0] === expectedCode
+      && missingBlocks.length === 0
+      && unsafeHrefs.length === 0;
+    addCheck(`product_source ${page}`, ok, `status=${response.status} source=${sources[0] || 'empty'} code=${codes[0] || 'empty'} blocks=${blocks.length} unsafe_hrefs=${unsafeHrefs.length}`);
     if (!ok) {
-      fail(`product_source ${page}`, `expected source=bitrix and ${REQUIRED_PRODUCT_BLOCKS.length} blocks; got source=${sources.join(',') || 'empty'}, missing=${missingBlocks.join(',') || '-'}, status=${response.status}`);
+      fail(`product_source ${page}`, `expected source=bitrix, code=${expectedCode}, ${REQUIRED_PRODUCT_BLOCKS.length} blocks and safe hrefs; got source=${sources.join(',') || 'empty'}, code=${codes.join(',') || 'empty'}, missing=${missingBlocks.join(',') || '-'}, unsafe_hrefs=${unsafeHrefs.join(',') || '-'}, status=${response.status}`);
     }
   }
 }
@@ -204,4 +215,10 @@ function normalizeBaseUrl(value) {
 
 function unique(items) {
   return items.filter((item, index) => items.indexOf(item) === index);
+}
+
+function unsafeHrefValues(html) {
+  return unique([...html.matchAll(/<a\b[^>]*\bhref=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter((href) => href.startsWith('//') || href.startsWith('/\\')));
 }

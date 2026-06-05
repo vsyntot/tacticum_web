@@ -1,0 +1,16 @@
+{
+  "success": false,
+  "dry_run": false,
+  "cache_cleared": true,
+  "source_mode": "fallback",
+  "configured_source": "fallback",
+  "fallback_allowed": true,
+  "cache_ttl": -1,
+  "schema_version": "v0",
+  "cache_dir": "/wrong/cache",
+  "document_root": "/var/www/example",
+  "iblock_ids": [21],
+  "managed_tags": [],
+  "warnings": [],
+  "errors": ["raw cache payload leaked to qa@example.com"]
+}
