@@ -1,13 +1,10 @@
 <?php
 
-use Bitrix\Main\Page\Asset;
-
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
     die();
 }
 
 $priceTemplateFolder = (string)($templateFolder ?? '/local/templates/tacticum/components/bitrix/news.list/price');
-$priceAsset = Asset::getInstance();
 foreach ([
     'price-configurator-utils.js',
     'price-configurator-fallback.js',
@@ -17,7 +14,7 @@ foreach ([
     'price-configurator-order-render.js',
     'price-configurator-modal.js',
 ] as $priceScript) {
-    $priceAsset->addJs($priceTemplateFolder . '/' . $priceScript);
+    $this->addExternalJs($priceTemplateFolder . '/' . $priceScript);
 }
 
 $icons = [

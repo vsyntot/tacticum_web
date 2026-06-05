@@ -134,7 +134,7 @@ Goal: split the largest interaction surface safely.
 | Workstream | Covered IDs | Lane | Owners | Required Output |
 |---|---|---|---|---|
 | Preserve DOM/data contract | `BPC-FE-001` | Full Feature | Frontend + QA | Done locally 05.06.2026: `data-price-*`, legacy selectors, `workers_json`, `team_preset`, `monthly_budget_estimate` and endpoint contract preserved |
-| Split JS responsibilities | `BPC-FE-001`, `BPC-GUARD-003` | Full Feature | Frontend + QA | Done locally 05.06.2026: main `script.js` is a 78-line orchestrator; behavior lives in focused `price-configurator-*.js` chunks |
+| Split JS responsibilities | `BPC-FE-001`, `BPC-GUARD-003` | Full Feature | Frontend + QA | Done locally 05.06.2026: main `script.js` is a 78-line orchestrator; behavior lives in focused `price-configurator-*.js` chunks; component-owned chunks are registered through `$this->addExternalJs` after production smoke exposed that late `Asset::getInstance()->addJs` did not put them into the rendered Bitrix page bundle |
 | Tighten component template | `BPC-CMP-001` | Full Feature | Frontend + Backend | Done locally 05.06.2026: `template.php` delegates to short `parts/catalog.php`, `parts/price-card.php`, `parts/order-modal.php` |
 
 Do not start:
@@ -147,6 +147,8 @@ Verification:
 
 ```bash
 npm run js:check
+npm run bitrix:check
+npm run component:states:check
 npm run browser:smoke:price
 npm run browser:console:css-local
 ```
