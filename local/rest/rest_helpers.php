@@ -1,1119 +1,133 @@
 <?php
-use Bitrix\Main\Config\Configuration;
-use Bitrix\Main\Data\Cache;
-use Bitrix\Main\Loader;
 
-function tacticum_rest_get_config(): array
-{
-    static $config = null;
-    if ($config !== null) {
-        return $config;
-    }
+use Tacticum\Rest\Api;
+use Tacticum\Rest\Config;
+use Tacticum\Rest\ConfigValidator;
+use Tacticum\Rest\Masker;
+use Tacticum\Rest\Outbound;
+use Tacticum\Rest\RateLimiter;
+use Tacticum\Rest\Response;
+use Tacticum\Rest\Security;
+use Tacticum\Rest\Text;
 
-    $config = [];
-    $config_path = $_SERVER['DOCUMENT_ROOT'] . '/local/php_interface/include/tacticum_config.php';
-    if (file_exists($config_path)) {
-        $loaded = include $config_path;
-        if (is_array($loaded)) {
-            $config = $loaded;
-        }
-    }
-
-    return $config;
-}
-
-function tacticum_rest_get_config_section_defaults(string $section): array
-{
-    if ($section !== 'content') {
-        return [];
-    }
-
-    return [
-        'faq_section_fallback_ids' => [
-            'home' => 17,
-            'main' => 17,
-            'aiagents' => 18,
-            'calculator' => 19,
-            'offer' => 19,
-            'services' => 20,
-            'price' => 21,
-        ],
-    ];
-}
-
-function tacticum_rest_send_noindex_header(): void
-{
-    if (!headers_sent()) {
-        header('X-Robots-Tag: noindex, nofollow', true);
+if (!class_exists(Config::class)) {
+    $autoloadPath = (string)($_SERVER['DOCUMENT_ROOT'] ?? '') . '/local/php_interface/include/autoload.php';
+    if ($autoloadPath !== '' && is_file($autoloadPath)) {
+        require_once $autoloadPath;
     }
 }
 
-function tacticum_rest_get_config_section(string $section): array
-{
-    $config = tacticum_rest_get_config();
-    $section_data = $config[$section] ?? [];
-    if (!is_array($section_data)) {
-        $section_data = [];
-    }
-
-    return array_replace_recursive(
-        tacticum_rest_get_config_section_defaults($section),
-        $section_data
-    );
-}
-
-function tacticum_rest_get_iblock_id(string $key, int $default = 0): int
-{
-    $iblocks = tacticum_rest_get_config_section('iblocks');
-    if (array_key_exists($key, $iblocks)) {
-        return (int)$iblocks[$key];
-    }
-
-    return $default;
-}
-
+function tacticum_rest_get_config(): array { return Config::all(); }
+function tacticum_rest_get_config_section_defaults(string $section): array { return Config::sectionDefaults($section); }
+function tacticum_rest_send_noindex_header(): void { Response::sendNoindexHeader(); }
+function tacticum_rest_get_config_section(string $section): array { return Config::section($section); }
+function tacticum_rest_get_iblock_id(string $key, int $default = 0): int { return Config::iblockId($key, $default); }
 function tacticum_rest_validate_config(array $scopes = ['api', 'ai', 'telegram', 'offer', 'rest']): array
 {
-    $errors = [];
-    $scopes = array_values(array_unique($scopes));
-
-    $addError = static function (string $key, string $code) use (&$errors): void {
-        $errors[] = [
-            'key' => $key,
-            'code' => $code,
-        ];
-    };
-
-    $checkIblock = function (string $key) use ($addError): void {
-        if (tacticum_rest_get_iblock_id($key) <= 0) {
-            $addError('iblocks.' . $key, 'missing_or_invalid');
-        }
-    };
-
-    $checkHttpsUrl = function (string $key) use ($addError): void {
-        $value = trim(tacticum_rest_get_ai_setting($key));
-        if ($value === '') {
-            $addError('base_urls.' . $key, 'missing');
-            return;
-        }
-        if (filter_var($value, FILTER_VALIDATE_URL) === false) {
-            $addError('base_urls.' . $key, 'invalid_url');
-            return;
-        }
-        $scheme = strtolower((string)parse_url($value, PHP_URL_SCHEME));
-        if ($scheme !== 'https') {
-            $addError('base_urls.' . $key, 'https_required');
-        }
-    };
-
-    $checkEndpointPath = function (string $key) use ($addError): void {
-        $ai = tacticum_rest_get_config_section('ai');
-        $endpointPaths = $ai['endpoint_paths'] ?? [];
-        if (!is_array($endpointPaths) || !array_key_exists($key, $endpointPaths)) {
-            return;
-        }
-
-        $value = trim((string)$endpointPaths[$key]);
-        if ($value === '') {
-            $addError('ai.endpoint_paths.' . $key, 'missing');
-            return;
-        }
-        if (strpos($value, '://') !== false || strpos($value, '//') === 0) {
-            $addError('ai.endpoint_paths.' . $key, 'path_required');
-            return;
-        }
-        if ($value[0] !== '/') {
-            $addError('ai.endpoint_paths.' . $key, 'leading_slash_required');
-            return;
-        }
-        if (mb_strlen($value) > 200) {
-            $addError('ai.endpoint_paths.' . $key, 'too_long');
-        }
-    };
-
-    if (in_array('api', $scopes, true)) {
-        foreach (['cases', 'faq', 'rates', 'services'] as $key) {
-            $checkIblock($key);
-        }
-
-        $api = tacticum_rest_get_config_section('api');
-        $defaultTtl = $api['cache_ttl_default'] ?? null;
-        if ($defaultTtl !== null && !is_numeric($defaultTtl)) {
-            $addError('api.cache_ttl_default', 'invalid_type');
-        }
-
-        $ttlByAction = $api['cache_ttl'] ?? [];
-        if ($ttlByAction !== [] && !is_array($ttlByAction)) {
-            $addError('api.cache_ttl', 'invalid_type');
-        } elseif (is_array($ttlByAction)) {
-            foreach ($ttlByAction as $key => $ttl) {
-                if (!is_numeric($ttl)) {
-                    $addError('api.cache_ttl.' . (string)$key, 'invalid_type');
-                }
-            }
-        }
-    }
-
-    if (in_array('offer', $scopes, true)) {
-        $checkIblock('offer');
-    }
-
-    if (in_array('content', $scopes, true)) {
-        foreach (['vacancies', 'feedback', 'team', 'policies', 'aiagents'] as $key) {
-            $checkIblock($key);
-        }
-    }
-
-    if (in_array('products', $scopes, true)) {
-        foreach (['products', 'product_blocks', 'product_use_cases'] as $key) {
-            $checkIblock($key);
-        }
-
-        $products = tacticum_rest_get_config_section('products');
-        $source = $products['source'] ?? 'bitrix';
-        if (!is_string($source) || !in_array($source, ['auto', 'bitrix', 'fallback'], true)) {
-            $addError('products.source', 'invalid_value');
-        } elseif ($source !== 'bitrix') {
-            $addError('products.source', 'must_be_bitrix');
-        }
-
-        if (($products['allow_fallback'] ?? false) !== false) {
-            $addError('products.allow_fallback', 'must_be_false');
-        }
-
-        $cacheTtl = $products['cache_ttl'] ?? null;
-        if ($cacheTtl !== null && !is_numeric($cacheTtl)) {
-            $addError('products.cache_ttl', 'invalid_type');
-        }
-    }
-
-    if (in_array('ai', $scopes, true)) {
-        $checkHttpsUrl('AI_SERVICE_BASE_URL');
-        $checkEndpointPath('chat_agent_sale');
-        $checkEndpointPath('staff_sale');
-    }
-
-    if (in_array('security', $scopes, true)) {
-        $security = tacticum_rest_get_config_section('security');
-        $cspMode = $security['csp_mode'] ?? 'report-only';
-        if (!is_string($cspMode) || !in_array($cspMode, ['report-only', 'enforce'], true)) {
-            $addError('security.csp_mode', 'invalid_value');
-        }
-    }
-
-    if (in_array('telegram', $scopes, true)) {
-        $checkHttpsUrl('TELEGRAM_RESOLVER_URL');
-    }
-
-    if (in_array('rest', $scopes, true)) {
-        $rest = tacticum_rest_get_config_section('rest');
-        $allowedOrigins = $rest['allowed_origins'] ?? [];
-        $allowNoOrigin = (bool)($rest['allow_no_origin'] ?? false);
-        if (!$allowNoOrigin && (!is_array($allowedOrigins) || empty($allowedOrigins))) {
-            $addError('rest.allowed_origins', 'missing');
-        }
-        if (isset($rest['allowed_ips']) && !is_array($rest['allowed_ips'])) {
-            $addError('rest.allowed_ips', 'invalid_type');
-        }
-        if (isset($rest['trusted_proxies']) && !is_array($rest['trusted_proxies'])) {
-            $addError('rest.trusted_proxies', 'invalid_type');
-        }
-
-        $rateLimits = $rest['rate_limits'] ?? [];
-        if ($rateLimits !== [] && !is_array($rateLimits)) {
-            $addError('rest.rate_limits', 'invalid_type');
-        } elseif (is_array($rateLimits)) {
-            $knownRateLimitClasses = tacticum_rest_rate_limit_classes();
-            foreach ($rateLimits as $riskClass => $settings) {
-                $riskClassKey = strtoupper(trim((string)$riskClass));
-                if (!array_key_exists($riskClassKey, $knownRateLimitClasses)) {
-                    $addError('rest.rate_limits.' . (string)$riskClass, 'unknown_class');
-                    continue;
-                }
-                if (!is_array($settings)) {
-                    $addError('rest.rate_limits.' . (string)$riskClass, 'invalid_type');
-                    continue;
-                }
-                foreach (['limit', 'ttl'] as $key) {
-                    if (!array_key_exists($key, $settings)) {
-                        continue;
-                    }
-                    if (!is_numeric($settings[$key]) || (int)$settings[$key] <= 0) {
-                        $addError('rest.rate_limits.' . $riskClassKey . '.' . $key, 'invalid_value');
-                    }
-                }
-            }
-        }
-    }
-
-    return $errors;
+    return ConfigValidator::validate($scopes);
 }
-
 function tacticum_rest_response(bool $success, string $code, ?string $message, array $extra = [], int $status = 200): void
 {
-    http_response_code($status);
-    tacticum_rest_send_noindex_header();
-    $payload = [
-        'success' => $success,
-        'code' => $code,
-    ];
-
-    if ($message !== null) {
-        $payload['message'] = $message;
-    }
-
-    if (!empty($extra)) {
-        $payload = array_merge($payload, $extra);
-    }
-
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-    exit;
+    Response::send($success, $code, $message, $extra, $status);
 }
-
 function tacticum_rest_error(int $status, string $code, string $message, array $extra = []): void
 {
-    tacticum_rest_response(false, $code, $message, $extra, $status);
+    Response::error($status, $code, $message, $extra);
 }
-
-function tacticum_rest_require_method(string $method): void
-{
-    if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== strtoupper($method)) {
-        tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
-    }
-}
-
+function tacticum_rest_require_method(string $method): void { Response::requireMethod($method); }
 function tacticum_rest_read_json_body(string $message = 'Некорректные данные формы.'): array
 {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!is_array($data)) {
-        tacticum_rest_error(400, 'invalid_json', $message);
-    }
-
-    return $data;
+    return Response::readJsonBody($message);
 }
-
-function tacticum_rest_html_to_text(string $html): string
-{
-    $html = trim($html);
-    if ($html === '') {
-        return '';
-    }
-
-    $html = str_replace(["\\r\\n", "\\n", "\\r", "\\t"], ["\n", "\n", "\n", "\t"], $html);
-    $html = preg_replace('~\R~u', "\n", $html);
-
-    for ($i = 0; $i < 5; $i++) {
-        $decoded = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        if ($decoded === $html) {
-            break;
-        }
-        $html = $decoded;
-    }
-    $html = str_replace(
-        ["\xC2\xA0", "\xE2\x80\xAF", "\xE2\x80\x89"],
-        " ",
-        $html
-    );
-
-    $html = preg_replace('~<\s*br\s*/?\s*>~iu', "\n", $html);
-    $html = preg_replace('~<\s*(p|div|section|article|blockquote|h[1-6])\b[^>]*>~iu', "\n", $html);
-    $html = preg_replace('~</\s*(p|div|section|article|blockquote|h[1-6])\s*>~iu', "\n\n", $html);
-    $html = preg_replace('~<\s*li\b[^>]*>~iu', "• ", $html);
-    $html = preg_replace('~</\s*li\s*>~iu', "\n", $html);
-    $html = preg_replace('~</\s*(ul|ol)\s*>~iu', "\n", $html);
-
-    $text = strip_tags($html);
-
-    $text = str_replace("\t", " ", $text);
-    $text = preg_replace('~[ ]{2,}~u', ' ', $text);
-    $text = preg_replace('~ *\n *~u', "\n", $text);
-    $text = preg_replace("~\n{3,}~u", "\n\n", $text);
-    $text = preg_replace('~\s+([.,;:!?])~u', '$1', $text);
-    $text = preg_replace('~\s*—\s*~u', ' — ', $text);
-    $text = preg_replace('~\s+\)~u', ')', $text);
-    $text = preg_replace('~\s+%~u', '%', $text);
-    $text = preg_replace('~[ ]{2,}~u', ' ', $text);
-    $text = preg_replace('~ *\n *~u', "\n", $text);
-
-    return trim($text);
-}
-
-function tacticum_rest_is_allowed_host(string $host): bool
-{
-    $host = strtolower($host);
-    if ($host === 'tacticum.ru') {
-        return true;
-    }
-
-    return substr($host, -11) === '.tacticum.ru';
-}
-
-function tacticum_rest_get_allowed_origins(): array
-{
-    $rest = tacticum_rest_get_config_section('rest');
-    $origins = $rest['allowed_origins'] ?? [];
-    return is_array($origins) ? $origins : [];
-}
-
-function tacticum_rest_normalize_ip(string $ip): string
-{
-    $ip = trim($ip);
-    if ($ip === '') {
-        return '';
-    }
-
-    $normalized = filter_var($ip, FILTER_VALIDATE_IP);
-    return $normalized === false ? '' : $normalized;
-}
-
-function tacticum_rest_is_allowed_ip(string $ip, array $allowed_ips): bool
-{
-    $ip = tacticum_rest_normalize_ip($ip);
-    if ($ip === '' || empty($allowed_ips)) {
-        return false;
-    }
-
-    $ip_binary = inet_pton($ip);
-    if ($ip_binary === false) {
-        return false;
-    }
-
-    $ip_length = strlen($ip_binary);
-
-    foreach ($allowed_ips as $allowed) {
-        $allowed = trim((string)$allowed);
-        if ($allowed === '') {
-            continue;
-        }
-
-        if (strpos($allowed, '/') !== false) {
-            [$network, $prefix] = array_pad(explode('/', $allowed, 2), 2, '');
-            $network = tacticum_rest_normalize_ip($network);
-            if ($network === '' || $prefix === '' || !ctype_digit($prefix)) {
-                continue;
-            }
-
-            $network_binary = inet_pton($network);
-            if ($network_binary === false || strlen($network_binary) !== $ip_length) {
-                continue;
-            }
-
-            $prefix_length = (int)$prefix;
-            $max_prefix = $ip_length * 8;
-            if ($prefix_length < 0 || $prefix_length > $max_prefix) {
-                continue;
-            }
-
-            $bytes = intdiv($prefix_length, 8);
-            $bits = $prefix_length % 8;
-
-            if ($bytes > 0 && substr($ip_binary, 0, $bytes) !== substr($network_binary, 0, $bytes)) {
-                continue;
-            }
-
-            if ($bits === 0) {
-                return true;
-            }
-
-            $mask = (~(0xff >> $bits)) & 0xff;
-            if (isset($ip_binary[$bytes], $network_binary[$bytes])) {
-                if ((ord($ip_binary[$bytes]) & $mask) === (ord($network_binary[$bytes]) & $mask)) {
-                    return true;
-                }
-            }
-            continue;
-        }
-
-        $allowed_ip = tacticum_rest_normalize_ip($allowed);
-        if ($allowed_ip !== '' && $allowed_ip === $ip) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function tacticum_rest_get_client_ip(): string
-{
-    $remote_addr = $_SERVER['REMOTE_ADDR'] ?? '';
-    $forwarded_for = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
-    $rest = tacticum_rest_get_config_section('rest');
-    $trusted_proxies = $rest['trusted_proxies'] ?? [];
-    if (!is_array($trusted_proxies)) {
-        $trusted_proxies = [];
-    }
-
-    if ($forwarded_for !== '' && $remote_addr !== '' && tacticum_rest_is_allowed_ip($remote_addr, $trusted_proxies)) {
-        $parts = explode(',', $forwarded_for);
-        foreach ($parts as $part) {
-            $candidate = tacticum_rest_normalize_ip(trim((string)$part));
-            if ($candidate !== '') {
-                return $candidate;
-            }
-        }
-    }
-
-    return tacticum_rest_normalize_ip($remote_addr);
-}
-
-/**
- * Normalize iblock property metadata for API responses.
- *
- * @param array $property
- * @return array{type:string,multiple:bool,value:mixed}|array{type:string,multiple:bool,values:array}
- */
-function tacticum_api_normalize_property(array $property): array
-{
-    $property_type = (string)($property['PROPERTY_TYPE'] ?? '');
-    $user_type = (string)($property['USER_TYPE'] ?? '');
-    $type = $property_type;
-    if ($user_type !== '') {
-        $type = $type === '' ? $user_type : $type . ':' . $user_type;
-    }
-
-    $multiple = ($property['MULTIPLE'] ?? 'N') === 'Y';
-    $value = $property['VALUE'] ?? null;
-
-    if ($multiple) {
-        $values = [];
-        if (is_array($value)) {
-            $values = array_values($value);
-        } elseif ($value !== null && $value !== '') {
-            $values = [$value];
-        }
-
-        return [
-            'type' => $type,
-            'multiple' => true,
-            'values' => $values,
-        ];
-    }
-
-    return [
-        'type' => $type,
-        'multiple' => false,
-        'value' => $value,
-    ];
-}
-
+function tacticum_rest_html_to_text(string $html): string { return Text::htmlToText($html); }
+function tacticum_rest_is_allowed_host(string $host): bool { return Security::isAllowedHost($host); }
+function tacticum_rest_get_allowed_origins(): array { return Security::allowedOrigins(); }
+function tacticum_rest_normalize_ip(string $ip): string { return Security::normalizeIp($ip); }
+function tacticum_rest_is_allowed_ip(string $ip, array $allowed_ips): bool { return Security::isAllowedIp($ip, $allowed_ips); }
+function tacticum_rest_get_client_ip(): string { return Security::clientIp(); }
+function tacticum_api_normalize_property(array $property): array { return Api::normalizeProperty($property); }
 function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = []): bool
 {
-    $host = strtolower($host);
-    if ($host === '') {
-        return false;
-    }
-
-    if (empty($allowed_origins)) {
-        return tacticum_rest_is_allowed_host($host);
-    }
-
-    foreach ($allowed_origins as $allowed) {
-        $allowed = strtolower(trim((string)$allowed));
-        if ($allowed === '') {
-            continue;
-        }
-
-        if ($allowed === '*') {
-            return true;
-        }
-
-        $allowed_host = $allowed;
-        if (strpos($allowed, '://') !== false) {
-            $allowed_host = (string)parse_url($allowed, PHP_URL_HOST);
-        }
-
-        if ($allowed_host === '') {
-            continue;
-        }
-
-        if (strpos($allowed_host, '*.') === 0 || strpos($allowed_host, '.') === 0) {
-            $suffix = substr($allowed_host, 1);
-            if ($suffix !== '' && substr($host, -strlen($suffix)) === $suffix) {
-                return true;
-            }
-            continue;
-        }
-
-        if ($host === $allowed_host) {
-            return true;
-        }
-    }
-
-    return false;
+    return Security::isAllowedOrigin($host, $allowed_origins);
 }
-
-function tacticum_rest_normalize_host(string $host): string
-{
-    $host = strtolower(trim($host));
-    if ($host === '') {
-        return '';
-    }
-
-    if ($host[0] === '[') {
-        $end = strpos($host, ']');
-        return $end === false ? $host : substr($host, 0, $end + 1);
-    }
-
-    $colon_pos = strpos($host, ':');
-    if ($colon_pos === false) {
-        return $host;
-    }
-
-    return substr($host, 0, $colon_pos);
-}
-
-function tacticum_rest_validate_origin(): void
-{
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $referer = $_SERVER['HTTP_REFERER'] ?? '';
-    $rest = tacticum_rest_get_config_section('rest');
-    $allowed_origins = tacticum_rest_get_allowed_origins();
-    $allow_no_origin = (bool)($rest['allow_no_origin'] ?? false);
-    $origin_allowed = false;
-
-    $origin_host = $origin ? (string)parse_url($origin, PHP_URL_HOST) : '';
-    $origin_host = tacticum_rest_normalize_host($origin_host);
-    if ($origin_host !== '' && tacticum_rest_is_allowed_origin($origin_host, $allowed_origins)) {
-        $origin_allowed = true;
-    }
-
-    $referer_host = $referer ? (string)parse_url($referer, PHP_URL_HOST) : '';
-    $referer_host = tacticum_rest_normalize_host($referer_host);
-    if ($referer_host !== '' && tacticum_rest_is_allowed_origin($referer_host, $allowed_origins)) {
-        $origin_allowed = true;
-    }
-
-    if ($origin_host === '' && $referer_host === '') {
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $host = tacticum_rest_normalize_host($host);
-        if ($host !== '' && tacticum_rest_is_allowed_origin($host, $allowed_origins)) {
-            $origin_allowed = true;
-        }
-        if (empty($allowed_origins) && $allow_no_origin) {
-            $origin_allowed = true;
-        }
-    }
-
-    $allowed_ips = $rest['allowed_ips'] ?? [];
-    if (is_array($allowed_ips) && !empty($allowed_ips)) {
-        $client_ip = tacticum_rest_get_client_ip();
-        if ($client_ip === '' || !tacticum_rest_is_allowed_ip($client_ip, $allowed_ips)) {
-            tacticum_rest_error(403, 'invalid_ip', 'Недопустимый IP адрес источника.');
-        }
-    }
-
-    if ($origin_allowed) {
-        return;
-    }
-
-    tacticum_rest_error(403, 'invalid_origin', 'Недопустимый источник запроса.');
-}
-
-function tacticum_rest_has_allowed_browser_source(): bool
-{
-    $allowed_origins = tacticum_rest_get_allowed_origins();
-    if (empty($allowed_origins)) {
-        return false;
-    }
-
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $origin_host = $origin ? (string)parse_url($origin, PHP_URL_HOST) : '';
-    $origin_host = tacticum_rest_normalize_host($origin_host);
-    if ($origin_host !== '' && tacticum_rest_is_allowed_origin($origin_host, $allowed_origins)) {
-        return true;
-    }
-
-    $referer = $_SERVER['HTTP_REFERER'] ?? '';
-    $referer_host = $referer ? (string)parse_url($referer, PHP_URL_HOST) : '';
-    $referer_host = tacticum_rest_normalize_host($referer_host);
-    return $referer_host !== '' && tacticum_rest_is_allowed_origin($referer_host, $allowed_origins);
-}
-
+function tacticum_rest_normalize_host(string $host): string { return Security::normalizeHost($host); }
+function tacticum_rest_validate_origin(): void { Security::validateOrigin(); }
+function tacticum_rest_has_allowed_browser_source(): bool { return Security::hasAllowedBrowserSource(); }
 function tacticum_rest_check_csrf(?array $data = null, bool $allowAllowedBrowserSource = false): void
 {
-    $sessid = '';
-    if (is_array($data) && isset($data['sessid'])) {
-        $sessid = (string)$data['sessid'];
-    }
-
-    if ($sessid === '' && isset($_SERVER['HTTP_X_BITRIX_SESSID'])) {
-        $sessid = (string)$_SERVER['HTTP_X_BITRIX_SESSID'];
-    }
-
-    if ($sessid === '' && isset($_REQUEST['sessid'])) {
-        $sessid = (string)$_REQUEST['sessid'];
-    }
-
-    if ($sessid !== '') {
-        if ($sessid !== bitrix_sessid()) {
-            tacticum_rest_error(403, 'invalid_csrf', 'Некорректный токен безопасности.');
-        }
-        return;
-    }
-
-    if ($allowAllowedBrowserSource && tacticum_rest_has_allowed_browser_source()) {
-        return;
-    }
-
-    tacticum_rest_error(403, 'invalid_csrf', 'Требуется токен безопасности.');
+    Security::checkCsrf($data, $allowAllowedBrowserSource);
 }
-
 function tacticum_rest_rate_limit(string $action, int $limit = 20, int $ttl = 60): void
 {
-    $ip = tacticum_rest_get_client_ip();
-    if ($ip === '') {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    }
-    $sessid = bitrix_sessid();
-    $cache_key = 'tacticum_rest_' . $action . '_' . md5($ip . '|' . $sessid);
-    $cache_dir = '/tacticum/rest_rate';
-    $cache = Cache::createInstance();
-
-    $count = 1;
-    if ($cache->initCache($ttl, $cache_key, $cache_dir)) {
-        $data = $cache->getVars();
-        $count = ((int)($data['count'] ?? 0)) + 1;
-    }
-
-    $cache->clean($cache_key, $cache_dir);
-    if ($cache->startDataCache($ttl, $cache_key, $cache_dir)) {
-        $cache->endDataCache(['count' => $count, 'ts' => time()]);
-    }
-
-    if ($count > $limit) {
-        tacticum_rest_error(429, 'rate_limited', 'Слишком много запросов. Попробуйте позже.');
-    }
+    RateLimiter::hit($action, $limit, $ttl);
 }
-
-function tacticum_rest_rate_limit_classes(): array
-{
-    return [
-        'CONFIG_HEALTH_GET' => ['limit' => 5, 'ttl' => 60],
-        'PUBLIC_LEAD_POST' => ['limit' => 20, 'ttl' => 60],
-        'PUBLIC_CHAT_POST' => ['limit' => 20, 'ttl' => 60],
-        'PUBLIC_STAFF_POST' => ['limit' => 20, 'ttl' => 60],
-        'SCOPED_PREFILL_POST' => ['limit' => 20, 'ttl' => 60],
-        'PUBLIC_RESOLVER_POST' => ['limit' => 20, 'ttl' => 60],
-        'LEGACY_ALIAS_POST' => ['limit' => 20, 'ttl' => 60],
-    ];
-}
-
-function tacticum_rest_rate_limit_class_settings(string $riskClass): array
-{
-    $riskClass = strtoupper(trim($riskClass));
-    $classes = tacticum_rest_rate_limit_classes();
-    $settings = $classes[$riskClass] ?? $classes['PUBLIC_LEAD_POST'];
-    $rest = tacticum_rest_get_config_section('rest');
-    $overrides = $rest['rate_limits'] ?? [];
-    $override = [];
-
-    if (is_array($overrides)) {
-        foreach ($overrides as $configuredRiskClass => $configuredSettings) {
-            if (
-                strtoupper(trim((string)$configuredRiskClass)) === $riskClass
-                && is_array($configuredSettings)
-            ) {
-                $override = $configuredSettings;
-                break;
-            }
-        }
-    }
-
-    foreach (['limit', 'ttl'] as $key) {
-        if (array_key_exists($key, $override) && is_numeric($override[$key])) {
-            $settings[$key] = (int)$override[$key];
-        }
-        if ((int)$settings[$key] <= 0) {
-            $settings[$key] = $classes[$riskClass][$key] ?? $classes['PUBLIC_LEAD_POST'][$key];
-        }
-    }
-
-    return $settings;
-}
-
+function tacticum_rest_rate_limit_classes(): array { return RateLimiter::classes(); }
+function tacticum_rest_rate_limit_class_settings(string $riskClass): array { return RateLimiter::classSettings($riskClass); }
 function tacticum_rest_rate_limit_by_class(string $riskClass, string $action): void
 {
-    $riskClass = strtoupper(trim($riskClass));
-    $action = trim($action);
-    $settings = tacticum_rest_rate_limit_class_settings($riskClass);
-
-    tacticum_rest_rate_limit(
-        $action !== '' ? $action : strtolower($riskClass),
-        (int)$settings['limit'],
-        (int)$settings['ttl']
-    );
+    RateLimiter::byClass($riskClass, $action);
 }
-
-function tacticum_api_bootstrap(string $action): int
-{
-    tacticum_rest_validate_origin();
-    tacticum_rest_rate_limit($action);
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        tacticum_rest_error(405, 'method_not_allowed', 'Метод запроса не поддерживается.');
-    }
-
-    if (!Loader::includeModule('iblock')) {
-        tacticum_rest_error(500, 'iblock_missing', 'Модуль инфоблоков не установлен.');
-    }
-
-    $iblockId = tacticum_rest_get_iblock_id($action);
-    if ($iblockId <= 0) {
-        tacticum_rest_error(500, 'iblock_not_configured', 'Инфоблок не настроен.');
-    }
-
-    return $iblockId;
-}
-
-function tacticum_api_cache_ttl(string $action, int $default = 300): int
-{
-    $api = tacticum_rest_get_config_section('api');
-    $ttl = $api['cache_ttl_default'] ?? $default;
-    if (isset($api['cache_ttl']) && is_array($api['cache_ttl']) && array_key_exists($action, $api['cache_ttl'])) {
-        $ttl = $api['cache_ttl'][$action];
-    }
-
-    $ttl = (int)$ttl;
-    return $ttl < 0 ? 0 : $ttl;
-}
-
+function tacticum_api_bootstrap(string $action): int { return Api::bootstrap($action); }
+function tacticum_api_cache_ttl(string $action, int $default = 300): int { return Api::cacheTtl($action, $default); }
 function tacticum_api_cached_payload(string $action, int $iblockId, callable $builder, array $cacheContext = []): array
 {
-    $ttl = tacticum_api_cache_ttl($action);
-    if ($ttl <= 0) {
-        $payload = $builder();
-        return is_array($payload) ? $payload : [];
-    }
-
-    $cache = Cache::createInstance();
-    $cacheKey = 'tacticum_api_' . $action . '_' . md5($iblockId . '|' . serialize($cacheContext));
-    $cacheDir = '/tacticum/api';
-
-    if ($cache->initCache($ttl, $cacheKey, $cacheDir)) {
-        $vars = $cache->getVars();
-        if (is_array($vars) && isset($vars['payload']) && is_array($vars['payload'])) {
-            return $vars['payload'];
-        }
-    }
-
-    $payload = $builder();
-    if (!is_array($payload)) {
-        $payload = [];
-    }
-
-    if ($cache->startDataCache($ttl, $cacheKey, $cacheDir)) {
-        $cache->endDataCache(['payload' => $payload]);
-    }
-
-    return $payload;
+    return Api::cachedPayload($action, $iblockId, $builder, $cacheContext);
 }
-
 function tacticum_api_fetch_elements(int $iblockId, array $select, array $filter = [], array $order = ['SORT' => 'ASC'])
 {
-    $filter = array_merge([
-        'IBLOCK_ID' => $iblockId,
-        'ACTIVE' => 'Y',
-    ], $filter);
-
-    return CIBlockElement::GetList($order, $filter, false, false, $select);
+    return Api::fetchElements($iblockId, $select, $filter, $order);
 }
-
-function tacticum_rest_normalize_phone(string $phone): string
+function tacticum_api_fetch_content_items(int $iblockId, array $select, array $filter = [], array $order = ['SORT' => 'ASC']): array
 {
-    $digits = preg_replace('/\D/', '', $phone);
-    if ($digits === '') {
-        return '';
-    }
-
-    $has_plus = strpos($phone, '+') === 0;
-    return $has_plus ? '+' . $digits : $digits;
+    return Api::fetchContentItems($iblockId, $select, $filter, $order);
 }
-
-function tacticum_rest_is_valid_phone(string $phone): bool
-{
-    $normalized = tacticum_rest_normalize_phone($phone);
-    if ($normalized === '') {
-        return false;
-    }
-
-    return (bool)preg_match('/^\+?\d{7,15}$/', $normalized);
-}
-
-function tacticum_rest_mask_email(string $email): string
-{
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        return $email;
-    }
-
-    [$user, $domain] = explode('@', $email, 2);
-    $length = mb_strlen($user);
-    if ($length <= 2) {
-        $masked_user = str_repeat('*', $length);
-    } else {
-        $masked_user = mb_substr($user, 0, 1) . str_repeat('*', $length - 2) . mb_substr($user, -1);
-    }
-
-    return $masked_user . '@' . $domain;
-}
-
-function tacticum_rest_mask_phone(string $phone): string
-{
-    $digits = preg_replace('/\D/', '', $phone);
-    if ($digits === '') {
-        return $phone;
-    }
-
-    $masked = str_repeat('*', max(0, strlen($digits) - 2)) . substr($digits, -2);
-    return $masked;
-}
-
-function tacticum_rest_mask_free_text(string $value): string
-{
-    $value = trim($value);
-    if ($value === '') {
-        return '';
-    }
-
-    return '[masked:' . mb_strlen($value) . ']';
-}
-
-function tacticum_rest_is_sensitive_log_key(string $key): bool
-{
-    $key = strtolower($key);
-    if (in_array($key, [
-        'name',
-        'client_name',
-        'first_name',
-        'last_name',
-        'patronymic',
-        'company',
-        'message',
-        'task',
-        'description',
-        'project',
-        'summary',
-        'response',
-        'user_message',
-        'comment',
-        'comments',
-    ], true)) {
-        return true;
-    }
-
-    return (bool)preg_match('~(name|message|task|description|summary|comment|response|text)$~', $key);
-}
-
-function tacticum_rest_mask_pii(array $payload): array
-{
-    $masked = [];
-    foreach ($payload as $key => $value) {
-        $keyString = is_string($key) ? $key : (string)$key;
-
-        if (is_array($value)) {
-            $masked[$key] = tacticum_rest_mask_pii($value);
-            continue;
-        }
-
-        if ($keyString === 'email' && is_string($value)) {
-            $masked[$key] = tacticum_rest_mask_email($value);
-            continue;
-        }
-
-        if ($keyString === 'phone' && is_string($value)) {
-            $masked[$key] = tacticum_rest_mask_phone($value);
-            continue;
-        }
-
-        if (is_string($value)) {
-            $masked[$key] = tacticum_rest_is_sensitive_log_key($keyString)
-                ? tacticum_rest_mask_free_text($value)
-                : tacticum_rest_mask_string($value);
-            continue;
-        }
-
-        $masked[$key] = $value;
-    }
-
-    return $masked;
-}
-
-function tacticum_rest_mask_string(string $value): string
-{
-    $value = preg_replace('/([A-Z0-9._%+-]+)@([A-Z0-9.-]+\.[A-Z]{2,})/i', '***@$2', $value);
-    $value = preg_replace('/\+?\d[\d\s().-]{6,}\d/', '***', $value);
-    return $value;
-}
-
-function tacticum_rest_get_ai_setting(string $key, string $default = ''): string
-{
-    $base_urls = tacticum_rest_get_config_section('base_urls');
-    if (isset($base_urls[$key]) && $base_urls[$key] !== '') {
-        return (string)$base_urls[$key];
-    }
-
-    $config = Configuration::getValue('ai_services');
-    if (is_array($config) && isset($config[$key]) && $config[$key] !== '') {
-        return (string)$config[$key];
-    }
-
-    return $default;
-}
-
+function tacticum_rest_normalize_phone(string $phone): string { return Text::normalizePhone($phone); }
+function tacticum_rest_is_valid_phone(string $phone): bool { return Text::isValidPhone($phone); }
+function tacticum_rest_mask_email(string $email): string { return Masker::email($email); }
+function tacticum_rest_mask_phone(string $phone): string { return Masker::phone($phone); }
+function tacticum_rest_mask_free_text(string $value): string { return Masker::freeText($value); }
+function tacticum_rest_is_sensitive_log_key(string $key): bool { return Masker::isSensitiveLogKey($key); }
+function tacticum_rest_mask_pii(array $payload): array { return Masker::pii($payload); }
+function tacticum_rest_mask_string(string $value): string { return Masker::string($value); }
+function tacticum_rest_get_ai_setting(string $key, string $default = ''): string { return Config::aiSetting($key, $default); }
 function tacticum_rest_get_required_https_ai_url(string $key, string $serviceLabel = 'сервиса обработки'): string
 {
-    $url = trim(tacticum_rest_get_ai_setting($key));
-    if ($url === '') {
-        tacticum_rest_error(500, 'config_error', 'Не настроен адрес ' . $serviceLabel . '.');
-    }
-
-    if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-        tacticum_rest_error(500, 'config_error', 'Некорректный адрес ' . $serviceLabel . '.');
-    }
-
-    $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
-    if ($scheme !== 'https') {
-        tacticum_rest_error(500, 'config_error', 'Адрес ' . $serviceLabel . ' должен использовать HTTPS.');
-    }
-
-    return $url;
+    return Config::requiredHttpsAiUrl($key, $serviceLabel);
 }
-
 function tacticum_rest_get_ai_endpoint_path(string $key, string $default): string
 {
-    $ai = tacticum_rest_get_config_section('ai');
-    $endpointPaths = $ai['endpoint_paths'] ?? [];
-    $path = is_array($endpointPaths) && isset($endpointPaths[$key])
-        ? trim((string)$endpointPaths[$key])
-        : trim($default);
-
-    if ($path === '') {
-        return '/' . ltrim($default, '/');
-    }
-
-    if (strpos($path, '://') !== false || strpos($path, '//') === 0) {
-        tacticum_rest_error(500, 'config_error', 'AI endpoint path должен быть относительным путём без host.');
-    }
-    if ($path[0] !== '/') {
-        tacticum_rest_error(500, 'config_error', 'AI endpoint path должен начинаться с /.');
-    }
-
-    return $path;
+    return Config::aiEndpointPath($key, $default);
 }
-
-function tacticum_rest_build_url(string $base_url, string $path): string
-{
-    if ($base_url === '') {
-        return $path;
-    }
-
-    return rtrim($base_url, '/') . '/' . ltrim($path, '/');
-}
-
-function tacticum_rest_apply_curl_defaults($ch): void
-{
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-}
-
+function tacticum_rest_build_url(string $base_url, string $path): string { return Config::buildUrl($base_url, $path); }
+function tacticum_rest_apply_curl_defaults($ch): void { Outbound::applyCurlDefaults($ch); }
 function tacticum_rest_post_json(string $endpoint_url, array $payload, string $context): array
 {
-    $ch = curl_init($endpoint_url);
-    tacticum_rest_apply_curl_defaults($ch);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
-    $response = curl_exec($ch);
-    $result = [
-        'response' => $response,
-        'curl_error_no' => curl_errno($ch),
-        'curl_error' => curl_error($ch),
-        'http_status' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
-        'total_time' => curl_getinfo($ch, CURLINFO_TOTAL_TIME),
-        'start_transfer_time' => curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME),
-    ];
-
-    curl_close($ch);
-
-    return $result;
+    return Outbound::postJson($endpoint_url, $payload, $context);
 }
-
 function tacticum_rest_post_json_retry_without_group_id(string $endpoint_url, array $payload, string $context): array
 {
-    $result = tacticum_rest_post_json($endpoint_url, $payload, $context);
-    $http_status = (int)($result['http_status'] ?? 0);
-    if ($http_status >= 200 && $http_status < 300) {
-        return $result;
-    }
-
-    if ((int)($result['curl_error_no'] ?? 0) !== 0) {
-        return $result;
-    }
-
-    $group_id = trim((string)($payload['group_id'] ?? ''));
-    if ($group_id === '') {
-        return $result;
-    }
-
-    $retry_payload = $payload;
-    unset($retry_payload['group_id']);
-
-    $retry_result = tacticum_rest_post_json($endpoint_url, $retry_payload, $context . '_without_group_id');
-    $retry_result['retried_without_group_id'] = true;
-    $retry_result['initial_http_status'] = $http_status;
-
-    return $retry_result;
+    return Outbound::postJsonRetryWithoutGroupId($endpoint_url, $payload, $context);
 }
-
 function tacticum_rest_submit_chat_agent_sale(
     array $payload,
     string $context,
     ?string $logPrefix = null,
     string $curlErrorMessage = 'Ошибка соединения с внешним сервисом.'
-): array
-{
-    $base_url = tacticum_rest_get_required_https_ai_url('AI_SERVICE_BASE_URL');
-    $endpoint_path = tacticum_rest_get_ai_endpoint_path('chat_agent_sale', '/tacticum/v1/chat_agent/sale');
-    $endpoint_url = tacticum_rest_build_url($base_url, $endpoint_path);
-
-    $result = tacticum_rest_post_json_retry_without_group_id($endpoint_url, $payload, $context);
-
-    tacticum_rest_fail_on_curl_error($result, $context, $curlErrorMessage);
-
-    return $result;
+): array {
+    return Outbound::submitChatAgentSale($payload, $context, $logPrefix, $curlErrorMessage);
 }
-
 function tacticum_rest_is_successful_upstream_response(array $result): bool
 {
-    $http_status = (int)($result['http_status'] ?? 0);
-    return $http_status >= 200 && $http_status < 300;
+    return Outbound::isSuccessfulUpstreamResponse($result);
 }
-
 function tacticum_rest_fail_chat_agent_sale_upstream(
     array $result,
     string $context,
     string $message = 'Ошибка отправки во внешний сервис.'
-): void
-{
-    tacticum_rest_error(502, 'upstream_error', $message);
+): void {
+    Outbound::failChatAgentSaleUpstream($result, $context, $message);
 }
-
 function tacticum_rest_fail_on_curl_error(array $result, string $context, string $message = 'Ошибка соединения с внешним сервисом.'): void
 {
-    $curl_error_no = (int)($result['curl_error_no'] ?? 0);
-    if ($curl_error_no === 0) {
-        return;
-    }
-
-    $total_time = (float)($result['total_time'] ?? 0);
-    $http_status = (int)($result['http_status'] ?? 0);
-
-    $code = ($curl_error_no === CURLE_OPERATION_TIMEOUTED) ? 'upstream_timeout' : 'curl_error';
-    tacticum_rest_error(502, $code, $message, [
-        'upstream_status' => $http_status,
-        'upstream_time' => $total_time,
-    ]);
+    Outbound::failOnCurlError($result, $context, $message);
 }

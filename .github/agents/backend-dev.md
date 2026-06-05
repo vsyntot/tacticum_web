@@ -31,7 +31,7 @@
 |---|---|
 | Новый POST-эндпоинт | `local/rest/tacticum_form.php` |
 | Новый GET-эндпоинт | `local/api/cases.php` |
-| Новый хелпер | `local/rest/rest_helpers.php` |
+| Новый REST helper | `local/lib/Tacticum/Rest/*` + facade wrapper in `local/rest/rest_helpers.php` only if endpoint API needs it |
 | Bitrix REST метод | `local/php_interface/init.php` (calcrequests_add) |
 
 ---
@@ -133,6 +133,6 @@ CModule::IncludeModule('iblock')
 ## Чего НЕ делать
 
 - ❌ Не редактировать `bitrix/`
-- ❌ Не дублировать логику из `rest_helpers.php` — добавлять туда
-- ❌ Не создавать функции без префикса `tacticum_` (в `init.php`) или `tacticum_rest_` / `tacticum_api_` (в `rest_helpers.php`)
+- ❌ Не дублировать логику из `rest_helpers.php` / `local/lib/Tacticum/Rest/*` — реализацию добавлять в service class, facade wrapper только при необходимости
+- ❌ Не создавать функции без префикса `tacticum_` (в `init.php`) или `tacticum_rest_` / `tacticum_api_` (в facade)
 - ❌ Не использовать `http://` для внешних запросов

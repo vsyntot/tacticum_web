@@ -1,5 +1,7 @@
 <?php
 
+use Tacticum\Content\IblockRepository;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
@@ -47,34 +49,14 @@ $candidateCodes = static function (string $sectionKey): array {
     return array_values(array_unique(array_filter($codes, 'strlen')));
 };
 
-$resolveByCodes = static function (int $iblockId, array $codes): string {
-    if ($iblockId <= 0 || $codes === [] || !\Bitrix\Main\Loader::includeModule('iblock')) {
-        return '';
-    }
-
-    $sectionResult = \CIBlockSection::GetList(
-        ['SORT' => 'ASC'],
-        [
-            'IBLOCK_ID' => $iblockId,
-            'ACTIVE' => 'Y',
-            '=CODE' => $codes,
-        ],
-        false,
-        ['ID', 'CODE']
-    );
-    $section = $sectionResult->Fetch();
-
-    return $section ? (string)(int)$section['ID'] : '';
-};
-
 $resolveParentSection = static function (
     int $iblockId,
     string $sectionKey,
     string $fallbackSection
-) use ($candidateCodes, $fallbackIds, $resolveByCodes): array {
+) use ($candidateCodes, $fallbackIds): array {
     $sectionKey = TacticumComponentParams::token($sectionKey);
     if ($sectionKey !== '') {
-        $resolved = $resolveByCodes($iblockId, $candidateCodes($sectionKey));
+        $resolved = IblockRepository::sectionIdByCodes($iblockId, $candidateCodes($sectionKey));
         if ($resolved !== '') {
             return ['id' => $resolved, 'status' => 'resolved'];
         }

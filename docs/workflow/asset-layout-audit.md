@@ -25,7 +25,7 @@ Global CSS:
 
 - `tailwind.generated.css`;
 - `fonts/remixicon.min.css`;
-- `styles/global.css` подключается явно через `Asset` как migrated global/template CSS;
+- fixed template CSS split подключается явно через `Asset`: `styles/global.css`, `styles/components.css`, `styles/page-about-calculator.css`, `styles/page-offer-price-services.css`, `styles/page-aiagents.css`;
 - `template_styles.css` оставлен пустым/comment-only Bitrix compatibility shim.
 
 Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` удалены после source/rendered asset inventory. Static Tailwind utilities собираются из `local/templates/tacticum/assets/src/tailwind.css` командой `npm run css:build`.
@@ -36,13 +36,17 @@ Legacy browser Tailwind artifacts `js/bundle.v3.4.16.js` и `js/init.js` уда�
 
 | File | Lines | Current status |
 |---|---:|---|
-| `global.css` | ~1260 | единственный runtime manual CSS-файл шаблона; подключён через `header.php` |
+| `global.css` | 279 | базовые migrated/global rules; подключён через `header.php` |
+| `components.css` | 294 | shared form/modal/FAQ component rules; подключён через `header.php` |
+| `page-about-calculator.css` | 289 | about/calculator/chat page rules; подключён через `header.php` |
+| `page-offer-price-services.css` | 367 | contacts/offer/price/services page rules; подключён через `header.php` |
+| `page-aiagents.css` | 50 | scoped `/aiagents/` page rules; подключён через `header.php` |
 
 Удалены как dead artifacts после source scan и rendered asset inventory на `/`, `/about/`, `/services/`, `/price/`, `/calculator/`, `/offer/`, `/aiagents/`, `/contacts/`, `/policies/`: `main.css`, `services.css`, `price.css`, `calculator.css`, `contacts.css`, `about.css`, `expertise.css`, `css2.css`.
 
-`template_styles.css` больше не содержит активных правил: файл оставлен только как compatibility shim для Bitrix template asset pipeline. Старый custom/global bundle перенесён в `styles/global.css`, а generated utilities должны жить только в `tailwind.generated.css`. Мини-блок `/aiagents/` больше не держится отдельным asset-файлом: правила перенесены в `styles/global.css` и изолированы body class `tacticum-aiagents-page`.
+`template_styles.css` больше не содержит активных правил: файл оставлен только как compatibility shim для Bitrix template asset pipeline. Старый custom/global bundle split into fixed files under `styles/`, а generated utilities должны жить только в `tailwind.generated.css`. Мини-блок `/aiagents/` больше не держится legacy `styles/aiagents.css`: правила живут в `styles/page-aiagents.css` и изолированы body class `tacticum-aiagents-page`.
 
-Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `styles/global.css`: иконки должны использовать реальные классы из локального `fonts/remixicon.css`. `npm run template-styles:check` валидирует используемые `ri-*` классы и блокирует возврат generic fallback.
+Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из template CSS: иконки должны использовать реальные классы из локального `fonts/remixicon.css`. `npm run template-styles:check` валидирует используемые `ri-*` классы, fixed CSS split and blocks generic fallback.
 
 ## Inline Assets
 
@@ -113,8 +117,9 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 - `styles/aiagents.css` удалён как слишком мелкий отдельный runtime asset;
 - `/aiagents/` объявляет только JS asset `faq` и body class `tacticum-aiagents-page`;
 - page-specific rules `/aiagents/` живут в scoped-блоке `styles/global.css`;
-- `local/templates/tacticum/styles/` теперь допускает только `global.css`;
 - generic Remixicon fallback удалён, битые `ri-*` классы заменены на классы из локального icon font и покрыты `template-styles:check`.
+
+После BPC CSS split 05.06.2026 `local/templates/tacticum/styles/` допускает только fixed CSS split: `global.css`, `components.css`, `page-about-calculator.css`, `page-offer-price-services.css`, `page-aiagents.css`.
 
 После Sprint 12 hardening:
 
@@ -136,12 +141,12 @@ Legacy Remixicon fallback `:where([class^="ri-"])::before` удалён из `st
 ## Risks
 
 - Browser Tailwind/runtime bundle больше не подключается в production header; post-deploy visual smoke остаётся обязательным gate после CSS-правок.
-- `styles/global.css` остаётся единственным approved file в `local/templates/tacticum/styles/`; новые page CSS artifacts на уровне шаблона запрещены без отдельного asset contract и audit update.
+- `local/templates/tacticum/styles/` допускает только fixed CSS split; новые page CSS artifacts на уровне шаблона запрещены без отдельного asset contract и audit update.
 - Optional assets больше не выбираются по URL substring; страницы объявляют их явно до `require bitrix/header.php`.
 - `template_styles.css` не должен снова принимать активные CSS-правила или imports.
-- `styles/global.css` не должен содержать generic Remixicon fallback; новые `ri-*` классы должны существовать в `fonts/remixicon.css`.
+- template CSS split не должен содержать generic Remixicon fallback; новые `ri-*` классы должны существовать в `fonts/remixicon.css`.
 - `local/templates/tacticum/include/`, неиспользуемые font-source файлы и dead images не должны возвращаться в публичный шаблон; это покрывает `npm run template-styles:check`.
-- Если `tailwind.generated.css` потеряет декларацию порядка cascade layers, reset из `styles/global.css` может обнулить spacing/border utilities.
+- Если `tailwind.generated.css` потеряет декларацию порядка cascade layers, reset из fixed template CSS split может обнулить spacing/border utilities.
 - Repeated CTA markup больше не живёт копиями в public page PHP; новые варианты нужно добавлять через includes/components.
 - Metrika больше не требует inline-script exception; report-only CSP уже разрешает `https://mc.yandex.ru`, но enforcing CSP требует отдельного hardening шага.
 - Google Fonts/Readdy origins не используются в runtime assets; возврат этих third-party origins требует отдельного asset/CSP review.

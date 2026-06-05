@@ -6,6 +6,11 @@
     "sources": [
       "local/templates/tacticum/assets/src/tailwind.css",
       "local/templates/tacticum/styles/global.css",
+      "local/templates/tacticum/styles/components.css",
+      "local/templates/tacticum/styles/page-about-calculator.css",
+      "local/templates/tacticum/styles/page-offer-price-services.css",
+      "local/templates/tacticum/styles/page-aiagents.css",
+      "local/templates/tacticum/js/forms-runtime.js",
       "local/templates/tacticum/js/forms.js",
       "local/templates/tacticum/header.php",
       "local/components/tacticum/lead.cta/templates/.default/template.php",
@@ -28,7 +33,13 @@
         "status": "current implemented source for explicit project theme tokens"
       },
       "manualRuntimeCss": {
-        "path": "local/templates/tacticum/styles/global.css",
+        "paths": [
+          "local/templates/tacticum/styles/global.css",
+          "local/templates/tacticum/styles/components.css",
+          "local/templates/tacticum/styles/page-about-calculator.css",
+          "local/templates/tacticum/styles/page-offer-price-services.css",
+          "local/templates/tacticum/styles/page-aiagents.css"
+        ],
         "status": "observed recurring values, not normalized source of truth"
       },
       "toBeDecision": "Designer + Frontend must decide whether Figma variables, JSON tokens, Tailwind theme or a hybrid mapping becomes canonical."

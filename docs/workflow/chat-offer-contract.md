@@ -6,7 +6,7 @@
 
 ## Frontend Surfaces
 
-Единый frontend module: `local/templates/tacticum/js/chat-agent.js`.
+Единый frontend runtime: `local/templates/tacticum/js/chat-runtime.js`, `chat-hero.js`, `chat-calculators.js` and bootstrap `chat-agent.js`.
 
 Покрытые поверхности:
 

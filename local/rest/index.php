@@ -1,7 +1,18 @@
-<?require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin.php"); ?>
+<?php
+define('ADMIN_SECTION', true);
+
+if (!headers_sent()) {
+    header('X-Robots-Tag: noindex, nofollow', true);
+    header('Cache-Control: private, no-store', true);
+}
+
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin.php');
+
+$APPLICATION->SetTitle('REST webhooks');
+?>
 
 <div class="adm-workarea">
-    <?$APPLICATION->IncludeComponent(
+    <?php $APPLICATION->IncludeComponent(
         "bitrix:rest.hook",
         ".default",
         [
@@ -28,4 +39,4 @@
        }])">Добавить вебхук</a>
 </div>
 
-<?require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php'; ?>

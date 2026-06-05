@@ -68,6 +68,13 @@ const expectedProductScenarioValues = [
   'estimate'
 ];
 
+const expectedProductPagePaths = new Map([
+  ['platform/index.php', '/platform/'],
+  ['agents/index.php', '/agents/'],
+  ['dev/index.php', '/dev/'],
+  ['forum/index.php', '/forum/']
+]);
+
 const forbiddenProductSchemaFields = [
   'aggregateRating',
   'review',
@@ -92,6 +99,82 @@ function readOptional(path) {
   }
 
   return fs.readFileSync(path, 'utf8');
+}
+
+const componentizedPageRenderSources = new Map([
+  ['calculator/index.php', ['local/components/tacticum/calculator.page/templates/.default/template.php']],
+  ['contacts/index.php', [
+    'local/components/tacticum/contacts.page/templates/.default/template.php',
+    'local/components/tacticum/contacts.page/templates/.default/parts/hero.php',
+    'local/components/tacticum/contacts.page/templates/.default/parts/routing.php',
+    'local/components/tacticum/contacts.page/templates/.default/parts/cards.php',
+    'local/components/tacticum/contacts.page/templates/.default/parts/cta.php',
+    'local/components/tacticum/contacts.page/templates/.default/parts/legal-map.php'
+  ]],
+  ['price/index.php', [
+    'local/components/tacticum/price.page/templates/.default/template.php',
+    'local/components/tacticum/price.page/templates/.default/parts/hero.php',
+    'local/components/tacticum/price.page/templates/.default/parts/features.php',
+    'local/components/tacticum/price.page/templates/.default/parts/workstreams.php',
+    'local/components/tacticum/price.page/templates/.default/parts/price-list.php',
+    'local/components/tacticum/price.page/templates/.default/parts/calculator.php',
+    'local/components/tacticum/price.page/templates/.default/parts/faq-cta.php'
+  ]],
+  ['services/index.php', [
+    'local/components/tacticum/services.page/templates/.default/template.php',
+    'local/components/tacticum/services.page/templates/.default/parts/hero-entry.php',
+    'local/components/tacticum/services.page/templates/.default/parts/delivery-layer.php',
+    'local/components/tacticum/services.page/templates/.default/parts/services-list.php',
+    'local/components/tacticum/services.page/templates/.default/parts/process.php',
+    'local/components/tacticum/services.page/templates/.default/parts/cases-list.php',
+    'local/components/tacticum/services.page/templates/.default/parts/tech.php',
+    'local/components/tacticum/services.page/templates/.default/parts/cta-faq.php'
+  ]],
+  ['about/index.php', [
+    'local/components/tacticum/about.page/templates/.default/template.php',
+    'local/components/tacticum/about.page/templates/.default/parts/company-trust.php',
+    'local/components/tacticum/about.page/templates/.default/parts/values-team.php',
+    'local/components/tacticum/about.page/templates/.default/parts/stack-cta.php',
+    'local/components/tacticum/about.page/templates/.default/parts/career-final.php'
+  ]],
+  ['index.php', [
+    'local/components/tacticum/home.page/templates/.default/template.php',
+    'local/components/tacticum/home.page/templates/.default/parts/hero.php',
+    'local/components/tacticum/home.page/templates/.default/parts/ecosystem.php',
+    'local/components/tacticum/home.page/templates/.default/parts/fit-matrix.php',
+    'local/components/tacticum/home.page/templates/.default/parts/commercial.php',
+    'local/components/tacticum/home.page/templates/.default/parts/content-lists.php',
+    'local/components/tacticum/home.page/templates/.default/parts/calculator.php',
+    'local/components/tacticum/home.page/templates/.default/parts/faq-cta.php'
+  ]],
+  ['aiagents/index.php', [
+    'local/components/tacticum/aiagents/templates/.default/template.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/hero.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/agents-bridge.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/how-it-works.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/demoagents-list.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/services.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/demo.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/contact-form.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/faq.php'
+  ]],
+  ['local/templates/tacticum/components/bitrix/news.detail/offer/template.php', [
+    'local/templates/tacticum/components/bitrix/news.detail/offer/parts/summary-estimate.php',
+    'local/templates/tacticum/components/bitrix/news.detail/offer/parts/product-context.php',
+    'local/templates/tacticum/components/bitrix/news.detail/offer/parts/risks.php',
+    'local/templates/tacticum/components/bitrix/news.detail/offer/parts/cta.php',
+    'local/templates/tacticum/components/bitrix/news.detail/offer/parts/reasons.php',
+    'local/templates/tacticum/components/bitrix/news.detail/offer/parts/faq.php'
+  ]]
+]);
+
+function publicPageRenderSource(file) {
+  const sources = [read(file)];
+  for (const componentSourcePath of componentizedPageRenderSources.get(file) ?? []) {
+    sources.push(read(componentSourcePath));
+  }
+
+  return sources.join('\n');
 }
 
 function extractTags(xml, tag) {
@@ -224,10 +307,16 @@ function assertCanonicalPaths() {
 
   for (const [file, expectedPath] of expectedStaticPages) {
     const source = file === 'offer/index.php'
-      ? `${read(file)}\n${read('local/php_interface/include/offer_page.php')}`
+      ? `${read(file)}\n${read('local/php_interface/include/offer_page.php')}\n${read('local/lib/Tacticum/Offer/Page/Response.php')}`
       : read(file);
     const match = source.match(canonicalPattern);
     if (!match) {
+      if (
+        expectedProductPagePaths.has(file)
+        && new RegExp(`['"]CANONICAL_PATH['"]\\s*=>\\s*['"]${escapeRegExp(expectedPath)}['"]`).test(source)
+      ) {
+        continue;
+      }
       fail(`${file} is missing static tacticum_apply_seo_defaults canonical path`);
       continue;
     }
@@ -291,13 +380,20 @@ function assertTopMenuProminence() {
   }
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function assertDefaultSocialPreview() {
   const imagePath = 'local/templates/tacticum/images/og-default.jpg';
   if (!fs.existsSync(imagePath)) {
     fail(`${imagePath} is missing`);
   }
 
-  const seoHelperSource = read('local/php_interface/include/seo_helpers.php');
+  const seoHelperSource = [
+    read('local/php_interface/include/seo_helpers.php'),
+    read('local/lib/Tacticum/Seo/Meta.php'),
+  ].join('\n');
   if (!seoHelperSource.includes("/images/og-default.jpg")) {
     fail('SEO helper must use og-default.jpg as the default social preview image');
   }
@@ -309,9 +405,23 @@ function assertDefaultSocialPreview() {
 function assertOfferCatalogRouting() {
   const rewriteSource = read('urlrewrite.php');
   const offerPageSource = read('offer/index.php');
-  const offerPageControllerSource = read('local/php_interface/include/offer_page.php');
+  const offerQuerySource = read('local/lib/Tacticum/Offer/Page/Query.php');
+  const offerResolverSource = read('local/lib/Tacticum/Offer/Page/Resolver.php');
+  const offerRequestSnapshotSource = read('local/lib/Tacticum/Offer/Page/RequestSnapshot.php');
+  const offerPageControllerSource = [
+    read('local/php_interface/include/offer_page.php'),
+    offerQuerySource,
+    offerRequestSnapshotSource,
+    offerResolverSource,
+    read('local/lib/Tacticum/Offer/Page/Response.php'),
+  ].join('\n');
   const headerSource = read('local/templates/tacticum/header.php');
   const offerCatalogSource = read('local/php_interface/include/offer_catalog.php');
+  const offerCatalogRuntimeSource = [
+    offerCatalogSource,
+    read('local/lib/Tacticum/Offer/CatalogFilters.php'),
+    read('local/lib/Tacticum/Offer/CatalogService.php'),
+  ].join('\n');
   const offerComponentSource = read('local/components/tacticum/offer/component.php');
   const offerListTemplate = read('local/components/tacticum/offer/templates/.default/list.php');
   const offerDetailTemplate = read('local/components/tacticum/offer/templates/.default/detail.php');
@@ -356,6 +466,8 @@ function assertOfferCatalogRouting() {
   if (
     !offerPageControllerSource.includes('clear_cache')
     || !offerPageControllerSource.includes('tacticum_offer_catalog_path_filters')
+    || !offerPageControllerSource.includes('Context::getCurrent()')
+    || !offerPageControllerSource.includes('RequestSnapshot::current')
     || !offerPageControllerSource.includes('tacticum_offer_page_apply_seo')
     || !offerPageControllerSource.includes('tacticum_offer_page_apply_template')
     || !offerPageControllerSource.includes('tacticum_page_assets')
@@ -363,6 +475,9 @@ function assertOfferCatalogRouting() {
     || !offerPageControllerSource.includes('tacticum_offer_page_component_params')
   ) {
     fail('offer_page.php must preserve Bitrix service params, pretty catalog parsing, SEO/template setup and component params');
+  }
+  if (/\$_(GET|REQUEST|SERVER)/.test(`${offerQuerySource}\n${offerResolverSource}`)) {
+    fail('Offer Page Query/Resolver must not read superglobals directly; use RequestSnapshot over Bitrix Context');
   }
   if (!headerSource.includes("GetPageProperty('tacticum_page_assets'") || !headerSource.includes("GetPageProperty('tacticum_body_class'")) {
     fail('template header must support Bitrix page properties for page assets and body class');
@@ -379,7 +494,7 @@ function assertOfferCatalogRouting() {
   if (!offerDetailTemplate.includes('bitrix:news.detail')) {
     fail('tacticum:offer detail template must render bitrix:news.detail');
   }
-  if (!offerCatalogSource.includes('/offer/catalog/') || !offerCatalogSource.includes('tacticum_offer_catalog_url')) {
+  if (!offerCatalogRuntimeSource.includes('/offer/catalog/') || !offerCatalogSource.includes('tacticum_offer_catalog_url')) {
     fail('offer catalog helper must generate /offer/catalog/... URLs');
   }
   if (
@@ -432,7 +547,7 @@ function assertPublicPageComponentization() {
     'calculator/index.php',
     'price/index.php',
     'services/index.php',
-    'local/components/tacticum/aiagents/templates/.default/template.php',
+    'aiagents/index.php',
     'local/templates/tacticum/components/bitrix/news.detail/offer/template.php'
   ];
   const chatPages = [
@@ -461,7 +576,7 @@ function assertPublicPageComponentization() {
     'about/index.php',
     'services/index.php',
     'price/index.php',
-    'local/components/tacticum/aiagents/templates/.default/template.php'
+    'aiagents/index.php'
   ];
   const directContentDetailHosts = [
     'policies/index.php'
@@ -480,11 +595,15 @@ function assertPublicPageComponentization() {
     'agents/index.php',
     'dev/index.php',
     'forum/index.php',
-    '404.php',
-    'local/components/tacticum/aiagents/templates/.default/template.php'
+    '404.php'
   ];
   const productPageBlockFiles = [
+    'local/components/tacticum/product.hero/component.php',
+    'local/components/tacticum/product.hero/templates/.default/template.php',
+    'local/components/tacticum/product.lead.cta/component.php',
+    'local/components/tacticum/product.lead.cta/templates/.default/template.php',
     'local/php_interface/include/product_page_blocks/common.php',
+    'local/php_interface/include/product_page_blocks/fit_guide.php',
     'local/php_interface/include/product_page_blocks/architecture.php',
     'local/php_interface/include/product_page_blocks/use_cases.php',
     'local/php_interface/include/product_page_blocks/procurement.php',
@@ -494,8 +613,25 @@ function assertPublicPageComponentization() {
     'local/php_interface/include/product_page_blocks/faq.php',
     'local/php_interface/include/product_page_blocks/page.php'
   ];
+  const productPageLogicFiles = [
+    'local/lib/Tacticum/Product/Page/Text.php',
+    'local/lib/Tacticum/Product/Page/Cta.php',
+    'local/lib/Tacticum/Product/Page/DataProvider.php',
+    'local/lib/Tacticum/Product/Page/Schema.php'
+  ];
   const productRendererBootstrapSource = read('local/php_interface/include/product_page.php');
+  const productRendererLogicSource = [
+    productRendererBootstrapSource,
+    ...productPageLogicFiles.map((file) => read(file))
+  ].join('\n');
   const productContentSource = read('local/php_interface/include/product_content.php');
+  const productContentRuntimeSource = read('local/lib/Tacticum/Product/ContentRuntime.php');
+  const productContentServiceSource = read('local/lib/Tacticum/Product/ContentService.php');
+  const productContentRuntimeAndFacadeSource = [
+    productContentSource,
+    productContentRuntimeSource,
+    productContentServiceSource,
+  ].join('\n');
   const productContentSchemaSource = read('docs/workflow/product-content-schema-v1.json');
   const productContentSchemaCheckSource = read('tools/product-content-schema-check.mjs');
   const productMigrationSource = read('tools/product-content-migration.php');
@@ -516,21 +652,41 @@ function assertPublicPageComponentization() {
   const configRuntimeCheckSource = read('tools/config-runtime-check.php');
   const productContentAdrSource = read('docs/adr/ADR-010-product-content-bitrix-model.md');
   const restHelpersSource = read('local/rest/rest_helpers.php');
+  const restIndexSource = read('local/rest/index.php');
+  const restRuntimeSource = [
+    restHelpersSource,
+    read('local/lib/Tacticum/Rest/Api.php'),
+    read('local/lib/Tacticum/Rest/Config.php'),
+    read('local/lib/Tacticum/Rest/ConfigValidator.php'),
+    read('local/lib/Tacticum/Rest/RateLimiter.php'),
+  ].join('\n');
   const restEndpointGuardCheckSource = read('tools/rest-endpoint-guard-check.mjs');
   const healthConfigSource = read('local/rest/health_config.php');
   const productRendererSource = [
-    productRendererBootstrapSource,
+    productRendererLogicSource,
     ...productPageBlockFiles.map((file) => read(file))
   ].join('\n');
-  const homepageSource = read('index.php');
+  const productPageComponentSource = read('local/components/tacticum/product.page/component.php');
+  const homepageSource = publicPageRenderSource('index.php');
   const faqSectionComponentSource = read('local/components/tacticum/faq.section/component.php');
   const faqSectionTemplateSource = read('local/components/tacticum/faq.section/templates/.default/template.php');
   const leadCtaComponentSource = read('local/components/tacticum/lead.cta/component.php');
+  const leadCtaParamsSource = read('local/lib/Tacticum/Component/LeadCtaParams.php');
   const leadCtaTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/template.php');
   const leadCtaFormTemplateSource = read('local/components/tacticum/lead.cta/templates/.default/form.php');
   const formEndpointSource = read('local/rest/tacticum_form.php');
+  const leadContextSource = read('local/lib/Tacticum/Rest/LeadContext.php');
+  const leadPayloadSource = read('local/lib/Tacticum/Rest/LeadPayload.php');
   const analyticsSource = read('local/templates/tacticum/js/analytics.js');
+  const formsRuntimeHelperSource = read('local/templates/tacticum/js/forms-runtime.js');
   const formsSource = read('local/templates/tacticum/js/forms.js');
+  const formsRuntimeSource = `${formsRuntimeHelperSource}\n${formsSource}`;
+  const chatRuntimeSource = [
+    read('local/templates/tacticum/js/chat-runtime.js'),
+    read('local/templates/tacticum/js/chat-hero.js'),
+    read('local/templates/tacticum/js/chat-calculators.js'),
+    read('local/templates/tacticum/js/chat-agent.js'),
+  ].join('\n');
   const faqJsSource = read('local/templates/tacticum/js/faq.js');
   const visualSmokeSource = read('tools/visual-smoke.mjs');
   const releaseSignoffCheckSource = read('tools/release-signoff-check.mjs');
@@ -547,17 +703,17 @@ function assertPublicPageComponentization() {
     fail('product page renderer must pass product scenario options into tacticum:lead.cta');
   }
   if (
-    !productRendererBootstrapSource.includes('tacticum_product_page_cta_lead_context')
-    || !productRendererBootstrapSource.includes('lead_page_role')
-    || !productRendererBootstrapSource.includes('lead_product')
+    !productRendererLogicSource.includes('tacticum_product_page_cta_lead_context')
+    || !productRendererLogicSource.includes('lead_page_role')
+    || !productRendererLogicSource.includes('lead_product')
     || !productRendererSource.includes("'LEAD_CONTEXT' => tacticum_product_page_cta_lead_context")
   ) {
     fail('product page renderer must sanitize product CTA lead context before passing it into tacticum:lead.cta');
   }
   if (
-    !productRendererBootstrapSource.includes('tacticum_product_page_safe_href')
-    || !productRendererBootstrapSource.includes('tacticum_product_page_is_safe_href')
-    || !productRendererBootstrapSource.includes('!str_starts_with($href, \'//\')')
+    !productRendererLogicSource.includes('tacticum_product_page_safe_href')
+    || !productRendererLogicSource.includes('tacticum_product_page_is_safe_href')
+    || !productRendererLogicSource.includes('!str_starts_with($href, \'//\')')
     || !productRendererSource.includes('tacticum_product_page_safe_href($page[\'secondary_cta_href\']')
     || !productRendererSource.includes('tacticum_product_page_safe_href($procurement[\'cta_href\']')
     || !productRendererSource.includes('tacticum_product_page_safe_href($column[\'href\']')
@@ -565,33 +721,43 @@ function assertPublicPageComponentization() {
     fail('product page renderer must normalize product hrefs and block protocol-relative URLs at runtime');
   }
   if (
-    !productRendererBootstrapSource.includes('tacticum_product_page_icon_class')
-    || !productRendererBootstrapSource.includes('^ri-[a-z0-9]+(?:-[a-z0-9]+)*$')
+    !productRendererLogicSource.includes('tacticum_product_page_icon_class')
+    || !productRendererLogicSource.includes('^ri-[a-z0-9]+(?:-[a-z0-9]+)*$')
     || !productRendererSource.includes('tacticum_product_page_icon_class($card[\'icon\']')
     || !productRendererSource.includes('tacticum_product_page_icon_class($item[\'icon\']')
   ) {
     fail('product page renderer must normalize product icon classes from content');
   }
   if (
-    !productRendererBootstrapSource.includes('tacticum_product_page_columns_class')
-    || !productRendererBootstrapSource.includes("'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'")
+    !productRendererLogicSource.includes('tacticum_product_page_columns_class')
+    || !productRendererLogicSource.includes("'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'")
     || !productRendererSource.includes('tacticum_product_page_columns_class($section[\'columns_class\']')
   ) {
     fail('product page renderer must normalize product grid column classes from content');
   }
-  if (!productRendererBootstrapSource.includes('tacticum_product_content_bitrix_data') || !productRendererBootstrapSource.includes('tacticum_product_page_fallback_data')) {
+  if (!productRendererLogicSource.includes('tacticum_product_content_bitrix_data') || !productRendererLogicSource.includes('tacticum_product_page_fallback_data')) {
     fail('product_page.php must support Bitrix product content with Git fallback');
   }
-  if (!productRendererBootstrapSource.includes("$data['_product_code'] = $productCode") || !productContentSource.includes("'_product_code' => $productCode")) {
+  if (!productRendererLogicSource.includes("$data['_product_code'] = $productCode") || !productContentRuntimeAndFacadeSource.includes("'_product_code' => $productCode")) {
     fail('product Bitrix and fallback data must carry _product_code for product CTA context enforcement');
   }
-  if (!productRendererBootstrapSource.includes('tacticum_product_content_is_minimum_renderable') || !productRendererBootstrapSource.includes('$source === \'bitrix\'')) {
+  if (!productRendererLogicSource.includes('tacticum_product_content_is_minimum_renderable') || !productRendererLogicSource.includes('$source === \'bitrix\'')) {
     fail('product_page.php must guard auto Bitrix product content by minimum renderability and preserve bitrix-only mode');
   }
-  const productContentIncludeIndex = initSource.indexOf('/include/product_content.php');
-  const productPageIncludeIndex = initSource.indexOf('/include/product_page.php');
-  if (productContentIncludeIndex < 0 || productPageIncludeIndex < 0 || productContentIncludeIndex > productPageIncludeIndex) {
-    fail('init.php must load product_content.php before product_page.php');
+  if (!initSource.includes('/include/product_content_events.php')) {
+    fail('init.php must load product_content_events.php for product cache invalidation registration');
+  }
+  if (initSource.includes('/include/product_content.php')) {
+    fail('init.php must not eagerly load product_content.php; product content runtime must load lazily');
+  }
+  if (initSource.includes('/include/product_page.php')) {
+    fail('init.php must not eagerly load product_page.php; product renderer must load through tacticum:product.page');
+  }
+  if (!productRendererLogicSource.includes('/local/php_interface/include/product_content.php')) {
+    fail('product_page.php must lazy-load product_content.php before product data resolution');
+  }
+  if (!productPageComponentSource.includes('/local/php_interface/include/product_page.php')) {
+    fail('tacticum:product.page must lazy-load product_page.php when product renderer functions are missing');
   }
   for (const helperName of [
     'tacticum_product_content_source',
@@ -608,8 +774,8 @@ function assertPublicPageComponentization() {
       fail(`product_content.php is missing ${helperName}`);
     }
   }
-  if (!productContentSource.includes('Cache::createInstance()') || !productContentSource.includes('iblock_id_')) {
-    fail('product_content.php must cache Bitrix product content with iblock managed tags');
+  if (!productContentRuntimeAndFacadeSource.includes('Cache::createInstance()') || !productContentRuntimeAndFacadeSource.includes('iblock_id_')) {
+    fail('product content runtime/facade must cache Bitrix product content with iblock managed tags');
   }
   if (!initSource.includes('tacticum_register_product_content_cache_handlers')) {
     fail('init.php must register product content cache invalidation handlers');
@@ -641,29 +807,38 @@ function assertPublicPageComponentization() {
     }
   }
   if (
-    !restHelpersSource.includes("in_array('products', $scopes, true)")
-    || !restHelpersSource.includes("'products.source'")
-    || !restHelpersSource.includes("'products.cache_ttl'")
+    !restRuntimeSource.includes("in_array('products', $scopes, true)")
+    || !restRuntimeSource.includes("'products.source'")
+    || !restRuntimeSource.includes("'products.cache_ttl'")
   ) {
-    fail('rest_helpers.php must validate products scope, products.source and products.cache_ttl');
+    fail('REST runtime must validate products scope, products.source and products.cache_ttl');
   }
   if (
-    !restHelpersSource.includes('tacticum_rest_rate_limit_classes')
-    || !restHelpersSource.includes('tacticum_rest_rate_limit_by_class')
-    || !restHelpersSource.includes("'rest.rate_limits'")
+    !restRuntimeSource.includes('tacticum_rest_rate_limit_classes')
+    || !restRuntimeSource.includes('tacticum_rest_rate_limit_by_class')
+    || !restRuntimeSource.includes("'rest.rate_limits'")
   ) {
-    fail('rest_helpers.php must define and validate REST endpoint risk classes');
+    fail('REST runtime must define and validate REST endpoint risk classes');
   }
   if (
-    !restHelpersSource.includes('tacticum_rest_get_config_section_defaults')
-    || !restHelpersSource.includes("'faq_section_fallback_ids'")
-    || !restHelpersSource.includes("'home' => 17")
-    || !restHelpersSource.includes('array_replace_recursive')
+    !restRuntimeSource.includes('tacticum_rest_get_config_section_defaults')
+    || !restRuntimeSource.includes("'faq_section_fallback_ids'")
+    || !restRuntimeSource.includes("'home' => 17")
+    || !restRuntimeSource.includes('array_replace_recursive')
   ) {
-    fail('rest_helpers.php must apply non-secret default content.faq_section_fallback_ids for FAQ wrapper fallback');
+    fail('REST runtime must apply non-secret default content.faq_section_fallback_ids for FAQ wrapper fallback');
   }
   if (!healthConfigSource.includes("'products'")) {
     fail('health_config.php must include products scope in config validation');
+  }
+  if (
+    !restIndexSource.includes("define('ADMIN_SECTION', true)")
+    || !restIndexSource.includes('prolog_admin.php')
+    || !restIndexSource.includes('X-Robots-Tag: noindex, nofollow')
+    || !restIndexSource.includes('Cache-Control: private, no-store')
+    || !restIndexSource.includes('bitrix:rest.hook')
+  ) {
+    fail('local/rest/index.php must be explicit admin-only noindex route for Bitrix REST hook UI');
   }
   for (const runtimeConfigNeedle of [
     'tacticum_rest_validate_config',
@@ -779,7 +954,10 @@ function assertPublicPageComponentization() {
       fail(`product-content-cache-clear-evidence-check.mjs is missing ${cacheClearEvidenceNeedle}`);
     }
   }
-  if (!productContentSource.includes('$tagIblockIds = $iblockId > 0 ? [$iblockId] : tacticum_product_content_related_iblock_ids()')) {
+  if (
+    !productContentRuntimeAndFacadeSource.includes('$tagIblockIds = $iblockId > 0 ? [$iblockId] : tacticum_product_content_related_iblock_ids()')
+    && !productContentRuntimeAndFacadeSource.includes('$tagIblockIds = $iblockId > 0 ? [$iblockId] : self::relatedIblockIds()')
+  ) {
     fail('tacticum_product_content_clear_cache() must clear all product managed tags when called without a specific iblock ID');
   }
   if (/if\s*\(\s*&&/.test(productContentSource)) {
@@ -1117,13 +1295,16 @@ function assertPublicPageComponentization() {
   if (!productRendererSource.includes('tacticum_product_page_schema') || !productRendererSource.includes('tacticum_product_page_software_schema')) {
     fail('product page renderer must build product JSON-LD schema from shared product page data');
   }
+  if (!productPageComponentSource.includes('tacticum_apply_seo_defaults') || !productPageComponentSource.includes('tacticum_product_page_schema')) {
+    fail('tacticum:product.page must apply SEO defaults and product JSON-LD schema from prepared product page data');
+  }
   if (!productRendererSource.includes("'@type' => 'SoftwareApplication'") || !productRendererSource.includes("'@id' => tacticum_public_url") || !productRendererSource.includes("'provider'") || !productRendererSource.includes("'isPartOf'")) {
     fail('product page schema helper must include stable SoftwareApplication identity, provider and isPartOf references');
   }
   if (!productRendererSource.includes('tacticum_product_page_faq_schema') || !productRendererSource.includes("'@type' => 'FAQPage'") || !productRendererSource.includes("'acceptedAnswer'")) {
     fail('product page schema helper must expose rendered static product FAQ as FAQPage JSON-LD');
   }
-  if (!leadCtaComponentSource.includes('SCENARIO_OPTIONS') || !leadCtaComponentSource.includes('normalizeScenarioOptions')) {
+  if (!leadCtaParamsSource.includes('SCENARIO_OPTIONS') || !leadCtaParamsSource.includes('normalizeScenarioOptions')) {
     fail('tacticum:lead.cta component must support normalized scenario options');
   }
   if (!leadCtaFormTemplateSource.includes('name="lead_scenario"')) {
@@ -1139,23 +1320,23 @@ function assertPublicPageComponentization() {
   if (leadCtaIconLinesWithoutHidden.length > 0) {
     fail('tacticum:lead.cta decorative icons must include aria-hidden="true"');
   }
-  if (!leadCtaFormTemplateSource.includes('data-tacticum-returning-lead-panel') || !formsSource.includes('tacticum:returningLead:v1')) {
-    fail('tacticum:lead.cta and forms.js must support no-PII returning lead state');
+  if (!leadCtaFormTemplateSource.includes('data-tacticum-returning-lead-panel') || !formsRuntimeSource.includes('tacticum:returningLead:v1')) {
+    fail('tacticum:lead.cta and forms runtime must support no-PII returning lead state');
   }
-  const returningLeadStart = formsSource.indexOf('const markReturningLead');
-  const returningLeadEnd = formsSource.indexOf('const applyReturningLeadState');
+  const returningLeadStart = formsRuntimeSource.indexOf('const markReturningLead');
+  const returningLeadEnd = formsRuntimeSource.indexOf('const applyReturningLeadState');
   const returningLeadSource = returningLeadStart >= 0 && returningLeadEnd > returningLeadStart
-    ? formsSource.slice(returningLeadStart, returningLeadEnd)
+    ? formsRuntimeSource.slice(returningLeadStart, returningLeadEnd)
     : '';
   if (!returningLeadSource.includes('product:') || !returningLeadSource.includes('form_id:')) {
-    fail('forms.js returning lead marker must persist only safe product/form metadata');
+    fail('forms runtime returning lead marker must persist only safe product/form metadata');
   }
   for (const forbiddenReturningLeadField of ['email', 'phone', 'name', 'message', 'company']) {
     if (
       returningLeadSource.includes(`payload.${forbiddenReturningLeadField}`)
       || returningLeadSource.includes(`${forbiddenReturningLeadField}:`)
     ) {
-      fail(`forms.js returning lead marker must not persist PII field ${forbiddenReturningLeadField}`);
+      fail(`forms runtime returning lead marker must not persist PII field ${forbiddenReturningLeadField}`);
     }
   }
   if (!homepageSource.includes('Как выбрать продукт') || !homepageSource.includes('Начните с ситуации') || !homepageSource.includes('Старт: architecture assessment')) {
@@ -1197,21 +1378,22 @@ function assertPublicPageComponentization() {
     }
   }
   for (const scenarioValue of expectedProductScenarioValues) {
-    if (!formEndpointSource.includes(`'${scenarioValue}'`)) {
-      fail(`tacticum_form.php must map product lead_scenario value ${scenarioValue}`);
+    if (!leadContextSource.includes(`'${scenarioValue}'`)) {
+      fail(`LeadContext.php must map product lead_scenario value ${scenarioValue}`);
     }
   }
   if (
-    !formEndpointSource.includes('tacticum_form_build_lead_profile')
-    || !formEndpointSource.includes("'product_interest'")
-    || !formEndpointSource.includes("'use_case_interest'")
-    || !formEndpointSource.includes("'deployment_interest'")
+    !formEndpointSource.includes('LeadPayload::build')
+    || !leadPayloadSource.includes('LeadContext::build')
+    || !leadContextSource.includes("'product_interest'")
+    || !leadContextSource.includes("'use_case_interest'")
+    || !leadContextSource.includes("'deployment_interest'")
   ) {
-    fail('tacticum_form.php must normalize product lead fields into a canonical lead qualification profile before task fallback');
+    fail('LeadPayload/LeadContext must normalize product lead fields into a canonical lead qualification profile before task fallback');
   }
   for (const structuredLeadField of ['product_interest', 'use_case_interest', 'deployment_interest']) {
-    if (formEndpointSource.includes(`$payload['${structuredLeadField}']`)) {
-      fail(`tacticum_form.php must not forward structured lead field ${structuredLeadField} to upstream before CRM/upstream contract approval`);
+    if (leadPayloadSource.includes(`$payload['${structuredLeadField}']`)) {
+      fail(`LeadPayload.php must not forward structured lead field ${structuredLeadField} to upstream before CRM/upstream contract approval`);
     }
   }
   for (const productEvent of [
@@ -1221,16 +1403,16 @@ function assertPublicPageComponentization() {
     'tacticum_product_form_success',
     'tacticum_product_form_error'
   ]) {
-    if (!analyticsSource.includes(productEvent) && !formsSource.includes(productEvent)) {
+    if (!analyticsSource.includes(productEvent) && !formsRuntimeSource.includes(productEvent)) {
       fail(`product funnel analytics event ${productEvent} is missing`);
     }
   }
-  if (!formsSource.includes('productAnalyticsValues') || !formsSource.includes('normalizeControlledValue')) {
-    fail('forms.js must allowlist product analytics values before sending product funnel events');
+  if (!formsRuntimeSource.includes('productAnalyticsValues') || !formsRuntimeSource.includes('normalizeControlledValue')) {
+    fail('forms runtime must allowlist product analytics values before sending product funnel events');
   }
   for (const formStateNeedle of ['aria-busy', 'aria-invalid', 'tacticumSubmitting', 'tacticumWasDisabled', 'Отправляем...']) {
-    if (!formsSource.includes(formStateNeedle)) {
-      fail(`forms.js must preserve accessible submit/invalid state hook: ${formStateNeedle}`);
+    if (!formsRuntimeSource.includes(formStateNeedle)) {
+      fail(`forms runtime must preserve accessible submit/invalid state hook: ${formStateNeedle}`);
     }
   }
   for (const forbiddenProductAnalyticsParam of ['lead_budget', 'lead_timeline', 'lead_offer_title', 'message', 'email', 'phone']) {
@@ -1242,26 +1424,29 @@ function assertPublicPageComponentization() {
   for (const { file, key, dataFile } of productPages) {
     const source = read(file);
     const dataSource = read(dataFile);
-    const productDataIndex = source.indexOf(`$tacticumProductPage = tacticum_product_page_data('${key}')`);
-    const seoIndex = source.indexOf('tacticum_apply_seo_defaults');
-    const renderIndex = source.indexOf('tacticum_render_product_page($tacticumProductPage)');
-    if (productDataIndex < 0) {
-      fail(`${file} must load product page data through tacticum_product_page_data('${key}') before SEO and render`);
+    const prologAfterIndex = source.indexOf('prolog_after.php');
+    const prepareIndex = source.search(/IncludeComponent\(\s*[\r\n\t ]*['"]tacticum:product\.page['"][\s\S]*?['"]PREPARE_ONLY['"]\s*=>\s*['"]Y['"]/m);
+    const renderIndex = source.search(/['"]PAGE_DATA['"]\s*=>\s*\$tacticumProductPage/m);
+    if (prepareIndex < 0) {
+      fail(`${file} must prepare product page data and SEO through tacticum:product.page PREPARE_ONLY before prolog_after`);
     }
-    if (seoIndex < 0 || (productDataIndex >= 0 && seoIndex < productDataIndex)) {
-      fail(`${file} must build SEO schema after product page data is defined`);
+    if (prologAfterIndex < 0 || (prepareIndex >= 0 && prepareIndex > prologAfterIndex)) {
+      fail(`${file} must run tacticum:product.page PREPARE_ONLY before prolog_after`);
     }
-    if (renderIndex < 0 || (seoIndex >= 0 && renderIndex < seoIndex)) {
-      fail(`${file} must render the same product page data after SEO defaults`);
+    if (renderIndex < 0 || (prologAfterIndex >= 0 && renderIndex < prologAfterIndex)) {
+      fail(`${file} must render tacticum:product.page with the prepared $tacticumProductPage after prolog_after`);
     }
-    if (!source.includes('tacticum_render_product_page')) {
-      fail(`${file} must render through the shared product page renderer`);
+    if (!new RegExp(`['"]PRODUCT_CODE['"]\\s*=>\\s*['"]${key}['"]`).test(source)) {
+      fail(`${file} must pass PRODUCT_CODE=${key} to tacticum:product.page`);
     }
-    if (!new RegExp(`tacticum_apply_seo_defaults\\s*\\(\\s*['"]/${key}/['"]`).test(source)) {
-      fail(`${file} must bind SEO defaults to /${key}/`);
+    if (!new RegExp(`['"]CANONICAL_PATH['"]\\s*=>\\s*['"]/${key}/['"]`).test(source)) {
+      fail(`${file} must pass CANONICAL_PATH=/${key}/ to tacticum:product.page`);
     }
-    if (!new RegExp(`tacticum_product_page_schema\\s*\\([\\s\\S]*?['"]/${key}/['"]`).test(source)) {
-      fail(`${file} must bind product JSON-LD schema to /${key}/`);
+    if (!/['"]APPLY_SEO_DEFAULTS['"]\s*=>\s*['"]N['"]/.test(source)) {
+      fail(`${file} render call must disable duplicate SEO defaults with APPLY_SEO_DEFAULTS=N`);
+    }
+    if (source.includes('tacticum_product_page_data(') || source.includes('tacticum_product_page_schema(') || source.includes('tacticum_render_product_page(')) {
+      fail(`${file} must not call product page data, schema or renderer helpers directly; use tacticum:product.page`);
     }
     if (source.includes('$tacticumProductPage = [')) {
       fail(`${file} must stay thin and must not inline the product page data array`);
@@ -1298,9 +1483,6 @@ function assertPublicPageComponentization() {
     if (!dataSource.includes("'proof'") && !dataSource.includes('"proof"')) {
       fail(`${dataFile} must include product proof readiness items`);
     }
-    if (!source.includes("'schema' => tacticum_product_page_schema(")) {
-      fail(`${file} must add SoftwareApplication and FAQPage JSON-LD through tacticum_product_page_schema`);
-    }
     for (const forbiddenField of forbiddenProductSchemaFields) {
       if (source.includes(`'${forbiddenField}'`) || source.includes(`"${forbiddenField}"`) || dataSource.includes(`'${forbiddenField}'`) || dataSource.includes(`"${forbiddenField}"`)) {
         fail(`${file} / ${dataFile} product schema must not include risky commercial field ${forbiddenField}`);
@@ -1318,7 +1500,7 @@ function assertPublicPageComponentization() {
   }
 
   for (const file of ctaPages) {
-    const source = read(file);
+    const source = publicPageRenderSource(file);
     if (!source.includes('"tacticum:lead.cta"')) {
       fail(`${file} must render repeated CTA through tacticum:lead.cta`);
     }
@@ -1337,7 +1519,7 @@ function assertPublicPageComponentization() {
   }
 
   for (const file of faqHosts) {
-    const source = read(file);
+    const source = publicPageRenderSource(file);
     if (!source.includes('"tacticum:faq.section"')) {
       fail(`${file} must render FAQ through tacticum:faq.section`);
     }
@@ -1368,7 +1550,7 @@ function assertPublicPageComponentization() {
   }
 
   for (const file of directContentListHosts) {
-    const source = read(file);
+    const source = publicPageRenderSource(file);
     if (!source.includes('"tacticum:content.list"')) {
       fail(`${file} must render repeated content lists through tacticum:content.list`);
     }
@@ -1385,7 +1567,7 @@ function assertPublicPageComponentization() {
   }
 
   for (const file of publicComponentEntryPoints) {
-    const source = read(file);
+    const source = publicPageRenderSource(file);
     if (/"bitrix:news\.list"/.test(source)) {
       fail(`${file} must not call bitrix:news.list directly; use tacticum local wrappers`);
     }
@@ -1408,11 +1590,11 @@ function assertPublicPageComponentization() {
   }
 
   for (const file of chatPages) {
-    const source = read(file);
+    const source = publicPageRenderSource(file);
     if (!source.includes('"tacticum:chat.surface"')) {
       fail(`${file} must render hero/light chat surfaces through tacticum:chat.surface`);
     }
-    if (!/SetPageProperty\s*\(\s*["']tacticum_page_assets["']\s*,\s*["'][^"']*\bchat\b/.test(source)) {
+    if (!/SetPageProperty\s*\(\s*["']tacticum_page_assets["']\s*,\s*["'][^"']*\bchat\b/.test(read(file))) {
       fail(`${file} must request chat-agent.js through tacticum_page_assets=chat`);
     }
   }
@@ -1426,13 +1608,43 @@ function assertPublicPageComponentization() {
   if (!headerSource.includes("if ($hasPageAsset('chat'))")) {
     fail('template header must load chat-agent.js only through the chat page asset');
   }
+  for (const chatAsset of ['chat-runtime.js', 'chat-hero.js', 'chat-calculators.js', 'chat-agent.js']) {
+    if (!headerSource.includes(`SITE_TEMPLATE_PATH."/js/${chatAsset}"`)) {
+      fail(`template header must load ${chatAsset} through the chat page asset`);
+    }
+  }
+  for (const chatRuntimeNeedle of [
+    'window.TacticumChatRuntime',
+    'window.TacticumChatSurfaces',
+    '/local/rest/tacticum_chat.php',
+    '/local/rest/tacticum_prefill.php',
+    'data-chat-lead-handoff',
+    'tacticum_chat_lead_handoff',
+    'tacticum_prefill_submit',
+    'has_group_id',
+    'has_prefill_summary'
+  ]) {
+    if (!chatRuntimeSource.includes(chatRuntimeNeedle)) {
+      fail(`chat runtime split must preserve ${chatRuntimeNeedle}`);
+    }
+  }
   if (/fonts\.googleapis|fonts\.gstatic|readdy\.ai/.test(headerSource)) {
     fail('template header must not keep unused Google Fonts/Readdy external origins');
   }
 
   const aiagentsPageSource = read('aiagents/index.php');
   const aiagentsComponentSource = read('local/components/tacticum/aiagents/component.php');
-  const aiagentsTemplateSource = read('local/components/tacticum/aiagents/templates/.default/template.php');
+  const aiagentsTemplateSource = [
+    'local/components/tacticum/aiagents/templates/.default/template.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/hero.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/agents-bridge.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/how-it-works.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/demoagents-list.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/services.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/demo.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/contact-form.php',
+    'local/components/tacticum/aiagents/templates/.default/parts/faq.php'
+  ].map(read).join('\n');
   const contentMigrationsSource = read('local/php_interface/include/content_migrations.php');
 
   if (!aiagentsPageSource.includes('"tacticum:aiagents"')) {
@@ -1461,6 +1673,12 @@ function assertPublicPageComponentization() {
   }
   if (/['"]ID['"]\s*=>\s*515/.test(contentMigrationsSource)) {
     fail('content migrations must not hardcode policy element ID 515; resolve by iblock content');
+  }
+  if (initSource.includes('content_migrations.php')) {
+    fail('init.php must not eagerly include one-off content migrations');
+  }
+  if (!contentMigrationsSource.includes('TACTICUM_RUN_CONTENT_MIGRATIONS')) {
+    fail('content migrations must require explicit TACTICUM_RUN_CONTENT_MIGRATIONS opt-in');
   }
 }
 

@@ -5,14 +5,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 $tacticumIncludes = [
+    '/local/php_interface/include/autoload.php',
     '/local/rest/rest_helpers.php',
     '/local/php_interface/include/content_helpers.php',
-    '/local/php_interface/include/content_migrations.php',
     '/local/php_interface/include/site_helpers.php',
     '/local/php_interface/include/component_helpers.php',
     '/local/php_interface/include/seo_helpers.php',
-    '/local/php_interface/include/product_content.php',
-    '/local/php_interface/include/product_page.php',
+    '/local/php_interface/include/product_content_events.php',
     '/local/php_interface/include/offer_catalog_cache.php',
     '/local/php_interface/include/calcrequests_rest.php',
 ];

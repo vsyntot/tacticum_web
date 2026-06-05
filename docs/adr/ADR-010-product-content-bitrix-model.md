@@ -26,6 +26,14 @@ Product-first MVP для `/platform/`, `/agents/`, `/dev/` and `/forum/` уже 
 4. Сложные product sections хранятся в `product_blocks`; architecture diagrams остаются code-rendered templates with Bitrix-managed labels/content.
 5. Use cases / pilot kits хранятся в отдельном `product_use_cases`.
 6. Proof readiness для v1 хранится в `product_blocks` as claim-safe readiness content. Approved case proof позже подтягивается через расширенный `cases` model.
+6.1. После повторного admin-editability challenge 05.06.2026 модель уточнена как V2-compatible:
+   - JSON в `BADGES_JSON`, `HERO_CARDS_JSON`, `CTA_JSON`, `SOURCE_DATA_JSON` and JSON `DETAIL_TEXT` считается legacy seed/compatibility, not primary editor workflow;
+   - `products` получает admin-editable scalar/multiple properties for badges and CTA/form/lead context;
+   - `product_blocks` работает как container/item model: block containers have `PRODUCT`, `BLOCK_TYPE`, `BLOCK_KEY`; child rows use `PARENT_BLOCK`, `ITEM_TYPE`, plain `NAME`/`PREVIEW_TEXT`/`DETAIL_TEXT` and item properties (`ICON`, `META`, `HREF`, `ITEMS`, `PROOF_STATUS`, scenario `VALUE`/`LABEL`);
+   - `product_use_cases` properties are primary; legacy JSON in `DETAIL_TEXT` is read only as fallback for old rows;
+   - runtime reads V2 fields first and falls back to legacy JSON only while target content migration is incomplete;
+   - `tools/product-content-migration.php --apply --update-seed-content --retire-legacy-json` clears product JSON values and deactivates product JSON properties after V2 content is seeded;
+   - target release evidence requires zero legacy JSON counters in `admin_model.legacy_json`, including active product JSON properties.
 7. Runtime source управляется config flag:
 
 ```php
@@ -45,6 +53,7 @@ Product-first MVP для `/platform/`, `/agents/`, `/dev/` and `/forum/` уже 
 php tools/product-content-migration.php
 php tools/product-content-migration.php --apply
 php tools/product-content-migration.php --apply --update-seed-content
+php tools/product-content-migration.php --apply --update-seed-content --retire-legacy-json
 php tools/product-content-check.php
 php tools/product-content-check.php --strict
 ```
@@ -61,6 +70,8 @@ php tools/product-content-check.php --strict
 14. Runtime readiness проверяется отдельным CLI checker:
    - default mode падает только при отсутствии core product content;
    - `--strict` дополнительно требует TO BE blocks, use cases, product relation properties and non-`fallback` source mode;
+   - `--strict` also validates the admin-editable V2 property schema for `products`, `product_blocks` and `product_use_cases`;
+   - JSON evidence includes safe `admin_model.v2_schema` and `admin_model.legacy_json` summary without raw content, and fails when legacy JSON counters are non-zero;
    - checker не заменяет rendered smoke, но ловит рассинхрон Bitrix content/config до открытия публичных страниц.
 15. Bitrix product content кешируется через `Bitrix\Main\Data\Cache` в `/tacticum/product_content`:
    - TTL задаётся `products.cache_ttl`;
@@ -81,6 +92,7 @@ php tools/product-content-check.php --strict
 - public requests не читают три product-инфоблока без cache на каждом request;
 - risky proof/claims не становятся публичными автоматически;
 - runtime-код продолжает читать iblock IDs through config registry.
+- редакторская модель больше не требует править JSON; legacy JSON properties are retired from admin after V2 migration.
 
 Минусы и ограничения:
 
@@ -100,6 +112,7 @@ php tools/product-content-check.php --strict
 - production source switched to `products.source=bitrix` on 03.06.2026; cache clear, strict content check, source HTTP check and public release precheck passed in source mode `bitrix`;
 - rollback remains `products.source=auto|fallback` plus `npm run product:content:cache-clear`;
 - future proof/cases model still needs owner evidence and Legal/PM approval;
+- target V2 migration must be applied with `--retire-legacy-json` and strict admin-model evidence captured before declaring legacy JSON retired;
 - deploy automation for migration deferred until CLI path is tested.
 
 ## Не Делаем В Этом Решении

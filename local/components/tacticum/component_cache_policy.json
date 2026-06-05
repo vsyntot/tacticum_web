@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "components": {
+    "about.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Page shell composes template parts and nested content/lead components; it has no direct data query worth caching at this level.",
+      "evidence": [
+        "local/components/tacticum/about.page/component.php",
+        "local/components/tacticum/about.page/templates/.default/parts"
+      ]
+    },
+    "aiagents": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Page shell owns AI agents layout, inline lead form and nested content/FAQ wrappers; cache is delegated below.",
+      "evidence": [
+        "local/components/tacticum/aiagents/component.php",
+        "local/components/tacticum/aiagents/templates/.default/parts"
+      ]
+    },
+    "calculator.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Calculator page shell includes chat, FAQ and lead CTA surfaces with runtime state; cache is delegated to child components where applicable.",
+      "evidence": [
+        "local/components/tacticum/calculator.page/component.php",
+        "local/components/tacticum/calculator.page/templates/.default/template.php"
+      ]
+    },
+    "chat.surface": {
+      "policy": "runtime-surface-no-cache",
+      "owner": "Frontend",
+      "reason": "Chat surface is a JS runtime mount with per-page surface params and transient browser state; no server-side data query is performed.",
+      "evidence": [
+        "local/components/tacticum/chat.surface/component.php",
+        "local/components/tacticum/chat.surface/templates/.default/template.php",
+        "local/templates/tacticum/js/chat-runtime.js"
+      ]
+    },
+    "contact.modal": {
+      "policy": "runtime-surface-no-cache",
+      "owner": "Frontend",
+      "reason": "Contact modal renders a form runtime mount and has no server data query; POST protection is enforced by REST endpoint CSRF/origin/rate checks.",
+      "evidence": [
+        "local/components/tacticum/contact.modal/component.php",
+        "local/components/tacticum/contact.modal/templates/.default/template.php",
+        "local/templates/tacticum/js/forms-runtime.js"
+      ]
+    },
+    "contacts.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Contacts page shell prepares static office/map params and nested CTA; there is no direct Bitrix content query in the shell.",
+      "evidence": [
+        "local/components/tacticum/contacts.page/component.php",
+        "local/components/tacticum/contacts.page/templates/.default/parts"
+      ]
+    },
+    "content.detail": {
+      "policy": "delegated-child-cache",
+      "owner": "Frontend",
+      "reason": "Wrapper normalizes params and delegates detail HTML/data cache to bitrix:news.detail with explicit CACHE_TYPE/CACHE_TIME.",
+      "evidence": [
+        "local/components/tacticum/content.detail/component.php",
+        "local/components/tacticum/content.detail/templates/.default/template.php"
+      ],
+      "markers": [
+        "bitrix:news.detail",
+        "CACHE_TYPE",
+        "CACHE_TIME"
+      ]
+    },
+    "content.list": {
+      "policy": "delegated-child-cache",
+      "owner": "Frontend",
+      "reason": "Wrapper normalizes params and delegates list HTML/data cache to bitrix:news.list with explicit CACHE_TYPE/CACHE_TIME.",
+      "evidence": [
+        "local/components/tacticum/content.list/component.php",
+        "local/components/tacticum/content.list/templates/.default/template.php"
+      ],
+      "markers": [
+        "bitrix:news.list",
+        "CACHE_TYPE",
+        "CACHE_TIME"
+      ]
+    },
+    "faq.section": {
+      "policy": "delegated-child-cache",
+      "owner": "Frontend",
+      "reason": "FAQ wrapper resolves section scope and delegates FAQ item cache to bitrix:news.list with explicit CACHE_TYPE/CACHE_TIME.",
+      "evidence": [
+        "local/components/tacticum/faq.section/component.php",
+        "local/components/tacticum/faq.section/templates/.default/template.php"
+      ],
+      "markers": [
+        "bitrix:news.list",
+        "CACHE_TYPE",
+        "CACHE_TIME"
+      ]
+    },
+    "home.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Home page shell composes static sections and nested chat/content/FAQ/lead components; cache ownership stays with children or runtime surfaces.",
+      "evidence": [
+        "local/components/tacticum/home.page/component.php",
+        "local/components/tacticum/home.page/templates/.default/parts"
+      ]
+    },
+    "lead.cta": {
+      "policy": "runtime-surface-no-cache",
+      "owner": "Frontend",
+      "reason": "Lead CTA renders a form runtime mount with contextual hidden fields; it has no server data query and must keep per-call lead context intact.",
+      "evidence": [
+        "local/components/tacticum/lead.cta/component.php",
+        "local/components/tacticum/lead.cta/templates/.default/template.php",
+        "local/lib/Tacticum/Component/LeadCtaParams.php"
+      ]
+    },
+    "offer": {
+      "policy": "request-router-no-cache",
+      "owner": "Backend",
+      "reason": "Offer section router receives resolved request state, then delegates list cache to offer.catalog service cache and detail cache to bitrix:news.detail.",
+      "evidence": [
+        "local/components/tacticum/offer/component.php",
+        "local/components/tacticum/offer/templates/.default",
+        "local/lib/Tacticum/Offer/Page/Resolver.php"
+      ],
+      "markers": [
+        "tacticum:offer.catalog",
+        "bitrix:news.detail",
+        "CACHE_TYPE"
+      ]
+    },
+    "offer.catalog": {
+      "policy": "delegated-service-cache",
+      "owner": "Backend",
+      "reason": "Catalog data is cached by Tacticum\\Offer\\CatalogService with Data\\Cache and managed iblock tag invalidation.",
+      "evidence": [
+        "local/components/tacticum/offer.catalog/component.php",
+        "local/lib/Tacticum/Offer/CatalogService.php",
+        "local/lib/Tacticum/Offer/CatalogCache.php",
+        "local/php_interface/include/offer_catalog_cache.php"
+      ],
+      "markers": [
+        "tacticum_offer_catalog_prepare",
+        "Cache::createInstance",
+        "CatalogCache::startTagCache"
+      ]
+    },
+    "price.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Price page shell composes price builder, chat, content, FAQ and lead CTA surfaces; cache ownership stays with children or runtime surfaces.",
+      "evidence": [
+        "local/components/tacticum/price.page/component.php",
+        "local/components/tacticum/price.page/templates/.default/parts"
+      ]
+    },
+    "product.hero": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Product hero renders prepared page data and source/status markers without direct data query; product page cache ownership stays with product.page/product content services.",
+      "evidence": [
+        "local/components/tacticum/product.hero/component.php",
+        "local/components/tacticum/product.hero/templates/.default/template.php"
+      ]
+    },
+    "product.lead.cta": {
+      "policy": "runtime-surface-no-cache",
+      "owner": "Frontend",
+      "reason": "Product CTA normalizes prepared product CTA params and delegates form runtime rendering to lead.cta; it has no direct server data query.",
+      "evidence": [
+        "local/components/tacticum/product.lead.cta/component.php",
+        "local/components/tacticum/product.lead.cta/templates/.default/template.php",
+        "local/components/tacticum/lead.cta/templates/.default/template.php"
+      ]
+    },
+    "product.page": {
+      "policy": "delegated-service-cache",
+      "owner": "Backend",
+      "reason": "Product page component prepares/render product data through product content services; Bitrix product source uses Data\\Cache and managed iblock tag invalidation.",
+      "evidence": [
+        "local/components/tacticum/product.page/component.php",
+        "local/components/tacticum/product.page/templates/.default/template.php",
+        "local/lib/Tacticum/Product/ContentService.php",
+        "local/lib/Tacticum/Product/ContentRuntime.php",
+        "local/lib/Tacticum/Product/Page/DataProvider.php"
+      ],
+      "markers": [
+        "tacticum_product_page_data",
+        "Cache::createInstance",
+        "ContentRuntime::startTagCache"
+      ]
+    },
+    "services.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Services page shell composes content lists, FAQ and lead CTA; cache ownership stays with child content wrappers.",
+      "evidence": [
+        "local/components/tacticum/services.page/component.php",
+        "local/components/tacticum/services.page/templates/.default/parts"
+      ]
+    }
+  }
+}

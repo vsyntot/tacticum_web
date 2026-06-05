@@ -1,0 +1,367 @@
+/* contacts */
+
+.hero-bg {
+    background-image: linear-gradient(rgba(0, 31, 63, 0.85), rgba(0, 31, 63, 0.95)),
+    url('/local/templates/tacticum/images/hero_bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #0066CC;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.active::after {
+    width: 100%;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus+label,
+textarea:focus+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+    color: #0066CC;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:placeholder-shown)+label,
+textarea:not(:placeholder-shown)+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+}
+
+.map-container {
+    background-color: #f3f4f6;
+}
+
+/* offer */
+
+.hero-bg {
+    background-image: linear-gradient(rgba(0, 31, 63, 0.85), rgba(0, 31, 63, 0.95)),
+    url('/local/templates/tacticum/images/hero_bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.1);
+}
+
+.client-logo {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.client-logo:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #0066CC;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.active::after {
+    width: 100%;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus+label,
+textarea:focus+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+    color: #0066CC;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:placeholder-shown)+label,
+textarea:not(:placeholder-shown)+label {
+    font-size: 0.75rem;
+}
+
+.faq-item {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    cursor: pointer;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 500px;
+}
+
+.faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+}
+
+/* price */
+
+.price-hero-bg {
+    background-image: linear-gradient(rgba(0, 31, 63, 0.85), rgba(0, 31, 63, 0.95)),
+    url('/local/templates/tacticum/images/price_hero_bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.pricing-card {
+    transition: all 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 25px -5px rgba(0, 102, 204, 0.1), 0 10px 10px -5px rgba(0, 102, 204, 0.04);
+}
+
+.pricing-card.featured {
+    border-color: #0066CC;
+}
+
+.pricing-card.featured::before {
+    content: 'Популярный';
+    position: absolute;
+    top: 0;
+    right: 2rem;
+    background: #0066CC;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 1rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #0066CC;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.active::after {
+    width: 100%;
+}
+
+.faq-item {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    cursor: pointer;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 500px;
+}
+
+.faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus+label,
+textarea:focus+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+    color: #0066CC;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:placeholder-shown)+label,
+textarea:not(:placeholder-shown)+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+}
+
+/* services */
+
+.service-card {
+    transition: all 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.1);
+}
+
+.service-icon {
+    transition: all 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+    background-color: rgba(0, 102, 204, 0.2);
+    transform: scale(1.1);
+}
+
+.step-item {
+    position: relative;
+}
+
+.step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 2.5rem;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #e5e7eb;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 767px) {
+    .step-item:not(:last-child)::after {
+        content: none;
+    }
+}
+
+.step-number {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.step-item:hover .step-number {
+    background-color: #0066CC;
+    color: white;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #0066CC;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus+label,
+textarea:focus+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+    color: #0066CC;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(:placeholder-shown)+label,
+textarea:not(:placeholder-shown)+label {
+    transform: translateY(-24px);
+    font-size: 0.75rem;
+}
+
+form.bg-white\/10:not(.tacticum-lead-cta-form--select-labels-static) select[name="lead_budget"],
+form.bg-white\/10:not(.tacticum-lead-cta-form--select-labels-static) select[name="lead_timeline"] {
+    padding-top: 1.55rem;
+    padding-bottom: 0.45rem;
+    line-height: 1.25rem;
+}
+
+.tacticum-lead-cta-form--glass input:-webkit-autofill,
+.tacticum-lead-cta-form--glass input:-webkit-autofill:hover,
+.tacticum-lead-cta-form--glass input:-webkit-autofill:focus,
+.tacticum-lead-cta-form--glass textarea:-webkit-autofill,
+.tacticum-lead-cta-form--glass textarea:-webkit-autofill:hover,
+.tacticum-lead-cta-form--glass textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #1f2937;
+    box-shadow: 0 0 0 1000px #ffffff inset;
+    caret-color: #1f2937;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+.case-card {
+    transition: all 0.3s ease;
+}
+
+.case-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.1);
+}
+
+.services-hero-bg {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4)),
+    url('/local/templates/tacticum/images/services_hero_bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.tacticum-metrika-pixel {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+}

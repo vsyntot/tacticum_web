@@ -12,32 +12,19 @@ $iblockId = tacticum_api_bootstrap('faq');
 $payload = tacticum_api_cached_payload('faq', $iblockId, static function () use ($iblockId): array {
     $arSelect = ['ID', 'IBLOCK_ID', 'NAME', 'DETAIL_TEXT'];
 
-    $res = tacticum_api_fetch_elements($iblockId, $arSelect);
-
     $items = [];
+    foreach (tacticum_api_fetch_content_items($iblockId, $arSelect) as $row) {
+        $fields = is_array($row['fields'] ?? null) ? $row['fields'] : [];
+        $props = is_array($row['properties'] ?? null) ? $row['properties'] : [];
 
-    while ($ob = $res->GetNextElement()) {
-        $fields = $ob->GetFields();
-        $props = $ob->GetProperties();
-
-        $question = tacticum_rest_html_to_text($fields['NAME']);
-        $answer = tacticum_rest_html_to_text($fields['DETAIL_TEXT']);
+        $question = tacticum_rest_html_to_text((string)($fields['NAME'] ?? ''));
+        $answer = tacticum_rest_html_to_text((string)($fields['DETAIL_TEXT'] ?? ''));
 
         $item = [
             'question' => $question,
             'answer'   => $answer,
         ];
-
-        $sectionLinks = CIBlockElement::GetElementGroups(
-            $fields['ID'],
-            true,
-            ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
-        );
-        $sections = [];
-        while ($section = $sectionLinks->Fetch()) {
-            $sections[] = $section['NAME'];
-        }
-        $item['sections'] = $sections;
+        $item['sections'] = is_array($row['sections'] ?? null) ? $row['sections'] : [];
 
         foreach ($props as $propCode => $propValue) {
             $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);

@@ -1,66 +1,47 @@
 <?php
 
+use Tacticum\Offer\CatalogCache;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     return;
+}
+
+if (!class_exists(CatalogCache::class)) {
+    $catalogCachePath = $_SERVER['DOCUMENT_ROOT'] . '/local/lib/Tacticum/Offer/CatalogCache.php';
+    if (is_file($catalogCachePath)) {
+        require_once $catalogCachePath;
+    }
 }
 
 if (!class_exists('TacticumOfferCatalogCache')) {
     final class TacticumOfferCatalogCache
     {
-        public const CACHE_DIR = '/tacticum/offer_catalog';
-        public const CACHE_TTL = 900;
+        public const CACHE_DIR = CatalogCache::CACHE_DIR;
+        public const CACHE_TTL = CatalogCache::CACHE_TTL;
 
         public static function cacheId(int $iblockId): string
         {
-            return 'offer_catalog_items_v2_' . $iblockId;
+            return CatalogCache::cacheId($iblockId);
         }
 
         public static function tag(int $iblockId): string
         {
-            return 'iblock_id_' . $iblockId;
+            return CatalogCache::tag($iblockId);
         }
 
         public static function startTagCache(int $iblockId): void
         {
-            global $CACHE_MANAGER;
-
-            if (
-                defined('BX_COMP_MANAGED_CACHE')
-                && is_object($CACHE_MANAGER)
-                && method_exists($CACHE_MANAGER, 'StartTagCache')
-                && method_exists($CACHE_MANAGER, 'RegisterTag')
-            ) {
-                $CACHE_MANAGER->StartTagCache(self::CACHE_DIR);
-                $CACHE_MANAGER->RegisterTag(self::tag($iblockId));
-            }
+            CatalogCache::startTagCache($iblockId);
         }
 
         public static function endTagCache(): void
         {
-            global $CACHE_MANAGER;
-
-            if (
-                defined('BX_COMP_MANAGED_CACHE')
-                && is_object($CACHE_MANAGER)
-                && method_exists($CACHE_MANAGER, 'EndTagCache')
-            ) {
-                $CACHE_MANAGER->EndTagCache();
-            }
+            CatalogCache::endTagCache();
         }
 
         public static function clear(int $iblockId = 0): void
         {
-            \Bitrix\Main\Data\Cache::createInstance()->cleanDir(self::CACHE_DIR);
-
-            global $CACHE_MANAGER;
-            if (
-                $iblockId > 0
-                && defined('BX_COMP_MANAGED_CACHE')
-                && is_object($CACHE_MANAGER)
-                && method_exists($CACHE_MANAGER, 'ClearByTag')
-            ) {
-                $CACHE_MANAGER->ClearByTag(self::tag($iblockId));
-            }
+            CatalogCache::clear($iblockId);
         }
     }
 }

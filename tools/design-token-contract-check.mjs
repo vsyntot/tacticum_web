@@ -4,17 +4,26 @@ import { readFile } from 'node:fs/promises';
 
 const tokenPath = 'docs/design-system-handoff/05-design-tokens-as-is.json';
 const tailwindPath = 'local/templates/tacticum/assets/src/tailwind.css';
-const globalCssPath = 'local/templates/tacticum/styles/global.css';
+const templateCssPaths = [
+  'local/templates/tacticum/styles/global.css',
+  'local/templates/tacticum/styles/components.css',
+  'local/templates/tacticum/styles/page-about-calculator.css',
+  'local/templates/tacticum/styles/page-offer-price-services.css',
+  'local/templates/tacticum/styles/page-aiagents.css',
+];
 const formsJsPath = 'local/templates/tacticum/js/forms.js';
+const formsRuntimeJsPath = 'local/templates/tacticum/js/forms-runtime.js';
 const packagePath = 'package.json';
 
-const [tokenSource, tailwindSource, globalCss, formsJs, packageSource] = await Promise.all([
+const [tokenSource, tailwindSource, templateCssSources, formsJs, formsRuntimeJs, packageSource] = await Promise.all([
   readFile(tokenPath, 'utf8'),
   readFile(tailwindPath, 'utf8'),
-  readFile(globalCssPath, 'utf8'),
+  Promise.all(templateCssPaths.map((file) => readFile(file, 'utf8'))),
   readFile(formsJsPath, 'utf8'),
+  readFile(formsRuntimeJsPath, 'utf8'),
   readFile(packagePath, 'utf8'),
 ]);
+const templateCss = templateCssSources.join('\n');
 
 const tokens = JSON.parse(tokenSource);
 const packageJson = JSON.parse(packageSource);
@@ -24,7 +33,7 @@ const canonicalTokens = tokens.contract?.canonicalTokens ?? {};
 const observedCandidates = tokens.contract?.observedTokenCandidates ?? {};
 const knownDrift = tokens.contract?.knownDrift ?? [];
 
-for (const source of [tailwindPath, globalCssPath, formsJsPath]) {
+for (const source of [tailwindPath, ...templateCssPaths, formsRuntimeJsPath, formsJsPath]) {
   if (!tokens.meta?.sources?.includes(source)) {
     failures.push(`${tokenPath}: meta.sources must include ${source}.`);
   }
@@ -81,64 +90,64 @@ const requiredObservedCandidates = [
   {
     id: 'gradient.brandHorizontal',
     value: 'linear-gradient(90deg, #001F40 0%, #0066CC 100%)',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'color.focus.brandRing',
     value: 'rgba(0, 102, 204, 0.18)',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'color.brand.hoverBlue',
     value: '#0057ad',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'color.brand.legacyLinkHover',
     value: '#007bff',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'radius.formControl',
     value: '8px',
-    source: globalCss,
+    source: templateCss,
     sourcePattern: /border-radius:\s*8px;/,
   },
   {
     id: 'radius.pill',
     value: '9999px',
-    source: globalCss,
+    source: templateCss,
     sourcePattern: /border-radius:\s*9999px;/,
   },
   {
     id: 'elevation.cardHover',
     value: '0 10px 25px -5px rgba(0, 102, 204, 0.1)',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'elevation.formCta',
     value: '0 18px 42px rgba(15, 23, 42, 0.18)',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'elevation.modal',
     value: '0 24px 64px rgba(15, 23, 42, 0.28)',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'motion.fast',
     value: '0.2s ease',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'motion.default',
     value: '0.3s ease',
-    source: globalCss,
+    source: templateCss,
   },
   {
     id: 'z.toast',
     value: '999',
-    source: formsJs,
+    source: `${formsRuntimeJs}\n${formsJs}`,
     sourcePattern: /z-\[999\]/,
   },
 ];

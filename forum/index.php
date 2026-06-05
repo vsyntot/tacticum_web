@@ -5,20 +5,35 @@ $APPLICATION->SetTitle("Tacticum Forum - сценарии и LLM для клие
 $APPLICATION->SetPageProperty("description", "Tacticum Forum - диалоговая платформа для клиентских коммуникаций: сценарные графы, LLM-обогащение, аналитика воронок, A/B-проверки и журнал диалогов.");
 $APPLICATION->SetPageProperty("tacticum_page_assets", "faq");
 
-$tacticumProductPage = tacticum_product_page_data('forum');
-
-tacticum_apply_seo_defaults('/forum/', [
-    'schema' => tacticum_product_page_schema(
-        $tacticumProductPage,
-        '/forum/',
-        'BusinessApplication',
-        'Диалоговая платформа для клиентских коммуникаций: сценарные графы, LLM-обогащение, funnel analytics, A/B-проверки и журнал диалогов.'
-    ),
-]);
+$tacticumProductPageResult = $APPLICATION->IncludeComponent(
+    'tacticum:product.page',
+    '',
+    [
+        'PRODUCT_CODE' => 'forum',
+        'CANONICAL_PATH' => '/forum/',
+        'APPLICATION_CATEGORY' => 'BusinessApplication',
+        'SCHEMA_DESCRIPTION' => 'Диалоговая платформа для клиентских коммуникаций: сценарные графы, LLM-обогащение, funnel analytics, A/B-проверки и журнал диалогов.',
+        'PREPARE_ONLY' => 'Y',
+    ],
+    false
+);
+$tacticumProductPage = is_array($tacticumProductPageResult) && is_array($tacticumProductPageResult['PAGE'] ?? null)
+    ? $tacticumProductPageResult['PAGE']
+    : [];
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_after.php");
 
-tacticum_render_product_page($tacticumProductPage);
+$APPLICATION->IncludeComponent(
+    'tacticum:product.page',
+    '',
+    [
+        'PRODUCT_CODE' => 'forum',
+        'CANONICAL_PATH' => '/forum/',
+        'APPLY_SEO_DEFAULTS' => 'N',
+        'PAGE_DATA' => $tacticumProductPage,
+    ],
+    false
+);
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
 ?>

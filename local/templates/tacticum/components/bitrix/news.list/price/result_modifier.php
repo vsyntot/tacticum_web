@@ -1,6 +1,6 @@
 <?php
 
-use Bitrix\Main\Loader;
+use Tacticum\Content\IblockRepository;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
     die();
@@ -23,13 +23,7 @@ foreach ($arResult['ITEMS'] as $item) {
 
 $sections = [];
 if (!empty($sectionIds)) {
-    $res = CIBlockSection::GetList(
-        ['SORT' => 'ASC'],
-        ['ID' => array_keys($sectionIds), 'ACTIVE' => 'Y'],
-        false,
-        ['ID', 'NAME', 'SORT']
-    );
-    while ($section = $res->Fetch()) {
+    foreach (IblockRepository::activeSectionsByIds(array_keys($sectionIds), ['ID', 'NAME', 'SORT']) as $section) {
         $sections[(int)$section['ID']] = [
             'ID' => (int)$section['ID'],
             'NAME' => $section['NAME'],

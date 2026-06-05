@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "blocks": {
+    "hero": {
+      "boundary": "component",
+      "owner": "Frontend",
+      "dataKey": "hero_cards",
+      "component": "product.hero",
+      "evidence": [
+        "local/components/tacticum/product.hero/component.php",
+        "local/components/tacticum/product.hero/templates/.default/template.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"hero\"",
+        "data-product-source",
+        "data-product-code",
+        "data-product-status=\"unavailable\""
+      ]
+    },
+    "fit-guide": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "fit_guide",
+      "renderer": "tacticum_product_page_render_fit_guide",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/fit_guide.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"fit-guide\"",
+        "fit_guide"
+      ]
+    },
+    "content-section": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "sections",
+      "renderer": "tacticum_product_page_render_section",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/common.php",
+        "local/php_interface/include/product_page_blocks/page.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"content-section\"",
+        "sections"
+      ]
+    },
+    "architecture": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "architecture",
+      "renderer": "tacticum_product_page_render_architecture",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/architecture.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"architecture\"",
+        "architecture"
+      ]
+    },
+    "use-cases": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "use_cases",
+      "renderer": "tacticum_product_page_render_use_cases",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/use_cases.php",
+        "local/php_interface/include/product_page_blocks/common.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"use-cases\"",
+        "use_cases",
+        "data-product-proof-status"
+      ]
+    },
+    "comparison": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "comparison",
+      "renderer": "tacticum_product_page_render_comparison",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/comparison.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"comparison\"",
+        "comparison"
+      ]
+    },
+    "procurement": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "procurement",
+      "renderer": "tacticum_product_page_render_procurement",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/procurement.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"procurement\"",
+        "procurement"
+      ]
+    },
+    "rollout": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "rollout",
+      "renderer": "tacticum_product_page_render_rollout",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/rollout.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"rollout\"",
+        "rollout"
+      ]
+    },
+    "proof": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "proof",
+      "renderer": "tacticum_product_page_render_proof",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/proof.php",
+        "local/php_interface/include/product_page_blocks/common.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"proof\"",
+        "proof",
+        "data-product-proof-status"
+      ]
+    },
+    "faq": {
+      "boundary": "nested-template",
+      "owner": "Frontend",
+      "dataKey": "faq",
+      "renderer": "tacticum_product_page_render_faq",
+      "evidence": [
+        "local/php_interface/include/product_page_blocks/faq.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"faq\"",
+        "faq",
+        "faq-question"
+      ]
+    },
+    "lead-cta": {
+      "boundary": "component",
+      "owner": "Frontend",
+      "dataKey": "cta",
+      "component": "product.lead.cta",
+      "evidence": [
+        "local/components/tacticum/product.lead.cta/component.php",
+        "local/components/tacticum/product.lead.cta/templates/.default/template.php"
+      ],
+      "requiredLiterals": [
+        "data-product-block=\"lead-cta\"",
+        "tacticum:lead.cta",
+        "LEAD_CONTEXT"
+      ]
+    }
+  }
+}

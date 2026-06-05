@@ -74,11 +74,54 @@ function validateEvidence(evidence, options = {}) {
 
   validateIblocks(evidence.iblocks, errors);
   validateRows(evidence.rows, expectedProductCodes, expectedRowSource, minUseCases, errors);
+  validateAdminModel(evidence.admin_model, errors);
   validateMessages(evidence.errors, 'errors', false, errors);
   validateMessages(evidence.warnings, 'warnings', allowWarnings, errors);
   errors.push(...scanForbiddenEvidence(evidence));
 
   return errors;
+}
+
+function validateAdminModel(adminModel, errors) {
+  if (!isPlainObject(adminModel)) {
+    errors.push('admin_model must be an object.');
+    return;
+  }
+
+  if (!isPlainObject(adminModel.v2_schema)) {
+    errors.push('admin_model.v2_schema must be an object.');
+  } else {
+    for (const key of REQUIRED_IBLOCK_KEYS) {
+      const entry = adminModel.v2_schema[key];
+      if (!isPlainObject(entry)) {
+        errors.push(`admin_model.v2_schema.${key} must be an object.`);
+        continue;
+      }
+      if (!Number.isInteger(entry.required_properties) || entry.required_properties <= 0) {
+        errors.push(`admin_model.v2_schema.${key}.required_properties must be a positive integer.`);
+      }
+      if (!Array.isArray(entry.missing_properties)) {
+        errors.push(`admin_model.v2_schema.${key}.missing_properties must be an array.`);
+      } else if (entry.missing_properties.length > 0) {
+        errors.push(`admin_model.v2_schema.${key}.missing_properties must be empty.`);
+      }
+    }
+  }
+
+  if (!isPlainObject(adminModel.legacy_json)) {
+    errors.push('admin_model.legacy_json must be an object.');
+  } else {
+    for (const key of [
+      'products_json_properties',
+      'products_active_json_properties',
+      'product_blocks_json_texts',
+      'product_use_cases_json_texts',
+    ]) {
+      if (!Number.isInteger(adminModel.legacy_json[key]) || adminModel.legacy_json[key] !== 0) {
+        errors.push(`admin_model.legacy_json.${key} must be 0 after V2 JSON retirement.`);
+      }
+    }
+  }
 }
 
 function validateIblocks(iblocks, errors) {
@@ -278,6 +321,7 @@ function runSelfTest() {
     'schema_version must be v1',
     'rows[0].missing_blocks',
     'rows[0].schema_issues',
+    'admin_model must be an object',
     'errors must be empty',
     'raw_payload',
     'PII-like email value',

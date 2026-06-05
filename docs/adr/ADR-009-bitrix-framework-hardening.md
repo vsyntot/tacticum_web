@@ -19,10 +19,12 @@
 1. `init.php` остаётся только bootstrap/registration файлом.
 2. Shared helpers живут в отдельных include-файлах:
    - `site_helpers.php`;
-   - `seo_helpers.php`;
+   - `seo_helpers.php` как compatibility facade над `Tacticum\Seo\*`;
    - `component_helpers.php`;
-   - `calcrequests_rest.php`.
-3. Повторяемые component parameter нормализаторы живут в `TacticumComponentParams`; component-level global helper functions не добавляем.
+   - `product_page.php` как compatibility facade над `Tacticum\Product\Page\*`;
+   - `offer_page.php` как compatibility facade над `Tacticum\Offer\Page\*`;
+   - `calcrequests_rest.php` как compatibility facade над `Tacticum\CalcRequests\*`.
+3. Повторяемые низкоуровневые component parameter нормализаторы живут в `TacticumComponentParams`; сложная component-specific подготовка параметров живёт в namespaced classes under `local/lib/Tacticum/Component`, например `Tacticum\Component\LeadCtaParams`. Component-level global helper functions не добавляем.
 4. `/offer/` catalog data boundary строится как service/repository/cache:
    - `TacticumOfferCatalogRepository` отвечает за чтение инфоблока;
    - `offer_catalog_cache.php` подключается из bootstrap как лёгкий event/cache layer;
@@ -40,6 +42,7 @@
 - `init.php` больше не становится местом для произвольной бизнес-логики;
 - локальные компоненты меньше загрязняют global namespace;
 - editor/admin изменения offer-инфоблока быстрее сбрасывают catalog cache;
+- сложные component params можно развивать в тестируемых namespaced classes, не утолщая `component.php`;
 - footer template остаётся shell-слоем;
 - регрессии component/bootstrap паттернов ловятся CI/deploy.
 

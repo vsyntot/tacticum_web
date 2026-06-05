@@ -55,8 +55,12 @@ if (!headers_sent()) {
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/menu.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/analytics.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/metrika.js");
+    $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms-runtime.js");
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/forms.js");
     if ($hasPageAsset('chat')) {
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-runtime.js");
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-hero.js");
+        $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-calculators.js");
         $obAsset->addJs(SITE_TEMPLATE_PATH."/js/chat-agent.js");
     }
     $obAsset->addJs(SITE_TEMPLATE_PATH."/js/modal.js");
@@ -74,6 +78,10 @@ if (!headers_sent()) {
     $obAsset->addCss(SITE_TEMPLATE_PATH."/tailwind.generated.css");
     $obAsset->addCss(SITE_TEMPLATE_PATH."/fonts/remixicon.min.css");
     $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/global.css");
+    $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/components.css");
+    $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/page-about-calculator.css");
+    $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/page-offer-price-services.css");
+    $obAsset->addCss(SITE_TEMPLATE_PATH."/styles/page-aiagents.css");
     ?>
     <?$APPLICATION->ShowHead(); ?>
 

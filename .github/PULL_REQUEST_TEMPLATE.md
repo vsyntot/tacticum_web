@@ -52,7 +52,7 @@ Closes #<!-- номер issue -->
 
 ### Общее
 - [ ] Файлы в `bitrix/` не тронуты
-- [ ] Нет дублирования логики из `rest_helpers.php`
+- [ ] Нет дублирования логики из `rest_helpers.php` / `local/lib/Tacticum/Rest/*`
 - [ ] Нет глобальных функций без префикса `tacticum_`
 - [ ] Код соответствует PSR-12 и соглашениям из `.github/copilot-instructions.md`
 

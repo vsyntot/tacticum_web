@@ -4,19 +4,32 @@ declare(strict_types=1);
 
 use Bitrix\Main\Loader;
 
+require_once __DIR__ . '/bitrix-cli-env.php';
+
+tacticum_tools_reexec_with_short_open_tag($argv);
+
 const TACTICUM_PRODUCT_CONTENT_IBLOCK_TYPE = 'tacticum_content';
 
 final class TacticumProductContentMigration
 {
+    private const LEGACY_PRODUCT_JSON_PROPERTIES = [
+        'BADGES_JSON',
+        'HERO_CARDS_JSON',
+        'CTA_JSON',
+        'SOURCE_DATA_JSON',
+    ];
+
     private bool $apply;
     private bool $updateSeedContent;
+    private bool $retireLegacyJson;
     private string $documentRoot;
     private array $siteIds = [];
 
-    public function __construct(bool $apply, bool $updateSeedContent, string $documentRoot)
+    public function __construct(bool $apply, bool $updateSeedContent, bool $retireLegacyJson, string $documentRoot)
     {
         $this->apply = $apply;
         $this->updateSeedContent = $updateSeedContent;
+        $this->retireLegacyJson = $retireLegacyJson;
         $this->documentRoot = rtrim($documentRoot, '/');
     }
 
@@ -47,6 +60,9 @@ final class TacticumProductContentMigration
             $this->seedProducts($productsIblockId, $blocksIblockId, $useCasesIblockId);
         } else {
             $this->line('Seed skipped until all product iblocks exist.');
+        }
+        if ($productsIblockId > 0 && $this->retireLegacyJson) {
+            $this->retireProductLegacyJson($productsIblockId);
         }
 
         $this->printConfigHints($productsIblockId, $blocksIblockId, $useCasesIblockId);
@@ -221,6 +237,11 @@ final class TacticumProductContentMigration
         ];
     }
 
+    private function listProperty(string $code, string $name, int $sort): array
+    {
+        return $this->stringProperty($code, $name, $sort, 'Y');
+    }
+
     private function elementProperty(string $code, string $name, int $sort, int $linkIblockId, string $multiple = 'N'): array
     {
         return [
@@ -243,11 +264,29 @@ final class TacticumProductContentMigration
             $this->stringProperty('PRIMARY_CTA_TEXT', 'Primary CTA text', 140),
             $this->stringProperty('SECONDARY_CTA_TEXT', 'Secondary CTA text', 150),
             $this->stringProperty('SECONDARY_CTA_HREF', 'Secondary CTA href', 160),
-            $this->stringProperty('BADGES_JSON', 'Badges JSON', 170),
-            $this->stringProperty('HERO_CARDS_JSON', 'Hero cards JSON', 180),
-            $this->stringProperty('CTA_JSON', 'CTA JSON', 190),
-            $this->stringProperty('SOURCE_DATA_JSON', 'Initial source data JSON', 900),
+            $this->listProperty('BADGE', 'Hero badge', 170),
+            $this->stringProperty('CTA_FORM_ID', 'CTA form id', 200),
+            $this->stringProperty('CTA_FIELD_PREFIX', 'CTA field prefix', 210),
+            $this->stringProperty('CTA_TITLE', 'CTA title', 220),
+            $this->stringProperty('CTA_TEXT', 'CTA text', 230),
+            $this->stringProperty('CTA_FORM_TITLE', 'CTA form title', 240),
+            $this->stringProperty('CTA_BUTTON_TEXT', 'CTA button text', 250),
+            $this->stringProperty('CTA_SCENARIO_LABEL', 'CTA scenario label', 260),
+            $this->stringProperty('CTA_SCENARIO_EMPTY_LABEL', 'CTA scenario empty label', 270),
+            $this->stringProperty('CTA_LEAD_ENTRY', 'CTA lead entry', 280),
+            $this->stringProperty('CTA_LEAD_PAGE_ROLE', 'CTA lead page role', 290),
+            $this->stringProperty('CTA_LEAD_PRODUCT', 'CTA lead product', 300),
+            $this->stringProperty('CTA_LEAD_INTENT', 'CTA lead intent', 310),
+            $this->stringProperty('CTA_LEAD_CTA', 'CTA lead CTA', 320),
+            $this->stringProperty('CTA_LEAD_NEXT_STEP', 'CTA lead next step', 330),
         ];
+
+        if (!$this->retireLegacyJson) {
+            $properties[] = $this->stringProperty('BADGES_JSON', 'Legacy badges JSON', 800);
+            $properties[] = $this->stringProperty('HERO_CARDS_JSON', 'Legacy hero cards JSON', 810);
+            $properties[] = $this->stringProperty('CTA_JSON', 'Legacy CTA JSON', 820);
+            $properties[] = $this->stringProperty('SOURCE_DATA_JSON', 'Initial source data JSON', 900);
+        }
 
         foreach ($properties as $property) {
             $this->ensureProperty($iblockId, $property);
@@ -260,6 +299,35 @@ final class TacticumProductContentMigration
             $this->elementProperty('PRODUCT', 'Product', 100, $productsIblockId),
             $this->stringProperty('BLOCK_TYPE', 'Block type', 110),
             $this->stringProperty('BLOCK_KEY', 'Block key', 120),
+            $this->elementProperty('PARENT_BLOCK', 'Parent block', 130, $iblockId),
+            $this->stringProperty('ITEM_TYPE', 'Item type', 140),
+            $this->stringProperty('EYEBROW', 'Eyebrow', 150),
+            $this->stringProperty('THEME', 'Theme', 160),
+            $this->stringProperty('TONE', 'Tone', 170),
+            $this->stringProperty('COLUMNS_CLASS', 'Columns class', 180),
+            $this->stringProperty('NOTE_TITLE', 'Note title', 190),
+            $this->stringProperty('NOTE_TEXT', 'Note text', 200),
+            $this->stringProperty('CTA_TEXT', 'CTA text', 210),
+            $this->stringProperty('CTA_HREF', 'CTA href', 220),
+            $this->stringProperty('ICON', 'Icon class', 230),
+            $this->stringProperty('META', 'Meta label', 240),
+            $this->stringProperty('HREF', 'Link href', 250),
+            $this->stringProperty('PROOF_STATUS', 'Proof status', 260),
+            $this->listProperty('ITEMS', 'Bullet item', 270),
+            $this->stringProperty('VALUE', 'Controlled value', 280),
+            $this->stringProperty('LABEL', 'Public label', 290),
+            $this->stringProperty('FORM_ID', 'Form id', 300),
+            $this->stringProperty('FIELD_PREFIX', 'Field prefix', 310),
+            $this->stringProperty('FORM_TITLE', 'Form title', 320),
+            $this->stringProperty('BUTTON_TEXT', 'Button text', 330),
+            $this->stringProperty('SCENARIO_LABEL', 'Scenario label', 340),
+            $this->stringProperty('SCENARIO_EMPTY_LABEL', 'Scenario empty label', 350),
+            $this->stringProperty('LEAD_ENTRY', 'Lead entry', 360),
+            $this->stringProperty('LEAD_PAGE_ROLE', 'Lead page role', 370),
+            $this->stringProperty('LEAD_PRODUCT', 'Lead product', 380),
+            $this->stringProperty('LEAD_INTENT', 'Lead intent', 390),
+            $this->stringProperty('LEAD_CTA', 'Lead CTA', 400),
+            $this->stringProperty('LEAD_NEXT_STEP', 'Lead next step', 410),
         ];
 
         foreach ($properties as $property) {
@@ -363,11 +431,31 @@ final class TacticumProductContentMigration
             'PRIMARY_CTA_TEXT' => $this->stringValue($data['primary_cta_text'] ?? ''),
             'SECONDARY_CTA_TEXT' => $this->stringValue($data['secondary_cta_text'] ?? ''),
             'SECONDARY_CTA_HREF' => $this->stringValue($data['secondary_cta_href'] ?? ''),
-            'BADGES_JSON' => $this->jsonValue($data['badges'] ?? []),
-            'HERO_CARDS_JSON' => $this->jsonValue($data['hero_cards'] ?? []),
-            'CTA_JSON' => $this->jsonValue($data['cta'] ?? []),
-            'SOURCE_DATA_JSON' => $this->jsonValue($data),
+            'BADGE' => $this->stringList($data['badges'] ?? []),
+            'CTA_FORM_ID' => $this->stringValue($data['cta']['form_id'] ?? ''),
+            'CTA_FIELD_PREFIX' => $this->stringValue($data['cta']['field_prefix'] ?? ''),
+            'CTA_TITLE' => $this->stringValue($data['cta']['title'] ?? ''),
+            'CTA_TEXT' => $this->stringValue($data['cta']['text'] ?? ''),
+            'CTA_FORM_TITLE' => $this->stringValue($data['cta']['form_title'] ?? ''),
+            'CTA_BUTTON_TEXT' => $this->stringValue($data['cta']['button_text'] ?? ''),
+            'CTA_SCENARIO_LABEL' => $this->stringValue($data['cta']['scenario_label'] ?? ''),
+            'CTA_SCENARIO_EMPTY_LABEL' => $this->stringValue($data['cta']['scenario_empty_label'] ?? ''),
+            'CTA_LEAD_ENTRY' => $this->stringValue($data['cta']['lead_context']['lead_entry'] ?? ''),
+            'CTA_LEAD_PAGE_ROLE' => $this->stringValue($data['cta']['lead_context']['lead_page_role'] ?? ''),
+            'CTA_LEAD_PRODUCT' => $this->stringValue($data['cta']['lead_context']['lead_product'] ?? $productCode),
+            'CTA_LEAD_INTENT' => $this->stringValue($data['cta']['lead_context']['lead_intent'] ?? ''),
+            'CTA_LEAD_CTA' => $this->stringValue($data['cta']['lead_context']['lead_cta'] ?? ''),
+            'CTA_LEAD_NEXT_STEP' => $this->stringValue($data['cta']['lead_context']['lead_next_step'] ?? ''),
         ];
+        if (!$this->retireLegacyJson) {
+            $properties = array_merge($properties, [
+                'BADGES_JSON' => $this->jsonValue($data['badges'] ?? []),
+                'HERO_CARDS_JSON' => $this->jsonValue($data['hero_cards'] ?? []),
+                'CTA_JSON' => $this->jsonValue($data['cta'] ?? []),
+                'SOURCE_DATA_JSON' => $this->jsonValue($data),
+            ]);
+        }
+
         $fields = [
             'IBLOCK_ID' => $iblockId,
             'ACTIVE' => 'Y',
@@ -453,35 +541,322 @@ final class TacticumProductContentMigration
 
         $sort = 100;
         foreach ($blocks as $block) {
-            $code = $productCode . '-' . $block['key'];
-            $existingId = $this->findElementId($iblockId, $code);
-            $properties = [
+            $this->seedProductBlock($iblockId, $productId, $productCode, $block, $sort);
+            $sort += 100;
+        }
+    }
+
+    private function retireProductLegacyJson(int $iblockId): void
+    {
+        $this->clearProductLegacyJsonValues($iblockId);
+
+        foreach (self::LEGACY_PRODUCT_JSON_PROPERTIES as $code) {
+            $propertyId = $this->findPropertyId($iblockId, $code);
+            if ($propertyId <= 0) {
+                $this->line("Legacy product JSON property is absent: {$code}");
+                continue;
+            }
+
+            $this->action("Deactivate legacy product JSON property {$code} (#{$propertyId})", static function () use ($propertyId, $code): void {
+                $property = new CIBlockProperty();
+                if (!$property->Update($propertyId, ['ACTIVE' => 'N'])) {
+                    throw new RuntimeException("Failed to deactivate property {$code}: " . (string)$property->LAST_ERROR);
+                }
+            });
+        }
+    }
+
+    private function clearProductLegacyJsonValues(int $iblockId): void
+    {
+        $result = CIBlockElement::GetList(
+            ['ID' => 'ASC'],
+            [
+                'IBLOCK_ID' => $iblockId,
+                'ACTIVE' => 'Y',
+                'CHECK_PERMISSIONS' => 'N',
+            ],
+            false,
+            false,
+            ['ID']
+        );
+
+        while ($element = $result->Fetch()) {
+            $elementId = (int)($element['ID'] ?? 0);
+            if ($elementId <= 0) {
+                continue;
+            }
+
+            $this->action("Clear legacy product JSON values for element #{$elementId}", static function () use ($iblockId, $elementId): void {
+                $values = [];
+                foreach (self::LEGACY_PRODUCT_JSON_PROPERTIES as $code) {
+                    $values[$code] = '';
+                }
+
+                CIBlockElement::SetPropertyValuesEx($elementId, $iblockId, $values);
+            });
+        }
+    }
+
+    private function seedProductBlock(
+        int $iblockId,
+        int $productId,
+        string $productCode,
+        array $block,
+        int $sort
+    ): void {
+        $type = $this->stringValue($block['type'] ?? '');
+        $key = $this->stringValue($block['key'] ?? '');
+        $name = $this->stringValue($block['name'] ?? '');
+        $payload = is_array($block['payload'] ?? null) ? $block['payload'] : [];
+        if ($type === '' || $key === '') {
+            return;
+        }
+
+        $code = $productCode . '-' . $key;
+        $existingId = $this->findElementId($iblockId, $code);
+        $properties = array_merge(
+            [
                 'PRODUCT' => $productId,
-                'BLOCK_TYPE' => $block['type'],
-                'BLOCK_KEY' => $block['key'],
-            ];
+                'BLOCK_TYPE' => $type,
+                'BLOCK_KEY' => $key,
+            ],
+            $this->blockContainerProperties($type, $payload, $productCode)
+        );
+        $fields = [
+            'IBLOCK_ID' => $iblockId,
+            'ACTIVE' => 'Y',
+            'NAME' => $name !== '' ? $name : $this->blockName($type, $payload),
+            'CODE' => $code,
+            'XML_ID' => 'tacticum-product-block-' . $code,
+            'SORT' => $sort,
+            'PREVIEW_TEXT' => $this->stringValue($payload['eyebrow'] ?? ''),
+            'PREVIEW_TEXT_TYPE' => 'text',
+            'DETAIL_TEXT' => $this->stringValue($payload['text'] ?? ''),
+            'DETAIL_TEXT_TYPE' => 'text',
+        ];
+
+        $blockId = $existingId;
+        if ($existingId > 0) {
+            $this->line("Product block exists: {$code} (#{$existingId})");
+            if ($this->updateSeedContent) {
+                $this->updateElement($iblockId, $existingId, $fields, $properties, "Update product block {$code}");
+            }
+        } else {
+            $blockId = $this->createElement($fields, $properties, "Create product block {$code}");
+        }
+
+        if ($blockId > 0) {
+            $this->seedProductBlockChildren($iblockId, $productId, $blockId, $productCode, $type, $key, $payload);
+        }
+    }
+
+    private function blockContainerProperties(string $type, array $payload, string $productCode): array
+    {
+        $properties = [
+            'EYEBROW' => $this->stringValue($payload['eyebrow'] ?? ''),
+            'THEME' => $this->stringValue($payload['theme'] ?? ''),
+            'TONE' => $this->stringValue($payload['tone'] ?? ''),
+            'COLUMNS_CLASS' => $this->stringValue($payload['columns_class'] ?? ''),
+            'NOTE_TITLE' => $this->stringValue($payload['note_title'] ?? ''),
+            'NOTE_TEXT' => $this->stringValue($payload['note_text'] ?? ''),
+            'CTA_TEXT' => $this->stringValue($payload['cta_text'] ?? ''),
+            'CTA_HREF' => $this->stringValue($payload['cta_href'] ?? ''),
+        ];
+
+        if ($type === 'cta') {
+            $properties = array_merge($properties, [
+                'FORM_ID' => $this->stringValue($payload['form_id'] ?? ''),
+                'FIELD_PREFIX' => $this->stringValue($payload['field_prefix'] ?? ''),
+                'FORM_TITLE' => $this->stringValue($payload['form_title'] ?? ''),
+                'BUTTON_TEXT' => $this->stringValue($payload['button_text'] ?? ''),
+                'SCENARIO_LABEL' => $this->stringValue($payload['scenario_label'] ?? ''),
+                'SCENARIO_EMPTY_LABEL' => $this->stringValue($payload['scenario_empty_label'] ?? ''),
+                'LEAD_ENTRY' => $this->stringValue($payload['lead_context']['lead_entry'] ?? ''),
+                'LEAD_PAGE_ROLE' => $this->stringValue($payload['lead_context']['lead_page_role'] ?? ''),
+                'LEAD_PRODUCT' => $this->stringValue($payload['lead_context']['lead_product'] ?? $productCode),
+                'LEAD_INTENT' => $this->stringValue($payload['lead_context']['lead_intent'] ?? ''),
+                'LEAD_CTA' => $this->stringValue($payload['lead_context']['lead_cta'] ?? ''),
+                'LEAD_NEXT_STEP' => $this->stringValue($payload['lead_context']['lead_next_step'] ?? ''),
+            ]);
+        }
+
+        return $properties;
+    }
+
+    private function seedProductBlockChildren(
+        int $iblockId,
+        int $productId,
+        int $parentBlockId,
+        string $productCode,
+        string $type,
+        string $key,
+        array $payload
+    ): void {
+        $children = match ($type) {
+            'hero' => $this->blockChildrenFromCards($payload['hero_cards'] ?? [], 'hero_card'),
+            'fit_guide' => $this->fitGuideChildren($payload),
+            'section' => $this->blockChildrenFromCards($payload['cards'] ?? [], 'card'),
+            'architecture' => $this->blockChildrenFromCards($payload['layers'] ?? [], 'layer'),
+            'comparison' => $this->blockChildrenFromCards($payload['columns'] ?? [], 'column'),
+            'procurement' => $this->blockChildrenFromCards($payload['items'] ?? [], 'item'),
+            'rollout' => $this->blockChildrenFromCards($payload['steps'] ?? [], 'step'),
+            'proof' => $this->blockChildrenFromCards($payload['items'] ?? [], 'proof_item'),
+            'faq' => $this->faqChildren($payload['items'] ?? []),
+            'cta' => $this->scenarioOptionChildren($payload['scenario_options'] ?? []),
+            default => [],
+        };
+
+        $sort = 100;
+        foreach ($children as $child) {
+            $childKey = $this->stringValue($child['key'] ?? ('item-' . $sort));
+            $childCode = $productCode . '-' . $key . '-' . $childKey;
+            $childName = $this->stringValue($child['title'] ?? '');
+            if ($childName === '') {
+                $childName = $childKey;
+            }
+            $properties = array_merge(
+                [
+                    'PRODUCT' => $productId,
+                    'PARENT_BLOCK' => $parentBlockId,
+                    'BLOCK_TYPE' => $type,
+                    'BLOCK_KEY' => $childKey,
+                    'ITEM_TYPE' => $this->stringValue($child['item_type'] ?? 'item'),
+                ],
+                is_array($child['properties'] ?? null) ? $child['properties'] : []
+            );
             $fields = [
                 'IBLOCK_ID' => $iblockId,
                 'ACTIVE' => 'Y',
-                'NAME' => $block['name'],
-                'CODE' => $code,
-                'XML_ID' => 'tacticum-product-block-' . $code,
+                'NAME' => $childName,
+                'CODE' => $childCode,
+                'XML_ID' => 'tacticum-product-block-item-' . $childCode,
                 'SORT' => $sort,
-                'DETAIL_TEXT' => $this->jsonValue($block['payload']),
+                'PREVIEW_TEXT' => $this->stringValue($child['preview_text'] ?? ''),
+                'PREVIEW_TEXT_TYPE' => 'text',
+                'DETAIL_TEXT' => $this->stringValue($child['text'] ?? ''),
                 'DETAIL_TEXT_TYPE' => 'text',
             ];
 
+            $existingId = $this->findElementId($iblockId, $childCode);
             if ($existingId > 0) {
-                $this->line("Product block exists: {$code} (#{$existingId})");
+                $this->line("Product block item exists: {$childCode} (#{$existingId})");
                 if ($this->updateSeedContent) {
-                    $this->updateElement($iblockId, $existingId, $fields, $properties, "Update product block {$code}");
+                    $this->updateElement($iblockId, $existingId, $fields, $properties, "Update product block item {$childCode}");
                 }
             } else {
-                $this->createElement($fields, $properties, "Create product block {$code}");
+                $this->createElement($fields, $properties, "Create product block item {$childCode}");
             }
 
             $sort += 100;
         }
+    }
+
+    private function blockChildrenFromCards(mixed $cards, string $itemType): array
+    {
+        if (!is_array($cards)) {
+            return [];
+        }
+
+        $children = [];
+        foreach ($cards as $index => $card) {
+            if (!is_array($card)) {
+                continue;
+            }
+
+            $children[] = [
+                'key' => $itemType . '-' . ((int)$index + 1),
+                'item_type' => $itemType,
+                'title' => $this->stringValue($card['title'] ?? $card['question'] ?? ''),
+                'text' => $this->stringValue($card['text'] ?? $card['answer'] ?? ''),
+                'properties' => [
+                    'ICON' => $this->stringValue($card['icon'] ?? ''),
+                    'META' => $this->stringValue($card['meta'] ?? ''),
+                    'HREF' => $this->stringValue($card['href'] ?? ''),
+                    'TONE' => $this->stringValue($card['tone'] ?? ''),
+                    'PROOF_STATUS' => $this->stringValue($card['proof_status'] ?? ''),
+                    'ITEMS' => $this->stringList($card['items'] ?? []),
+                ],
+            ];
+        }
+
+        return $children;
+    }
+
+    private function fitGuideChildren(array $payload): array
+    {
+        $children = [];
+        foreach (['fits', 'not_fits', 'start'] as $key) {
+            $column = is_array($payload[$key] ?? null) ? $payload[$key] : [];
+            if (empty($column)) {
+                continue;
+            }
+
+            $children[] = [
+                'key' => $key,
+                'item_type' => $key,
+                'title' => $this->stringValue($column['title'] ?? ''),
+                'text' => '',
+                'properties' => [
+                    'TONE' => $this->stringValue($column['tone'] ?? ''),
+                    'ITEMS' => $this->stringList($column['items'] ?? []),
+                ],
+            ];
+        }
+
+        return $children;
+    }
+
+    private function faqChildren(mixed $items): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+
+        $children = [];
+        foreach ($items as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $children[] = [
+                'key' => 'faq-' . ((int)$index + 1),
+                'item_type' => 'faq_item',
+                'title' => $this->stringValue($item['question'] ?? ''),
+                'text' => $this->stringValue($item['answer'] ?? ''),
+                'properties' => [],
+            ];
+        }
+
+        return $children;
+    }
+
+    private function scenarioOptionChildren(mixed $items): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+
+        $children = [];
+        foreach ($items as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $label = $this->stringValue($item['LABEL'] ?? '');
+            $value = $this->stringValue($item['VALUE'] ?? '');
+            $children[] = [
+                'key' => 'scenario-' . ((int)$index + 1),
+                'item_type' => 'scenario_option',
+                'title' => $label,
+                'text' => '',
+                'properties' => [
+                    'VALUE' => $value,
+                    'LABEL' => $label,
+                ],
+            ];
+        }
+
+        return $children;
     }
 
     private function seedProductUseCases(int $iblockId, int $productId, string $productCode, array $data): void
@@ -518,7 +893,7 @@ final class TacticumProductContentMigration
                 'SORT' => $sort,
                 'PREVIEW_TEXT' => $properties['TRIGGER'],
                 'PREVIEW_TEXT_TYPE' => 'text',
-                'DETAIL_TEXT' => $this->jsonValue($item),
+                'DETAIL_TEXT' => $properties['LIMITATION'],
                 'DETAIL_TEXT_TYPE' => 'text',
             ];
 
@@ -604,6 +979,27 @@ final class TacticumProductContentMigration
         return '';
     }
 
+    private function stringList(mixed $value): array
+    {
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
+        $items = [];
+        foreach ($value as $item) {
+            if (!is_scalar($item)) {
+                continue;
+            }
+
+            $item = trim((string)$item);
+            if ($item !== '') {
+                $items[] = $item;
+            }
+        }
+
+        return $items;
+    }
+
     private function jsonValue(mixed $value): string
     {
         $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
@@ -628,10 +1024,11 @@ function tacticum_product_content_migration_usage(): string
 {
     return <<<TEXT
 Usage:
-  php tools/product-content-migration.php [--apply] [--update-seed-content] [--document-root=/path/to/site]
+  php tools/product-content-migration.php [--apply] [--update-seed-content] [--retire-legacy-json] [--document-root=/path/to/site]
 
 Default mode is dry-run. Use --apply to create missing schema and seed records.
 Existing seeded content is create-only by default; use --update-seed-content to update existing records from product_data/*.php.
+Use --retire-legacy-json after V2 schema/content is in place to stop seeding product JSON values, clear existing JSON values and deactivate legacy product JSON properties in admin.
 
 TEXT;
 }
@@ -641,6 +1038,7 @@ function tacticum_product_content_migration_options(array $argv): array
     $options = [
         'apply' => false,
         'update_seed_content' => false,
+        'retire_legacy_json' => false,
         'document_root' => dirname(__DIR__),
         'help' => false,
     ];
@@ -656,6 +1054,10 @@ function tacticum_product_content_migration_options(array $argv): array
         }
         if ($argument === '--update-seed-content') {
             $options['update_seed_content'] = true;
+            continue;
+        }
+        if ($argument === '--retire-legacy-json') {
+            $options['retire_legacy_json'] = true;
             continue;
         }
         if (str_starts_with($argument, '--document-root=')) {
@@ -694,6 +1096,7 @@ try {
     define('NOT_CHECK_PERMISSIONS', true);
 
     require $prolog;
+    tacticum_tools_require_product_content_runtime($documentRoot);
 
     if (!Loader::includeModule('iblock')) {
         throw new RuntimeException('Bitrix iblock module is unavailable.');
@@ -702,6 +1105,7 @@ try {
     $migration = new TacticumProductContentMigration(
         (bool)$options['apply'],
         (bool)$options['update_seed_content'],
+        (bool)$options['retire_legacy_json'],
         $documentRoot
     );
     $migration->run();

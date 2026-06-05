@@ -30,7 +30,7 @@
 - подключает визуальный пролог через `prolog_after.php`;
 - вызывает `tacticum:offer` с подготовленными параметрами.
 
-Pre-header controller-логика живет в `local/php_interface/include/offer_page.php`:
+Pre-header controller-логика вызывается через `local/php_interface/include/offer_page.php`, который является compatibility facade над `Tacticum\Offer\Page\Query`, `Resolver` и `Response`:
 
 - определяет mode: `list`, `detail`, `not_found`;
 - разбирает URL `/offer/`, `/offer/catalog/...`, `/offer/<ELEMENT_CODE>/` и legacy `?ID=...`;
@@ -97,6 +97,6 @@ URL namespace фиксируется так:
 
 Минусы и ограничения:
 
-- `offer/index.php` не может быть полностью пустым component wrapper, потому что часть status/head/redirect логики должна выполниться до визуального пролога; поэтому она вынесена в `offer_page.php`, но вызывается между `prolog_before.php` и `prolog_after.php`;
+- `offer/index.php` не может быть полностью пустым component wrapper, потому что часть status/head/redirect логики должна выполниться до визуального пролога; поэтому она вызывается через `offer_page.php` facade между `prolog_before.php` и `prolog_after.php`, а реализация живет в `Tacticum\Offer\Page\*`;
 - `urlrewrite.php` теперь критичен к порядку rules для `/offer/catalog/...` и `/offer/<code>/`;
 - изменения в helpers `offer_page.php` и `offer_catalog.php` требуют аккуратной проверки sitemap, canonical и legacy redirects.

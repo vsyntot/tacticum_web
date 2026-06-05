@@ -2,6 +2,10 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/bitrix-cli-env.php';
+
+tacticum_tools_reexec_with_short_open_tag($argv);
+
 function tacticum_product_content_cache_clear_usage(): string
 {
     return <<<TEXT
@@ -83,6 +87,7 @@ try {
     define('NOT_CHECK_PERMISSIONS', true);
 
     require $prolog;
+    tacticum_tools_require_product_content_runtime($documentRoot);
 
     if (!function_exists('tacticum_product_content_clear_cache')) {
         throw new RuntimeException('Product content cache helper tacticum_product_content_clear_cache() is unavailable.');

@@ -11,6 +11,28 @@
     "product_blocks": 22,
     "product_use_cases": 23
   },
+  "admin_model": {
+    "v2_schema": {
+      "products": {
+        "required_properties": 22,
+        "missing_properties": []
+      },
+      "product_blocks": {
+        "required_properties": 32,
+        "missing_properties": []
+      },
+      "product_use_cases": {
+        "required_properties": 8,
+        "missing_properties": []
+      }
+    },
+    "legacy_json": {
+      "products_json_properties": 0,
+      "products_active_json_properties": 0,
+      "product_blocks_json_texts": 0,
+      "product_use_cases_json_texts": 0
+    }
+  },
   "rows": [
     {
       "code": "platform",

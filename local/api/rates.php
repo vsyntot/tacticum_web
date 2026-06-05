@@ -12,27 +12,15 @@ $iblockId = tacticum_api_bootstrap('rates');
 $payload = tacticum_api_cached_payload('rates', $iblockId, static function () use ($iblockId): array {
     $arSelect = ['ID', 'IBLOCK_ID', 'NAME'];
 
-    $res = tacticum_api_fetch_elements($iblockId, $arSelect);
-
     $items = [];
+    foreach (tacticum_api_fetch_content_items($iblockId, $arSelect) as $row) {
+        $fields = is_array($row['fields'] ?? null) ? $row['fields'] : [];
+        $props = is_array($row['properties'] ?? null) ? $row['properties'] : [];
 
-    while ($ob = $res->GetNextElement()) {
-        $fields = $ob->GetFields();
-        $props = $ob->GetProperties();
-
-        $name = tacticum_rest_html_to_text($fields['NAME']);
+        $name = tacticum_rest_html_to_text((string)($fields['NAME'] ?? ''));
         $item = ['name' => $name];
 
-        $sectionLinks = CIBlockElement::GetElementGroups(
-            $fields['ID'],
-            true,
-            ['ID', 'NAME', 'CODE', 'IBLOCK_ID']
-        );
-        $sections = [];
-        while ($section = $sectionLinks->Fetch()) {
-            $sections[] = $section['NAME'];
-        }
-        $item['sections'] = $sections;
+        $item['sections'] = is_array($row['sections'] ?? null) ? $row['sections'] : [];
 
         foreach ($props as $propCode => $propValue) {
             $item[strtolower($propCode)] = tacticum_api_normalize_property($propValue);
