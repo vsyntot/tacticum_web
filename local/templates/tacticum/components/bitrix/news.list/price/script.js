@@ -48,6 +48,7 @@
             resetButtons: Array.from(root.querySelectorAll('[data-price-reset]')),
             priceCards: Array.from(root.querySelectorAll(selectors.card)),
             presetButtons: Array.from(root.querySelectorAll('[data-price-team-preset]')),
+            teamPresets: ns.readTeamPresets(root),
             teamSummary: root.querySelector('[data-price-team-summary]'),
             teamSummaryText: root.querySelector('[data-price-team-summary-text]'),
             teamSummaryPreset: root.querySelector('[data-price-team-summary-preset]'),

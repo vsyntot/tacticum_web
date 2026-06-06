@@ -1,7 +1,7 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 05.06.2026
+Дата последнего обновления: 06.06.2026
 
 Статусы:
 
@@ -101,6 +101,28 @@ Implementation update 05.06.2026:
 - Production server `visual:smoke:prod` / `browser:smoke:prod` remain blocked by missing Chrome/Chromium; targeted Chrome-capable local visual/action smoke for `/platform/`, `/agents/`, `/dev/`, `/forum/`, `/aiagents/` passed after isolating broad-run CDP/tooling timeouts.
 - `product:content:check:strict:json` evidence now includes `faq_source` and must report `iblock`.
 - Services template fallback is removed; target content must seed/activate service cards instead.
+
+## Current Price Team Presets Layer — 06.06.2026
+
+Challenge `/price/` quick team presets выявил отдельный product/config gap: пресеты были функциональной доменной сущностью, но хранились как split PHP/JS hardcode and applied roles by keyword matching visible rate-card copy.
+
+Local implementation 06.06.2026:
+
+- `ADR-011` принят как решение по Bitrix team presets model.
+- Добавлены config keys `team_presets`, `team_preset_roles` and `price.team_presets_source`.
+- Добавлен service-layer `Tacticum\Price` with Bitrix repository and rollout fallback.
+- `/price/` `news.list/price` рендерит preset buttons and JSON payload from `TeamPresetService`.
+- Rate cards expose `data-rate-ids`; JS applies target presets by stable `RATE_ELEMENT` relation and keeps keyword matching only as fallback.
+- Staff-order task text resolves preset label/source/version server-side without changing endpoint response shape or upstream top-level payload.
+- Added dry-run/apply migration `price:team-presets:migrate` and readiness checker `price:team-presets:check`.
+
+Current gap coverage:
+
+| ID | Status | Priority | Area | Closure |
+|---|---|---|---|---|
+| `PRICE-PRESET-001` | closed locally | P1 | `/price/` quick preset hardcode | PHP/JS split hardcode removed from runtime path; Bitrix/fallback source is centralized in `Tacticum\Price`; `config:check`, `component:states:check`, `bitrix:check` pass locally |
+| `PRICE-PRESET-002` | external target gate | P1 | Bitrix schema/data rollout | Run `npm run price:team-presets:migrate:apply`, update ignored `tacticum_config.php` IDs, set `price.team_presets_source=bitrix`, `allow_team_presets_fallback=false`, then run `npm run price:team-presets:check:strict` on target Bitrix/PHP |
+| `PRICE-PRESET-003` | accepted rollout fallback | P2 | Transitional fallback | Fallback remains allowed only until target strict check and browser smoke pass; rollback is `price.team_presets_source=fallback` |
 
 ## Current Product Tech Challenge Layer — 04.06.2026
 

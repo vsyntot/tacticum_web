@@ -24,41 +24,7 @@
             'part-time': 80,
             'full-time': 160,
         },
-        teamPresets: {
-            mvp: {
-                label: 'MVP',
-                roles: [
-                    { keywords: ['бизнес-аналит', 'аналитик'] },
-                    { keywords: ['ux', 'ui', 'дизайн', 'designer'] },
-                    { keywords: ['frontend', 'front-end', 'фронтенд'] },
-                    { keywords: ['backend', 'back-end', 'python', 'php', 'java', 'node', 'разработчик', 'developer'] },
-                    { keywords: ['qa', 'quality', 'тест', 'тестирование'] },
-                ],
-            },
-            discovery: {
-                label: 'Discovery',
-                roles: [
-                    { keywords: ['бизнес-аналит', 'аналитик'] },
-                    { keywords: ['архитектор', 'architect', 'tech lead', 'lead'] },
-                    { keywords: ['ux', 'ui', 'дизайн', 'designer'] },
-                ],
-            },
-            support: {
-                label: 'Support',
-                roles: [
-                    { keywords: ['backend', 'back-end', 'python', 'php', 'java', 'node', 'разработчик', 'developer'] },
-                    { keywords: ['devops', 'инфраструктура', 'sre'] },
-                    { keywords: ['qa', 'quality', 'тест', 'тестирование'] },
-                ],
-            },
-            'qa-burst': {
-                label: 'QA burst',
-                roles: [
-                    { keywords: ['qa', 'quality', 'тест', 'тестирование'], quantity: 2 },
-                    { keywords: ['автоматиз', 'automation', 'автотест'] },
-                ],
-            },
-        },
+        teamPresets: {},
     };
 
     ns.classSelector = (className) => `.${className}`;
@@ -84,5 +50,21 @@
             primary: parts[0] || full || 'Специалист',
             extrasCount: Math.max(0, parts.length - 1),
         };
+    };
+    ns.readTeamPresets = (root) => {
+        const script = root?.querySelector('[data-price-team-presets-json]');
+        if (!script) return {};
+
+        try {
+            const parsed = JSON.parse(script.textContent || '{}');
+            const presets = Array.isArray(parsed?.presets) ? parsed.presets : [];
+            return presets.reduce((indexed, preset) => {
+                const code = String(preset?.code || '').trim();
+                if (code) indexed[code] = preset;
+                return indexed;
+            }, {});
+        } catch (error) {
+            return {};
+        }
     };
 })();

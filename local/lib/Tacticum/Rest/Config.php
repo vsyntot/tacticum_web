@@ -30,29 +30,30 @@ final class Config
 
     public static function sectionDefaults(string $section): array
     {
-        if ($section === 'page_content') {
-            return [
+        return match ($section) {
+            'page_content' => [
                 'source' => 'fallback',
                 'live_status' => 'live',
                 'allow_fallback' => true,
-            ];
-        }
-
-        if ($section !== 'content') {
-            return [];
-        }
-
-        return [
-            'faq_section_fallback_ids' => [
-                'home' => 17,
-                'main' => 17,
-                'aiagents' => 18,
-                'calculator' => 19,
-                'offer' => 19,
-                'services' => 20,
-                'price' => 21,
             ],
-        ];
+            'price' => [
+                'team_presets_source' => 'fallback',
+                'team_presets_cache_ttl' => 300,
+                'allow_team_presets_fallback' => true,
+            ],
+            'content' => [
+                'faq_section_fallback_ids' => [
+                    'home' => 17,
+                    'main' => 17,
+                    'aiagents' => 18,
+                    'calculator' => 19,
+                    'offer' => 19,
+                    'services' => 20,
+                    'price' => 21,
+                ],
+            ],
+            default => [],
+        };
     }
 
     public static function section(string $section): array

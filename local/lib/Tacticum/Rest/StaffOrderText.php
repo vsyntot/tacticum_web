@@ -10,6 +10,7 @@ final class StaffOrderText
         array $workers,
         int $totalWorkers,
         string $teamPreset,
+        array $teamPresetMeta,
         string $monthlyBudgetEstimate,
         string $startDate,
         string $duration,
@@ -25,8 +26,14 @@ final class StaffOrderText
             'Общее количество: ' . $totalWorkers,
         ];
 
-        if (($teamPresetLabel = self::teamPresetLabels()[$teamPreset] ?? $teamPreset) !== '') {
+        if (($teamPresetLabel = self::teamPresetLabel($teamPreset, $teamPresetMeta)) !== '') {
             $taskParts[] = 'Пресет команды: ' . $teamPresetLabel;
+        }
+        if (($teamPresetVersion = trim((string)($teamPresetMeta['version'] ?? ''))) !== '') {
+            $taskParts[] = 'Версия пресета: ' . $teamPresetVersion;
+        }
+        if (($teamPresetSource = trim((string)($teamPresetMeta['source'] ?? ''))) !== '') {
+            $taskParts[] = 'Источник пресета: ' . $teamPresetSource;
         }
         if (($totalHourlyRate = StaffOrderWorkers::totalHourlyRate($workers)) > 0) {
             $taskParts[] = 'Ориентировочная суммарная ставка: ' . number_format($totalHourlyRate, 0, ',', ' ') . ' руб/час';
@@ -97,8 +104,13 @@ final class StaffOrderText
         return ['flexible' => 'обсуждается', 'part-time' => 'part-time', 'full-time' => 'full-time'];
     }
 
-    private static function teamPresetLabels(): array
+    private static function teamPresetLabel(string $teamPreset, array $teamPresetMeta): string
     {
-        return ['mvp' => 'MVP', 'discovery' => 'Discovery', 'support' => 'Support', 'qa-burst' => 'QA burst'];
+        $label = trim((string)($teamPresetMeta['label'] ?? ''));
+        if ($label !== '') {
+            return $label;
+        }
+
+        return ['mvp' => 'MVP', 'discovery' => 'Discovery', 'support' => 'Support', 'qa-burst' => 'QA burst'][$teamPreset] ?? $teamPreset;
     }
 }

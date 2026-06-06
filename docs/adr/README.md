@@ -21,6 +21,7 @@
 | [ADR-008](ADR-008-public-page-local-components.md) | Public page local components | ✅ Принято | 2026 |
 | [ADR-009](ADR-009-bitrix-framework-hardening.md) | Bitrix framework hardening pattern | ✅ Принято | 2026 |
 | [ADR-010](ADR-010-product-content-bitrix-model.md) | Bitrix product content model | ✅ Принято | 2026 |
+| [ADR-011](ADR-011-price-team-presets-bitrix-model.md) | Bitrix team presets model for `/price/` | ✅ Принято | 2026 |
 
 ## Статусы
 

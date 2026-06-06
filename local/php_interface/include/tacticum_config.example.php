@@ -18,6 +18,8 @@ return [
         'product_use_cases' => 0,
         'page_sections' => 0,
         'page_blocks' => 0,
+        'team_presets' => 0,
+        'team_preset_roles' => 0,
     ],
     'base_urls' => [
         'AI_SERVICE_BASE_URL' => 'https://ai.example.com',
@@ -52,6 +54,11 @@ return [
         'source' => 'fallback',
         'live_status' => 'live',
         'allow_fallback' => true,
+    ],
+    'price' => [
+        'team_presets_source' => 'fallback',
+        'team_presets_cache_ttl' => 300,
+        'allow_team_presets_fallback' => true,
     ],
     'ai' => [
         'endpoint_paths' => [

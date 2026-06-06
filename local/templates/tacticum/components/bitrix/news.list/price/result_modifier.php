@@ -1,6 +1,7 @@
 <?php
 
 use Tacticum\Content\IblockRepository;
+use Tacticum\Price\TeamPresetService;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
     die();
@@ -9,6 +10,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 if (empty($arResult['ITEMS'])) {
     return;
 }
+
+$arResult['TEAM_PRESETS'] = TeamPresetService::presets();
+$arResult['TEAM_PRESET_PAYLOAD'] = TeamPresetService::payload();
 
 $grouped = [];
 $sectionIds = [];
@@ -57,6 +61,8 @@ foreach ($sections as $sectionId => $sectionData) {
         if (!isset($groupedItems[$name])) {
             $groupedItems[$name] = [
                 'NAME' => $name,
+                'RATE_IDS' => [],
+                'RATE_CODES' => [],
                 'OPTIONS' => array_map(
                     static fn($option) => tacticum_decode_iblock_text((string)$option),
                     (array)($item['DISPLAY_PROPERTIES']['OPTIONS']['DISPLAY_VALUE'] ?? [])
@@ -67,20 +73,35 @@ foreach ($sections as $sectionId => $sectionData) {
             ];
         }
 
+        $itemId = (int)($item['ID'] ?? 0);
+        if ($itemId > 0) {
+            $groupedItems[$name]['RATE_IDS'][] = $itemId;
+        }
+        $itemCode = trim((string)($item['CODE'] ?? ''));
+        if ($itemCode !== '') {
+            $groupedItems[$name]['RATE_CODES'][] = $itemCode;
+        }
+
         if ($level) {
             $groupedItems[$name]['LEVELS'][$level] = [
                 'PRICE' => $item['DISPLAY_PROPERTIES']['PRICE']['DISPLAY_VALUE'],
+                'ID' => $itemId,
+                'CODE' => $itemCode,
                 'PROPS' => $item['DISPLAY_PROPERTIES'],
             ];
         } else {
             $groupedItems[$name]['LEVELS'][''] = [
                 'PRICE' => $item['DISPLAY_PROPERTIES']['PRICE']['DISPLAY_VALUE'],
+                'ID' => $itemId,
+                'CODE' => $itemCode,
                 'PROPS' => $item['DISPLAY_PROPERTIES'],
             ];
         }
     }
 
     foreach ($groupedItems as &$groupedItem) {
+        $groupedItem['RATE_IDS'] = array_values(array_unique(array_filter(array_map('intval', $groupedItem['RATE_IDS']))));
+        $groupedItem['RATE_CODES'] = array_values(array_unique(array_filter(array_map('strval', $groupedItem['RATE_CODES']))));
         uksort($groupedItem['LEVELS'], static function ($left, $right) use ($levelRank): int {
             $rankCompare = $levelRank((string)$left) <=> $levelRank((string)$right);
             if ($rankCompare !== 0) {
