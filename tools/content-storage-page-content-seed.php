@@ -106,6 +106,13 @@ final class TacticumContentStoragePageContentSeed
 
         $sectionCode = $this->sectionCode($pageKey, $sectionKey);
         $sectionId = $this->findElementIdByCode($sectionsIblockId, $sectionCode);
+        $migrationStatus = 'shadow';
+        if ($sectionId > 0) {
+            $existingStatus = $this->propertyString($sectionsIblockId, $sectionId, 'MIGRATION_STATUS');
+            if ($existingStatus !== '') {
+                $migrationStatus = $existingStatus;
+            }
+        }
         $title = $this->stringValue($section['title'] ?? '');
         $text = $this->stringValue($section['text'] ?? '');
         $sectionFields = [
@@ -124,7 +131,7 @@ final class TacticumContentStoragePageContentSeed
             'PAGE_KEY' => $pageKey,
             'SECTION_KEY' => $sectionKey,
             'TEMPLATE_KEY' => $this->stringValue($section['template_key'] ?? ''),
-            'MIGRATION_STATUS' => 'shadow',
+            'MIGRATION_STATUS' => $migrationStatus,
             'EYEBROW' => $this->stringValue($section['eyebrow'] ?? ''),
             'TITLE' => $title,
             'TEXT' => $text,
@@ -362,6 +369,18 @@ final class TacticumContentStoragePageContentSeed
         return is_array($element) ? (int)$element['ID'] : 0;
     }
 
+    private function propertyString(int $iblockId, int $elementId, string $code): string
+    {
+        $result = CIBlockElement::GetProperty($iblockId, $elementId, ['sort' => 'asc', 'id' => 'asc'], ['CODE' => $code]);
+        $property = $result->Fetch();
+        $value = is_array($property) ? ($property['VALUE'] ?? '') : '';
+        if (is_array($value)) {
+            $value = reset($value);
+        }
+
+        return trim((string)$value);
+    }
+
     private function sectionCode(string $pageKey, string $sectionKey): string
     {
         $page = trim($pageKey, '/');
@@ -465,7 +484,7 @@ final class TacticumContentStoragePageContentSeed
                 'page' => '/price/',
                 'section_key' => 'features',
                 'sort' => 200,
-                'template_key' => 'calculator-chat-outcome',
+                'template_key' => 'feature-card-grid',
                 'fallback_partial' => 'local/components/tacticum/price.page/templates/.default/parts/features.php',
                 'owner_scope' => 'marketing',
                 'theme' => 'gray',
@@ -664,7 +683,7 @@ final class TacticumContentStoragePageContentSeed
                 'page' => '/calculator/',
                 'section_key' => 'calculator-outcome-cards',
                 'sort' => 200,
-                'template_key' => 'feature-card-grid',
+                'template_key' => 'calculator-chat-outcome',
                 'fallback_partial' => 'local/components/tacticum/calculator.page/templates/.default/template.php',
                 'owner_scope' => 'marketing',
                 'title' => 'Что вы получите после диалога',

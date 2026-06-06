@@ -5,100 +5,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 ?>
 
-<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/about/', 'values-team')): ?>
-<section class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Ценности и подход</h2>
-            <p class="text-lg text-gray-600">
-                Наши ценности определяют то, как мы работаем и взаимодействуем с клиентами. Мы не просто
-                консультируем — мы становимся частью вашей команды и вместе достигаем результатов.
-            </p>
-        </div>
+<?php
+if (function_exists('tacticum_page_content_render_if_live')) {
+    tacticum_page_content_render_if_live('/about/', 'values-team');
+}
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div class="value-card bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300">
-                <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-                    <i class="ri-lightbulb-line text-3xl text-primary"></i>
-                </div>
-                <h3 class="text-xl font-bold text-secondary mb-3">Инновационность</h3>
-                <p class="text-gray-600">
-                    Мы постоянно исследуем новые технологии и подходы, чтобы предлагать нашим клиентам самые
-                    современные и эффективные решения. Инновации — это не просто слово, это наш образ мышления.
-                </p>
-            </div>
-            <div class="value-card bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300">
-                <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-                    <i class="ri-eye-line text-3xl text-primary"></i>
-                </div>
-                <h3 class="text-xl font-bold text-secondary mb-3">Прозрачность</h3>
-                <p class="text-gray-600">
-                    Мы верим в открытую коммуникацию и честность во всех аспектах работы. Наши клиенты всегда знают,
-                    на каком этапе находится проект, какие результаты достигнуты и какие шаги планируются дальше.
-                </p>
-            </div>
-            <div class="value-card bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300">
-                <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-                    <i class="ri-shape-line text-3xl text-primary"></i>
-                </div>
-                <h3 class="text-xl font-bold text-secondary mb-3">Гибкость</h3>
-                <p class="text-gray-600">
-                    Мы адаптируемся к потребностям и особенностям каждого клиента. Наш подход не шаблонный — мы
-                    разрабатываем индивидуальные решения, которые наилучшим образом соответствуют вашим целям и
-                    задачам.
-                </p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-8 md:p-12">
-            <div class="flex flex-col md:flex-row items-center gap-8">
-                <div class="w-full md:w-1/2">
-                    <h3 class="text-2xl font-bold text-secondary mb-4">От консалтинга до результата</h3>
-                    <p class="text-gray-600 mb-6">
-                        Мы не только советуем, но и внедряем. Наша команда сопровождает проект на всех этапах — от
-                        анализа потребностей и разработки концепции до внедрения решения и оценки результатов.
-                    </p>
-                    <ul class="space-y-3">
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                                <i class="ri-check-line text-primary"></i>
-                            </div>
-                            <span class="text-gray-600">Глубокий анализ бизнес-процессов и потребностей</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                                <i class="ri-check-line text-primary"></i>
-                            </div>
-                            <span class="text-gray-600">Разработка индивидуальных решений под ваши задачи</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                                <i class="ri-check-line text-primary"></i>
-                            </div>
-                            <span class="text-gray-600">Полное сопровождение на этапе внедрения</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                                <i class="ri-check-line text-primary"></i>
-                            </div>
-                            <span class="text-gray-600">Обучение вашей команды работе с новыми технологиями</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                                <i class="ri-check-line text-primary"></i>
-                            </div>
-                            <span class="text-gray-600">Постоянная поддержка и развитие решения</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="w-full md:w-1/2">
-                    <img src="<?=SITE_TEMPLATE_PATH?>/images/about.jpg" width="768" height="512" alt="От консалтинга до результата" loading="lazy" decoding="async" class="w-full h-auto rounded-xl shadow-md">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
+// Fallback body retired after owner-approved page-content fallback retirement.
+// Retired page-content fallback: tacticum_page_content_render_if_live('/about/', 'values-team').
+?>
 
 <section id="team-section" class="tacticum-anchor-target py-20">
     <span id="team" class="tacticum-anchor-alias" aria-hidden="true"></span>

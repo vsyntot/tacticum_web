@@ -60,7 +60,7 @@ Do not approve vague wording like "content lives in Bitrix". The target must sta
 
 ## Phase 1 — Registry And Relation Foundation
 
-Status: proof audit passed / public rendering gated
+Status: public rendering live / production evidence passed
 Priority: P1
 Related gaps: `CSG-002`, `CSG-003`, `CSG-009`, `CSG-011`
 
@@ -105,7 +105,7 @@ Implementation update 05.06.2026:
 - Relation migration/check now includes `feedback` and `clients`.
 - `content-storage-audit.php` added for aggregate counts, relation coverage, per-product proof relation counts and optional public API counts.
 - Production migration created `PRODUCT` properties on `feedback #9` and `clients #8`.
-- Strict proof-scope audit passed; public proof rendering still requires owner evidence.
+- Strict proof-scope audit passed; public proof rendering now has owner evidence, durable `PUBLIC_RENDER_APPROVED=Y` flags and rendered `proof_source=iblock` evidence.
 
 ## Phase 2 — FAQ Target Migration
 
@@ -215,7 +215,7 @@ Implementation update 05.06.2026:
 
 ## Phase 4 — Product Proof, Cases, Feedback And Clients
 
-Status: product tags applied / public rendering gated
+Status: public rendering live / production evidence passed
 Priority: P1
 Related gaps: `CSG-003`, `CSG-005`, `CONTENT-003`, `ARCH-009`
 
@@ -257,12 +257,12 @@ Implementation update 05.06.2026:
 - Active/total counts: `clients 5/5`, `feedback 3/3`, `cases 9/10`.
 - `PRODUCT` relations are present, active, multiple and linked to `products #21` for `faq`, `cases`, `offer`, `services`, `aiagents`, `feedback` and `clients`.
 - Owner-approved proof tagging proposal/check/apply passed for 17 active proof items without storing raw proof copy or changing public rendering.
-- Corrected production proof count evidence reports `platform proof_items_total=6`, `agents proof_items_total=6`, `dev proof_items_total=6`, `forum proof_items_total=5`; these counts are relation readiness evidence, not approval to render public proof.
+- Corrected production proof count evidence first reported `platform proof_items_total=6`, `agents proof_items_total=6`, `dev proof_items_total=6`, `forum proof_items_total=5`; after public-render approval/apply, strict audit reports public proof readiness for all products.
 - `content-storage-proof-tagging-helper.php` provides a read-only internal owner-review worksheet with item IDs, current product tags and admin edit paths.
 - `content-storage-proof-approval-template.php` generates a no-raw-copy blank approval draft and `content-storage-proof-tagging-proposal.php` generates a proposed product-tagging draft from active proof IDs for production environments without `/docs`.
 - `content-storage-proof-tagging-approval-2026-06-05.draft.json` and `content-storage-proof-approval-check.mjs` define the no-raw-copy owner approval contract before public proof implementation.
 - `content-storage-proof-tagging-apply.php` provides dry-run/apply for approved `PRODUCT` tags and changes only the relation.
-- Public product proof rendering remains gated by Sales/Content/SEO approval and approved product tags.
+- `content-storage-proof-public-render-apply.php` applied 12 approved `PUBLIC_RENDER_APPROVED=Y` flags after verifying current `PRODUCT` tags; product content check and HTTP source smoke passed with `proof_source=iblock`.
 
 ## Phase 5 — AI Agents Boundary
 
@@ -363,7 +363,7 @@ Implementation update 05.06.2026:
 - The draft requires structured section/block fields, fallback partials, migration statuses, owner gates and staged waves.
 - `content-storage-page-content-model-check.mjs` validates this contract and is part of product content safety checks.
 - `content-storage-page-content-migration.php` can dry-run the `page_sections/page_blocks` schema and refuses `--apply` unless the model JSON is `status=approved` with architect/content/frontend/qa/seo gates true.
-- `content-storage-page-content-seed.php` can dry-run/apply wave 1 rows in shadow mode only, retains fallback partial references and changes no public runtime.
+- `content-storage-page-content-seed.php` can dry-run/apply wave 1 and wave 2 rows, retains fallback partial references, prints no raw copy and preserves existing non-empty `MIGRATION_STATUS` on updates so reruns do not demote live rows.
 - `content-storage-page-content-live-approval-template.php`, `content-storage-page-content-live-approval-check.mjs` and `content-storage-page-content-live-apply.php` gate `MIGRATION_STATUS=live` promotion/demotion without raw copy, without source switch and without fallback retirement.
 - `content-storage-page-content-fallback-retirement-template.php` and `content-storage-page-content-fallback-retirement-check.mjs` gate fallback retirement separately, including scoped wave 2 approval files; approved JSON is process evidence only and file/runtime removal remains a separate code/deploy change.
 - `page_content.source=fallback|bitrix` and `MIGRATION_STATUS=live` guard the runtime foundation; default config remains fallback, while production can explicitly switch to `bitrix` only after owner-gated live status and source-check evidence.
@@ -374,6 +374,8 @@ Implementation update 05.06.2026:
 - Production wave 1 shadow seed passed for `/services/`, `/price/`, `/contacts/` and `/offer/`: 9 active sections, 37 active blocks and `orphan_blocks=0`. Production live-approval check and live-status apply promoted all 9 sections to `MIGRATION_STATUS=live`; pre-switch fallback HTTP source check passed with zero Bitrix markers. After the explicit environment switch to `page_content.source=bitrix`, runtime config check, page-content source HTTP check, strict page-content audit and `seo:check:prod` passed; `/services/`, `/price/`, `/contacts/` and `/offer/` now report Bitrix-rendered section counts `3/3`, `2/2`, `2/2` and `2/2` respectively.
 - Live-only runtime foundation is active on production for wave 1 behind `page_content.source=bitrix` plus `MIGRATION_STATUS=live`; approved PHP fallback section bodies are retired after owner approval and post-deploy source/audit/SEO/browser checks.
 - Production fallback-retirement approval on 06.06.2026 passed with 9 `retire_fallback` decisions, `retirement_allowed=true`, production evidence `9/9` and owner gates `5/5`; deployed code removed the approved fallback section bodies, post-deploy runtime/source/audit/SEO and targeted Chrome-capable visual/browser checks passed, and governance now forbids static `<section>` fallback reintroduction.
+- Production wave 2 seed/live/source evidence passed on 06.06.2026 for `/`, `/about/`, `/calculator/` and `/aiagents/`: strict audit reports 20 active sections, 80 active blocks, all wave 2 sections `live` and `orphan_blocks=0`; `page-content:source:http:wave2:prod` passed after correcting `/calculator/` `calculator-outcome-cards` to `calculator-chat-outcome`; `seo:check:prod` passed.
+- Wave 2 fallback-retirement owner-approved check passed on production with `retirement_allowed=true`, 11 `retire_fallback` decisions, production evidence `9/9` and owner gates `5/5`; deployed code removed the approved fallback bodies, post-deploy runtime config, strict page-content audit, wave 1/wave 2 source HTTP checks, governance and `seo:check:prod` passed. Chrome-capable targeted visual/action smoke passed for `/`, `/about/`, `/calculator/` and `/aiagents/`; manifests: /var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-06T17-49-39-090Z/manifest.json and /var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-06T17-50-36-958Z/manifest.json.
 
 ## Phase 7 — Static Section Migration Waves
 

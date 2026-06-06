@@ -110,57 +110,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     </div>
 </section>
 
-<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/about/', 'company-trust')): ?>
-<section class="py-20 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="mb-12 max-w-3xl">
-            <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">Vendor trust</p>
-            <h2 class="mb-4 text-3xl md:text-4xl font-bold text-secondary">
-                Почему product-first модель требует сильной delivery-команды
-            </h2>
-            <p class="text-lg text-gray-600">
-                Корпоративный AI-продукт не живет только в презентации или прототипе. Ему нужны архитектура,
-                данные, интеграции, безопасность, эксплуатация, команда и понятный путь от пилота до production.
-            </p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <a href="/platform/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <i class="ri-stack-line text-2xl"></i>
-                </div>
-                <h3 class="mb-2 text-xl font-bold text-secondary">Архитектура</h3>
-                <p class="text-gray-600">
-                    Проектируем общий AI-контур, RAG, интеграции, доступы, аудит и эксплуатационные ограничения.
-                </p>
-            </a>
-            <a href="/services/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <i class="ri-route-line text-2xl"></i>
-                </div>
-                <h3 class="mb-2 text-xl font-bold text-secondary">Внедрение</h3>
-                <p class="text-gray-600">
-                    Ведем discovery, пилот, интеграции, запуск и развитие решения короткими управляемыми этапами.
-                </p>
-            </a>
-            <a href="/price/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <i class="ri-team-line text-2xl"></i>
-                </div>
-                <h3 class="mb-2 text-xl font-bold text-secondary">Команда</h3>
-                <p class="text-gray-600">
-                    Подбираем роли под product workstream: аналитика, backend, data, integration, QA, PM и DevOps.
-                </p>
-            </a>
-            <a href="/offer/" class="rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors">
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <i class="ri-file-search-line text-2xl"></i>
-                </div>
-                <h3 class="mb-2 text-xl font-bold text-secondary">Оценка</h3>
-                <p class="text-gray-600">
-                    Используем примеры расчетов и калькулятор как безопасный старт для уточнения scope и рисков.
-                </p>
-            </a>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
+<?php
+if (function_exists('tacticum_page_content_render_if_live')) {
+    tacticum_page_content_render_if_live('/about/', 'company-trust');
+}
+
+// Fallback body retired after owner-approved page-content fallback retirement.
+// Retired page-content fallback: tacticum_page_content_render_if_live('/about/', 'company-trust').
+?>
