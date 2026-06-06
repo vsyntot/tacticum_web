@@ -14,6 +14,7 @@ $tacticumIncludes = [
     '/local/php_interface/include/page_content.php',
     '/local/php_interface/include/product_content_events.php',
     '/local/php_interface/include/offer_catalog_cache.php',
+    '/local/php_interface/include/price_team_presets.php',
     '/local/php_interface/include/calcrequests_rest.php',
 ];
 
@@ -30,6 +31,10 @@ if (function_exists('tacticum_register_offer_catalog_cache_handlers')) {
 
 if (function_exists('tacticum_register_product_content_cache_handlers')) {
     tacticum_register_product_content_cache_handlers();
+}
+
+if (function_exists('tacticum_register_price_team_presets_cache_handlers')) {
+    tacticum_register_price_team_presets_cache_handlers();
 }
 
 if (function_exists('tacticum_register_calcrequests_rest')) {

@@ -19,14 +19,17 @@ final class TeamPresetRepository
         }
 
         $cache = Cache::createInstance();
-        $cacheId = 'team_presets_' . md5(implode('|', [$presetsIblockId, $rolesIblockId, Config::iblockId('rates')]));
-        $cacheDir = '/tacticum/price_team_presets';
+        $cacheId = TeamPresetCache::cacheId($presetsIblockId, $rolesIblockId, Config::iblockId('rates'));
+        $cacheDir = TeamPresetCache::CACHE_DIR;
         if ($ttl > 0 && $cache->initCache($ttl, $cacheId, $cacheDir)) {
             $payload = $cache->getVars();
             return is_array($payload) ? $payload : [];
         }
 
         $cacheStarted = $ttl > 0 && $cache->startDataCache($ttl, $cacheId, $cacheDir);
+        if ($cacheStarted) {
+            TeamPresetCache::startTagCache();
+        }
 
         $presets = self::fetchPresets($presetsIblockId);
         if ($presets !== []) {
@@ -41,6 +44,7 @@ final class TeamPresetRepository
         usort($result, static fn(array $left, array $right): int => ($left['sort'] <=> $right['sort']) ?: strnatcasecmp($left['code'], $right['code']));
 
         if ($cacheStarted) {
+            TeamPresetCache::endTagCache();
             $cache->endDataCache($result);
         }
 
