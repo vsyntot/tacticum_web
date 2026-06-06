@@ -72,10 +72,27 @@
             ctx.updateCardPrice(card, preferredLevel, ctx.getPriceForLevel(prices, preferredLevel, select, option?.dataset.price || ''));
         };
 
-        ctx.findPresetCard = (role, usedCards) => ctx.priceCards.find((card) => (
-            !usedCards.has(card)
-            && (role.keywords || []).some((keyword) => ns.normalizeText(`${card.dataset.name || ''} ${card.dataset.category || ''}`).includes(ns.normalizeText(keyword)))
-        ));
+        ctx.findPresetCard = (role, usedCards) => {
+            const roleRateIds = (role.rateIds || [])
+                .map((value) => String(value || '').trim())
+                .filter(Boolean);
+            const matchedByRateId = roleRateIds.length > 0
+                ? ctx.priceCards.find((card) => {
+                    if (usedCards.has(card)) return false;
+                    const cardRateIds = String(card.dataset.rateIds || '')
+                        .split(',')
+                        .map((value) => value.trim())
+                        .filter(Boolean);
+                    return roleRateIds.some((rateId) => cardRateIds.includes(rateId));
+                })
+                : null;
+            if (matchedByRateId) return matchedByRateId;
+
+            return ctx.priceCards.find((card) => (
+                !usedCards.has(card)
+                && (role.keywords || []).some((keyword) => ns.normalizeText(`${card.dataset.name || ''} ${card.dataset.category || ''}`).includes(ns.normalizeText(keyword)))
+            ));
+        };
 
         const inferSectionTitle = (card) => {
             const dataSection = card.closest('[data-price-section]');

@@ -38,6 +38,16 @@
                 button.classList.toggle('bg-primary/5', isActive);
             });
         };
+        ctx.getActiveTeamPreset = () => (
+            ctx.activeTeamPreset
+                ? (ctx.teamPresets?.[ctx.activeTeamPreset] || ns.constants.teamPresets[ctx.activeTeamPreset] || null)
+                : null
+        );
+        ctx.applyPresetSelectValue = (select, value) => {
+            const normalized = String(value || '').trim();
+            if (!select || !normalized || !Array.from(select.options).some((option) => option.value === normalized)) return;
+            select.value = normalized;
+        };
 
         ctx.updateHiddenFields = () => {
             const workers = ctx.buildWorkerPayload();
@@ -73,7 +83,7 @@
         };
 
         ctx.applyTeamPreset = (presetKey) => {
-            const preset = ns.constants.teamPresets[presetKey];
+            const preset = ctx.teamPresets?.[presetKey] || ns.constants.teamPresets[presetKey];
             if (!preset) return;
             const usedCards = new Set();
             const additions = [];
@@ -87,6 +97,9 @@
             if (additions.length === 0) return;
             ctx.orderItems = [];
             ctx.setActiveTeamPreset(presetKey);
+            ctx.applyPresetSelectValue(ctx.workloadSelect, preset.defaultWorkload);
+            ctx.applyPresetSelectValue(ctx.durationSelect, preset.recommendedDuration);
+            ctx.syncEndDateVisibility?.();
             additions.forEach(({ card, quantity }) => ctx.addOrderItemFromCard(card, quantity, false, 'preset'));
             ctx.renderOrderItems();
             ctx.teamSummary?.scrollIntoView({ block: 'nearest' });

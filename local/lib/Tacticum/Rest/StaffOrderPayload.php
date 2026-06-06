@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tacticum\Rest;
 
+use Tacticum\Price\TeamPresetService;
+
 final class StaffOrderPayload
 {
     public static function build(array $data, array $server = []): array
@@ -29,6 +31,7 @@ final class StaffOrderPayload
         $amountOfWorkers = is_numeric($amountRaw) && (int)$amountRaw > 0 ? (int)$amountRaw : 1;
         $phoneNormalized = \tacticum_rest_normalize_phone($phone);
         $costPerHour = self::cleanNumber($rate);
+        $teamPresetMeta = self::teamPresetMeta($teamPreset);
 
         $errors = [];
         $workerData = StaffOrderWorkers::normalize($data, $specialist, $level, $costPerHour, $amountOfWorkers, $errors);
@@ -67,6 +70,7 @@ final class StaffOrderPayload
                 $workers,
                 $totalWorkers,
                 $teamPreset,
+                $teamPresetMeta,
                 $monthlyBudgetEstimate,
                 $startDate,
                 $duration,
@@ -166,4 +170,17 @@ final class StaffOrderPayload
         return $value !== '' ? $value : 'flexible';
     }
 
+    private static function teamPresetMeta(string $teamPreset): array
+    {
+        $preset = TeamPresetService::find($teamPreset);
+        if (!is_array($preset)) {
+            return [];
+        }
+
+        return [
+            'label' => (string)($preset['label'] ?? ''),
+            'source' => (string)($preset['source'] ?? ''),
+            'version' => (string)($preset['version'] ?? ''),
+        ];
+    }
 }

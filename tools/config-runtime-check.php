@@ -102,10 +102,11 @@ function tacticum_config_runtime_check_url_status(string $key): array
 function tacticum_config_runtime_check_summary(string $documentRoot): array
 {
     $config = tacticum_rest_get_config();
-    $scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'products', 'page_content', 'rest', 'security'];
+    $scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'products', 'page_content', 'price', 'rest', 'security'];
     $errors = tacticum_rest_validate_config($scopes);
     $productsConfig = tacticum_rest_get_config_section('products');
     $pageContentConfig = tacticum_rest_get_config_section('page_content');
+    $priceConfig = tacticum_rest_get_config_section('price');
     $securityConfig = tacticum_rest_get_config_section('security');
     $contentConfig = tacticum_rest_get_config_section('content');
     $restConfig = tacticum_rest_get_config_section('rest');
@@ -134,6 +135,8 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
         'product_use_cases',
         'page_sections',
         'page_blocks',
+        'team_presets',
+        'team_preset_roles',
     ] as $key) {
         $iblocks[$key] = tacticum_rest_get_iblock_id($key);
     }
@@ -167,6 +170,16 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
             'source_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'source'),
             'live_status_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'live_status'),
             'allow_fallback_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'allow_fallback'),
+        ],
+        'price' => [
+            'team_presets_source' => (string)($priceConfig['team_presets_source'] ?? 'fallback'),
+            'team_presets_cache_ttl' => isset($priceConfig['team_presets_cache_ttl'])
+                ? (int)$priceConfig['team_presets_cache_ttl']
+                : null,
+            'allow_team_presets_fallback' => (bool)($priceConfig['allow_team_presets_fallback'] ?? true),
+            'team_presets_source_config' => tacticum_config_runtime_check_value_source($config, 'price', 'team_presets_source'),
+            'team_presets_cache_ttl_config' => tacticum_config_runtime_check_value_source($config, 'price', 'team_presets_cache_ttl'),
+            'allow_team_presets_fallback_config' => tacticum_config_runtime_check_value_source($config, 'price', 'allow_team_presets_fallback'),
         ],
         'ai' => [
             'base_urls' => [
@@ -244,6 +257,13 @@ function tacticum_config_runtime_check_print(array $summary): void
         . ' (' . $summary['page_content']['live_status_config'] . ')'
         . ', allow_fallback=' . ($summary['page_content']['allow_fallback'] ? 'true' : 'false')
         . ' (' . $summary['page_content']['allow_fallback_config'] . ')');
+
+    tacticum_config_runtime_check_line('Price: team_presets_source=' . $summary['price']['team_presets_source']
+        . ' (' . $summary['price']['team_presets_source_config'] . ')'
+        . ', cache_ttl=' . (string)$summary['price']['team_presets_cache_ttl']
+        . ' (' . $summary['price']['team_presets_cache_ttl_config'] . ')'
+        . ', allow_fallback=' . ($summary['price']['allow_team_presets_fallback'] ? 'true' : 'false')
+        . ' (' . $summary['price']['allow_team_presets_fallback_config'] . ')');
 
     tacticum_config_runtime_check_line('');
     tacticum_config_runtime_check_line('AI base URLs:');

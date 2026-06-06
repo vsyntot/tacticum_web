@@ -17,7 +17,7 @@
                 return;
             }
 
-            const preset = ns.constants.teamPresets[ctx.activeTeamPreset];
+            const preset = ctx.getActiveTeamPreset();
             const budgetLabel = ctx.getMonthlyBudgetLabel();
             if (ctx.teamSummaryText) ctx.teamSummaryText.textContent = `${totalQuantity} ${ns.pluralizeSpecialist(totalQuantity)} в составе`;
             if (ctx.teamSummaryPreset) ctx.teamSummaryPreset.textContent = preset ? `Основа: ${preset.label}` : 'Собрано вручную';

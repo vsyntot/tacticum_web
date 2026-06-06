@@ -1,4 +1,14 @@
 <?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();?>
+<?php
+$teamPresets = array_values(array_filter((array)($arResult['TEAM_PRESETS'] ?? []), 'is_array'));
+$teamPresetPayload = is_array($arResult['TEAM_PRESET_PAYLOAD'] ?? null)
+    ? $arResult['TEAM_PRESET_PAYLOAD']
+    : ['schema' => 'tacticum.price.team_presets.v1', 'source' => 'none', 'presets' => []];
+$teamPresetJson = json_encode(
+    $teamPresetPayload,
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+);
+?>
 
 <section class="py-12" data-price-list>
     <div class="container mx-auto px-4">
@@ -62,7 +72,13 @@
             </button>
         </div>
 
-        <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 md:p-6 mb-8" data-price-team-presets>
+        <?php if (!empty($teamPresets)): ?>
+        <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 md:p-6 mb-8"
+             data-price-team-presets
+             data-price-team-presets-source="<?= htmlspecialcharsbx((string)($teamPresetPayload['source'] ?? 'unknown')) ?>">
+            <script type="application/json" data-price-team-presets-json>
+                <?= $teamPresetJson ?: '{"schema":"tacticum.price.team_presets.v1","source":"none","presets":[]}' ?>
+            </script>
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
                 <div class="max-w-2xl">
                     <h3 class="text-xl font-bold text-secondary">Быстрые пресеты команды</h3>
@@ -70,23 +86,26 @@
                         Начните с типового состава под этап работ, затем уточните уровни, количество и загрузку.
                     </p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:min-w-[640px]">
-                    <?php foreach ([
-                        'mvp' => ['MVP', 'Аналитика, дизайн, разработка, QA'],
-                        'discovery' => ['Discovery', 'Аналитик, архитектор, UX/UI'],
-                        'support' => ['Support', 'Backend, DevOps, QA'],
-                        'qa-burst' => ['QA burst', 'Усиление тестирования перед релизом'],
-                    ] as $presetCode => [$presetTitle, $presetText]): ?>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-<?= max(1, min(4, count($teamPresets))) ?> gap-3 lg:min-w-[640px]">
+                    <?php foreach ($teamPresets as $preset): ?>
+                        <?php
+                        $presetCode = (string)($preset['code'] ?? '');
+                        if ($presetCode === '') {
+                            continue;
+                        }
+                        ?>
                         <button type="button"
                                 data-price-team-preset="<?= htmlspecialcharsbx($presetCode) ?>"
+                                data-price-team-preset-source="<?= htmlspecialcharsbx((string)($preset['source'] ?? 'unknown')) ?>"
                                 class="text-left rounded-lg border border-gray-200 bg-white p-4 hover:border-primary hover:shadow-sm transition-all">
-                            <span class="block font-semibold text-secondary"><?= htmlspecialcharsbx($presetTitle) ?></span>
-                            <span class="block text-sm text-gray-500 mt-1"><?= htmlspecialcharsbx($presetText) ?></span>
+                            <span class="block font-semibold text-secondary"><?= htmlspecialcharsbx((string)($preset['label'] ?? $presetCode)) ?></span>
+                            <span class="block text-sm text-gray-500 mt-1"><?= htmlspecialcharsbx((string)($preset['description'] ?? '')) ?></span>
                         </button>
                     <?php endforeach; ?>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <div class="hidden sticky top-24 z-20 rounded-xl border border-primary/20 bg-white p-4 md:p-5 mb-8 shadow-lg shadow-primary/10" data-price-team-summary aria-live="polite">
             <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)_auto] gap-5 xl:items-center">

@@ -7,6 +7,8 @@ $icon = $icons[$section['NAME']] ?? 'ri-user-line';
 $options = (array)($item['OPTIONS'] ?? []);
 $levels = $item['LEVELS'] ?? [];
 $levelKeys = array_keys($levels);
+$rateIds = array_values(array_filter(array_map('intval', (array)($item['RATE_IDS'] ?? []))));
+$rateCodes = array_values(array_filter(array_map('strval', (array)($item['RATE_CODES'] ?? []))));
 
 $defaultLevel = 'Middle';
 $selectedLevel = in_array($defaultLevel, $levelKeys) ? $defaultLevel : reset($levelKeys);
@@ -20,6 +22,8 @@ $isPopular = ($item['POPULAR']['VALUE_XML_ID'] ?? '') === 'popular' || ($item['P
      data-price-card
      data-name="<?= tacticum_escape_iblock_text((string)$item['NAME']) ?>"
      data-category="<?= tacticum_escape_iblock_text((string)$section['NAME']) ?>"
+     data-rate-ids="<?= htmlspecialcharsbx(implode(',', $rateIds)) ?>"
+     data-rate-codes="<?= htmlspecialcharsbx(implode(',', $rateCodes)) ?>"
      data-level="<?= tacticum_escape_iblock_text((string)$selectedLevel) ?>"
      data-price="<?= htmlspecialcharsbx((string)$selectedPriceNum) ?>"
      data-popular="<?= $isPopular ? '1' : '0' ?>">

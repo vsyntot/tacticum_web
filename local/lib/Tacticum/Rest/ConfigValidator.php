@@ -76,6 +76,9 @@ final class ConfigValidator
         if (in_array('page_content', $scopes, true)) {
             self::validatePageContent($checkIblock, $addError);
         }
+        if (in_array('price', $scopes, true)) {
+            PriceConfigValidator::validate($checkIblock, $addError);
+        }
         if (in_array('ai', $scopes, true)) {
             $checkHttpsUrl('AI_SERVICE_BASE_URL');
             $checkEndpointPath('chat_agent_sale');
