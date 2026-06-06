@@ -89,7 +89,7 @@ function validateIblockIds(iblockIds, errors) {
     return;
   }
   if (iblockIds.length < MIN_MANAGED_TAGS) {
-    errors.push(`iblock_ids must include at least ${MIN_MANAGED_TAGS} product content/FAQ iblocks.`);
+    errors.push(`iblock_ids must include at least ${MIN_MANAGED_TAGS} product content/FAQ/proof iblocks.`);
   }
 
   const seen = new Set();

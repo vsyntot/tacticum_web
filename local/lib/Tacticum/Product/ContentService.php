@@ -87,6 +87,7 @@ final class ContentService
             $page['_faq_source'] = 'iblock';
         }
 
+        ContentProofService::applyPublicProof($page, $productId);
         $page['_diagnostics'] = ContentMapper::completenessDiagnostics($page);
 
         return $page;

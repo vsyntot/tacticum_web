@@ -20,6 +20,10 @@ const ALLOWED_SECTIONS = new Map([
   ['/price/', new Set(['features', 'workstreams'])],
   ['/contacts/', new Set(['routing', 'cards'])],
   ['/offer/', new Set(['product-bridge', 'bottom-cta'])],
+  ['/', new Set(['ecosystem', 'fit-matrix', 'commercial'])],
+  ['/about/', new Set(['company-trust', 'values-team', 'career-final'])],
+  ['/calculator/', new Set(['calculator-outcome-cards', 'product-aware-estimate-cards'])],
+  ['/aiagents/', new Set(['agents-bridge', 'how-it-works', 'services'])],
 ]);
 const FORBIDDEN_KEYS = new Set([
   'name',

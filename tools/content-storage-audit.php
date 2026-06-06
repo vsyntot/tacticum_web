@@ -39,6 +39,8 @@ final class TacticumContentStorageAudit
         'clients',
     ];
 
+    private const PROOF_PUBLIC_RENDER_PROPERTY = 'PUBLIC_RENDER_APPROVED';
+
     private const PUBLIC_API_PATHS = [
         'faq' => '/local/api/faq.php',
         'cases' => '/local/api/cases.php',
@@ -173,6 +175,9 @@ final class TacticumContentStorageAudit
 
             $iblockId = $this->iblockId($key);
             $property = $iblockId > 0 ? $this->propertyFields($iblockId, 'PRODUCT') : null;
+            $publicRenderProperty = $this->scopeMatches('proof') && in_array($key, ['cases', 'feedback', 'clients'], true) && $iblockId > 0
+                ? $this->propertyFields($iblockId, self::PROOF_PUBLIC_RENDER_PROPERTY)
+                : null;
             $linkIblockId = $property !== null ? $this->propertyLinkIblockId((int)$property['ID']) : 0;
             $summary[$key] = [
                 'iblock_id' => $iblockId,
@@ -182,6 +187,11 @@ final class TacticumContentStorageAudit
                 'link_iblock_id' => $linkIblockId,
                 'link_ok' => $productsIblockId > 0 && $linkIblockId === $productsIblockId,
             ];
+            if ($publicRenderProperty !== null || ($this->scopeMatches('proof') && in_array($key, ['cases', 'feedback', 'clients'], true))) {
+                $summary[$key]['public_render_property_present'] = $publicRenderProperty !== null;
+                $summary[$key]['public_render_property_active'] = $publicRenderProperty !== null && (($publicRenderProperty['ACTIVE'] ?? 'N') === 'Y');
+                $summary[$key]['public_render_property_multiple'] = (string)($publicRenderProperty['MULTIPLE'] ?? '');
+            }
         }
 
         return $summary;
@@ -225,11 +235,20 @@ final class TacticumContentStorageAudit
                 $cases = $productId > 0 ? $this->relatedElementCount((int)($relatedIblockIds['cases'] ?? 0), $productId) : 0;
                 $feedback = $productId > 0 ? $this->relatedElementCount((int)($relatedIblockIds['feedback'] ?? 0), $productId) : 0;
                 $clients = $productId > 0 ? $this->relatedElementCount((int)($relatedIblockIds['clients'] ?? 0), $productId) : 0;
+                $publicCases = $productId > 0 ? $this->publicProofElementCount((int)($relatedIblockIds['cases'] ?? 0), $productId) : 0;
+                $publicFeedback = $productId > 0 ? $this->publicProofElementCount((int)($relatedIblockIds['feedback'] ?? 0), $productId) : 0;
+                $publicClients = $productId > 0 ? $this->publicProofElementCount((int)($relatedIblockIds['clients'] ?? 0), $productId) : 0;
+                $publicTotal = $publicCases + $publicFeedback + $publicClients;
                 $row += [
                     'cases_items' => $cases,
                     'feedback_items' => $feedback,
                     'clients_items' => $clients,
                     'proof_items_total' => $cases + $feedback + $clients,
+                    'public_cases_items' => $publicCases,
+                    'public_feedback_items' => $publicFeedback,
+                    'public_clients_items' => $publicClients,
+                    'public_proof_items_total' => $publicTotal,
+                    'public_proof_render_ready' => $publicTotal >= 3,
                 ];
             }
 
@@ -658,13 +677,15 @@ final class TacticumContentStorageAudit
             $this->line('Product proof relation counts:');
             foreach ($summary['products'] as $row) {
                 $this->line(sprintf(
-                    '- %s: product_found=%s, cases=%d, feedback=%d, clients=%d, total=%d',
+                    '- %s: product_found=%s, cases=%d, feedback=%d, clients=%d, total=%d, public_total=%d, public_ready=%s',
                     (string)$row['code'],
                     !empty($row['product_found']) ? 'yes' : 'no',
                     (int)($row['cases_items'] ?? 0),
                     (int)($row['feedback_items'] ?? 0),
                     (int)($row['clients_items'] ?? 0),
-                    (int)($row['proof_items_total'] ?? 0)
+                    (int)($row['proof_items_total'] ?? 0),
+                    (int)($row['public_proof_items_total'] ?? 0),
+                    !empty($row['public_proof_render_ready']) ? 'yes' : 'no'
                 ));
             }
         }
@@ -820,6 +841,33 @@ final class TacticumContentStorageAudit
                 'IBLOCK_ID' => $iblockId,
                 'ACTIVE' => 'Y',
                 'PROPERTY_PRODUCT' => $productId,
+                'CHECK_PERMISSIONS' => 'N',
+            ],
+            false,
+            false,
+            ['ID']
+        );
+        while ($result->Fetch()) {
+            $count++;
+        }
+
+        return $count;
+    }
+
+    private function publicProofElementCount(int $iblockId, int $productId): int
+    {
+        if ($iblockId <= 0 || $productId <= 0 || $this->propertyFields($iblockId, self::PROOF_PUBLIC_RENDER_PROPERTY) === null) {
+            return 0;
+        }
+
+        $count = 0;
+        $result = CIBlockElement::GetList(
+            ['ID' => 'ASC'],
+            [
+                'IBLOCK_ID' => $iblockId,
+                'ACTIVE' => 'Y',
+                'PROPERTY_PRODUCT' => $productId,
+                'PROPERTY_' . self::PROOF_PUBLIC_RENDER_PROPERTY => 'Y',
                 'CHECK_PERMISSIONS' => 'N',
             ],
             false,

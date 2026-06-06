@@ -46,6 +46,7 @@
       "status": "ok",
       "source": "bitrix",
       "faq_source": "iblock",
+      "proof_source": "readiness",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0
@@ -55,6 +56,7 @@
       "status": "ok",
       "source": "bitrix",
       "faq_source": "iblock",
+      "proof_source": "readiness",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0
@@ -64,6 +66,7 @@
       "status": "ok",
       "source": "bitrix",
       "faq_source": "iblock",
+      "proof_source": "readiness",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0
@@ -73,6 +76,7 @@
       "status": "ok",
       "source": "bitrix",
       "faq_source": "iblock",
+      "proof_source": "readiness",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0

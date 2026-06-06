@@ -16,6 +16,7 @@
       "code": "platform",
       "status": "ok",
       "source": "fallback",
+      "proof_source": "unknown",
       "use_cases": 1,
       "missing_blocks": ["proof"],
       "schema_issues": 2,

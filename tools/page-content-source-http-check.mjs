@@ -3,7 +3,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
-const DEFAULT_PAGE_SECTIONS = new Map([
+const PAGE_SECTIONS = new Map([
   ['/services/', [
     ['delivery-layer', 'product-card-grid'],
     ['process', 'step-list'],
@@ -21,7 +21,27 @@ const DEFAULT_PAGE_SECTIONS = new Map([
     ['product-bridge', 'product-card-grid'],
     ['bottom-cta', 'cta-band'],
   ]],
+  ['/', [
+    ['ecosystem', 'product-card-grid'],
+    ['fit-matrix', 'product-card-grid'],
+    ['commercial', 'routing-card-grid'],
+  ]],
+  ['/about/', [
+    ['company-trust', 'routing-card-grid'],
+    ['values-team', 'feature-card-grid'],
+    ['career-final', 'feature-card-grid'],
+  ]],
+  ['/calculator/', [
+    ['calculator-outcome-cards', 'calculator-chat-outcome'],
+    ['product-aware-estimate-cards', 'product-card-grid'],
+  ]],
+  ['/aiagents/', [
+    ['agents-bridge', 'product-card-grid'],
+    ['how-it-works', 'step-list'],
+    ['services', 'tech-grid'],
+  ]],
 ]);
+const DEFAULT_PAGES = ['/services/', '/price/', '/contacts/', '/offer/'];
 
 const baseUrl = normalizeBaseUrl(
   process.env.TACTICUM_PAGE_CONTENT_SOURCE_BASE_URL
@@ -30,7 +50,7 @@ const baseUrl = normalizeBaseUrl(
 );
 const pages = parseList(
   process.env.TACTICUM_PAGE_CONTENT_SOURCE_PAGES || process.env.TACTICUM_VISUAL_PAGES,
-  Array.from(DEFAULT_PAGE_SECTIONS.keys())
+  DEFAULT_PAGES
 );
 const expectedSource = String(
   process.env.TACTICUM_EXPECT_PAGE_CONTENT_SOURCE
@@ -68,7 +88,7 @@ async function checkPage(url) {
   const response = await requestText(url);
   const html = response.body;
   const markers = pageContentMarkers(html);
-  const expectedSections = DEFAULT_PAGE_SECTIONS.get(url.pathname) || [];
+  const expectedSections = PAGE_SECTIONS.get(url.pathname) || [];
   const unsafeHrefs = unsafeHrefValues(html);
   const statusOk = response.status >= 200 && response.status < 300;
 

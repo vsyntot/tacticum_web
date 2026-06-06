@@ -33,6 +33,7 @@ const expectedSource = String(
     || 'bitrix'
 ).trim();
 const expectedFaqSource = String(process.env.TACTICUM_EXPECT_PRODUCT_FAQ_SOURCE || '').trim();
+const expectedProofSource = String(process.env.TACTICUM_EXPECT_PRODUCT_PROOF_SOURCE || '').trim();
 
 const failures = [];
 const results = [];
@@ -54,7 +55,7 @@ if (failures.length > 0) {
 }
 
 console.log('');
-console.log(`Product source HTTP check passed: ${results.length} page(s), expected source=${expectedSource}${expectedFaqSource !== '' ? `, expected faq_source=${expectedFaqSource}` : ''}.`);
+console.log(`Product source HTTP check passed: ${results.length} page(s), expected source=${expectedSource}${expectedFaqSource !== '' ? `, expected faq_source=${expectedFaqSource}` : ''}${expectedProofSource !== '' ? `, expected proof_source=${expectedProofSource}` : ''}.`);
 
 async function checkPage(url) {
   const response = await requestText(url);
@@ -68,6 +69,9 @@ async function checkPage(url) {
   const faqSources = unique([...html.matchAll(/\bdata-product-faq-source=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
+  const proofSources = unique([...html.matchAll(/\bdata-product-proof-source=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter(Boolean));
   const blocks = unique([...html.matchAll(/\bdata-product-block=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
@@ -77,6 +81,8 @@ async function checkPage(url) {
   const sourceOk = sources.length === 1 && sources[0] === expectedSource;
   const faqSourceOk = expectedFaqSource === ''
     || (faqSources.length === 1 && faqSources[0] === expectedFaqSource);
+  const proofSourceOk = expectedProofSource === ''
+    || (proofSources.length === 1 && proofSources[0] === expectedProofSource);
   const codeOk = codes.length === 1 && codes[0] === expectedCode;
   const statusOk = response.status >= 200 && response.status < 300;
 
@@ -92,6 +98,9 @@ async function checkPage(url) {
   if (!faqSourceOk) {
     failures.push(`${url.pathname}: expected data-product-faq-source=${expectedFaqSource}, got ${faqSources.length > 0 ? faqSources.join(',') : 'empty'}`);
   }
+  if (!proofSourceOk) {
+    failures.push(`${url.pathname}: expected data-product-proof-source=${expectedProofSource}, got ${proofSources.length > 0 ? proofSources.join(',') : 'empty'}`);
+  }
   if (missingBlocks.length > 0) {
     failures.push(`${url.pathname}: missing product blocks ${missingBlocks.join(',')}`);
   }
@@ -104,15 +113,17 @@ async function checkPage(url) {
     status: response.status,
     source: sources[0] || '',
     faqSource: faqSources[0] || '',
+    proofSource: proofSources[0] || '',
     code: codes[0] || '',
     sources,
     faqSources,
+    proofSources,
     codes,
     blocks,
     missingBlocks,
     unsafeHrefs,
     bytes: Buffer.byteLength(html),
-    ok: statusOk && sourceOk && faqSourceOk && codeOk && missingBlocks.length === 0 && unsafeHrefs.length === 0,
+    ok: statusOk && sourceOk && faqSourceOk && proofSourceOk && codeOk && missingBlocks.length === 0 && unsafeHrefs.length === 0,
   };
 }
 
@@ -158,11 +169,12 @@ function formatResult(result) {
   const marker = result.ok ? 'OK' : 'FAIL';
   const source = result.source || 'empty';
   const faqSource = result.faqSource || 'empty';
+  const proofSource = result.proofSource || 'empty';
   const code = result.code || 'empty';
   const missing = result.missingBlocks.length > 0 ? ` missing=${result.missingBlocks.join(',')}` : '';
   const unsafe = result.unsafeHrefs.length > 0 ? ` unsafe_hrefs=${result.unsafeHrefs.length}` : '';
 
-  return `${marker} ${result.page.padEnd(11)} status=${result.status} source=${source} faq_source=${faqSource} code=${code} blocks=${result.blocks.length} bytes=${result.bytes}${missing}${unsafe}`;
+  return `${marker} ${result.page.padEnd(11)} status=${result.status} source=${source} faq_source=${faqSource} proof_source=${proofSource} code=${code} blocks=${result.blocks.length} bytes=${result.bytes}${missing}${unsafe}`;
 }
 
 function parseList(value, fallback) {

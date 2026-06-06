@@ -25,6 +25,10 @@ final class TacticumContentStoragePageContentLiveApply
         '/price/' => ['features', 'workstreams'],
         '/contacts/' => ['routing', 'cards'],
         '/offer/' => ['product-bridge', 'bottom-cta'],
+        '/' => ['ecosystem', 'fit-matrix', 'commercial'],
+        '/about/' => ['company-trust', 'values-team', 'career-final'],
+        '/calculator/' => ['calculator-outcome-cards', 'product-aware-estimate-cards'],
+        '/aiagents/' => ['agents-bridge', 'how-it-works', 'services'],
     ];
     private const FORBIDDEN_KEYS = [
         'name',

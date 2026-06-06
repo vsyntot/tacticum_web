@@ -3,6 +3,10 @@
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
+
+if (function_exists('tacticum_page_content_render_if_live') && tacticum_page_content_render_if_live('/', 'fit-matrix')) {
+    return;
+}
 ?>
 
 <section class="py-20 bg-gray-50" data-home-block="fit-matrix">

@@ -10,23 +10,34 @@ tacticum_tools_reexec_with_short_open_tag($argv);
 
 final class TacticumContentStoragePageContentLiveApprovalTemplate
 {
+    private const WAVE_PAGES = [
+        'wave_1' => ['/services/', '/price/', '/contacts/', '/offer/'],
+        'wave_2' => ['/', '/about/', '/calculator/', '/aiagents/'],
+    ];
+
     private string $documentRoot;
     private string $outputPath;
     private bool $force;
     private string $page;
+    private string $wave;
     private array $errors = [];
 
-    public function __construct(string $documentRoot, string $outputPath, bool $force, string $page)
+    public function __construct(string $documentRoot, string $outputPath, bool $force, string $page, string $wave)
     {
         $this->documentRoot = rtrim($documentRoot, '/');
         $this->outputPath = $outputPath;
         $this->force = $force;
         $this->page = trim($page);
+        $this->wave = trim($wave);
     }
 
     public function run(): int
     {
         $this->bootstrap();
+        $this->validateScope();
+        if (!empty($this->errors)) {
+            return $this->finish([]);
+        }
         if (!Loader::includeModule('iblock')) {
             $this->errors[] = 'Bitrix iblock module is unavailable.';
             return $this->finish([]);
@@ -89,6 +100,7 @@ final class TacticumContentStoragePageContentLiveApprovalTemplate
     private function sectionItems(int $sectionsIblockId, int $blocksIblockId): array
     {
         $items = [];
+        $wavePages = $this->wavePages();
         $result = CIBlockElement::GetList(
             ['SORT' => 'ASC', 'ID' => 'ASC'],
             [
@@ -111,6 +123,9 @@ final class TacticumContentStoragePageContentLiveApprovalTemplate
             $currentStatus = $this->propertyString($sectionsIblockId, $sectionId, 'MIGRATION_STATUS');
             $templateKey = $this->propertyString($sectionsIblockId, $sectionId, 'TEMPLATE_KEY');
             if ($this->page !== '' && $pageKey !== $this->page) {
+                continue;
+            }
+            if ($wavePages !== [] && !in_array($pageKey, $wavePages, true)) {
                 continue;
             }
             if ($pageKey === '' || $sectionKey === '') {
@@ -147,6 +162,7 @@ final class TacticumContentStoragePageContentLiveApprovalTemplate
             'source_switch_approved' => false,
             'generated_from' => [
                 'page' => $this->page !== '' ? $this->page : 'all',
+                'wave' => $this->wave !== '' ? $this->wave : 'all',
                 'active_only' => true,
                 'raw_copy_included' => false,
                 'admin_links_included' => false,
@@ -185,6 +201,25 @@ final class TacticumContentStoragePageContentLiveApprovalTemplate
         }
 
         return $owners;
+    }
+
+    private function validateScope(): void
+    {
+        if ($this->page !== '' && $this->wave !== '') {
+            $this->errors[] = '--page and --wave are mutually exclusive. Use one scoped selector.';
+        }
+        if ($this->wave !== '' && $this->wave !== 'all' && !array_key_exists($this->wave, self::WAVE_PAGES)) {
+            $this->errors[] = '--wave must be one of: wave_1, wave_2, all.';
+        }
+    }
+
+    private function wavePages(): array
+    {
+        if ($this->wave === '' || $this->wave === 'all') {
+            return [];
+        }
+
+        return self::WAVE_PAGES[$this->wave] ?? [];
     }
 
     private function blockCounts(int $blocksIblockId, int $sectionId): array
@@ -240,7 +275,7 @@ final class TacticumContentStoragePageContentLiveApprovalTemplate
 
         if ($this->outputPath !== '') {
             fwrite(STDERR, 'Page-content live approval draft written: ' . $this->outputPath . PHP_EOL);
-            fwrite(STDERR, 'Items: ' . count($payload['items'] ?? []) . ', source_switch_approved=false' . PHP_EOL);
+            fwrite(STDERR, 'Items: ' . count($payload['items'] ?? []) . ', page=' . ($this->page !== '' ? $this->page : 'all') . ', wave=' . ($this->wave !== '' ? $this->wave : 'all') . ', source_switch_approved=false' . PHP_EOL);
         } else {
             echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
         }
@@ -253,7 +288,7 @@ function tacticum_content_storage_page_content_live_approval_template_usage(): s
 {
     return <<<TEXT
 Usage:
-  php tools/content-storage-page-content-live-approval-template.php [--page=/services/] [--output=/tmp/page-content-live-approval.draft.json] [--force] [--document-root=/path/to/site]
+  php tools/content-storage-page-content-live-approval-template.php [--page=/services/|--wave=wave_1|wave_2|all] [--output=/tmp/page-content-live-approval.draft.json] [--force] [--document-root=/path/to/site]
 
 Generates a no-raw-copy owner approval draft for promoting page-content sections
 from shadow to live. The draft does not approve page_content.source=bitrix and
@@ -265,6 +300,7 @@ TEXT;
 $outputPath = '';
 $force = false;
 $page = '';
+$wave = '';
 $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) && trim((string)$_SERVER['DOCUMENT_ROOT']) !== ''
     ? (string)$_SERVER['DOCUMENT_ROOT']
     : dirname(__DIR__);
@@ -286,6 +322,10 @@ foreach (array_slice($argv, 1) as $argument) {
         $page = substr($argument, strlen('--page='));
         continue;
     }
+    if (str_starts_with($argument, '--wave=')) {
+        $wave = substr($argument, strlen('--wave='));
+        continue;
+    }
     if (str_starts_with($argument, '--document-root=')) {
         $documentRoot = substr($argument, strlen('--document-root='));
         continue;
@@ -297,7 +337,7 @@ foreach (array_slice($argv, 1) as $argument) {
 }
 
 try {
-    $tool = new TacticumContentStoragePageContentLiveApprovalTemplate($documentRoot, $outputPath, $force, $page);
+    $tool = new TacticumContentStoragePageContentLiveApprovalTemplate($documentRoot, $outputPath, $force, $page, $wave);
     exit($tool->run());
 } catch (Throwable $exception) {
     fwrite(STDERR, $exception->getMessage() . PHP_EOL . PHP_EOL);

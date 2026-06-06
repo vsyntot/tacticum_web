@@ -365,6 +365,7 @@ final class TacticumProductContentCheck
                 'status' => $minimumRenderable ? 'ok' : 'not-renderable',
                 'source' => (string)($page['_source'] ?? 'none'),
                 'faq_source' => (string)($page['_faq_source'] ?? 'unknown'),
+                'proof_source' => (string)($page['_proof_source'] ?? 'unknown'),
                 'use_cases' => $useCaseCount,
                 'missing_blocks' => $missingBlocks,
                 'schema_issues' => count($schemaIssues),
@@ -378,6 +379,9 @@ final class TacticumProductContentCheck
             }
             if (($page['_faq_source'] ?? '') !== 'iblock') {
                 $this->warnOrError("Product {$productCode} FAQ is not sourced from faq iblock.");
+            }
+            if (!in_array((string)($page['_proof_source'] ?? ''), ['readiness', 'iblock'], true)) {
+                $this->warnOrError("Product {$productCode} proof source marker is missing or unsupported.");
             }
             if (!empty($missingBlocks)) {
                 $this->warnOrError("Product {$productCode} misses TO BE blocks: " . implode(', ', $missingBlocks));
@@ -1003,11 +1007,12 @@ final class TacticumProductContentCheck
                     ? '-'
                     : implode(',', $row['missing_blocks']);
                 $this->line(sprintf(
-                    '- %s: %s, source=%s, faq_source=%s, use_cases=%d, missing_blocks=%s, schema_issues=%d',
+                    '- %s: %s, source=%s, faq_source=%s, proof_source=%s, use_cases=%d, missing_blocks=%s, schema_issues=%d',
                     $row['code'],
                     $row['status'],
                     $row['source'],
                     $row['faq_source'] ?? 'unknown',
+                    $row['proof_source'] ?? 'unknown',
                     $row['use_cases'],
                     $missing,
                     (int)($row['schema_issues'] ?? 0)

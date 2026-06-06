@@ -10,24 +10,35 @@ tacticum_tools_reexec_with_short_open_tag($argv);
 
 final class TacticumContentStoragePageContentFallbackRetirementTemplate
 {
+    private const WAVE_PAGES = [
+        'wave_1' => ['/services/', '/price/', '/contacts/', '/offer/'],
+        'wave_2' => ['/', '/about/', '/calculator/', '/aiagents/'],
+    ];
+
     private string $documentRoot;
     private string $outputPath;
     private bool $force;
     private string $page;
+    private string $wave;
     /** @var string[] */
     private array $errors = [];
 
-    public function __construct(string $documentRoot, string $outputPath, bool $force, string $page)
+    public function __construct(string $documentRoot, string $outputPath, bool $force, string $page, string $wave)
     {
         $this->documentRoot = rtrim($documentRoot, '/');
         $this->outputPath = $outputPath;
         $this->force = $force;
         $this->page = trim($page);
+        $this->wave = trim($wave);
     }
 
     public function run(): int
     {
         $this->bootstrap();
+        $this->validateScope();
+        if (!empty($this->errors)) {
+            return $this->finish([]);
+        }
         if (!Loader::includeModule('iblock')) {
             $this->errors[] = 'Bitrix iblock module is unavailable.';
             return $this->finish([]);
@@ -90,6 +101,7 @@ final class TacticumContentStoragePageContentFallbackRetirementTemplate
     private function sectionItems(int $sectionsIblockId, int $blocksIblockId): array
     {
         $items = [];
+        $wavePages = $this->wavePages();
         $result = CIBlockElement::GetList(
             ['SORT' => 'ASC', 'ID' => 'ASC'],
             [
@@ -114,6 +126,9 @@ final class TacticumContentStoragePageContentFallbackRetirementTemplate
             $templateKey = $this->propertyString($sectionsIblockId, $sectionId, 'TEMPLATE_KEY');
             $fallbackPartial = $this->propertyString($sectionsIblockId, $sectionId, 'FALLBACK_PARTIAL');
             if ($this->page !== '' && $pageKey !== $this->page) {
+                continue;
+            }
+            if ($wavePages !== [] && !in_array($pageKey, $wavePages, true)) {
                 continue;
             }
             if (!$this->isAllowedSection($pageKey, $sectionKey)) {
@@ -154,6 +169,7 @@ final class TacticumContentStoragePageContentFallbackRetirementTemplate
             'retirement_allowed' => false,
             'generated_from' => [
                 'page' => $this->page !== '' ? $this->page : 'all',
+                'wave' => $this->wave !== '' ? $this->wave : 'all',
                 'active_only' => true,
                 'live_only' => true,
                 'raw_copy_included' => false,
@@ -172,14 +188,7 @@ final class TacticumContentStoragePageContentFallbackRetirementTemplate
             'owners' => $this->ownerRows(),
             'production_evidence' => $this->productionEvidenceRows(),
             'owner_gates' => $this->ownerGateRows(),
-            'required_final_rechecks' => [
-                'npm run config:runtime:check',
-                'npm run page-content:source:http:prod',
-                'php tools/content-storage-audit.php --scope=page-content --strict --json',
-                'npm run seo:check:prod',
-                'TACTICUM_VISUAL_PAGES=/services/,/price/,/contacts/,/offer/ npm run visual:smoke:prod',
-                'TACTICUM_VISUAL_PAGES=/services/,/price/,/contacts/,/offer/ npm run browser:smoke:prod',
-            ],
+            'required_final_rechecks' => $this->requiredFinalRechecks($items),
             'rollback_plan' => [
                 'required' => true,
                 'strategy' => 'Set page_content.source=fallback, keep allow_fallback=true and redeploy previous partial fallback code if needed.',
@@ -283,9 +292,94 @@ final class TacticumContentStoragePageContentFallbackRetirementTemplate
             '/price/' => ['features', 'workstreams'],
             '/contacts/' => ['routing', 'cards'],
             '/offer/' => ['product-bridge', 'bottom-cta'],
+            '/' => ['ecosystem', 'fit-matrix', 'commercial'],
+            '/about/' => ['company-trust', 'values-team', 'career-final'],
+            '/calculator/' => ['calculator-outcome-cards', 'product-aware-estimate-cards'],
+            '/aiagents/' => ['agents-bridge', 'how-it-works', 'services'],
         ];
 
         return isset($allowed[$pageKey]) && in_array($sectionKey, $allowed[$pageKey], true);
+    }
+
+    private function validateScope(): void
+    {
+        if ($this->page !== '' && $this->wave !== '') {
+            $this->errors[] = '--page and --wave are mutually exclusive. Use one scoped selector.';
+        }
+        if ($this->wave !== '' && $this->wave !== 'all' && !array_key_exists($this->wave, self::WAVE_PAGES)) {
+            $this->errors[] = '--wave must be one of: wave_1, wave_2, all.';
+        }
+    }
+
+    private function wavePages(): array
+    {
+        if ($this->wave === '' || $this->wave === 'all') {
+            return [];
+        }
+
+        return self::WAVE_PAGES[$this->wave] ?? [];
+    }
+
+    private function requiredFinalRechecks(array $items): array
+    {
+        $pages = $this->pageListFromItems($items);
+        $pagesCsv = implode(',', $pages);
+
+        return array_merge([
+            'npm run config:runtime:check',
+        ], $this->sourceRecheckCommands($pages), [
+            'php tools/content-storage-audit.php --scope=page-content --strict --json',
+            'npm run seo:check:prod',
+            'TACTICUM_VISUAL_PAGES=' . $pagesCsv . ' npm run visual:smoke:prod',
+            'TACTICUM_VISUAL_PAGES=' . $pagesCsv . ' npm run browser:smoke:prod',
+        ]);
+    }
+
+    private function sourceRecheckCommands(array $pages): array
+    {
+        $commands = [];
+        if ($this->containsAnyPage($pages, self::WAVE_PAGES['wave_1'])) {
+            $commands[] = 'npm run page-content:source:http:prod';
+        }
+        if ($this->containsAnyPage($pages, self::WAVE_PAGES['wave_2'])) {
+            $commands[] = 'npm run page-content:source:http:wave2:prod';
+        }
+
+        return $commands;
+    }
+
+    private function containsAnyPage(array $pages, array $candidates): bool
+    {
+        foreach ($pages as $page) {
+            if (in_array($page, $candidates, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function pageListFromItems(array $items): array
+    {
+        $pages = [];
+        foreach ($items as $item) {
+            $page = is_array($item) ? (string)($item['page'] ?? '') : '';
+            if ($page !== '' && !in_array($page, $pages, true)) {
+                $pages[] = $page;
+            }
+        }
+
+        $order = array_merge(self::WAVE_PAGES['wave_1'], self::WAVE_PAGES['wave_2']);
+        usort($pages, static function (string $left, string $right) use ($order): int {
+            $leftIndex = array_search($left, $order, true);
+            $rightIndex = array_search($right, $order, true);
+            $leftRank = $leftIndex === false ? 1000 : (int)$leftIndex;
+            $rightRank = $rightIndex === false ? 1000 : (int)$rightIndex;
+
+            return $leftRank <=> $rightRank;
+        });
+
+        return $pages;
     }
 
     private function iblockId(string $key): int
@@ -304,7 +398,7 @@ final class TacticumContentStoragePageContentFallbackRetirementTemplate
 
         if ($this->outputPath !== '') {
             fwrite(STDERR, 'Page-content fallback retirement draft written: ' . $this->outputPath . PHP_EOL);
-            fwrite(STDERR, 'Items: ' . count($payload['items'] ?? []) . ', retirement_allowed=false' . PHP_EOL);
+            fwrite(STDERR, 'Items: ' . count($payload['items'] ?? []) . ', page=' . ($this->page !== '' ? $this->page : 'all') . ', wave=' . ($this->wave !== '' ? $this->wave : 'all') . ', retirement_allowed=false' . PHP_EOL);
         } else {
             echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
         }
@@ -317,11 +411,11 @@ function tacticum_content_storage_page_content_fallback_retirement_template_usag
 {
     return <<<TEXT
 Usage:
-  php tools/content-storage-page-content-fallback-retirement-template.php [--page=/services/] [--output=/tmp/page-content-fallback-retirement.draft.json] [--force] [--document-root=/path/to/site]
+  php tools/content-storage-page-content-fallback-retirement-template.php [--page=/services/|--wave=wave_1|wave_2|all] [--output=/tmp/page-content-fallback-retirement.draft.json] [--force] [--document-root=/path/to/site]
 
 Generates a no-raw-copy owner approval draft for retiring PHP fallback partials
-for live wave 1 page-content sections. The draft does not change public runtime,
-does not remove partials and does not print raw page copy.
+for live page-content sections. The draft does not change public runtime, does
+not remove partials and does not print raw page copy.
 
 TEXT;
 }
@@ -333,6 +427,7 @@ function tacticum_content_storage_page_content_fallback_retirement_parse_args(ar
         'output' => '',
         'force' => false,
         'page' => '',
+        'wave' => '',
     ];
 
     foreach (array_slice($argv, 1) as $arg) {
@@ -356,6 +451,10 @@ function tacticum_content_storage_page_content_fallback_retirement_parse_args(ar
             $options['page'] = substr($arg, strlen('--page='));
             continue;
         }
+        if (str_starts_with($arg, '--wave=')) {
+            $options['wave'] = substr($arg, strlen('--wave='));
+            continue;
+        }
         fwrite(STDERR, 'Unknown argument: ' . $arg . PHP_EOL . PHP_EOL);
         fwrite(STDERR, tacticum_content_storage_page_content_fallback_retirement_template_usage());
         exit(1);
@@ -370,7 +469,8 @@ try {
         (string)$options['document_root'],
         (string)$options['output'],
         (bool)$options['force'],
-        (string)$options['page']
+        (string)$options['page'],
+        (string)$options['wave']
     );
     exit($tool->run());
 } catch (Throwable $error) {

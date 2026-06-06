@@ -154,4 +154,4 @@ Still requires target/owner evidence:
 
 - FAQ fallback retirement approval passed locally; deploy requires product cache clear, strict FAQ/product checks and rendered smoke before considering the fallback fully retired on production.
 - Approve proof/cases/feedback/clients public rendering before any trust block.
-- Run page-content fallback-retirement owner review with `content-storage-page-content-fallback-retirement-template.php` / `content-storage-page-content-fallback-retirement-check.mjs`; only after approval should PHP fallback partials be removed in a separate code/deploy change.
+- Run page-content fallback-retirement owner review with `content-storage-page-content-fallback-retirement-template.php` or the scoped `content:storage:page-content:fallback-retirement-template:wave2` script plus `content-storage-page-content-fallback-retirement-check.mjs`; only after approval should PHP fallback partials be removed in a separate code/deploy change.

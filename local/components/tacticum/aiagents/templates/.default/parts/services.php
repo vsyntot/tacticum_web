@@ -1,4 +1,12 @@
-<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();?>
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
+    die();
+}
+
+if (function_exists('tacticum_page_content_render_if_live') && tacticum_page_content_render_if_live('/aiagents/', 'services')) {
+    return;
+}
+?>
 
 <section id="services" class="py-20">
     <div class="container mx-auto px-4 md:px-6">

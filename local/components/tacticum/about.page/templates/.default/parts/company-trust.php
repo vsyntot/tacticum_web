@@ -110,6 +110,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     </div>
 </section>
 
+<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/about/', 'company-trust')): ?>
 <section class="py-20 bg-white">
     <div class="container mx-auto px-4">
         <div class="mb-12 max-w-3xl">
@@ -162,3 +163,4 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
         </div>
     </div>
 </section>
+<?php endif; ?>

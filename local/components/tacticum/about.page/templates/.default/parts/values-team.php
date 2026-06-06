@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 ?>
 
+<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/about/', 'values-team')): ?>
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
@@ -97,6 +98,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <section id="team-section" class="tacticum-anchor-target py-20">
     <span id="team" class="tacticum-anchor-alias" aria-hidden="true"></span>

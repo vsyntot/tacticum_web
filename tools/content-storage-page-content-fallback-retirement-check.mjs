@@ -22,14 +22,16 @@ const REQUIRED_OWNER_GATES = [
   'qa_rollback_window_approved',
   'seo_no_regression_approved',
 ];
-const REQUIRED_FINAL_RECHECKS = [
+const COMMON_FINAL_RECHECKS = [
   'npm run config:runtime:check',
-  'npm run page-content:source:http:prod',
   'php tools/content-storage-audit.php --scope=page-content --strict --json',
   'npm run seo:check:prod',
-  'TACTICUM_VISUAL_PAGES=/services/,/price/,/contacts/,/offer/ npm run visual:smoke:prod',
-  'TACTICUM_VISUAL_PAGES=/services/,/price/,/contacts/,/offer/ npm run browser:smoke:prod',
 ];
+const WAVE_PAGES = {
+  wave_1: ['/services/', '/price/', '/contacts/', '/offer/'],
+  wave_2: ['/', '/about/', '/calculator/', '/aiagents/'],
+};
+const PAGE_ORDER = [...WAVE_PAGES.wave_1, ...WAVE_PAGES.wave_2];
 const ALLOWED_DECISIONS = new Set(['pending', 'retire_fallback', 'keep_fallback']);
 const ALLOWED_STATUSES = new Set(['live', 'fallback_retired']);
 const ALLOWED_SECTIONS = new Map([
@@ -37,6 +39,10 @@ const ALLOWED_SECTIONS = new Map([
   ['/price/', new Set(['features', 'workstreams'])],
   ['/contacts/', new Set(['routing', 'cards'])],
   ['/offer/', new Set(['product-bridge', 'bottom-cta'])],
+  ['/', new Set(['ecosystem', 'fit-matrix', 'commercial'])],
+  ['/about/', new Set(['company-trust', 'values-team', 'career-final'])],
+  ['/calculator/', new Set(['calculator-outcome-cards', 'product-aware-estimate-cards'])],
+  ['/aiagents/', new Set(['agents-bridge', 'how-it-works', 'services'])],
 ]);
 const FORBIDDEN_KEYS = new Set([
   'name',
@@ -70,7 +76,7 @@ function usage() {
   node tools/content-storage-page-content-fallback-retirement-check.mjs <approval.json> [--allow-draft]
   node tools/content-storage-page-content-fallback-retirement-check.mjs --self-test
 
-Validates owner approval for retiring PHP fallback partials for wave 1
+Validates owner approval for retiring PHP fallback partials for live
 page-content sections. The approval may only describe page/section IDs,
 statuses, decisions and safe evidence booleans. It must not include raw page
 copy, contacts, screenshots, admin links or request data.
@@ -172,6 +178,53 @@ function validateBooleanMap(source, keys, path, requireTrue, errors) {
       errors.push(`${path}.${key} must be true for approved retirement.`);
     }
   }
+}
+
+function orderedPagesFromItems(items) {
+  const pages = [];
+  for (const item of Array.isArray(items) ? items : []) {
+    if (typeof item?.page === 'string' && item.page && !pages.includes(item.page)) {
+      pages.push(item.page);
+    }
+  }
+
+  return pages.sort((left, right) => {
+    const leftIndex = PAGE_ORDER.indexOf(left);
+    const rightIndex = PAGE_ORDER.indexOf(right);
+    const leftRank = leftIndex === -1 ? 1000 : leftIndex;
+    const rightRank = rightIndex === -1 ? 1000 : rightIndex;
+    return leftRank - rightRank;
+  });
+}
+
+function containsAnyPage(pages, candidates) {
+  return pages.some((page) => candidates.includes(page));
+}
+
+function sourceRecheckCommands(pages) {
+  const commands = [];
+  if (containsAnyPage(pages, WAVE_PAGES.wave_1)) {
+    commands.push('npm run page-content:source:http:prod');
+  }
+  if (containsAnyPage(pages, WAVE_PAGES.wave_2)) {
+    commands.push('npm run page-content:source:http:wave2:prod');
+  }
+
+  return commands;
+}
+
+function requiredFinalRechecksForItems(items) {
+  const pages = orderedPagesFromItems(items);
+  const pagesCsv = pages.join(',');
+
+  return [
+    COMMON_FINAL_RECHECKS[0],
+    ...sourceRecheckCommands(pages),
+    COMMON_FINAL_RECHECKS[1],
+    COMMON_FINAL_RECHECKS[2],
+    `TACTICUM_VISUAL_PAGES=${pagesCsv} npm run visual:smoke:prod`,
+    `TACTICUM_VISUAL_PAGES=${pagesCsv} npm run browser:smoke:prod`,
+  ];
 }
 
 function validateOwners(payload, finalMode, errors) {
@@ -326,7 +379,7 @@ function validatePayload(payload, options = {}) {
   if (!Array.isArray(payload.required_final_rechecks)) {
     errors.push('required_final_rechecks must be an array.');
   } else {
-    for (const command of REQUIRED_FINAL_RECHECKS) {
+    for (const command of requiredFinalRechecksForItems(payload.items)) {
       if (!payload.required_final_rechecks.includes(command)) {
         errors.push(`required_final_rechecks must include: ${command}`);
       }
@@ -401,6 +454,22 @@ function booleanRows(keys, value) {
 
 function basePayload(status = 'draft') {
   const approved = status === 'approved';
+  const items = [
+    {
+      id: 3073,
+      page: '/services/',
+      section_key: 'delivery-layer',
+      template_key: 'product-card-grid',
+      decision: approved ? 'retire_fallback' : 'pending',
+      current_status: 'live',
+      fallback_partial_present: true,
+      blocks_total: 4,
+      blocks_active: 4,
+      admin_editability_approved: approved,
+      fallback_retirement_approved: approved,
+    },
+  ];
+
   return {
     schema: SCHEMA,
     status,
@@ -409,7 +478,7 @@ function basePayload(status = 'draft') {
     owners: ownerRows(approved),
     production_evidence: booleanRows(REQUIRED_EVIDENCE, approved),
     owner_gates: booleanRows(REQUIRED_OWNER_GATES, approved),
-    required_final_rechecks: REQUIRED_FINAL_RECHECKS,
+    required_final_rechecks: requiredFinalRechecksForItems(items),
     rollback_plan: {
       required: true,
       strategy: 'Set page_content.source=fallback, keep allow_fallback=true and redeploy previous partial fallback code if needed.',
@@ -420,27 +489,31 @@ function basePayload(status = 'draft') {
       'Do not set retirement_allowed=true until all evidence and owner gates are true.',
       'Fallback retirement is a separate code change and deployment.',
     ],
-    items: [
-      {
-        id: 3073,
-        page: '/services/',
-        section_key: 'delivery-layer',
-        template_key: 'product-card-grid',
-        decision: approved ? 'retire_fallback' : 'pending',
-        current_status: 'live',
-        fallback_partial_present: true,
-        blocks_total: 4,
-        blocks_active: 4,
-        admin_editability_approved: approved,
-        fallback_retirement_approved: approved,
-      },
-    ],
+    items,
   };
 }
 
 function runSelfTest() {
   const validDraft = basePayload('draft');
   const validApproved = basePayload('approved');
+  const wave2Item = {
+    id: 3119,
+    page: '/',
+    section_key: 'ecosystem',
+    template_key: 'home-product-links',
+    decision: 'retire_fallback',
+    current_status: 'live',
+    fallback_partial_present: true,
+    blocks_total: 4,
+    blocks_active: 4,
+    admin_editability_approved: true,
+    fallback_retirement_approved: true,
+  };
+  const validWave2Approved = {
+    ...validApproved,
+    items: [wave2Item],
+    required_final_rechecks: requiredFinalRechecksForItems([wave2Item]),
+  };
   const invalidRawCopy = {
     ...validDraft,
     items: [{ ...validDraft.items[0], title: 'Raw page copy must not be stored here' }],
@@ -458,6 +531,7 @@ function runSelfTest() {
     [validatePayload(validDraft, { allowDraft: true }).success, 'valid draft with allowDraft should pass'],
     [!validatePayload(validDraft, { allowDraft: false }).success, 'draft without allowDraft should fail'],
     [validatePayload(validApproved, { allowDraft: false }).success, 'valid approved should pass'],
+    [validatePayload(validWave2Approved, { allowDraft: false }).success, 'valid wave 2 approved should pass'],
     [!validatePayload(invalidRawCopy, { allowDraft: true }).success, 'raw copy should fail'],
     [!validatePayload(invalidRetireWithoutEvidence, { allowDraft: false }).success, 'approved retirement without evidence should fail'],
     [!validatePayload(invalidDraftAllowedRetirement, { allowDraft: true }).success, 'draft retirement_allowed=true should fail'],

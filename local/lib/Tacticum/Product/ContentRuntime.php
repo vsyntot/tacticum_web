@@ -6,6 +6,16 @@ use Bitrix\Main\Data\Cache;
 
 final class ContentRuntime
 {
+    private const RELATED_IBLOCK_KEYS = [
+        'products',
+        'product_blocks',
+        'product_use_cases',
+        'faq',
+        'cases',
+        'feedback',
+        'clients',
+    ];
+
     private const CODES = [
         'platform' => 'platform.php',
         'agents' => 'agents.php',
@@ -76,7 +86,7 @@ final class ContentRuntime
     public static function cacheKey(string $productCode): string
     {
         $iblockIds = [];
-        foreach (['products', 'product_blocks', 'product_use_cases', 'faq'] as $key) {
+        foreach (self::RELATED_IBLOCK_KEYS as $key) {
             $iblockIds[$key] = function_exists('tacticum_rest_get_iblock_id')
                 ? tacticum_rest_get_iblock_id($key)
                 : 0;
@@ -96,7 +106,7 @@ final class ContentRuntime
     public static function relatedIblockIds(): array
     {
         $ids = [];
-        foreach (['products', 'product_blocks', 'product_use_cases', 'faq'] as $key) {
+        foreach (self::RELATED_IBLOCK_KEYS as $key) {
             $id = function_exists('tacticum_rest_get_iblock_id')
                 ? tacticum_rest_get_iblock_id($key)
                 : 0;
