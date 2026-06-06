@@ -115,13 +115,16 @@ Local implementation 06.06.2026:
 - Rate cards expose `data-rate-ids`; JS applies target presets by stable `RATE_ELEMENT` relation and keeps keyword matching only as fallback.
 - Staff-order task text resolves preset label/source/version server-side without changing endpoint response shape or upstream top-level payload.
 - Added dry-run/apply migration `price:team-presets:migrate` and readiness checker `price:team-presets:check`.
+- Added `price:team-presets:cache-clear` for runtime/team-preset managed tags, `news.list` component HTML cache, composite cache and template asset cache; required after manual finalize/admin edits when a full deploy cache clear did not run.
+
+Production migration evidence 06.06.2026: `npm run price:team-presets:migrate:apply` created `tacticum_team_presets #26` and `tacticum_team_preset_roles #27`, created all required properties, seeded `mvp`, `discovery`, `support`, `qa-burst` and their role rows. Follow-up `npm run price:team-presets:finalize -- --apply --missing-automation=deactivate --run-checks` deactivated the unpriced `qa-burst-qa-automation` row, switched `price.team_presets_source=bitrix`, disabled fallback and passed strict target checks: `presets=4`, `roles=12`, `roles_without_rate=0`, runtime source `bitrix`. `config:runtime:check` also passed with `price` scope valid and `team_presets #26` / `team_preset_roles #27`.
 
 Current gap coverage:
 
 | ID | Status | Priority | Area | Closure |
 |---|---|---|---|---|
 | `PRICE-PRESET-001` | closed locally | P1 | `/price/` quick preset hardcode | PHP/JS split hardcode removed from runtime path; Bitrix/fallback source is centralized in `Tacticum\Price`; `config:check`, `component:states:check`, `bitrix:check` pass locally |
-| `PRICE-PRESET-002` | external target gate | P1 | Bitrix schema/data rollout | Run `npm run price:team-presets:migrate:apply`, update ignored `tacticum_config.php` IDs, set `price.team_presets_source=bitrix`, `allow_team_presets_fallback=false`, then run `npm run price:team-presets:check:strict` on target Bitrix/PHP |
+| `PRICE-PRESET-002` | closed | P1 | Bitrix schema/data rollout | Production schema/seed/finalize passed as `team_presets #26`, `team_preset_roles #27`; unpriced QA automation row deactivated, source switched to `bitrix`, fallback disabled, strict check passed with 4 presets and 12 active role rows |
 | `PRICE-PRESET-003` | accepted rollout fallback | P2 | Transitional fallback | Fallback remains allowed only until target strict check and browser smoke pass; rollback is `price.team_presets_source=fallback` |
 
 ## Current Product Tech Challenge Layer — 04.06.2026

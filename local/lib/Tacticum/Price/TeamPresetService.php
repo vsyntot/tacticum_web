@@ -75,6 +75,22 @@ final class TeamPresetService
         return self::indexed()[$code] ?? null;
     }
 
+    public static function cacheDir(): string
+    {
+        return TeamPresetCache::CACHE_DIR;
+    }
+
+    public static function relatedIblockIds(): array
+    {
+        return TeamPresetCache::relatedIblockIds();
+    }
+
+    public static function clearCache(int $iblockId = 0): void
+    {
+        TeamPresetCache::clear($iblockId);
+        self::$presets = null;
+    }
+
     private static function normalizeList(array $presets): array
     {
         $result = [];

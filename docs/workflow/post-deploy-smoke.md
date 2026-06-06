@@ -40,7 +40,7 @@ npm run product:block-previews:prod
 - [ ] Валидная `/offer/<code>/?clear_cache=Y` не отдаёт 404; этот guard входит в `npm run seo:check:prod`.
 - [ ] Валидная `/offer/<code>/` визуально проверена на readable estimate block; при ручной проверке можно использовать focused smoke: `TACTICUM_VISUAL_PAGES=/offer/<code>/ TACTICUM_EXPECT_SEO_HEAD=1 npm run visual:smoke`.
 - [ ] `/offer/?scenario=ai-kopaylot&page=2&clear_cache=Y` редиректит на `/offer/catalog/scenario/ai-kopaylot/page/2/?clear_cache=Y`; этот guard входит в `npm run seo:check:prod`.
-- [ ] Если `/price/` smoke падает с `team preset controls are missing`, проверить, что очищен component cache `bitrix/cache/s1/bitrix/news.list/*` и composite cache `bitrix/html_pages/*`, а rendered HTML содержит `data-price-team-preset`.
+- [ ] Если `/price/` smoke падает с `team preset controls are missing` или `team preset did not show persistent summary`, проверить, что очищен component cache `bitrix/cache/s1/bitrix/news.list/*` и composite cache `bitrix/html_pages/*`, а rendered HTML содержит `data-price-team-preset`, `data-price-team-presets-json` и `data-rate-ids`.
 - [ ] Release sign-off JSON заполнен по `docs/workflow/release-signoff.example.json`, ручные gates закрыты по `docs/workflow/manual-release-gates-runbook.md` и файл проходит `npm run release:signoff:check -- <file>`.
 - [ ] Нет 500/502 на затронутых страницах.
 - [ ] Bitrix admin panel не сломана для авторизованного администратора.
