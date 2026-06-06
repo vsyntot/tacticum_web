@@ -76,7 +76,7 @@ final class ContentRuntime
     public static function cacheKey(string $productCode): string
     {
         $iblockIds = [];
-        foreach (['products', 'product_blocks', 'product_use_cases'] as $key) {
+        foreach (['products', 'product_blocks', 'product_use_cases', 'faq'] as $key) {
             $iblockIds[$key] = function_exists('tacticum_rest_get_iblock_id')
                 ? tacticum_rest_get_iblock_id($key)
                 : 0;
@@ -96,7 +96,7 @@ final class ContentRuntime
     public static function relatedIblockIds(): array
     {
         $ids = [];
-        foreach (['products', 'product_blocks', 'product_use_cases'] as $key) {
+        foreach (['products', 'product_blocks', 'product_use_cases', 'faq'] as $key) {
             $id = function_exists('tacticum_rest_get_iblock_id')
                 ? tacticum_rest_get_iblock_id($key)
                 : 0;

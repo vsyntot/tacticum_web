@@ -10,7 +10,7 @@ const FIXTURE_DIR = path.join(ROOT, 'tools/fixtures/product-content-cache-clear-
 const DEFAULT_ALLOWED_SOURCE_MODES = ['bitrix'];
 const DEFAULT_EXPECTED_SCHEMA_VERSION = 'v1';
 const DEFAULT_CACHE_DIR = '/tacticum/product_content';
-const MIN_MANAGED_TAGS = 3;
+const MIN_MANAGED_TAGS = 4;
 
 const FORBIDDEN_KEYS = new Set([
   'raw',
@@ -89,7 +89,7 @@ function validateIblockIds(iblockIds, errors) {
     return;
   }
   if (iblockIds.length < MIN_MANAGED_TAGS) {
-    errors.push(`iblock_ids must include at least ${MIN_MANAGED_TAGS} product content iblocks.`);
+    errors.push(`iblock_ids must include at least ${MIN_MANAGED_TAGS} product content/FAQ iblocks.`);
   }
 
   const seen = new Set();

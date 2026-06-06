@@ -102,9 +102,10 @@ function tacticum_config_runtime_check_url_status(string $key): array
 function tacticum_config_runtime_check_summary(string $documentRoot): array
 {
     $config = tacticum_rest_get_config();
-    $scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'products', 'rest', 'security'];
+    $scopes = ['api', 'ai', 'telegram', 'offer', 'content', 'products', 'page_content', 'rest', 'security'];
     $errors = tacticum_rest_validate_config($scopes);
     $productsConfig = tacticum_rest_get_config_section('products');
+    $pageContentConfig = tacticum_rest_get_config_section('page_content');
     $securityConfig = tacticum_rest_get_config_section('security');
     $contentConfig = tacticum_rest_get_config_section('content');
     $restConfig = tacticum_rest_get_config_section('rest');
@@ -119,6 +120,7 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
     foreach ([
         'offer',
         'vacancies',
+        'clients',
         'feedback',
         'faq',
         'rates',
@@ -130,6 +132,8 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
         'products',
         'product_blocks',
         'product_use_cases',
+        'page_sections',
+        'page_blocks',
     ] as $key) {
         $iblocks[$key] = tacticum_rest_get_iblock_id($key);
     }
@@ -155,6 +159,14 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
             'source_config' => tacticum_config_runtime_check_value_source($config, 'products', 'source'),
             'allow_fallback_config' => tacticum_config_runtime_check_value_source($config, 'products', 'allow_fallback'),
             'cache_ttl_config' => tacticum_config_runtime_check_value_source($config, 'products', 'cache_ttl'),
+        ],
+        'page_content' => [
+            'source' => (string)($pageContentConfig['source'] ?? 'fallback'),
+            'live_status' => (string)($pageContentConfig['live_status'] ?? 'live'),
+            'allow_fallback' => (bool)($pageContentConfig['allow_fallback'] ?? true),
+            'source_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'source'),
+            'live_status_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'live_status'),
+            'allow_fallback_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'allow_fallback'),
         ],
         'ai' => [
             'base_urls' => [
@@ -225,6 +237,13 @@ function tacticum_config_runtime_check_print(array $summary): void
         . ', cache_ttl=' . (string)$summary['products']['cache_ttl']
         . ' (' . $summary['products']['cache_ttl_config'] . ')'
         . ', schema_version=' . $summary['products']['schema_version']);
+
+    tacticum_config_runtime_check_line('Page content: source=' . $summary['page_content']['source']
+        . ' (' . $summary['page_content']['source_config'] . ')'
+        . ', live_status=' . $summary['page_content']['live_status']
+        . ' (' . $summary['page_content']['live_status_config'] . ')'
+        . ', allow_fallback=' . ($summary['page_content']['allow_fallback'] ? 'true' : 'false')
+        . ' (' . $summary['page_content']['allow_fallback_config'] . ')');
 
     tacticum_config_runtime_check_line('');
     tacticum_config_runtime_check_line('AI base URLs:');

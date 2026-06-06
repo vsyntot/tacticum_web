@@ -1,0 +1,48 @@
+{
+  "schema": "tacticum.content_storage.faq_fallback_retirement.v1",
+  "status": "draft",
+  "date": "2026-06-05",
+  "release_evidence": false,
+  "retirement_allowed": false,
+  "target": {
+    "fallback": "product_blocks.faq",
+    "primary_source": "faq",
+    "runtime_marker": "faq_source=iblock"
+  },
+  "production_evidence": {
+    "faq_migration_apply_passed": true,
+    "faq_section_sync_passed": true,
+    "strict_faq_audit_passed": true,
+    "strict_product_content_check_passed": true,
+    "product_source_http_faq_source_passed": true,
+    "product_cache_clear_with_faq_tag_passed": true,
+    "seo_check_prod_passed": true,
+    "chrome_capable_visual_smoke_prod_passed": true,
+    "chrome_capable_browser_smoke_prod_passed": true
+  },
+  "owner_gates": {
+    "content_admin_editability_approved": false,
+    "qa_rollback_window_approved": false,
+    "backend_removal_approved": false,
+    "seo_no_regression_approved": false
+  },
+  "required_final_rechecks": [
+    "php tools/content-storage-audit.php --scope=faq --strict --json",
+    "php tools/product-content-check.php --strict --json",
+    "TACTICUM_EXPECT_PRODUCT_FAQ_SOURCE=iblock npm run product:source:http:prod",
+    "npm run seo:check:prod",
+    "npm run visual:smoke:prod",
+    "npm run browser:smoke:prod"
+  ],
+  "rollback_plan": {
+    "required": true,
+    "strategy": "Restore product_blocks.faq fallback code path or redeploy previous release, then clear product content cache.",
+    "cache_clear_command": "php tools/product-content-cache-clear.php"
+  },
+  "rules": [
+    "Do not remove product_blocks.faq fallback while status is draft.",
+    "Do not set retirement_allowed=true until all owner gates are true.",
+    "Do not store raw FAQ text, raw page HTML, cookies, tokens, contacts or request payloads in this file.",
+    "Final approval validates process readiness only; the fallback removal is a separate code change and deployment."
+  ]
+}

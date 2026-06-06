@@ -89,6 +89,7 @@ Date: 05.06.2026
 
 ```bash
 php -l local/php_interface/include/tacticum_config.example.php
+npm run content:storage:governance:check
 php tools/content-storage-audit.php --strict
 php tools/product-content-check.php --strict
 npm run seo:check
@@ -120,3 +121,37 @@ npm run release:public-precheck:prod
 - `docs/adr/ADR-010-product-content-bitrix-model.md` or new ADR for page-content model
 - release runbook/sign-off docs if public runtime source changes
 
+## Implementation Log — 05.06.2026
+
+Completed locally:
+
+- Phase 1 code foundation: `clients` config contract, `feedback/clients` relation migration/check, aggregate `content-storage-audit.php` with product-level proof counts, read-only `content-storage-proof-tagging-helper.php` and no-raw-copy proof approval checker.
+- Phase 2 code foundation: `content-storage-faq-migration.php`, product runtime `faq` first-read, `_faq_source` marker, strict evidence `faq_source=iblock`.
+- Phase 2 fallback gate: `content-storage-faq-fallback-retirement-2026-06-05.draft.json` and checker block removal of `product_blocks.faq` fallback until final owner approval.
+- Phase 3 code foundation: removed hardcoded services fallback card.
+- Services follow-up: `content-storage-services-seed.php` defines six source-of-truth delivery-package service cards and `/services/` list now renders six items.
+- Phase 8 partial: `content:storage:governance:check`, runbook, target evidence/cache evidence updates.
+
+Production evidence received:
+
+- Product relation migration created `PRODUCT` properties on `feedback #9` and `clients #8`.
+- FAQ seed/audit passed on production: 12 product FAQ rows created and each product has 3 related FAQ items.
+- Product cache clear passed with product/FAQ managed tags; strict product content check and HTTP source smoke confirmed `faq_source=iblock` for all four products.
+- Follow-up FAQ section challenge found seeded product FAQ rows without sections; migration/audit now create and require product FAQ sections `products/platform/agents/dev/forum`.
+- Product FAQ section sync passed on production: sections were created, 12 existing rows were linked, strict audit reports `faq_items_without_section=0`.
+- Services seed/audit passed on production: `created=4`, `updated=2`, active service cards `6`, public API items `6`, `PRODUCT` relation `link_ok=true`.
+- `seo:check:prod` passed.
+- Chrome-capable `visual:smoke:prod` passed from local environment; manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-05T18-26-21-044Z/manifest.json`.
+- Chrome-capable `browser:smoke:prod` passed from local environment; manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-05T18-28-58-493Z/manifest.json`.
+- Strict proof audit passed on production: `clients 5/5`, `feedback 3/3`, `cases 9/10`, and relevant `PRODUCT` relations link to `products #21`; follow-up audit contract reports per-product aggregate proof counts for owner review and currently shows zero related proof items for every product. Owner decisions are captured in `content-storage-proof-tagging-approval-2026-06-05.draft.json` and validated before public implementation.
+- Phase 5 boundary guard: `content-storage-aiagents-boundary-check.mjs` keeps `/agents/` as product page and `/aiagents/` as Telegram demo/prototype service route; optional demo-agent product relation remains owner-gated.
+- Phase 6 model draft: `content-storage-page-content-model-2026-06-05.draft.json` defines `page_sections/page_blocks`, migration waves and do-not-move targets; `content-storage-page-content-model-check.mjs` validates it before any section migration.
+- Phase 7 wave 1 production evidence: `content-storage-page-content-seed.php` applied `/services/`, `/price/`, `/contacts/` and `/offer/` rows; live-status promotion, `page_content.source=bitrix`, source HTTP check, strict audit, SEO and targeted Chrome-capable visual/browser smoke passed. Audit reports 9 active live sections, 37 active blocks and `orphan_blocks=0`.
+- Runtime foundation: `page_content.source=fallback|bitrix` plus `MIGRATION_STATUS=live` guards Bitrix rendering; production is now explicitly switched to `bitrix` for wave 1 while `allow_fallback=true` and PHP fallback partials remain available until owner-approved retirement.
+- Page-content fallback-retirement owner approval passed on production with 9 `retire_fallback` decisions, `retirement_allowed=true`, production evidence `9/9` and owner gates `5/5`; deployed code retirement removed the approved wave 1 fallback bodies, post-deploy source/audit/SEO/browser checks passed and governance protects against static fallback reintroduction. Latest visual manifest: /var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-06T09-32-49-026Z/manifest.json; browser/action manifest: /var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-06T09-33-33-068Z/manifest.json.
+
+Still requires target/owner evidence:
+
+- FAQ fallback retirement approval passed locally; deploy requires product cache clear, strict FAQ/product checks and rendered smoke before considering the fallback fully retired on production.
+- Approve proof/cases/feedback/clients public rendering before any trust block.
+- Run page-content fallback-retirement owner review with `content-storage-page-content-fallback-retirement-template.php` / `content-storage-page-content-fallback-retirement-check.mjs`; only after approval should PHP fallback partials be removed in a separate code/deploy change.

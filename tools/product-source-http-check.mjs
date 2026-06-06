@@ -32,6 +32,7 @@ const expectedSource = String(
     || process.env.TACTICUM_PRODUCT_SOURCE_EXPECTED
     || 'bitrix'
 ).trim();
+const expectedFaqSource = String(process.env.TACTICUM_EXPECT_PRODUCT_FAQ_SOURCE || '').trim();
 
 const failures = [];
 const results = [];
@@ -53,7 +54,7 @@ if (failures.length > 0) {
 }
 
 console.log('');
-console.log(`Product source HTTP check passed: ${results.length} page(s), expected source=${expectedSource}.`);
+console.log(`Product source HTTP check passed: ${results.length} page(s), expected source=${expectedSource}${expectedFaqSource !== '' ? `, expected faq_source=${expectedFaqSource}` : ''}.`);
 
 async function checkPage(url) {
   const response = await requestText(url);
@@ -64,6 +65,9 @@ async function checkPage(url) {
   const codes = unique([...html.matchAll(/\bdata-product-code=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
+  const faqSources = unique([...html.matchAll(/\bdata-product-faq-source=(["'])(.*?)\1/gi)]
+    .map((match) => match[2].trim())
+    .filter(Boolean));
   const blocks = unique([...html.matchAll(/\bdata-product-block=(["'])(.*?)\1/gi)]
     .map((match) => match[2].trim())
     .filter(Boolean));
@@ -71,6 +75,8 @@ async function checkPage(url) {
   const unsafeHrefs = unsafeHrefValues(html);
   const expectedCode = url.pathname.replace(/^\/+|\/+$/g, '');
   const sourceOk = sources.length === 1 && sources[0] === expectedSource;
+  const faqSourceOk = expectedFaqSource === ''
+    || (faqSources.length === 1 && faqSources[0] === expectedFaqSource);
   const codeOk = codes.length === 1 && codes[0] === expectedCode;
   const statusOk = response.status >= 200 && response.status < 300;
 
@@ -83,6 +89,9 @@ async function checkPage(url) {
   if (!codeOk) {
     failures.push(`${url.pathname}: expected data-product-code=${expectedCode}, got ${codes.length > 0 ? codes.join(',') : 'empty'}`);
   }
+  if (!faqSourceOk) {
+    failures.push(`${url.pathname}: expected data-product-faq-source=${expectedFaqSource}, got ${faqSources.length > 0 ? faqSources.join(',') : 'empty'}`);
+  }
   if (missingBlocks.length > 0) {
     failures.push(`${url.pathname}: missing product blocks ${missingBlocks.join(',')}`);
   }
@@ -94,14 +103,16 @@ async function checkPage(url) {
     page: url.pathname,
     status: response.status,
     source: sources[0] || '',
+    faqSource: faqSources[0] || '',
     code: codes[0] || '',
     sources,
+    faqSources,
     codes,
     blocks,
     missingBlocks,
     unsafeHrefs,
     bytes: Buffer.byteLength(html),
-    ok: statusOk && sourceOk && codeOk && missingBlocks.length === 0 && unsafeHrefs.length === 0,
+    ok: statusOk && sourceOk && faqSourceOk && codeOk && missingBlocks.length === 0 && unsafeHrefs.length === 0,
   };
 }
 
@@ -146,11 +157,12 @@ function requestText(url, redirects = 0) {
 function formatResult(result) {
   const marker = result.ok ? 'OK' : 'FAIL';
   const source = result.source || 'empty';
+  const faqSource = result.faqSource || 'empty';
   const code = result.code || 'empty';
   const missing = result.missingBlocks.length > 0 ? ` missing=${result.missingBlocks.join(',')}` : '';
   const unsafe = result.unsafeHrefs.length > 0 ? ` unsafe_hrefs=${result.unsafeHrefs.length}` : '';
 
-  return `${marker} ${result.page.padEnd(11)} status=${result.status} source=${source} code=${code} blocks=${result.blocks.length} bytes=${result.bytes}${missing}${unsafe}`;
+  return `${marker} ${result.page.padEnd(11)} status=${result.status} source=${source} faq_source=${faqSource} code=${code} blocks=${result.blocks.length} bytes=${result.bytes}${missing}${unsafe}`;
 }
 
 function parseList(value, fallback) {

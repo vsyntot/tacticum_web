@@ -9,7 +9,8 @@
   "iblocks": {
     "products": 21,
     "product_blocks": 22,
-    "product_use_cases": 23
+    "product_use_cases": 23,
+    "faq": 10
   },
   "admin_model": {
     "v2_schema": {
@@ -44,6 +45,7 @@
       "code": "platform",
       "status": "ok",
       "source": "bitrix",
+      "faq_source": "iblock",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0
@@ -52,6 +54,7 @@
       "code": "agents",
       "status": "ok",
       "source": "bitrix",
+      "faq_source": "iblock",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0
@@ -60,6 +63,7 @@
       "code": "dev",
       "status": "ok",
       "source": "bitrix",
+      "faq_source": "iblock",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0
@@ -68,6 +72,7 @@
       "code": "forum",
       "status": "ok",
       "source": "bitrix",
+      "faq_source": "iblock",
       "use_cases": 3,
       "missing_blocks": [],
       "schema_issues": 0

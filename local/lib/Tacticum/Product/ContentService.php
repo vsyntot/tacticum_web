@@ -61,6 +61,10 @@ final class ContentService
             ContentMapper::applyBlock($page, (string)$block['type'], is_array($block['payload']) ? $block['payload'] : []);
         }
 
+        // FAQ fallback via product_blocks.faq is retired; faq #10 is now the only product FAQ source.
+        unset($page['faq']);
+        $page['_faq_source'] = 'missing';
+
         $useCasesIblockId = function_exists('tacticum_rest_get_iblock_id')
             ? tacticum_rest_get_iblock_id('product_use_cases')
             : 0;
@@ -68,6 +72,19 @@ final class ContentService
         if (!empty($useCases)) {
             $page['use_cases'] = is_array($page['use_cases'] ?? null) ? $page['use_cases'] : [];
             $page['use_cases']['items'] = $useCases;
+        }
+
+        $faqIblockId = function_exists('tacticum_rest_get_iblock_id')
+            ? tacticum_rest_get_iblock_id('faq')
+            : 0;
+        $faqItems = ContentRepository::fetchProductFaq($faqIblockId, $productId);
+        if (!empty($faqItems)) {
+            $page['faq'] = array_merge([
+                'title' => 'Частые вопросы',
+                'text' => 'Короткие ответы по запуску, ограничениям и следующему шагу.',
+                'items' => $faqItems,
+            ]);
+            $page['_faq_source'] = 'iblock';
         }
 
         $page['_diagnostics'] = ContentMapper::completenessDiagnostics($page);

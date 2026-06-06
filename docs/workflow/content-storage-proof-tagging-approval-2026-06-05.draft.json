@@ -1,0 +1,169 @@
+{
+  "schema": "tacticum.content_storage.proof_tagging_approval.v1",
+  "status": "draft",
+  "date": "2026-06-05",
+  "source": "tools/content-storage-proof-tagging-helper.php --json",
+  "release_evidence": false,
+  "rules": [
+    "This draft stores only iblock keys, element IDs, product codes and approval booleans.",
+    "Do not add customer names, testimonial text, case text, contacts, admin URLs or raw claims.",
+    "Decision tag means owners approved PRODUCT tagging only; public_render_approved is a separate gate.",
+    "Decision global means the item remains general proof and is not tied to a product page.",
+    "Decision not_public means the item must not render in product proof blocks."
+  ],
+  "owners": {
+    "content": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "sales": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "seo": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    }
+  },
+  "items": [
+    {
+      "iblock": "cases",
+      "id": 98,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 100,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 179,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 180,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 181,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 182,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 183,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 184,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "cases",
+      "id": 520,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "feedback",
+      "id": 90,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "feedback",
+      "id": 91,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "feedback",
+      "id": 92,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "clients",
+      "id": 93,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "clients",
+      "id": 94,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "clients",
+      "id": 95,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "clients",
+      "id": 96,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    },
+    {
+      "iblock": "clients",
+      "id": 97,
+      "decision": "pending",
+      "product_codes": [],
+      "product_tag_approved": false,
+      "public_render_approved": false
+    }
+  ]
+}

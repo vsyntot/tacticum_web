@@ -8,8 +8,8 @@
   "cache_ttl": 300,
   "schema_version": "v1",
   "cache_dir": "/tacticum/product_content",
-  "iblock_ids": [21, 22, 23],
-  "managed_tags": ["iblock_id_21", "iblock_id_22", "iblock_id_23"],
+  "iblock_ids": [21, 22, 23, 10],
+  "managed_tags": ["iblock_id_21", "iblock_id_22", "iblock_id_23", "iblock_id_10"],
   "warnings": [],
   "errors": []
 }

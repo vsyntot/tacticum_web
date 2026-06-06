@@ -66,12 +66,15 @@ final class ConfigValidator
             $checkIblock('offer');
         }
         if (in_array('content', $scopes, true)) {
-            foreach (['vacancies', 'feedback', 'team', 'policies', 'aiagents'] as $key) {
+            foreach (['vacancies', 'clients', 'feedback', 'team', 'policies', 'aiagents'] as $key) {
                 $checkIblock($key);
             }
         }
         if (in_array('products', $scopes, true)) {
             self::validateProducts($checkIblock, $addError);
+        }
+        if (in_array('page_content', $scopes, true)) {
+            self::validatePageContent($checkIblock, $addError);
         }
         if (in_array('ai', $scopes, true)) {
             $checkHttpsUrl('AI_SERVICE_BASE_URL');
@@ -129,6 +132,28 @@ final class ConfigValidator
         }
         if (($products['cache_ttl'] ?? null) !== null && !is_numeric($products['cache_ttl'])) {
             $addError('products.cache_ttl', 'invalid_type');
+        }
+    }
+
+    private static function validatePageContent(callable $checkIblock, callable $addError): void
+    {
+        foreach (['page_sections', 'page_blocks'] as $key) {
+            $checkIblock($key);
+        }
+
+        $pageContent = Config::section('page_content');
+        $source = $pageContent['source'] ?? 'fallback';
+        if (!is_string($source) || !in_array($source, ['fallback', 'bitrix'], true)) {
+            $addError('page_content.source', 'invalid_value');
+        }
+
+        $liveStatus = $pageContent['live_status'] ?? 'live';
+        if (!is_string($liveStatus) || !in_array($liveStatus, ['live'], true)) {
+            $addError('page_content.live_status', 'must_be_live');
+        }
+
+        if (($pageContent['allow_fallback'] ?? true) !== true) {
+            $addError('page_content.allow_fallback', 'must_be_true');
         }
     }
 

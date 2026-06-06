@@ -4,6 +4,7 @@ return [
     'iblocks' => [
         'offer' => 5,
         'vacancies' => 7,
+        'clients' => 8,
         'feedback' => 9,
         'faq' => 10,
         'rates' => 11,
@@ -15,6 +16,8 @@ return [
         'products' => 0,
         'product_blocks' => 0,
         'product_use_cases' => 0,
+        'page_sections' => 0,
+        'page_blocks' => 0,
     ],
     'base_urls' => [
         'AI_SERVICE_BASE_URL' => 'https://ai.example.com',
@@ -44,6 +47,11 @@ return [
         'source' => 'bitrix',
         'allow_fallback' => false,
         'cache_ttl' => 300,
+    ],
+    'page_content' => [
+        'source' => 'fallback',
+        'live_status' => 'live',
+        'allow_fallback' => true,
     ],
     'ai' => [
         'endpoint_paths' => [

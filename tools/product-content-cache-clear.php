@@ -13,8 +13,8 @@ Usage:
   php tools/product-content-cache-clear.php [--dry-run] [--json] [--document-root=/path/to/site]
 
 Clears the Bitrix product content cache directory and managed-cache tags for configured
-product content iblocks. Use after product content migration, admin content edits,
-or products.source switch/rollback.
+product content iblocks and product FAQ relations. Use after product content migration,
+admin content edits, product FAQ source switch or products.source switch/rollback.
 
 TEXT;
 }

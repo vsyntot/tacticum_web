@@ -1,0 +1,182 @@
+{
+  "schema": "tacticum.content_storage.page_content_model.v1",
+  "status": "draft",
+  "date": "2026-06-05",
+  "release_evidence": false,
+  "decision_owner_required": true,
+  "summary": "Draft target model for generic page sections. It does not create iblocks, migrate content or approve public copy changes.",
+  "storage": {
+    "recommended": {
+      "section_iblock_key": "page_sections",
+      "block_iblock_key": "page_blocks",
+      "status": "draft",
+      "reason": "Generic page sections need a structured editor workflow without polluting narrow catalog/domain iblocks."
+    },
+    "rejected_targets": [
+      {
+        "iblock_key": "services",
+        "reason": "Service catalog cards only; not methodology/process/page copy."
+      },
+      {
+        "iblock_key": "cases",
+        "reason": "Real approved customer cases only."
+      },
+      {
+        "iblock_key": "feedback",
+        "reason": "Real testimonials only."
+      },
+      {
+        "iblock_key": "clients",
+        "reason": "Approved client/trust entities only."
+      },
+      {
+        "iblock_key": "team",
+        "reason": "People profiles only."
+      },
+      {
+        "iblock_key": "vacancies",
+        "reason": "Open positions only."
+      },
+      {
+        "iblock_key": "rates",
+        "reason": "Staff/rate rows only."
+      },
+      {
+        "iblock_key": "policies",
+        "reason": "Legal/static documents only until a separate static-content ADR changes this."
+      }
+    ]
+  },
+  "section_schema": {
+    "iblock_key": "page_sections",
+    "required_fields": [
+      "PAGE_KEY",
+      "SECTION_KEY",
+      "TEMPLATE_KEY",
+      "MIGRATION_STATUS"
+    ],
+    "recommended_fields": [
+      "EYEBROW",
+      "TITLE",
+      "TEXT",
+      "THEME",
+      "TONE",
+      "CTA_TEXT",
+      "CTA_HREF",
+      "FALLBACK_PARTIAL",
+      "OWNER_SCOPE"
+    ],
+    "rules": [
+      "PAGE_KEY and SECTION_KEY form the stable lookup key.",
+      "TEMPLATE_KEY selects an allowlisted renderer.",
+      "FALLBACK_PARTIAL points to the current PHP partial during the first migration cycle.",
+      "MIGRATION_STATUS is one of draft, seeded, shadow, live, fallback_retired."
+    ]
+  },
+  "block_schema": {
+    "iblock_key": "page_blocks",
+    "required_fields": [
+      "SECTION",
+      "BLOCK_KEY",
+      "ITEM_TYPE"
+    ],
+    "recommended_fields": [
+      "TITLE",
+      "TEXT",
+      "ICON",
+      "HREF",
+      "META",
+      "VALUE",
+      "LABEL",
+      "TONE",
+      "PROOF_STATUS"
+    ],
+    "rules": [
+      "SECTION links to page_sections.",
+      "Child blocks store cards/items/steps without JSON as the primary editor workflow.",
+      "Renderer escapes or sanitizes fields using the existing content helper path."
+    ]
+  },
+  "forbidden_primary_storage": [
+    "raw_html_blob",
+    "json_blob",
+    "single_DETAIL_TEXT_wall",
+    "service_catalog_pollution",
+    "case_or_testimonial_without_evidence"
+  ],
+  "runtime_policy": {
+    "first_release_source": "php_fallback_first",
+    "target_source": "bitrix_first_with_php_fallback",
+    "cache": "managed_tags_for_page_sections_and_page_blocks",
+    "rollback": "switch section/page back to PHP fallback and clear cache",
+    "public_switch_requires": [
+      "owner approval",
+      "seed/apply evidence",
+      "strict content audit",
+      "seo check",
+      "visual smoke",
+      "browser action smoke for touched pages"
+    ]
+  },
+  "migration_waves": [
+    {
+      "wave": "wave_1",
+      "status": "draft",
+      "pages": [
+        {
+          "page": "/services/",
+          "sections": ["delivery-layer", "process", "tech"],
+          "stay_in_domain_iblocks": ["services-list", "cases-list", "faq"]
+        },
+        {
+          "page": "/price/",
+          "sections": ["features", "workstreams"],
+          "stay_in_domain_iblocks": ["price-list", "faq"]
+        },
+        {
+          "page": "/contacts/",
+          "sections": ["routing", "cards"],
+          "stay_in_domain_iblocks": []
+        },
+        {
+          "page": "/offer/",
+          "sections": ["product-bridge", "bottom-cta"],
+          "stay_in_domain_iblocks": ["offer-list", "offer-detail"]
+        }
+      ]
+    },
+    {
+      "wave": "wave_2",
+      "status": "draft",
+      "pages": [
+        {
+          "page": "/",
+          "sections": ["ecosystem", "fit-matrix", "commercial"],
+          "stay_in_domain_iblocks": ["content-lists", "faq"]
+        },
+        {
+          "page": "/about/",
+          "sections": ["company-trust", "values-team", "career-final"],
+          "stay_in_domain_iblocks": ["team", "vacancies"]
+        },
+        {
+          "page": "/calculator/",
+          "sections": ["calculator-outcome-cards", "product-aware-estimate-cards"],
+          "stay_in_domain_iblocks": []
+        },
+        {
+          "page": "/aiagents/",
+          "sections": ["agents-bridge", "how-it-works", "services"],
+          "stay_in_domain_iblocks": ["demoagents-list", "faq"]
+        }
+      ]
+    }
+  ],
+  "owner_gates": {
+    "architect": false,
+    "content": false,
+    "frontend": false,
+    "qa": false,
+    "seo": false
+  }
+}
