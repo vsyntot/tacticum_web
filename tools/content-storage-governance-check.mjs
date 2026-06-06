@@ -306,7 +306,8 @@ requireAll('tools/content-storage-page-content-migration.php', [
 ]);
 requireFile('tools/content-storage-page-content-seed.php');
 requireAll('tools/content-storage-page-content-seed.php', [
-  [/MIGRATION_STATUS['"]?\s*=>\s*['"]shadow/, 'page-content shadow migration status'],
+  [/\$migrationStatus\s*=\s*['"]shadow['"]/, 'page-content shadow migration status default'],
+  [/propertyString\(\$sectionsIblockId,\s*\$sectionId,\s*['"]MIGRATION_STATUS['"]\)/, 'page-content seed preserves existing migration status'],
   [/FALLBACK_PARTIAL/, 'page-content fallback partial preservation'],
   [/Runtime switch: unchanged/, 'page-content seed no runtime switch guard'],
   [/safe_for_release_evidence/, 'page-content seed release evidence safety marker'],
@@ -513,7 +514,26 @@ for (const [path, page, section] of [
     [/tacticum_page_content_render_if_live/, 'page-content wave 2 live renderer guard'],
     [new RegExp(page.replaceAll('/', '\\/')), `page-content wave 2 page key ${page}`],
     [new RegExp(section.replaceAll('-', '\\-')), `page-content wave 2 section key ${section}`],
+    [/Fallback body retired/, 'page-content wave 2 fallback body retirement marker'],
   ]);
+}
+for (const path of [
+  'local/components/tacticum/home.page/templates/.default/parts/ecosystem.php',
+  'local/components/tacticum/home.page/templates/.default/parts/fit-matrix.php',
+  'local/components/tacticum/home.page/templates/.default/parts/commercial.php',
+  'local/components/tacticum/aiagents/templates/.default/parts/agents-bridge.php',
+  'local/components/tacticum/aiagents/templates/.default/parts/how-it-works.php',
+  'local/components/tacticum/aiagents/templates/.default/parts/services.php',
+]) {
+  forbidPattern(path, /<section\b/i, 'retired page-content wave 2 fallback section body');
+}
+for (const [path, pattern, label] of [
+  ['local/components/tacticum/about.page/templates/.default/parts/company-trust.php', /Vendor trust|Почему product-first модель требует сильной delivery-команды/, 'retired about company-trust fallback body'],
+  ['local/components/tacticum/about.page/templates/.default/parts/values-team.php', /Ценности и подход|От консалтинга до результата/, 'retired about values-team fallback body'],
+  ['local/components/tacticum/about.page/templates/.default/parts/career-final.php', /<section id="career-section"|Корпоративная культура|Преимущества работы у нас/, 'retired about career-final fallback body'],
+  ['local/components/tacticum/calculator.page/templates/.default/template.php', /AI-калькулятор для предварительной оценки проекта|Что вы получите после диалога|Что можно оценить через AI-калькулятор/, 'retired calculator fallback body'],
+]) {
+  forbidPattern(path, pattern, label);
 }
 requireDocFile('docs/workflow/content-storage-release-runbook-2026-06-05.md');
 

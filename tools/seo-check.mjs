@@ -1445,10 +1445,31 @@ function assertPublicPageComponentization() {
     }
   }
   if (!homepageSource.includes('Как выбрать продукт') || !homepageSource.includes('Начните с ситуации') || !homepageSource.includes('Старт: architecture assessment')) {
-    fail('homepage must include product fit matrix decision-support block');
+    const seedSource = read('tools/content-storage-page-content-seed.php');
+    if (
+      !seedSource.includes("'section_key' => 'fit-matrix'")
+      || !seedSource.includes("'platform-fit'")
+      || !seedSource.includes("'agents-fit'")
+      || !seedSource.includes("'dev-fit'")
+      || !seedSource.includes("'forum-fit'")
+    ) {
+      fail('homepage must include product fit matrix decision-support block');
+    }
   }
+  const pageContentRenderSupport = read('local/lib/Tacticum/PageContent/RenderSupport.php');
+  const pageContentHomeAttributes = read('local/lib/Tacticum/PageContent/HomeRenderAttributes.php');
+  const homePageContentSections = {
+    'ecosystem-map': "tacticum_page_content_render_if_live('/', 'ecosystem')",
+    'fit-matrix': "tacticum_page_content_render_if_live('/', 'fit-matrix')",
+    'commercial-next-steps': "tacticum_page_content_render_if_live('/', 'commercial')",
+  };
   for (const homeBlock of ['hero', 'ecosystem-map', 'fit-matrix', 'commercial-next-steps', 'calculator-preview']) {
-    if (!homepageSource.includes(`data-home-block="${homeBlock}"`)) {
+    const pageContentMarker = homePageContentSections[homeBlock] || '';
+    const rendererMarker = `'data-home-block' => '${homeBlock}'`;
+    if (
+      !homepageSource.includes(`data-home-block="${homeBlock}"`)
+      && (pageContentMarker === '' || !homepageSource.includes(pageContentMarker) || !pageContentRenderSupport.includes(rendererMarker))
+    ) {
       fail(`homepage must expose data-home-block="${homeBlock}" for router smoke coverage`);
     }
   }
@@ -1458,7 +1479,10 @@ function assertPublicPageComponentization() {
     }
   }
   for (const commercialLink of ['offer', 'services', 'price', 'aiagents']) {
-    if (!homepageSource.includes(`data-home-commercial-link="${commercialLink}"`)) {
+    if (
+      !homepageSource.includes(`data-home-commercial-link="${commercialLink}"`)
+      && (!homepageSource.includes("tacticum_page_content_render_if_live('/', 'commercial'") || !pageContentHomeAttributes.includes(`=> '${commercialLink}'`))
+    ) {
       fail(`homepage must expose data-home-commercial-link="${commercialLink}"`);
     }
   }
@@ -1695,8 +1719,10 @@ function assertPublicPageComponentization() {
   }
 
   for (const file of chatPages) {
-    const source = publicPageRenderSource(file);
-    if (!source.includes('"tacticum:chat.surface"')) {
+    const source = file === 'calculator/index.php'
+      ? `${publicPageRenderSource(file)}\n${read('local/lib/Tacticum/PageContent/CalculatorRenderer.php')}`
+      : publicPageRenderSource(file);
+    if (!/['"]tacticum:chat\.surface['"]/.test(source)) {
       fail(`${file} must render hero/light chat surfaces through tacticum:chat.surface`);
     }
     if (!/SetPageProperty\s*\(\s*["']tacticum_page_assets["']\s*,\s*["'][^"']*\bchat\b/.test(read(file))) {

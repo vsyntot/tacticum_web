@@ -40,6 +40,8 @@ const aiagentsDemoList = read('local/components/tacticum/aiagents/templates/.def
 const aiagentsBridge = read('local/components/tacticum/aiagents/templates/.default/parts/agents-bridge.php');
 const aiagentsHero = read('local/components/tacticum/aiagents/templates/.default/parts/hero.php');
 const aiagentsContactForm = read('local/components/tacticum/aiagents/templates/.default/parts/contact-form.php');
+const pageContentSeed = read('tools/content-storage-page-content-seed.php');
+const aiagentsBridgeSource = `${aiagentsBridge}\n${pageContentSeed}`;
 const aiagentsTemplate = [
   read('local/components/tacticum/aiagents/templates/.default/template.php'),
   aiagentsDemoList,
@@ -72,8 +74,8 @@ requireSourcePattern('demo agents list reads aiagents iblock id from component r
 requireSourcePattern('demo agents list requests PRODUCT relation for future owner tagging', aiagentsDemoList, /['"]PROPERTY_CODE['"]\s*=>\s*\[[^\]]*['"]LINK['"][^\]]*['"]PRODUCT['"][^\]]*\]/);
 forbidPattern('local/components/tacticum/aiagents/templates/.default/parts/demoagents-list.php', /product_data\/agents|PRODUCT_CODE|tacticum_product_page_data/, 'product Agents source usage inside demo catalog');
 
-requireSourcePattern('aiagents bridge points to product Agents', aiagentsBridge, /href=["']\/agents\/["'][\s\S]*Смотреть Tacticum Agents/);
-requireSourcePattern('aiagents bridge keeps Telegram demo option', aiagentsBridge, /Остаться в Telegram-демо/);
+requireSourcePattern('aiagents bridge points to product Agents', aiagentsBridgeSource, /href["']?\s*=>\s*["']\/agents\/["'][\s\S]*(?:Agents pilot|Tacticum Agents)|href=["']\/agents\/["'][\s\S]*Смотреть Tacticum Agents/);
+requireSourcePattern('aiagents bridge keeps Telegram demo option', aiagentsBridgeSource, /href["']?\s*=>\s*["']#demo["'][\s\S]*(?:Telegram|прототип)|Остаться в Telegram-демо/);
 requireSourcePattern('aiagents hero positions page as bot demo/prototype', aiagentsHero, /Telegram[\s\S]*прототип|прототип[\s\S]*Telegram/);
 requireSourcePattern('aiagents lead product routes to agents', aiagentsContactForm, /name=["']lead_product["']\s+value=["']agents["']/);
 
