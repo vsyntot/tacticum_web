@@ -30,10 +30,11 @@ if (!$unavailable && !in_array($source, ['bitrix', 'fallback'], true)) {
     $source = 'unknown';
 }
 $faqSource = tacticum_product_page_context_slug($page['_faq_source'] ?? '', 'unknown');
+$proofSource = tacticum_product_page_context_slug($page['_proof_source'] ?? '', 'readiness');
 $heroCards = is_array($page['hero_cards'] ?? null) ? $page['hero_cards'] : [];
 $badges = is_array($page['badges'] ?? null) ? $page['badges'] : [];
 ?>
-<section class="bg-gradient-to-r from-secondary to-primary pt-24 text-white" data-product-block="hero" data-product-source="<?=tacticum_product_page_html($source)?>" data-product-code="<?=tacticum_product_page_html($productCode)?>" data-product-faq-source="<?=tacticum_product_page_html($faqSource)?>"<?php if ($unavailable): ?> data-product-status="unavailable"<?php endif; ?>>
+<section class="bg-gradient-to-r from-secondary to-primary pt-24 text-white" data-product-block="hero" data-product-source="<?=tacticum_product_page_html($source)?>" data-product-code="<?=tacticum_product_page_html($productCode)?>" data-product-faq-source="<?=tacticum_product_page_html($faqSource)?>" data-product-proof-source="<?=tacticum_product_page_html($proofSource)?>"<?php if ($unavailable): ?> data-product-status="unavailable"<?php endif; ?>>
     <div class="container mx-auto px-4 py-20">
         <div class="<?=$unavailable ? 'max-w-3xl' : 'grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.08fr_0.92fr]'?>">
             <div>

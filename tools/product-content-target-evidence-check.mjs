@@ -14,6 +14,7 @@ const DEFAULT_EXPECTED_SCHEMA_VERSION = 'v1';
 const DEFAULT_ALLOWED_SOURCE_MODES = ['bitrix'];
 const DEFAULT_EXPECTED_ROW_SOURCE = 'bitrix';
 const DEFAULT_MIN_USE_CASES = 3;
+const ALLOWED_PROOF_SOURCES = ['readiness', 'iblock'];
 
 const FORBIDDEN_KEYS = new Set([
   'raw',
@@ -178,6 +179,9 @@ function validateRows(rows, expectedProductCodes, expectedRowSource, minUseCases
     }
     if (row.faq_source !== 'iblock') {
       errors.push(`rows[${index}].faq_source for ${row.code} must be iblock.`);
+    }
+    if (!ALLOWED_PROOF_SOURCES.includes(row.proof_source)) {
+      errors.push(`rows[${index}].proof_source for ${row.code} must be one of: ${ALLOWED_PROOF_SOURCES.join(', ')}.`);
     }
     if (!Number.isInteger(row.use_cases) || row.use_cases < minUseCases) {
       errors.push(`rows[${index}].use_cases for ${row.code} must be >= ${minUseCases}.`);

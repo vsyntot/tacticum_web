@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 ?>
 
+<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/about/', 'career-final')): ?>
 <section id="career-section" class="tacticum-anchor-target py-20">
     <span id="careers" class="tacticum-anchor-alias" aria-hidden="true"></span>
     <div class="container mx-auto px-4">
@@ -122,6 +123,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
         ?>
     </div>
 </section>
+<?php endif; ?>
 
 <section class="py-20 bg-gradient-to-r from-secondary to-primary text-white">
     <div class="container mx-auto px-4">

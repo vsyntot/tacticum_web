@@ -134,7 +134,7 @@ php tools/content-storage-audit.php --scope=proof --strict --json
 Expected:
 
 - `relations.cases`, `relations.feedback` and `relations.clients` are present, active, multiple and linked to `products`;
-- `products[]` reports aggregate `cases_items`, `feedback_items`, `clients_items` and `proof_items_total` per product code;
+- `products[]` reports aggregate `cases_items`, `feedback_items`, `clients_items`, `proof_items_total` and public-render counts per product code;
 - zero proof counts are allowed until owners tag and approve real evidence.
 
 4. If product proof counts are zero or incomplete, generate the internal owner-review worksheet:
@@ -174,7 +174,7 @@ Validate draft while decisions are still incomplete:
 npm run content:storage:proof:approval:check -- /tmp/content-storage-proof-tagging-proposal.draft.json --allow-draft
 ```
 
-Validate final approval before implementation/public rendering:
+Validate final approval before tagging or public rendering:
 
 ```bash
 npm run content:storage:proof:approval:check -- /tmp/content-storage-proof-tagging-approved.json
@@ -195,13 +195,33 @@ Expected:
 - `decision=global` and `decision=not_public` clear product relation only;
 - no text, active flag, customer data, claim copy or public rendering behavior is changed.
 
-7. Re-run proof audit after owner tagging:
+7. Apply public proof rendering approval only after owners explicitly set `public_render_approved=true` for the same approved `decision=tag` items. This is a separate durable Bitrix gate; `PRODUCT` relation alone is not enough.
+
+```bash
+php tools/content-storage-proof-public-render-apply.php --approval=/path/to/content-storage-proof-tagging-approved.json
+php tools/content-storage-proof-public-render-apply.php --approval=/path/to/content-storage-proof-tagging-approved.json --apply
+php tools/product-content-cache-clear.php
+```
+
+Expected:
+
+- the tool creates/checks `PUBLIC_RENDER_APPROVED` on `cases`, `feedback` and `clients`;
+- it changes only `PUBLIC_RENDER_APPROVED`;
+- it refuses `public_render_approved=true` if the current `PRODUCT` relation does not match the approved `product_codes`;
+- product runtime reads public proof only through `PROPERTY_PRODUCT` plus `PUBLIC_RENDER_APPROVED=Y`;
+- product pages switch `proof_source` from `readiness` to `iblock` only when a product has at least 3 public-approved proof items.
+
+8. Re-run proof/product audit after owner tagging and public render approval:
 
 ```bash
 php tools/content-storage-audit.php --scope=proof --strict --json
+php tools/product-content-check.php --strict --json
+TACTICUM_EXPECT_PRODUCT_FAQ_SOURCE=iblock TACTICUM_EXPECT_PRODUCT_PROOF_SOURCE=iblock npm run product:source:http:prod
 ```
 
-8. Render nothing when related approved evidence is empty.
+Use `TACTICUM_EXPECT_PRODUCT_PROOF_SOURCE=readiness` instead of `iblock` when the approval file intentionally keeps public proof disabled or fewer than 3 public-approved items per product exist.
+
+9. Render nothing from real proof iblocks when related public-approved evidence is empty.
 
 Do not convert product readiness artifacts into fake cases or fake client proof.
 
@@ -310,27 +330,71 @@ Wave 1 scope:
 - `/contacts/`: `routing`, `cards`;
 - `/offer/`: `product-bridge`, `bottom-cta`.
 
-Runtime foundation deploy is safe only while `page_content.source=fallback` is effective:
+Wave 2 can be seeded only as a separate shadow-only step:
+
+```bash
+npm run content:storage:page-content:seed:wave2
+npm run content:storage:page-content:seed:wave2:apply
+php tools/content-storage-audit.php --scope=page-content --strict --json
+npm run page-content:source:http:wave2:fallback:prod
+```
+
+Expected after wave 2 shadow seed:
+
+- seeded pages: `/`, `/about/`, `/calculator/`, `/aiagents/`;
+- seeded sections: `ecosystem`, `fit-matrix`, `commercial`, `company-trust`, `values-team`, `career-final`, `calculator-outcome-cards`, `product-aware-estimate-cards`, `agents-bridge`, `how-it-works`, `services`;
+- every wave 2 section has `MIGRATION_STATUS=shadow`;
+- every wave 2 section keeps `FALLBACK_PARTIAL`;
+- public runtime remains unchanged;
+- do not run fallback retirement for wave 2 until scoped live/source/smoke evidence exists.
+
+Production evidence 06.06.2026 after wave 2 shadow seed:
+
+- dry-run planned 11 new sections and 43 new blocks;
+- apply created 11 sections and 43 blocks;
+- strict page-content audit passed with 20 active sections, 80 active blocks and `orphan_blocks=0`;
+- wave 1 pages remained `live`;
+- wave 2 pages remained `shadow`;
+- default wave 1 source HTTP check still passed with Bitrix markers;
+- scoped wave 2 fallback HTTP check passed for `/`, `/about/`, `/calculator/` and `/aiagents/` with zero Bitrix markers.
+
+After deploying runtime integration updates, rerun the wave 2 seed apply before live approval. This updates existing rows only, including the `calculator-outcome-cards` template key to `calculator-chat-outcome` so the calculator chat surface remains present in Bitrix-rendered mode:
+
+```bash
+npm run content:storage:page-content:seed:wave2
+npm run content:storage:page-content:seed:wave2:apply
+php tools/content-storage-audit.php --scope=page-content --strict --json
+```
+
+Runtime foundation deploy is safe only while unapproved page sections stay `MIGRATION_STATUS=shadow` and `page_content.allow_fallback=true` remains effective:
 
 ```bash
 npm run config:runtime:check
 php tools/content-storage-audit.php --scope=page-content --strict --json
+npm run page-content:source:http:wave2:fallback:prod
 npm run content:storage:governance:check
 ```
 
-Expected before any live switch:
+Expected before any wave 2 live switch:
 
-- config summary reports `Page content: source=fallback` or the `page_content` section is absent and defaults to fallback;
-- seeded rows remain `MIGRATION_STATUS=shadow`;
-- public pages continue rendering PHP fallback partials;
-- no page section is promoted to `live`;
-- no `page_content.source=bitrix` config switch is deployed.
+- config summary may already report `Page content: source=bitrix` for wave 1;
+- wave 2 rows remain `MIGRATION_STATUS=shadow`;
+- wave 2 public pages continue rendering PHP fallback partials because no wave 2 section is live;
+- `page_content.allow_fallback=true` remains deployed for rollback;
+- no wave 2 page section is promoted to `live`.
 
 Before promoting any seeded section to `live`, generate and approve a separate no-raw-copy live-status decision:
 
 ```bash
-php tools/content-storage-page-content-live-approval-template.php --output=/tmp/content-storage-page-content-live-approval.draft.json --force
-npm run content:storage:page-content:live-approval:check -- /tmp/content-storage-page-content-live-approval.draft.json --allow-draft
+npm run content:storage:page-content:live-approval-template:wave2 -- --output=/tmp/content-storage-page-content-live-approval-wave2.draft.json --force
+npm run content:storage:page-content:live-approval:check -- /tmp/content-storage-page-content-live-approval-wave2.draft.json --allow-draft
+```
+
+For wave 2, prefer a scoped draft so already-live wave 1 sections are not mixed into the approval file:
+
+```bash
+npm run content:storage:page-content:live-approval-template:wave2 -- --output=/tmp/content-storage-page-content-live-approval-wave2.draft.json --force
+npm run content:storage:page-content:live-approval:check -- /tmp/content-storage-page-content-live-approval-wave2.draft.json --allow-draft
 ```
 
 The approval JSON may contain only section IDs, page keys, section keys, template keys, statuses and boolean gates. It must not contain section copy, CTA text, contacts, admin URLs, screenshots or raw HTML.
@@ -367,9 +431,18 @@ Confirm that live-status apply did not switch rendered HTML:
 npm run page-content:source:http:fallback:prod
 ```
 
-Expected before source switch:
+Use the default command only before a wave 1 source switch. If wave 1 is already live on Bitrix and only wave 2 is being prepared, use the scoped fallback check instead:
 
-- `/services/`, `/price/`, `/contacts/`, `/offer/` return HTTP `200`;
+```bash
+TACTICUM_PAGE_CONTENT_SOURCE_BASE_URL=https://tacticum.ru \
+TACTICUM_EXPECT_PAGE_CONTENT_SOURCE=fallback \
+TACTICUM_PAGE_CONTENT_SOURCE_PAGES=/,/about/,/calculator/,/aiagents/ \
+node ./tools/page-content-source-http-check.mjs
+```
+
+Expected before a wave 2 source switch:
+
+- `/`, `/about/`, `/calculator/`, `/aiagents/` return HTTP `200`;
 - `sections=0`;
 - no `data-page-content-source=bitrix` markers are present.
 
@@ -401,6 +474,14 @@ Expected after source switch:
 - rendered sections carry `data-page-content-source`, `data-page-content-page`, `data-page-content-section` and `data-page-content-template`;
 - `allow_fallback=true` remains effective for rollback.
 
+For a future wave 2 live switch, use the scoped source check only after owner approval and live-status apply:
+
+```bash
+npm run page-content:source:http:wave2:prod
+```
+
+Expected after a wave 2 source switch is page-specific and must match the approved sections for `/`, `/about/`, `/calculator/` and `/aiagents/`; `/calculator/` must report `calculator-outcome-cards` with `calculator-chat-outcome` so the chat surface is preserved. Do not use this command as release evidence before those sections are promoted to `live`.
+
 Production evidence 06.06.2026 after source switch:
 
 - `config:runtime:check` passed and reports `Page content: source=bitrix (explicit)`, `live_status=live (explicit)`, `allow_fallback=true (explicit)`;
@@ -420,13 +501,21 @@ php tools/content-storage-page-content-fallback-retirement-template.php --output
 npm run content:storage:page-content:fallback-retirement:check -- /tmp/content-storage-page-content-fallback-retirement.draft.json --allow-draft
 ```
 
+For wave 2, generate a scoped draft after the wave 2 sections are live and the
+Chrome-capable smoke evidence exists:
+
+```bash
+npm run content:storage:page-content:fallback-retirement-template:wave2 -- --output=/tmp/content-storage-page-content-fallback-retirement-wave2.draft.json --force
+npm run content:storage:page-content:fallback-retirement:check -- /tmp/content-storage-page-content-fallback-retirement-wave2.draft.json --allow-draft
+```
+
 Production draft/check on 06.06.2026 first passed as inventory only: 9 items, all pending, `retirement_allowed=false`, production evidence `0/9` and owner gates `0/5`. The owner-approved JSON then passed with `retirement_allowed=true`, production evidence `9/9`, owner gates `5/5` and 9 `retire_fallback` decisions. Local code retirement removes only the approved fallback section bodies; it does not change `page_content.source`, `live_status` or iblock data.
 
 Before approving retirement, owners must confirm:
 
 - `page_content.source=bitrix` is explicit and `allow_fallback=true` remains available for rollback;
 - strict page-content audit, page-content source HTTP check, `seo:check:prod`, targeted visual smoke and targeted browser/action smoke passed;
-- Content/admin confirms the nine wave 1 sections are editable through `page_sections/page_blocks` fields, not through raw copy or HTML blobs;
+- Content/admin confirms the retiring sections are editable through `page_sections/page_blocks` fields, not through raw copy or HTML blobs;
 - QA confirms rollback to `page_content.source=fallback` plus fallback source HTTP check;
 - Frontend confirms removing PHP fallback partial bodies will not remove shared component/config logic;
 - SEO confirms no title/H1/canonical/structured-data regression on the four switched pages.

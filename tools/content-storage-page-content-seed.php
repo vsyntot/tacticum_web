@@ -34,8 +34,9 @@ final class TacticumContentStoragePageContentSeed
             return $this->finish();
         }
 
-        if ($this->wave !== 'wave_1') {
-            $this->errors[] = 'Unsupported page-content seed wave: ' . $this->wave . '. Only wave_1 is available.';
+        $sections = $this->selectedSections();
+        if ($sections === []) {
+            $this->errors[] = 'Unsupported page-content seed wave: ' . $this->wave . '. Use wave_1, wave_2 or all.';
             return $this->finish();
         }
 
@@ -62,7 +63,7 @@ final class TacticumContentStoragePageContentSeed
             return $this->finish();
         }
 
-        foreach ($this->waveOneSections() as $section) {
+        foreach ($sections as $section) {
             $this->seedSection($sectionsIblockId, $blocksIblockId, $section);
         }
 
@@ -392,6 +393,16 @@ final class TacticumContentStoragePageContentSeed
         ], $extra);
     }
 
+    private function selectedSections(): array
+    {
+        return match ($this->wave) {
+            'wave_1' => $this->waveOneSections(),
+            'wave_2' => $this->waveTwoSections(),
+            'all' => array_merge($this->waveOneSections(), $this->waveTwoSections()),
+            default => [],
+        };
+    }
+
     private function waveOneSections(): array
     {
         return [
@@ -454,7 +465,7 @@ final class TacticumContentStoragePageContentSeed
                 'page' => '/price/',
                 'section_key' => 'features',
                 'sort' => 200,
-                'template_key' => 'feature-card-grid',
+                'template_key' => 'calculator-chat-outcome',
                 'fallback_partial' => 'local/components/tacticum/price.page/templates/.default/parts/features.php',
                 'owner_scope' => 'marketing',
                 'theme' => 'gray',
@@ -546,13 +557,199 @@ final class TacticumContentStoragePageContentSeed
             ],
         ];
     }
+
+    private function waveTwoSections(): array
+    {
+        return [
+            [
+                'page' => '/',
+                'section_key' => 'ecosystem',
+                'sort' => 200,
+                'template_key' => 'product-card-grid',
+                'fallback_partial' => 'local/components/tacticum/home.page/templates/.default/parts/ecosystem.php',
+                'owner_scope' => 'marketing',
+                'eyebrow' => 'Экосистема',
+                'title' => 'Общее AI-ядро и прикладные продукты поверх него',
+                'text' => 'Продуктовая модель Tacticum строится вокруг одной архитектуры: Platform отвечает за runtime, модели, знания, инструменты и контроль, а Agents, Dev и Forum решают прикладные задачи разных команд.',
+                'blocks' => [
+                    $this->block('platform', 'product_card', 'Tacticum Platform', 'Единый слой для LLM Gateway, RAG, памяти, MCP-инструментов, RBAC, аудита, observability и контроля стоимости.', ['icon' => 'ri-stack-line', 'href' => '/platform/', 'meta' => 'product=platform']),
+                    $this->block('agents', 'product_card', 'Tacticum Agents', 'Корпоративные ассистенты для HR, юридического, бухгалтерии, поддержки, IT helpdesk и базы знаний.', ['icon' => 'ri-robot-2-line', 'href' => '/agents/', 'meta' => 'product=agents']),
+                    $this->block('dev', 'product_card', 'Tacticum Dev', 'Governance-слой для AI-assisted разработки: профили, знания, design tokens и quality gates.', ['icon' => 'ri-git-branch-line', 'href' => '/dev/', 'meta' => 'product=dev']),
+                    $this->block('forum', 'product_card', 'Tacticum Forum', 'Управляемые клиентские диалоги: сценарные графы, LLM-обогащение, аналитика и журналирование.', ['icon' => 'ri-flow-chart', 'href' => '/forum/', 'meta' => 'product=forum']),
+                ],
+            ],
+            [
+                'page' => '/',
+                'section_key' => 'fit-matrix',
+                'sort' => 300,
+                'template_key' => 'product-card-grid',
+                'fallback_partial' => 'local/components/tacticum/home.page/templates/.default/parts/fit-matrix.php',
+                'owner_scope' => 'marketing',
+                'eyebrow' => 'Как выбрать продукт',
+                'title' => 'Начните с ситуации, а не с названия продукта',
+                'text' => 'Короткая матрица разделяет платформенные, функциональные, инженерные и клиентские сценарии без обещаний результата до discovery.',
+                'theme' => 'gray',
+                'blocks' => [
+                    $this->block('platform-fit', 'product_card', 'Единый AI-контур', 'Если AI-сценариев несколько и нужны общие RAG, модели, инструменты, доступы, audit и контроль стоимости.', ['icon' => 'ri-stack-line', 'href' => '/platform/', 'label' => 'Platform']),
+                    $this->block('agents-fit', 'product_card', 'Ассистенты для функций', 'Для HR, legal, finance, support, IT helpdesk и базы знаний, где есть документы, правила и handoff к человеку.', ['icon' => 'ri-robot-2-line', 'href' => '/agents/', 'label' => 'Agents']),
+                    $this->block('dev-fit', 'product_card', 'AI-assisted workflow', 'Для инженерных команд, которым нужно удержать architecture, review, tests и design tokens при работе с AI.', ['icon' => 'ri-git-branch-line', 'href' => '/dev/', 'label' => 'Dev']),
+                    $this->block('forum-fit', 'product_card', 'Клиентские диалоги', 'Для поддержки и продаж, где нужны сценарии, LLM-уточнения, эскалации и журнал диалогов.', ['icon' => 'ri-flow-chart', 'href' => '/forum/', 'label' => 'Forum']),
+                ],
+            ],
+            [
+                'page' => '/',
+                'section_key' => 'commercial',
+                'sort' => 500,
+                'template_key' => 'routing-card-grid',
+                'fallback_partial' => 'local/components/tacticum/home.page/templates/.default/parts/commercial.php',
+                'owner_scope' => 'marketing',
+                'title' => 'Выберите следующий коммерческий шаг',
+                'text' => 'Можно начать с оценки, внедрения, команды или быстрого AI-бота, если так проще проверить гипотезу.',
+                'blocks' => [
+                    $this->block('estimate', 'routing_card', 'Рассчитать проект', 'Сравните похожие расчеты по отраслям и получите базу для персональной сметы.', ['icon' => 'ri-file-search-line', 'href' => '/offer/']),
+                    $this->block('delivery', 'routing_card', 'Внедрить AI-решение', 'Пройдем discovery, разработку, интеграции и запуск в существующие процессы.', ['icon' => 'ri-settings-line', 'href' => '/services/']),
+                    $this->block('team', 'routing_card', 'Собрать команду', 'Подберите роли, уровни и загрузку, чтобы быстро оценить состав delivery-команды.', ['icon' => 'ri-team-line', 'href' => '/price/']),
+                    $this->block('bot', 'routing_card', 'Запустить AI-бота', 'Проверьте Telegram-сценарий на демо-агентах и запросите прототип под вашу воронку.', ['icon' => 'ri-robot-2-line', 'href' => '/aiagents/']),
+                ],
+            ],
+            [
+                'page' => '/about/',
+                'section_key' => 'company-trust',
+                'sort' => 200,
+                'template_key' => 'routing-card-grid',
+                'fallback_partial' => 'local/components/tacticum/about.page/templates/.default/parts/company-trust.php',
+                'owner_scope' => 'marketing',
+                'eyebrow' => 'Vendor trust',
+                'title' => 'Почему product-first модель требует сильной delivery-команды',
+                'text' => 'Корпоративный AI-продукт требует архитектуры, данных, интеграций, безопасности, эксплуатации, команды и понятного пути от пилота до production.',
+                'blocks' => [
+                    $this->block('architecture', 'routing_card', 'Архитектура', 'Проектируем общий AI-контур, RAG, интеграции, доступы, аудит и эксплуатационные ограничения.', ['icon' => 'ri-stack-line', 'href' => '/platform/']),
+                    $this->block('delivery', 'routing_card', 'Внедрение', 'Ведем discovery, пилот, интеграции, запуск и развитие решения короткими управляемыми этапами.', ['icon' => 'ri-route-line', 'href' => '/services/']),
+                    $this->block('team', 'routing_card', 'Команда', 'Подбираем роли под этап: аналитика, backend, data/RAG, QA, DevOps, PM и интеграции.', ['icon' => 'ri-team-line', 'href' => '/price/']),
+                    $this->block('estimate', 'routing_card', 'Оценка', 'Сначала фиксируем scope, риски и следующий шаг, затем уточняем бюджет и план запуска.', ['icon' => 'ri-calculator-line', 'href' => '/calculator/']),
+                ],
+            ],
+            [
+                'page' => '/about/',
+                'section_key' => 'values-team',
+                'sort' => 400,
+                'template_key' => 'feature-card-grid',
+                'fallback_partial' => 'local/components/tacticum/about.page/templates/.default/parts/values-team.php',
+                'owner_scope' => 'marketing',
+                'title' => 'Ценности и подход',
+                'text' => 'Мы не просто консультируем: команда сопровождает путь от анализа потребностей и концепции до внедрения, обучения и развития решения.',
+                'blocks' => [
+                    $this->block('innovation', 'feature_card', 'Инновационность', 'Исследуем новые технологии и подходы, чтобы предлагать современные и проверяемые решения.', ['icon' => 'ri-lightbulb-line']),
+                    $this->block('transparency', 'feature_card', 'Прозрачность', 'Фиксируем этап, достигнутые результаты, риски и план следующих действий.', ['icon' => 'ri-eye-line']),
+                    $this->block('flexibility', 'feature_card', 'Гибкость', 'Адаптируем решение под цели, ограничения, данные и процессы конкретной компании.', ['icon' => 'ri-shape-line']),
+                ],
+            ],
+            [
+                'page' => '/about/',
+                'section_key' => 'career-final',
+                'sort' => 700,
+                'template_key' => 'feature-card-grid',
+                'fallback_partial' => 'local/components/tacticum/about.page/templates/.default/parts/career-final.php',
+                'owner_scope' => 'marketing',
+                'title' => 'Карьера в Tacticum',
+                'text' => 'Мы ищем специалистов, которые разделяют ценности команды и хотят создавать прикладные AI-решения для бизнеса.',
+                'blocks' => [
+                    $this->block('teamwork', 'feature_card', 'Командная работа', 'Ценим сотрудничество и взаимную поддержку при движении к общему результату.', ['icon' => 'ri-team-fill']),
+                    $this->block('learning', 'feature_card', 'Постоянное обучение', 'Поддерживаем профессиональное развитие, обмен знаниями и рост внутри команды.', ['icon' => 'ri-book-open-fill']),
+                    $this->block('projects', 'feature_card', 'Интересные проекты', 'Работаем со сложными задачами в разных отраслях и прикладных AI-сценариях.', ['icon' => 'ri-briefcase-4-fill']),
+                    $this->block('format', 'feature_card', 'Гибкий формат', 'Сохраняем управляемый баланс между командной работой, фокусом и личной жизнью.', ['icon' => 'ri-home-office-fill']),
+                ],
+            ],
+            [
+                'page' => '/calculator/',
+                'section_key' => 'calculator-outcome-cards',
+                'sort' => 200,
+                'template_key' => 'feature-card-grid',
+                'fallback_partial' => 'local/components/tacticum/calculator.page/templates/.default/template.php',
+                'owner_scope' => 'marketing',
+                'title' => 'Что вы получите после диалога',
+                'text' => 'AI-калькулятор формирует предварительный артефакт оценки: бюджетный диапазон, сроки, команду, риски и вопросы для уточнения.',
+                'blocks' => [
+                    $this->block('budget', 'feature_card', 'Бюджетный диапазон', 'Предварительная вилка бюджета с пояснением, какие блоки влияют на стоимость.', ['icon' => 'ri-money-dollar-circle-line']),
+                    $this->block('timeline', 'feature_card', 'Сроки и этапы', 'Черновой план: discovery, MVP, интеграции, тестирование и запуск.', ['icon' => 'ri-calendar-check-line']),
+                    $this->block('team', 'feature_card', 'Состав команды', 'Роли, которые обычно нужны для такого проекта: аналитик, backend, ML, QA, PM и другие.', ['icon' => 'ri-team-line']),
+                    $this->block('risks', 'feature_card', 'Риски и вопросы', 'Что нужно уточнить перед точной сметой: данные, интеграции, поддержка, безопасность и нагрузка.', ['icon' => 'ri-alert-line']),
+                ],
+            ],
+            [
+                'page' => '/calculator/',
+                'section_key' => 'product-aware-estimate-cards',
+                'sort' => 300,
+                'template_key' => 'product-card-grid',
+                'fallback_partial' => 'local/components/tacticum/calculator.page/templates/.default/template.php',
+                'owner_scope' => 'marketing',
+                'eyebrow' => 'Product-aware estimate',
+                'title' => 'Что можно оценить через AI-калькулятор',
+                'text' => 'Калькулятор помогает привязать задачу к продуктовой модели Tacticum: платформенному ядру, ассистентам, инженерному workflow или клиентским диалогам.',
+                'theme' => 'gray',
+                'blocks' => [
+                    $this->block('platform', 'product_card', 'Platform', 'Оценка общего AI-контура: LLM Gateway, RAG, память, инструменты, доступы, аудит и эксплуатация.', ['icon' => 'ri-stack-line', 'href' => '/platform/', 'meta' => 'product=platform']),
+                    $this->block('agents', 'product_card', 'Agents', 'Проверка ассистента для HR, юридического, бухгалтерии, поддержки, IT helpdesk или базы знаний.', ['icon' => 'ri-robot-2-line', 'href' => '/agents/', 'meta' => 'product=agents']),
+                    $this->block('dev', 'product_card', 'Dev', 'Оценка пилота AI-assisted workflow: профили, knowledge layer, rules, quality gates и метрики.', ['icon' => 'ri-git-branch-line', 'href' => '/dev/', 'meta' => 'product=dev']),
+                    $this->block('forum', 'product_card', 'Forum', 'Оценка потока обращений: сценарный граф, LLM-обогащение, аналитика, журнал и интеграции.', ['icon' => 'ri-flow-chart', 'href' => '/forum/', 'meta' => 'product=forum']),
+                ],
+            ],
+            [
+                'page' => '/aiagents/',
+                'section_key' => 'agents-bridge',
+                'sort' => 200,
+                'template_key' => 'product-card-grid',
+                'fallback_partial' => 'local/components/tacticum/aiagents/templates/.default/parts/agents-bridge.php',
+                'owner_scope' => 'marketing',
+                'eyebrow' => 'Tacticum Agents',
+                'title' => 'AI-бот как первый сценарий корпоративных ассистентов',
+                'text' => 'Страница остается быстрым входом в Telegram-бот прототип. Если задача шире одного бота, переходите к Tacticum Agents.',
+                'blocks' => [
+                    $this->block('prototype', 'product_card', 'Быстрый прототип', 'Проверить диалог, вопросы квалификации и handoff менеджеру.', ['icon' => 'ri-telegram-line', 'href' => '#demo']),
+                    $this->block('agents-pilot', 'product_card', 'Agents pilot', 'Запустить ассистента с документами, правилами доступа и интеграциями.', ['icon' => 'ri-robot-2-line', 'href' => '/agents/', 'meta' => 'product=agents']),
+                    $this->block('platform-path', 'product_card', 'Platform path', 'Вынести RAG, память, инструменты и аудит в общий AI-контур.', ['icon' => 'ri-stack-line', 'href' => '/platform/', 'meta' => 'product=platform']),
+                ],
+            ],
+            [
+                'page' => '/aiagents/',
+                'section_key' => 'how-it-works',
+                'sort' => 400,
+                'template_key' => 'step-list',
+                'fallback_partial' => 'local/components/tacticum/aiagents/templates/.default/parts/how-it-works.php',
+                'owner_scope' => 'marketing',
+                'title' => 'Как бот переходит из демо в рабочий сценарий',
+                'blocks' => [
+                    $this->block('scenario', 'step', 'Опишите бизнес-сценарий', 'Какие продукты продаете, кто клиент, какие вопросы бот должен закрывать.', ['value' => '1']),
+                    $this->block('dialog', 'step', 'Проверьте диалог', 'AI-ассистент собирает черновой сценарий и показывает, как будет отвечать клиентам.', ['value' => '2']),
+                    $this->block('implementation', 'step', 'Решите, что внедрять', 'После демо можно запросить прототип, CRM-интеграцию или полноценный проект внедрения.', ['value' => '3']),
+                ],
+            ],
+            [
+                'page' => '/aiagents/',
+                'section_key' => 'services',
+                'sort' => 600,
+                'template_key' => 'tech-grid',
+                'fallback_partial' => 'local/components/tacticum/aiagents/templates/.default/parts/services.php',
+                'owner_scope' => 'marketing',
+                'title' => 'Где AI-бот становится частью B2B-процесса',
+                'blocks' => [
+                    $this->block('qualification', 'tech_card', 'Сценарии квалификации', 'Опишем вопросы, развилки и критерии передачи лида менеджеру.', ['icon' => 'ri-attachment-2']),
+                    $this->block('knowledge', 'tech_card', 'AI-логика и знания', 'Настроим ответы на основе услуг, документов, FAQ и ограничений бренда.', ['icon' => 'ri-tools-line']),
+                    $this->block('tone', 'tech_card', 'Тон и правила общения', 'Согласуем стиль, допустимые обещания, стоп-темы и передачу сложных вопросов человеку.', ['icon' => 'ri-robot-2-line']),
+                    $this->block('testing', 'tech_card', 'Тестирование и запуск', 'Проверим диалоги, лид-формы, Telegram-сценарии и корректность передачи данных.', ['icon' => 'ri-flask-line']),
+                    $this->block('analytics', 'tech_card', 'Аналитика и развитие', 'Смотрим, где диалог теряет клиента, и дорабатываем сценарии после запуска.', ['icon' => 'ri-bar-chart-2-line']),
+                    $this->block('implementation-link', 'tech_card', 'Связь с основным проектом', 'Если бот требует CRM, базы знаний или аналитики, подключаем команду внедрения Tacticum.', ['icon' => 'ri-lightbulb-flash-line', 'href' => '/services/']),
+                ],
+            ],
+        ];
+    }
 }
 
 function tacticum_content_storage_page_content_seed_usage(): string
 {
     return <<<TEXT
 Usage:
-  php tools/content-storage-page-content-seed.php [--wave=wave_1] [--apply] [--json] [--document-root=/path/to/site]
+  php tools/content-storage-page-content-seed.php [--wave=wave_1|wave_2|all] [--apply] [--json] [--document-root=/path/to/site]
 
 Seeds structured page_sections/page_blocks rows for generic page sections in
 shadow mode. Dry-run is the default. The tool does not change public runtime,

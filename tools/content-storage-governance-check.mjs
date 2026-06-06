@@ -96,16 +96,30 @@ for (const path of ['tools/product-content-migration.php', 'tools/product-conten
 
 requireAll('local/lib/Tacticum/Product/ContentRuntime.php', [
   [/['"]faq['"]/, 'faq in product content cache identity and tags'],
+  [/['"]cases['"]/, 'cases in product content cache identity and tags'],
+  [/['"]feedback['"]/, 'feedback in product content cache identity and tags'],
+  [/['"]clients['"]/, 'clients in product content cache identity and tags'],
 ]);
 
 requireAll('local/lib/Tacticum/Product/ContentRepository.php', [
   [/function\s+fetchProductFaq\b/, 'product FAQ repository fetch'],
   [/PROPERTY_PRODUCT/, 'product FAQ relation filter'],
 ]);
+requireFile('local/lib/Tacticum/Product/ContentProofRepository.php');
+requireAll('local/lib/Tacticum/Product/ContentProofRepository.php', [
+  [/function\s+fetchProductProof\b/, 'product proof repository fetch'],
+  [/PUBLIC_RENDER_APPROVED/, 'public proof render approval filter'],
+]);
+requireFile('local/lib/Tacticum/Product/ContentProofService.php');
+requireAll('local/lib/Tacticum/Product/ContentProofService.php', [
+  [/ContentProofRepository::fetchProductProof/, 'product proof repository orchestration'],
+  [/_proof_source/, 'product proof source marker orchestration'],
+]);
 
 requireAll('local/lib/Tacticum/Product/ContentService.php', [
   [/fetchProductFaq\(/, 'product FAQ iblock first read'],
   [/_faq_source/, 'product FAQ source marker'],
+  [/ContentProofService::applyPublicProof/, 'product proof approved iblock read'],
 ]);
 forbidPattern(
   'local/lib/Tacticum/Product/ContentService.php',
@@ -184,6 +198,20 @@ requireAll('tools/content-storage-proof-tagging-apply.php', [
 forbidPattern(
   'tools/content-storage-proof-tagging-apply.php',
   /['"](?:NAME|PREVIEW_TEXT|DETAIL_TEXT)['"]/,
+  'raw proof content field output'
+);
+requireFile('tools/content-storage-proof-public-render-apply.php');
+requireAll('tools/content-storage-proof-public-render-apply.php', [
+  [/proof_tagging_approval\.v1/, 'proof public render approval schema validation'],
+  [/status must be approved/, 'approved-only public render apply gate'],
+  [/PUBLIC_RENDER_APPROVED/, 'public render approval property'],
+  [/productIdsForElement/, 'PRODUCT relation verification before public render'],
+  [/SetPropertyValuesEx\([\s\S]*PUBLIC_RENDER_APPROVED/, 'PUBLIC_RENDER_APPROVED apply path'],
+  [/safe_for_release_evidence/, 'release evidence safety marker'],
+]);
+forbidPattern(
+  'tools/content-storage-proof-public-render-apply.php',
+  /['"](?:PREVIEW_TEXT|DETAIL_TEXT)['"]/,
   'raw proof content field output'
 );
 requireFile('tools/content-storage-proof-approval-check.mjs');
@@ -287,6 +315,12 @@ requireAll('tools/content-storage-page-content-seed.php', [
   [/\/price\//, 'page-content wave 1 price seed'],
   [/\/contacts\//, 'page-content wave 1 contacts seed'],
   [/\/offer\//, 'page-content wave 1 offer seed'],
+  [/\/about\//, 'page-content wave 2 about seed'],
+  [/\/calculator\//, 'page-content wave 2 calculator seed'],
+  [/\/aiagents\//, 'page-content wave 2 aiagents seed'],
+  [/ecosystem/, 'page-content wave 2 home seed'],
+  [/calculator-chat-outcome/, 'page-content wave 2 calculator chat outcome template'],
+  [/wave_2\|all|wave_2['"]\s*=>/, 'page-content seed wave 2 option'],
   [/does not change public runtime[\s\S]*does not retire PHP fallback partials/, 'page-content seed scope warning'],
 ]);
 requireFile('tools/content-storage-page-content-live-approval-template.php');
@@ -294,6 +328,9 @@ requireAll('tools/content-storage-page-content-live-approval-template.php', [
   [/page_content_live_approval\.v1/, 'page-content live approval template schema'],
   [/source_switch_approved['"]?\s*=>\s*false|["']source_switch_approved["']\s*:\s*false/, 'page-content live approval source switch blocked'],
   [/decision['"]?\s*=>\s*['"]pending|["']decision["']\s*:\s*["']pending/, 'page-content live approval pending-only draft'],
+  [/--wave=wave_1\|wave_2\|all/, 'page-content live approval wave scope usage'],
+  [/WAVE_PAGES/, 'page-content live approval wave page map'],
+  [/mutually exclusive/, 'page-content live approval page/wave exclusivity guard'],
   [/raw_copy_included/, 'page-content live approval raw copy exclusion marker'],
   [/admin_links_included/, 'page-content live approval admin link exclusion marker'],
   [/fallback_retirement_approved['"]?\s*=>\s*false|["']fallback_retirement_approved["']\s*:\s*false/, 'page-content live approval fallback retirement blocked'],
@@ -311,6 +348,9 @@ requireAll('tools/content-storage-page-content-live-approval-check.mjs', [
   [/fallback_retirement_approved/, 'page-content fallback retirement approval blocker'],
   [/--allow-draft/, 'page-content live approval draft mode'],
   [/--self-test/, 'page-content live approval self-test mode'],
+  [/\/about\//, 'page-content live approval wave 2 about section allowlist'],
+  [/\/calculator\//, 'page-content live approval wave 2 calculator section allowlist'],
+  [/\/aiagents\//, 'page-content live approval wave 2 aiagents section allowlist'],
 ]);
 requireFile('tools/content-storage-page-content-live-apply.php');
 requireAll('tools/content-storage-page-content-live-apply.php', [
@@ -320,6 +360,9 @@ requireAll('tools/content-storage-page-content-live-apply.php', [
   [/source_switch_approved/, 'page-content live apply source switch blocked'],
   [/Runtime switch: unchanged/, 'page-content live apply no runtime switch guard'],
   [/safe_for_release_evidence/, 'page-content live apply release evidence safety marker'],
+  [/\/about\//, 'page-content live apply wave 2 about section allowlist'],
+  [/\/calculator\//, 'page-content live apply wave 2 calculator section allowlist'],
+  [/\/aiagents\//, 'page-content live apply wave 2 aiagents section allowlist'],
 ]);
 forbidPattern(
   'tools/content-storage-page-content-live-apply.php',
@@ -334,6 +377,12 @@ requireAll('tools/content-storage-page-content-fallback-retirement-template.php'
   [/admin_links_included/, 'page-content fallback retirement admin link exclusion marker'],
   [/fallback_partial_values_included/, 'page-content fallback partial path exclusion marker'],
   [/Fallback retirement is a separate code change and deployment/, 'page-content fallback retirement scope warning'],
+  [/--wave=wave_1\|wave_2\|all/, 'page-content fallback retirement wave scope usage'],
+  [/WAVE_PAGES/, 'page-content fallback retirement wave page map'],
+  [/mutually exclusive/, 'page-content fallback retirement page/wave exclusivity guard'],
+  [/\/about\//, 'page-content fallback retirement wave 2 about section allowlist'],
+  [/\/calculator\//, 'page-content fallback retirement wave 2 calculator section allowlist'],
+  [/\/aiagents\//, 'page-content fallback retirement wave 2 aiagents section allowlist'],
 ]);
 forbidPattern(
   'tools/content-storage-page-content-fallback-retirement-template.php',
@@ -347,6 +396,11 @@ requireAll('tools/content-storage-page-content-fallback-retirement-check.mjs', [
   [/retirement_allowed/, 'page-content fallback retirement allowed gate'],
   [/admin_editability_approved/, 'page-content fallback retirement admin editability gate'],
   [/page_content\.source=fallback/, 'page-content fallback retirement rollback source'],
+  [/WAVE_PAGES/, 'page-content fallback retirement checker wave page map'],
+  [/page-content:source:http:wave2:prod/, 'page-content fallback retirement scoped source recheck'],
+  [/\/about\//, 'page-content fallback retirement checker wave 2 about allowlist'],
+  [/\/calculator\//, 'page-content fallback retirement checker wave 2 calculator allowlist'],
+  [/\/aiagents\//, 'page-content fallback retirement checker wave 2 aiagents allowlist'],
   [/--allow-draft/, 'page-content fallback retirement draft mode'],
   [/--self-test/, 'page-content fallback retirement self-test mode'],
 ]);
@@ -363,6 +417,11 @@ requireAll('tools/page-content-source-http-check.mjs', [
   [/\/price\//, 'page-content HTTP price page'],
   [/\/contacts\//, 'page-content HTTP contacts page'],
   [/\/offer\//, 'page-content HTTP offer page'],
+  [/DEFAULT_PAGES/, 'page-content HTTP default live wave page list'],
+  [/\/about\//, 'page-content HTTP wave 2 about page'],
+  [/\/calculator\//, 'page-content HTTP wave 2 calculator page'],
+  [/\/aiagents\//, 'page-content HTTP wave 2 aiagents page'],
+  [/calculator-chat-outcome/, 'page-content HTTP wave 2 calculator template expectation'],
 ]);
 requireFile('local/php_interface/include/page_content.php');
 requireAll('local/php_interface/include/page_content.php', [
@@ -387,10 +446,25 @@ requireAll('local/lib/Tacticum/PageContent/Renderer.php', [
   [/step-list/, 'page-content step renderer'],
   [/tech-grid/, 'page-content tech renderer'],
   [/feature-card-grid/, 'page-content feature renderer'],
+  [/calculator-chat-outcome/, 'page-content calculator chat outcome renderer'],
+  [/CalculatorRenderer::renderChatOutcome/, 'page-content calculator renderer handoff'],
+  [/HomeRenderAttributes::linkDataAttributes/, 'page-content homepage smoke marker handoff'],
   [/contact-card-grid/, 'page-content contact renderer'],
   [/cta-band/, 'page-content cta renderer'],
   [/sectionOpen/, 'page-content rendered source marker helper'],
   [/source=contact_config/, 'page-content contact config bridge'],
+]);
+requireFile('local/lib/Tacticum/PageContent/CalculatorRenderer.php');
+requireAll('local/lib/Tacticum/PageContent/CalculatorRenderer.php', [
+  [/tacticum:chat\.surface/, 'page-content calculator chat surface preservation'],
+  [/calculator/, 'page-content calculator surface context'],
+]);
+requireFile('local/lib/Tacticum/PageContent/HomeRenderAttributes.php');
+requireAll('local/lib/Tacticum/PageContent/HomeRenderAttributes.php', [
+  [/data-home-product-link/, 'page-content homepage product smoke markers'],
+  [/data-home-commercial-link/, 'page-content homepage commercial smoke markers'],
+  [/product=/, 'page-content homepage product metadata mapping'],
+  [/\/platform\/[\s\S]*\/agents\/[\s\S]*\/dev\/[\s\S]*\/forum\//, 'page-content homepage product href mapping'],
 ]);
 requireFile('local/lib/Tacticum/PageContent/RenderSupport.php');
 requireAll('local/lib/Tacticum/PageContent/RenderSupport.php', [
@@ -399,6 +473,7 @@ requireAll('local/lib/Tacticum/PageContent/RenderSupport.php', [
   [/data-page-content-page/, 'page-content rendered page marker'],
   [/data-page-content-section/, 'page-content rendered section marker'],
   [/data-page-content-template/, 'page-content rendered template marker'],
+  [/data-home-block/, 'page-content homepage block smoke marker'],
   [/function\s+href\b[\s\S]*mailto\|tel/, 'page-content href sanitizer'],
   [/function\s+icon\b[\s\S]*ri-\[a-z0-9-\]/, 'page-content icon sanitizer'],
 ]);
@@ -420,6 +495,25 @@ for (const [path, page, section] of [
     [/Fallback body retired/, 'page-content fallback body retirement marker'],
   ]);
   forbidPattern(path, /<section\b/i, 'retired page-content fallback section body');
+}
+for (const [path, page, section] of [
+  ['local/components/tacticum/home.page/templates/.default/parts/ecosystem.php', '/', 'ecosystem'],
+  ['local/components/tacticum/home.page/templates/.default/parts/fit-matrix.php', '/', 'fit-matrix'],
+  ['local/components/tacticum/home.page/templates/.default/parts/commercial.php', '/', 'commercial'],
+  ['local/components/tacticum/about.page/templates/.default/parts/company-trust.php', '/about/', 'company-trust'],
+  ['local/components/tacticum/about.page/templates/.default/parts/values-team.php', '/about/', 'values-team'],
+  ['local/components/tacticum/about.page/templates/.default/parts/career-final.php', '/about/', 'career-final'],
+  ['local/components/tacticum/calculator.page/templates/.default/template.php', '/calculator/', 'calculator-outcome-cards'],
+  ['local/components/tacticum/calculator.page/templates/.default/template.php', '/calculator/', 'product-aware-estimate-cards'],
+  ['local/components/tacticum/aiagents/templates/.default/parts/agents-bridge.php', '/aiagents/', 'agents-bridge'],
+  ['local/components/tacticum/aiagents/templates/.default/parts/how-it-works.php', '/aiagents/', 'how-it-works'],
+  ['local/components/tacticum/aiagents/templates/.default/parts/services.php', '/aiagents/', 'services'],
+]) {
+  requireAll(path, [
+    [/tacticum_page_content_render_if_live/, 'page-content wave 2 live renderer guard'],
+    [new RegExp(page.replaceAll('/', '\\/')), `page-content wave 2 page key ${page}`],
+    [new RegExp(section.replaceAll('-', '\\-')), `page-content wave 2 section key ${section}`],
+  ]);
 }
 requireDocFile('docs/workflow/content-storage-release-runbook-2026-06-05.md');
 
@@ -457,15 +551,21 @@ for (const scriptName of [
   'content:storage:page-content:seed',
   'content:storage:page-content:seed:apply',
   'content:storage:page-content:live-approval-template',
+  'content:storage:page-content:live-approval-template:wave2',
   'content:storage:page-content:live-approval:check',
   'content:storage:page-content:live-approval:self-test',
   'content:storage:page-content:live-apply',
   'content:storage:page-content:live-apply:apply',
   'content:storage:page-content:fallback-retirement-template',
+  'content:storage:page-content:fallback-retirement-template:wave2',
   'content:storage:page-content:fallback-retirement:check',
   'content:storage:page-content:fallback-retirement:self-test',
+  'content:storage:page-content:seed:wave2',
+  'content:storage:page-content:seed:wave2:apply',
   'page-content:source:http:fallback:prod',
   'page-content:source:http:prod',
+  'page-content:source:http:wave2:fallback:prod',
+  'page-content:source:http:wave2:prod',
 ]) {
   if (!packageSource.includes(`"${scriptName}"`)) {
     failures.push(`package.json: missing ${scriptName} script.`);

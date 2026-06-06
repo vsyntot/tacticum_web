@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 global $APPLICATION;
 ?>
 
+<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/calculator/', 'calculator-outcome-cards')): ?>
 <section class="py-32 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
@@ -118,7 +119,9 @@ global $APPLICATION;
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if (!function_exists('tacticum_page_content_render_if_live') || !tacticum_page_content_render_if_live('/calculator/', 'product-aware-estimate-cards')): ?>
 <section class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="mb-10 max-w-3xl">
@@ -171,6 +174,7 @@ global $APPLICATION;
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <?php
 $APPLICATION->IncludeComponent(

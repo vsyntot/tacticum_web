@@ -18,6 +18,7 @@ final class Renderer
             'step-list' => self::renderStepList($section),
             'tech-grid' => self::renderTechGrid($section),
             'feature-card-grid' => self::renderFeatureGrid($section),
+            'calculator-chat-outcome' => CalculatorRenderer::renderChatOutcome($section),
             'contact-card-grid' => self::renderContactGrid($section, $context),
             'cta-band' => self::renderCtaBand($section),
             default => false,
@@ -32,18 +33,24 @@ final class Renderer
         }
 
         $theme = RenderSupport::text($section['theme'] ?? '');
-        $sectionClass = $theme === 'gray' ? 'py-16 bg-gray-50' : 'py-16 bg-white';
+        $isHome = RenderSupport::text($section['page_key'] ?? '') === '/';
+        $sectionClass = ($theme === 'gray')
+            ? ($isHome ? 'py-20 bg-gray-50' : 'py-16 bg-gray-50')
+            : ($isHome ? 'py-20 bg-white' : 'py-16 bg-white');
         $cardClass = $theme === 'gray'
             ? 'rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all'
             : 'rounded-xl border border-gray-200 bg-gray-50 p-6 hover:border-primary hover:bg-white transition-colors';
+        $gridClass = count($items) === 3
+            ? 'grid grid-cols-1 md:grid-cols-3 gap-6'
+            : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
 
         echo RenderSupport::sectionOpen($section, $sectionClass) . PHP_EOL;
         echo '    <div class="container mx-auto px-4">' . PHP_EOL;
         RenderSupport::renderHeading($section, 'mb-10 max-w-3xl');
-        echo '        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">' . PHP_EOL;
+        echo '        <div class="' . RenderSupport::h($gridClass) . '">' . PHP_EOL;
         foreach ($items as $item) {
             $href = RenderSupport::href($item['href'] ?? '');
-            echo '            <a href="' . RenderSupport::h($href !== '' ? $href : '#') . '" class="' . RenderSupport::h($cardClass) . '">' . PHP_EOL;
+            echo '            <a href="' . RenderSupport::h($href !== '' ? $href : '#') . '" class="' . RenderSupport::h($cardClass) . '"' . HomeRenderAttributes::linkDataAttributes($section, $item) . '>' . PHP_EOL;
             RenderSupport::renderIcon((string)($item['icon'] ?? ''), 'mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary', 'text-2xl');
             RenderSupport::renderTitleText($item, 'h3', 'mb-2 text-xl font-bold text-secondary', 'text-gray-600');
             echo '            </a>' . PHP_EOL;
@@ -65,7 +72,10 @@ final class Renderer
         echo RenderSupport::sectionOpen($section, 'py-16') . PHP_EOL;
         echo '    <div class="container mx-auto px-4">' . PHP_EOL;
         RenderSupport::renderHeading($section, 'text-center mb-16', true);
-        echo '        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">' . PHP_EOL;
+        $gridClass = count($items) === 3
+            ? 'grid grid-cols-1 md:grid-cols-3 gap-4'
+            : 'grid grid-cols-1 md:grid-cols-5 gap-4';
+        echo '        <div class="' . RenderSupport::h($gridClass) . '">' . PHP_EOL;
         foreach ($items as $index => $item) {
             $value = RenderSupport::text($item['value'] ?? '') ?: (string)($index + 1);
             echo '            <div class="step-item text-center px-4">' . PHP_EOL;
@@ -195,4 +205,5 @@ final class Renderer
 
         return true;
     }
+
 }

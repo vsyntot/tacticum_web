@@ -3,6 +3,10 @@
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
+
+if (function_exists('tacticum_page_content_render_if_live') && tacticum_page_content_render_if_live('/', 'ecosystem')) {
+    return;
+}
 ?>
 
 <section class="py-20 bg-white" data-home-block="ecosystem-map">

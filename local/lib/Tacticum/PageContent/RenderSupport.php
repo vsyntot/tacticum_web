@@ -31,11 +31,19 @@ final class RenderSupport
 
     public static function sectionOpen(array $section, string $class): string
     {
+        $attributes = self::sectionAttributes($section);
+        $extra = '';
+        foreach ($attributes as $name => $value) {
+            $extra .= ' ' . $name . '="' . self::h($value) . '"';
+        }
+
         return '<section class="' . self::h($class) . '"'
             . ' data-page-content-source="bitrix"'
             . ' data-page-content-page="' . self::h(self::text($section['page_key'] ?? '')) . '"'
             . ' data-page-content-section="' . self::h(self::text($section['section_key'] ?? '')) . '"'
-            . ' data-page-content-template="' . self::h(self::text($section['template_key'] ?? '')) . '">';
+            . ' data-page-content-template="' . self::h(self::text($section['template_key'] ?? '')) . '"'
+            . $extra
+            . '>';
     }
 
     public static function renderTitleText(array $item, string $titleTag, string $titleClass, string $textClass): void
@@ -129,5 +137,19 @@ final class RenderSupport
     private static function icon(string $value): string
     {
         return preg_match('/^ri-[a-z0-9-]+$/', $value) === 1 ? $value : '';
+    }
+
+    private static function sectionAttributes(array $section): array
+    {
+        if (self::text($section['page_key'] ?? '') !== '/') {
+            return [];
+        }
+
+        return match (self::text($section['section_key'] ?? '')) {
+            'ecosystem' => ['data-home-block' => 'ecosystem-map'],
+            'fit-matrix' => ['data-home-block' => 'fit-matrix'],
+            'commercial' => ['data-home-block' => 'commercial-next-steps'],
+            default => [],
+        };
     }
 }

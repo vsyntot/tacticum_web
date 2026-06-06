@@ -16,8 +16,9 @@ if (!function_exists('tacticum_product_page_render_proof')) {
         $eyebrow = tacticum_product_page_string($proof, 'eyebrow', 'Проверка');
         $title = tacticum_product_page_string($proof, 'title', 'Что подтверждаем на пилоте');
         $text = tacticum_product_page_string($proof, 'text', 'До появления публичных метрик фиксируем проверяемые артефакты: что измеряем, кто владелец и какие ограничения остаются после пилота.');
+        $source = tacticum_product_page_context_slug($proof['source'] ?? '', 'readiness');
         ?>
-        <section class="bg-white py-16" data-product-block="proof">
+        <section class="bg-white py-16" data-product-block="proof" data-product-proof-source="<?=tacticum_product_page_html($source)?>">
             <div class="container mx-auto px-4">
                 <div class="mb-10 max-w-3xl">
                     <?php if ($eyebrow !== ''): ?>
