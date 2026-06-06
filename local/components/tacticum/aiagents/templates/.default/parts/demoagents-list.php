@@ -12,7 +12,7 @@ $APPLICATION->IncludeComponent(
         "SORT_BY1" => "RAND",
         "SORT_ORDER1" => "ASC",
         "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "PREVIEW_TEXT", "PREVIEW_PICTURE", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
-        "PROPERTY_CODE" => ["LINK"],
+        "PROPERTY_CODE" => ["LINK", "PRODUCT"],
         "DISPLAY_BOTTOM_PAGER" => "Y",
     ],
     $component

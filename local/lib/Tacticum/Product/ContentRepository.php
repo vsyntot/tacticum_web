@@ -151,4 +151,53 @@ final class ContentRepository
 
         return $items;
     }
+
+    public static function fetchProductFaq(int $faqIblockId, int $productElementId): array
+    {
+        if ($faqIblockId <= 0 || $productElementId <= 0 || !class_exists('CIBlockElement')) {
+            return [];
+        }
+
+        $items = [];
+        $result = \CIBlockElement::GetList(
+            ['SORT' => 'ASC', 'ID' => 'ASC'],
+            [
+                'IBLOCK_ID' => $faqIblockId,
+                'ACTIVE' => 'Y',
+                'PROPERTY_PRODUCT' => $productElementId,
+                'CHECK_PERMISSIONS' => 'N',
+            ],
+            false,
+            false,
+            ['ID', 'IBLOCK_ID', 'NAME', 'DETAIL_TEXT', 'PREVIEW_TEXT']
+        );
+
+        while ($element = $result->Fetch()) {
+            $question = self::plainText((string)($element['NAME'] ?? ''));
+            $answer = self::plainText((string)($element['DETAIL_TEXT'] ?? ''));
+            if ($answer === '') {
+                $answer = self::plainText((string)($element['PREVIEW_TEXT'] ?? ''));
+            }
+            if ($question === '' || $answer === '') {
+                continue;
+            }
+
+            $items[] = [
+                'question' => $question,
+                'answer' => $answer,
+            ];
+        }
+
+        return $items;
+    }
+
+    private static function plainText(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '' || str_starts_with($value, '{') || str_starts_with($value, '[')) {
+            return '';
+        }
+
+        return trim((string)preg_replace('/\s+/u', ' ', strip_tags($value)));
+    }
 }

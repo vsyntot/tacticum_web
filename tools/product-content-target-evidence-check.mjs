@@ -8,7 +8,8 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const FIXTURE_DIR = path.join(ROOT, 'tools/fixtures/product-content-target-evidence');
 
 const DEFAULT_PRODUCT_CODES = ['platform', 'agents', 'dev', 'forum'];
-const REQUIRED_IBLOCK_KEYS = ['products', 'product_blocks', 'product_use_cases'];
+const REQUIRED_EVIDENCE_IBLOCK_KEYS = ['products', 'product_blocks', 'product_use_cases', 'faq'];
+const REQUIRED_ADMIN_MODEL_IBLOCK_KEYS = ['products', 'product_blocks', 'product_use_cases'];
 const DEFAULT_EXPECTED_SCHEMA_VERSION = 'v1';
 const DEFAULT_ALLOWED_SOURCE_MODES = ['bitrix'];
 const DEFAULT_EXPECTED_ROW_SOURCE = 'bitrix';
@@ -91,7 +92,7 @@ function validateAdminModel(adminModel, errors) {
   if (!isPlainObject(adminModel.v2_schema)) {
     errors.push('admin_model.v2_schema must be an object.');
   } else {
-    for (const key of REQUIRED_IBLOCK_KEYS) {
+    for (const key of REQUIRED_ADMIN_MODEL_IBLOCK_KEYS) {
       const entry = adminModel.v2_schema[key];
       if (!isPlainObject(entry)) {
         errors.push(`admin_model.v2_schema.${key} must be an object.`);
@@ -140,7 +141,7 @@ function validateIblocks(iblocks, errors) {
     return;
   }
 
-  for (const key of REQUIRED_IBLOCK_KEYS) {
+  for (const key of REQUIRED_EVIDENCE_IBLOCK_KEYS) {
     if (!Number.isInteger(iblocks[key]) || iblocks[key] <= 0) {
       errors.push(`iblocks.${key} must be a positive integer.`);
     }
@@ -174,6 +175,9 @@ function validateRows(rows, expectedProductCodes, expectedRowSource, minUseCases
     }
     if (row.source !== expectedRowSource) {
       errors.push(`rows[${index}].source for ${row.code} must be ${expectedRowSource}.`);
+    }
+    if (row.faq_source !== 'iblock') {
+      errors.push(`rows[${index}].faq_source for ${row.code} must be iblock.`);
     }
     if (!Number.isInteger(row.use_cases) || row.use_cases < minUseCases) {
       errors.push(`rows[${index}].use_cases for ${row.code} must be >= ${minUseCases}.`);

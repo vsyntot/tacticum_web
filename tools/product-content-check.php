@@ -127,6 +127,13 @@ final class TacticumProductContentCheck
             $this->iblocks[$key] = $id;
             $this->line("Iblock {$key}: #{$id}");
         }
+        $faqIblockId = $this->iblockId('faq');
+        if ($faqIblockId > 0) {
+            $this->iblocks['faq'] = $faqIblockId;
+            $this->line("Iblock faq: #{$faqIblockId}");
+        } else {
+            $this->warnOrError('Missing iblock config key: faq');
+        }
 
         $productsIblockId = $this->iblockId('products');
         $this->checkAdminEditableSchema();
@@ -357,6 +364,7 @@ final class TacticumProductContentCheck
                 'code' => (string)$productCode,
                 'status' => $minimumRenderable ? 'ok' : 'not-renderable',
                 'source' => (string)($page['_source'] ?? 'none'),
+                'faq_source' => (string)($page['_faq_source'] ?? 'unknown'),
                 'use_cases' => $useCaseCount,
                 'missing_blocks' => $missingBlocks,
                 'schema_issues' => count($schemaIssues),
@@ -367,6 +375,9 @@ final class TacticumProductContentCheck
             }
             if ($useCaseCount <= 0) {
                 $this->warnOrError("Product {$productCode} has no Bitrix use cases.");
+            }
+            if (($page['_faq_source'] ?? '') !== 'iblock') {
+                $this->warnOrError("Product {$productCode} FAQ is not sourced from faq iblock.");
             }
             if (!empty($missingBlocks)) {
                 $this->warnOrError("Product {$productCode} misses TO BE blocks: " . implode(', ', $missingBlocks));
@@ -379,7 +390,7 @@ final class TacticumProductContentCheck
 
     private function checkRelationProperties(int $productsIblockId): void
     {
-        foreach (['faq', 'cases', 'offer', 'services', 'aiagents'] as $key) {
+        foreach (['faq', 'cases', 'offer', 'services', 'aiagents', 'feedback', 'clients'] as $key) {
             $iblockId = $this->iblockId($key);
             if ($iblockId <= 0) {
                 $this->warning("Skip relation check for {$key}: iblock key is absent.");
@@ -992,10 +1003,11 @@ final class TacticumProductContentCheck
                     ? '-'
                     : implode(',', $row['missing_blocks']);
                 $this->line(sprintf(
-                    '- %s: %s, source=%s, use_cases=%d, missing_blocks=%s, schema_issues=%d',
+                    '- %s: %s, source=%s, faq_source=%s, use_cases=%d, missing_blocks=%s, schema_issues=%d',
                     $row['code'],
                     $row['status'],
                     $row['source'],
+                    $row['faq_source'] ?? 'unknown',
                     $row['use_cases'],
                     $missing,
                     (int)($row['schema_issues'] ?? 0)

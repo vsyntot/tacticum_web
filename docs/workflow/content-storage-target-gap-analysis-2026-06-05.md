@@ -76,18 +76,18 @@ But this is not the same as final semantic content storage. Several domain entit
 
 | ID | Status | Priority | Area | Gap | Target |
 |---|---|---|---|---|---|
-| CSG-001 | open | P1 | FAQ / Product content | Product FAQ renders from `product_blocks`, not from `faq #10`. | Product FAQ elements exist in `faq`, product pages read them first, fallback is temporary. |
-| CSG-002 | open | P1 | Config / Clients | `clients #8` exists in admin, but config registry does not expose `clients`. | Add `clients` key to config/example and use helpers only. |
-| CSG-003 | open | P1 | Product relations | Existing migration adds `PRODUCT` relation to `faq/cases/offer/services/aiagents`, but not `feedback/clients`. | Extend relation migration to `feedback` and `clients` where configured. |
-| CSG-004 | open | P1 | Services | `news.list/services` can render hardcoded "Расчет проекта" fallback when no service element exists. | Seed service element and remove fallback rendering from template. |
-| CSG-005 | open | P1 | Cases / Proof | Product proof readiness is not mapped to real cases/evidence; cases are not tagged by product. | Related real cases have product/evidence tags; readiness artifacts stay non-case content. |
-| CSG-006 | open | P2 | AI agents | Demo agent catalog and product `Agents` have unclear relation boundary. | Keep separate domain meanings; optional demo-agent relation to product/use case. |
-| CSG-007 | open | P1 | Page sections | Many page-level content sections remain PHP partials. | Structured page-content model and staged migration. |
-| CSG-008 | open | P1 | Static materials | `policies/static materials #19` can become overloaded if reused as raw page HTML storage. | Decide: keep legal-only or create structured page sections/page blocks. |
-| CSG-009 | open | P2 | Admin/public parity | Screenshot/API mismatch observed: services admin count `4` vs API `2`, cases admin count `10` vs API `9`. | Add admin/public audit report explaining inactive/filtered/missing rows. |
-| CSG-010 | open | P1 | Guards | Current strict product content checks do not validate domain iblock placement. | Add content storage governance check. |
-| CSG-011 | open | P2 | Cache/release | Product cache tools cover product iblocks; non-product content source switches need release evidence too. | Add cache-clear/rendered-smoke runbook for FAQ/services/clients/feedback/cases changes. |
-| CSG-012 | open | P2 | Boundaries | Existing narrow catalog iblocks can be polluted by page copy. | Enforce do-not-move policy for rates/team/vacancies and generic marketing sections. |
+| CSG-001 | implemented / production evidence passed | P1 | FAQ / Product content | Product FAQ renders from `product_blocks`, not from `faq #10`; first seed created related FAQ rows without product FAQ sections. | Runtime reads FAQ only from `faq #10` through `PROPERTY_PRODUCT`; production FAQ seed/audit, HTTP source smoke, product FAQ section sync and Chrome-capable browser smoke passed. Final retirement decision is approved with owner gates `4/4`; post-deploy cache clear, strict FAQ audit, strict product content check and HTTP source smoke passed with `faq_source=iblock`. |
+| CSG-002 | implemented | P1 | Config / Clients | `clients #8` exists in admin, but config registry does not expose `clients`. | `clients` key added to config/example/runtime summary and content config validation. |
+| CSG-003 | proof audit passed / public rendering gated | P1 | Product relations | Existing migration adds `PRODUCT` relation to `faq/cases/offer/services/aiagents`, but not `feedback/clients`. | Production migration created `PRODUCT` relation for `feedback #9` and `clients #8`; strict proof-scope audit passed and now reports per-product aggregate proof counts, but public proof rendering still needs Sales/Content/SEO evidence. |
+| CSG-004 | implemented / production evidence passed | P1 | Services | `news.list/services` can render hardcoded "Расчет проекта" fallback when no service element exists. | Template fallback removed; six target service cards seeded on production; strict services audit passed with active/API count `6`. |
+| CSG-005 | product tags applied / public rendering gated | P1 | Cases / Proof | Product proof readiness is not mapped to real cases/evidence; cases are not tagged by product. | Owner-approved `PRODUCT` tags were applied for active `cases`/`feedback` proof items; strict production audit reports `platform=6`, `agents=6`, `dev=6`, `forum=5` aggregate proof items. Public rendering remains blocked until separate Sales/Content/SEO public proof approval. |
+| CSG-006 | product relation applied / boundary guarded | P2 | AI agents | Demo agent catalog and product `Agents` have unclear relation boundary. | Static boundary guard keeps `/agents/` as product page and `/aiagents/` as Telegram demo/prototype service route; active demo-agent rows #523, #524 and #525 are linked to product `agents` without changing public rendering. |
+| CSG-007 | source switch and smoke passed | P1 | Page sections | Many page-level content sections remain PHP partials. | `page_sections #24` and `page_blocks #25` exist; wave 1 seed/live promotion/source switch and targeted Chrome-capable visual/browser smoke passed for four pages; wave 2 sections remain PHP partials. |
+| CSG-008 | fallback retirement deployed / rechecked | P1 | Static materials | `policies/static materials #19` can become overloaded if reused as raw page HTML storage. | Separate `page_sections/page_blocks` model is approved/applied and live for wave 1; legal-only `policies` boundary remains enforced; owner-approved fallback-retirement check passed with production evidence `9/9` and owner gates `5/5`; deployed code removed the nine approved PHP fallback section bodies, post-deploy source/audit/SEO/browser checks passed and governance forbids static fallback reintroduction. |
+| CSG-009 | audit-ready | P2 | Admin/public parity | Screenshot/API mismatch observed: services admin count `4` vs API `2`, cases admin count `10` vs API `9`. | `content-storage-audit.php` reports active/total counts and optional public API counts without raw content. |
+| CSG-010 | implemented | P1 | Guards | Current strict product content checks do not validate domain iblock placement. | `content:storage:governance:check`, strict product evidence `faq_source=iblock`, and target evidence validator added. |
+| CSG-011 | implemented | P2 | Cache/release | Product cache tools cover product iblocks; non-product content source switches need release evidence too. | Runbook added; product cache tags include `faq`; cache-clear evidence requires product/FAQ managed tags. |
+| CSG-012 | guarded / source switch passed | P2 | Boundaries | Existing narrow catalog iblocks can be polluted by page copy. | Do-not-move policy is documented and statically guarded; wave 1 page-content runtime uses only `page_sections/page_blocks` and rejects narrow iblocks as section storage. |
 
 ## Page Section Migration Candidates
 
@@ -109,9 +109,65 @@ These sections are content-managed candidates, but not candidates for existing n
 1. Do not migrate generic page sections into `services`, `cases`, `team`, `vacancies` or `rates` only because those iblocks exist.
 2. Do not store structured page content as raw JSON or one raw HTML blob in a single property.
 3. Do not switch runtime source without fallback, cache clear and rendered smoke.
-4. Do not remove `product_blocks` FAQ fallback until target FAQ iblock evidence passes on production.
+4. Do not remove, restore or change `product_blocks` FAQ fallback behavior without approved FAQ retirement/rollback evidence.
 5. Do not publish product proof as customer case without Sales/Content approval and evidence status.
 6. Do not add new hardcoded iblock IDs.
+
+## Implementation Update — 05.06.2026
+
+Local implementation added the first enforceable content-storage closure layer:
+
+- `clients` is now part of the config registry contract.
+- `PRODUCT` relation migration/check covers `feedback` and `clients`.
+- Product FAQ runtime reads `faq` iblock rows and exposes `faq_source`; after approved fallback retirement, rollback is previous release redeploy or restoring the fallback code path plus product cache clear.
+- `tools/content-storage-faq-migration.php` seeds product FAQ rows into `faq`, creates product FAQ sections and links existing/new product FAQ rows to them.
+- `tools/content-storage-services-seed.php` seeds six target delivery service cards into `services`.
+- `tools/content-storage-audit.php` provides safe aggregate count/relation/API evidence and per-product proof relation counts.
+- `tools/content-storage-faq-fallback-retirement-check.mjs` validates the decision gate before removing `product_blocks.faq` fallback.
+- `tools/content-storage-proof-tagging-helper.php` provides a read-only internal owner-review worksheet for proof tagging by item ID/admin edit link.
+- `tools/content-storage-proof-approval-template.php` generates a no-raw-copy blank approval draft and `tools/content-storage-proof-tagging-proposal.php` generates a proposed product-tagging draft from active proof IDs for production environments without `/docs`.
+- `tools/content-storage-proof-approval-check.mjs` validates the no-raw-copy owner approval JSON before proof tagging/public implementation.
+- `tools/content-storage-proof-tagging-apply.php` applies approved proof `PRODUCT` tags after owner approval without changing proof copy, active flags or public rendering behavior.
+- `tools/content-storage-aiagents-boundary-check.mjs` guards `/agents/` vs `/aiagents/` source and SEO boundary.
+- `tools/content-storage-page-content-model-check.mjs` validates the draft structured page-content model before any page-section migration starts.
+- `tools/content-storage-page-content-migration.php` dry-runs the `page_sections/page_blocks` schema and refuses `--apply` until an approved owner-gated model is supplied.
+- `tools/content-storage-page-content-seed.php` dry-runs/applies wave 1 page-section rows into `page_sections/page_blocks` in `MIGRATION_STATUS=shadow` only, keeps `FALLBACK_PARTIAL`, prints no raw copy and changes no public runtime.
+- `local/php_interface/include/page_content.php` plus `Tacticum\PageContent\Repository/Renderer` provide a live-only runtime foundation behind `page_content.source=fallback|bitrix`; it reads Bitrix only for `MIGRATION_STATUS=live` rows.
+- `tools/content-storage-page-content-live-approval-template.php`, `tools/content-storage-page-content-live-approval-check.mjs` and `tools/content-storage-page-content-live-apply.php` provide a no-raw-copy, owner-gated path to promote/demote only `page_sections.MIGRATION_STATUS`; they do not approve `page_content.source=bitrix` and do not retire fallback partials.
+- `tools/content-storage-page-content-fallback-retirement-template.php` and `tools/content-storage-page-content-fallback-retirement-check.mjs` provide a separate no-raw-copy owner gate for retiring wave 1 PHP fallback partials after source/audit/SEO/browser evidence and admin-editability approval; they do not remove files or change runtime by themselves. Production owner-approved check on 06.06.2026 passed with 9 `retire_fallback` decisions, `retirement_allowed=true`, production evidence `9/9` and owner gates `5/5`.
+- `tools/content-storage-audit.php --scope=page-content --strict --json` verifies page-content registry keys, required schema and aggregate row counts/orphan-block evidence after approved apply/seed.
+- Production page-content pre-apply dry-run 06.06.2026 confirmed the intended Bitrix schema plan: 2 planned iblocks (`tacticum_page_sections`, `tacticum_page_blocks`) and 25 planned properties; no seed or runtime switch happened.
+- `content-storage-page-content-model-2026-06-06.approved.json` is a schema-only approved artifact: it allows empty schema creation only and explicitly does not approve page copy seed, public runtime switch or fallback retirement.
+- Production page-content schema apply passed on 06.06.2026: `tacticum_page_sections #24`, `tacticum_page_blocks #25`, 25 properties created, config registry updated and strict `page-content` audit passed with `page_blocks.SECTION` linked to #24.
+- Production wave 1 shadow seed passed for `/services/`, `/price/`, `/contacts/` and `/offer/`: 9 active sections, 37 active blocks and `orphan_blocks=0`. Production live-approval check and live-status apply promoted all 9 sections to `MIGRATION_STATUS=live`; pre-switch fallback HTTP source check passed with zero Bitrix markers. After the explicit environment switch to `page_content.source=bitrix`, runtime config check, page-content source HTTP check, strict page-content audit and `seo:check:prod` passed; `/services/`, `/price/`, `/contacts/` and `/offer/` now report Bitrix-rendered section counts `3/3`, `2/2`, `2/2` and `2/2` respectively.
+- `news.list/services` no longer synthesizes the hardcoded "Расчет проекта" service card.
+- `content:storage:governance:check` and target evidence checks guard the new boundaries.
+- `docs/workflow/content-storage-release-runbook-2026-06-05.md` defines cache/smoke/rollback and do-not-move policy.
+
+Remaining non-code gates are proof/content owner evidence for public rendering and later wave 2 page-section migration. The page-content schema, wave 1 seed, live statuses, public source switch, fallback-retirement checker, owner-approved retirement evidence and post-deploy source/audit/SEO/Chrome smoke evidence now exist; deployed code removed the approved wave 1 fallback bodies.
+
+Production evidence update 05-06.06.2026:
+
+- FAQ migration apply created 12 product FAQ elements; strict FAQ audit passed with 3 related FAQ items for each product and `PRODUCT` relation link to `products #21`.
+- Product cache clear passed with managed tags `iblock_id_21`, `iblock_id_22`, `iblock_id_23`, `iblock_id_10`.
+- Strict product content check passed with `source=bitrix`, `fallback_allowed=false`, `faq_source=iblock` for `platform`, `agents`, `dev` and `forum`.
+- Product source HTTP check passed for `/platform/`, `/agents/`, `/dev/`, `/forum/` with `source=bitrix`, `faq_source=iblock` and 11 product blocks each.
+- Follow-up challenge found that first product FAQ seed rows had no FAQ section assignment. This did not break product runtime, but was treated as an admin UX/governance gap.
+- Product FAQ section sync passed on production: root/product sections were created, 12 existing FAQ rows were linked to product sections, and strict FAQ audit reported `faq_items_without_section=0` for `platform`, `agents`, `dev` and `forum`.
+- FAQ fallback retirement approval passed with `retirement_allowed=true` and owner gates `4/4`; post-deploy cache clear, strict FAQ audit, strict product content check and HTTP source smoke passed with `faq_source=iblock`.
+- Product relation migration created `PRODUCT` properties on `feedback #9` and `clients #8`.
+- Services seed dry-run: `created=4`, `updated=2`, `skipped=0`.
+- Services seed apply: `created=4`, `updated=2`, `skipped=0`.
+- Strict services audit passed: `services #12`, `elements_total=8`, `elements_active=6`, `inactive_or_filtered=2`, `PRODUCT` relation active/multiple/link_ok, public API status `200`, public API items `6`.
+- `seo:check:prod` passed.
+- Chrome-capable `visual:smoke:prod` passed from local environment; manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-05T18-26-21-044Z/manifest.json`.
+- Chrome-capable `browser:smoke:prod` passed from local environment; manifest `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-05T18-28-58-493Z/manifest.json`.
+- Strict proof audit passed: `clients #8` active `5/5`, `feedback #9` active `3/3`, `cases #13` active `9/10`, and all checked `PRODUCT` relations link to `products #21`.
+- Owner-approved proof tagging proposal/check/apply passed for 17 active proof items without storing raw proof copy; `clients` remain global because logo/trust rows have no product-specific proof context.
+- Follow-up proof count audit passed after correction: `platform proof_items_total=6`, `agents proof_items_total=6`, `dev proof_items_total=6`, `forum proof_items_total=5`; public product proof rendering remains blocked because `public_render_approved=false`.
+- AI agents tagging dry-run/apply passed on production: active rows #523, #524 and #525 now have `PRODUCT=agents`.
+- Strict aiagents audit passed: `aiagents #20` active `3/3`, relation `link_ok=true`, `agents aiagents_items=3`, and `platform/dev/forum aiagents_items=0`.
+- Production server `visual:smoke:prod` and `browser:smoke:prod` are environment-blocked by missing Chrome/Chromium. Chrome-capable targeted visual/action smoke passed locally for changed URLs `/platform/`, `/agents/`, `/dev/`, `/forum/`, `/aiagents/`; broad all-page local runs showed isolated CDP/tooling timeouts without network, console or page errors.
 
 ## Related Existing Gap IDs
 
@@ -123,4 +179,3 @@ This content-storage layer extends existing product-tech gaps:
 - `CFG-005` FAQ fallback/source behavior;
 - `STACK-007` Multi-environment content/source/cache ownership;
 - `CMP-007` FAQ/content wrapper coverage.
-

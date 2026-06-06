@@ -427,8 +427,8 @@ function assertTopMenuProminence() {
       fail(`bottom menu structure is missing product page ${url}`);
     }
   }
-  if (!servicesTemplateSource.includes('href="/offer/"') || !servicesTemplateSource.includes('Расчет проекта')) {
-    fail('services block must include /offer/ as Расчет проекта');
+  if (/Расчет проекта|hasOfferService|Смотреть расчеты/.test(servicesTemplateSource)) {
+    fail('services block must not synthesize /offer/ as a hardcoded service card; seed services iblock instead');
   }
   for (const relativeFooterUrl of ['"services/"', '"price/"', '"offer/"', '"calculator/"', '"aiagents/"', '"platform/"', '"agents/"', '"dev/"', '"forum/"']) {
     if (bottomMenuSource.includes(relativeFooterUrl)) {
@@ -708,6 +708,7 @@ function assertPublicPageComponentization() {
   const productContentCacheClearSource = read('tools/product-content-cache-clear.php');
   const productContentCacheClearEvidenceCheckSource = read('tools/product-content-cache-clear-evidence-check.mjs');
   const productSourceHttpCheckSource = read('tools/product-source-http-check.mjs');
+  const pageContentSourceHttpCheckSource = read('tools/page-content-source-http-check.mjs');
   const productContentSwitchReadinessSource = read('tools/product-content-switch-readiness.mjs');
   const releasePublicPrecheckSource = read('tools/release-public-precheck.mjs');
   const releaseManualGatesHelperSource = read('tools/release-manual-gates-helper.mjs');
@@ -862,6 +863,14 @@ function assertPublicPageComponentization() {
   ) {
     fail('tacticum_config.example.php must document products.source=bitrix, disabled fallback and products.cache_ttl');
   }
+  if (
+    !configExampleSource.includes("'page_content' => [")
+    || !configExampleSource.includes("'source' => 'fallback'")
+    || !configExampleSource.includes("'live_status' => 'live'")
+    || !configExampleSource.includes("'allow_fallback' => true")
+  ) {
+    fail('tacticum_config.example.php must document safe page_content runtime defaults');
+  }
   for (const rateClass of [
     'CONFIG_HEALTH_GET',
     'PUBLIC_LEAD_POST',
@@ -883,6 +892,14 @@ function assertPublicPageComponentization() {
     fail('REST runtime must validate products scope, products.source and products.cache_ttl');
   }
   if (
+    !restRuntimeSource.includes("in_array('page_content', $scopes, true)")
+    || !restRuntimeSource.includes('validatePageContent')
+    || !restRuntimeSource.includes("'page_content.source'")
+    || !restRuntimeSource.includes("'page_content.live_status'")
+  ) {
+    fail('REST runtime must validate page_content source and live_status gates');
+  }
+  if (
     !restRuntimeSource.includes('tacticum_rest_rate_limit_classes')
     || !restRuntimeSource.includes('tacticum_rest_rate_limit_by_class')
     || !restRuntimeSource.includes("'rest.rate_limits'")
@@ -899,6 +916,9 @@ function assertPublicPageComponentization() {
   }
   if (!healthConfigSource.includes("'products'")) {
     fail('health_config.php must include products scope in config validation');
+  }
+  if (!healthConfigSource.includes("'page_content'")) {
+    fail('health_config.php must include page_content scope in config validation');
   }
   if (
     !restIndexSource.includes("define('ADMIN_SECTION', true)")
@@ -1164,6 +1184,22 @@ function assertPublicPageComponentization() {
   }
   if (!packageSource.includes('"product:source:http:prod"') || !packageSource.includes('product-source-http-check.mjs')) {
     fail('package.json must expose product:source:http:prod for Chrome-free source verification');
+  }
+  if (
+    !pageContentSourceHttpCheckSource.includes('data-page-content-source')
+    || !pageContentSourceHttpCheckSource.includes('data-page-content-page')
+    || !pageContentSourceHttpCheckSource.includes('data-page-content-section')
+    || !pageContentSourceHttpCheckSource.includes('data-page-content-template')
+    || !pageContentSourceHttpCheckSource.includes('TACTICUM_EXPECT_PAGE_CONTENT_SOURCE')
+    || !pageContentSourceHttpCheckSource.includes('unsafeHrefValues')
+  ) {
+    fail('page-content-source-http-check.mjs must support server-safe page-content source/section verification');
+  }
+  if (!packageSource.includes('"page-content:source:http:prod"') || !packageSource.includes('page-content-source-http-check.mjs')) {
+    fail('package.json must expose page-content:source:http:prod for Chrome-free page-content source verification');
+  }
+  if (!packageSource.includes('"page-content:source:http:fallback:prod"') || !packageSource.includes('TACTICUM_EXPECT_PAGE_CONTENT_SOURCE=fallback')) {
+    fail('package.json must expose page-content fallback HTTP source verification before source switch');
   }
   for (const releasePrecheckNeedle of [
     'health_config.php',

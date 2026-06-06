@@ -30,6 +30,14 @@ final class Config
 
     public static function sectionDefaults(string $section): array
     {
+        if ($section === 'page_content') {
+            return [
+                'source' => 'fallback',
+                'live_status' => 'live',
+                'allow_fallback' => true,
+            ];
+        }
+
         if ($section !== 'content') {
             return [];
         }

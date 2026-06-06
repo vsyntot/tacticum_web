@@ -355,7 +355,7 @@ final class TacticumProductContentMigration
 
     private function ensureExistingIblockProductRelations(int $productsIblockId): void
     {
-        foreach (['faq', 'cases', 'offer', 'services', 'aiagents'] as $key) {
+        foreach (['faq', 'cases', 'offer', 'services', 'aiagents', 'feedback', 'clients'] as $key) {
             $iblockId = function_exists('tacticum_rest_get_iblock_id')
                 ? tacticum_rest_get_iblock_id($key)
                 : 0;

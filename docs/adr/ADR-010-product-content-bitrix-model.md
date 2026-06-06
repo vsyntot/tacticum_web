@@ -22,7 +22,9 @@ Product-first MVP для `/platform/`, `/agents/`, `/dev/` and `/forum/` уже 
    - `cases`;
    - `offer`;
    - `services`;
-   - `aiagents`.
+   - `aiagents`;
+   - `feedback`;
+   - `clients`.
 4. Сложные product sections хранятся в `product_blocks`; architecture diagrams остаются code-rendered templates with Bitrix-managed labels/content.
 5. Use cases / pilot kits хранятся в отдельном `product_use_cases`.
 6. Proof readiness для v1 хранится в `product_blocks` as claim-safe readiness content. Approved case proof позже подтягивается через расширенный `cases` model.
@@ -34,6 +36,27 @@ Product-first MVP для `/platform/`, `/agents/`, `/dev/` and `/forum/` уже 
    - runtime reads V2 fields first and falls back to legacy JSON only while target content migration is incomplete;
    - `tools/product-content-migration.php --apply --update-seed-content --retire-legacy-json` clears product JSON values and deactivates product JSON properties after V2 content is seeded;
    - target release evidence requires zero legacy JSON counters in `admin_model.legacy_json`, including active product JSON properties.
+6.2. После content-storage challenge 05.06.2026 FAQ считается доменной сущностью `faq`, not product layout content:
+   - product runtime reads related `faq` rows first through `PROPERTY_PRODUCT`;
+   - FAQ section assignment is editor/navigation governance, not the product runtime source; product FAQ rows should also belong to root section `products` and product sections `platform`, `agents`, `dev`, `forum`;
+   - `product_blocks.faq` remains a temporary rollback fallback for one migration cycle;
+   - removing `product_blocks.faq` fallback requires a separate checked retirement decision and code change;
+   - `tools/content-storage-faq-migration.php` seeds product FAQ rows from `product_data/*.php` into `faq`, creates product FAQ sections and links existing/new rows to them;
+   - strict product evidence includes `faq_source` and must report `iblock`;
+   - `tools/content-storage-audit.php --scope=proof` reports aggregate per-product counts for related `cases`, `feedback` and `clients` as owner-review evidence;
+   - `tools/content-storage-proof-tagging-helper.php` gives owners a read-only item-ID/admin-link worksheet before any public proof rendering;
+   - `tools/content-storage-proof-approval-check.mjs` validates owner decisions without raw proof copy before product proof implementation;
+   - services, cases, feedback and clients must not be faked from product readiness artifacts.
+6.3. `aiagents` remains demo-agent catalog, not the product `Agents` source:
+   - `/agents/` is the product page and stays under `products/product_blocks/product_use_cases`;
+   - `/aiagents/` is a Telegram demo/prototype service route and reads `aiagents`;
+   - optional `aiagents.PRODUCT -> agents` tagging can support navigation/evidence, but must not duplicate product copy or change canonical ownership;
+   - `tools/content-storage-aiagents-boundary-check.mjs` guards the source boundary.
+6.4. Generic page sections are outside product/domain catalog iblocks:
+   - draft target is `page_sections/page_blocks`;
+   - narrow iblocks such as `services`, `cases`, `feedback`, `clients`, `team`, `vacancies`, `rates` and `policies` must not become generic page-section storage;
+   - raw HTML blobs and JSON blobs are not accepted as the primary editor workflow;
+   - `tools/content-storage-page-content-model-check.mjs` guards the draft model before any runtime migration.
 7. Runtime source управляется config flag:
 
 ```php
@@ -75,9 +98,9 @@ php tools/product-content-check.php --strict
    - checker не заменяет rendered smoke, но ловит рассинхрон Bitrix content/config до открытия публичных страниц.
 15. Bitrix product content кешируется через `Bitrix\Main\Data\Cache` в `/tacticum/product_content`:
    - TTL задаётся `products.cache_ttl`;
-   - cache key включает schema version, source mode and IDs `products`, `product_blocks`, `product_use_cases`;
-   - managed tags регистрируются как `iblock_id_*` для product-инфоблоков;
-   - event handlers чистят cache при add/update/delete/property update product elements;
+   - cache key включает schema version, source mode and IDs `products`, `product_blocks`, `product_use_cases`, `faq`;
+   - managed tags регистрируются как `iblock_id_*` для product-инфоблоков and `faq`;
+   - event handlers чистят cache при add/update/delete/property update product or related FAQ elements;
    - `npm run product:content:cache-clear` gives owners a Bitrix/PHP CLI cache clear for switch/rollback, with `--dry-run` evidence available through `product:content:cache-clear:dry-run`.
 16. `health_config.php` включает scope `products` and validates product iblock IDs, source mode and cache TTL without returning secret/config values.
 17. Product renderer exposes safe `data-product-source` (`bitrix|fallback|unknown`), visual smoke can verify rendered source with `TACTICUM_EXPECT_PRODUCT_SOURCE=bitrix`, and HTTP source check can verify the same marker without Chrome.
@@ -93,6 +116,7 @@ php tools/product-content-check.php --strict
 - risky proof/claims не становятся публичными автоматически;
 - runtime-код продолжает читать iblock IDs through config registry.
 - редакторская модель больше не требует править JSON; legacy JSON properties are retired from admin after V2 migration.
+- product FAQ moves toward the existing FAQ editor workflow instead of staying hidden in product layout blocks.
 
 Минусы и ограничения:
 
@@ -107,11 +131,12 @@ php tools/product-content-check.php --strict
 - server attempt 03.06.2026 showed `product:source:smoke:prod` fails if Chrome executable is absent; this is a browser dependency issue, not a Node package issue;
 - `npm run product:source:http:prod` passed 03.06.2026 on production: all four product URLs returned `source=bitrix` and 11 product blocks each;
 - `npm run product:content:switch-readiness:prod` checks health `products` scope, rendered `data-product-source=bitrix`, required product blocks, and prints switch/rollback evidence requirements before `products.source=bitrix`;
-- `npm run product:content:cache-clear:dry-run` passed 03.06.2026 on target Bitrix/PHP server after PHP lint: source `auto`, TTL `300`, tags `iblock_id_21`, `iblock_id_22`, `iblock_id_23`;
+- `npm run product:content:cache-clear:dry-run` passed 03.06.2026 on target Bitrix/PHP server after PHP lint: source `auto`, TTL `300`, tags `iblock_id_21`, `iblock_id_22`, `iblock_id_23`; follow-up 05.06.2026 extends this evidence to include `faq` because product pages can read related FAQ rows;
 - target server post-cache sequence passed 03.06.2026 in source mode `auto`: readiness, cache clear, strict content check, source HTTP check and public release precheck;
 - production source switched to `products.source=bitrix` on 03.06.2026; cache clear, strict content check, source HTTP check and public release precheck passed in source mode `bitrix`;
 - rollback remains `products.source=auto|fallback` plus `npm run product:content:cache-clear`;
 - future proof/cases model still needs owner evidence and Legal/PM approval;
+- `clients` registry/relation and `feedback` relation foundation require target Bitrix apply before public proof rendering; aggregate product-level proof counts are readiness evidence, not proof copy approval;
 - target V2 migration must be applied with `--retire-legacy-json` and strict admin-model evidence captured before declaring legacy JSON retired;
 - deploy automation for migration deferred until CLI path is tested.
 

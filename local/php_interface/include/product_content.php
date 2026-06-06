@@ -183,6 +183,13 @@ if (!function_exists('tacticum_product_content_fetch_use_cases')) {
     }
 }
 
+if (!function_exists('tacticum_product_content_fetch_product_faq')) {
+    function tacticum_product_content_fetch_product_faq(int $faqIblockId, int $productElementId): array
+    {
+        return ContentRepository::fetchProductFaq($faqIblockId, $productElementId);
+    }
+}
+
 if (!function_exists('tacticum_product_content_is_minimum_renderable')) {
     function tacticum_product_content_is_minimum_renderable(array $page): bool
     {
