@@ -100,6 +100,10 @@ if (tailwindSource.includes('../../include/**/*.php')) {
   failures.push(`${tailwindSourcePath} must not scan removed template include directory.`);
 }
 
+if (!tailwindSource.includes('../../../../../local/lib/**/*.php')) {
+  failures.push(`${tailwindSourcePath} must scan local/lib PHP renderers so generated utilities cover service-rendered public markup.`);
+}
+
 for (const styleFile of approvedTemplateStyleFiles) {
   if (!header.includes(`styles/${styleFile}`)) {
     failures.push(`${headerPath} must load styles/${styleFile} through Bitrix Asset.`);
