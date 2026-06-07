@@ -165,6 +165,7 @@ QA подключается до разработки, если задача к�
 - `about-page-proof-matrix-owner-review-2026-06-07.md` — no-raw-copy owner-review proof/trust matrix for `/about/`; не разрешает public claims без PM/Sales/Legal approval.
 - `about-page-content-ownership-map-2026-06-07.md` — actual source ownership map for `/about/`: PHP partials, Bitrix live rows, team iblock, lead CTA, footer anchors and cache/smoke rules.
 - `plans/2026-06-07-about-owner-review-proof-ownership.md` — docs-only plan for the `/about/` proof matrix and content ownership owner-review package.
+- `plans/2026-06-07-about-team-ui-accessibility-slice.md` — scoped implementation plan for `/about/` team card readability/accessibility without team data, claims, form or Bitrix row changes.
 - `product-frontend-component-hardening-decision-2026-06-04.md` — Sprint 21 approval package для product renderer/component boundary, `/price/`, forms/chat modularity, JS module policy, fixture smoke, FAQ fallback and CSRF accepted-risk triggers.
 - `product-security-release-legacy-closure-decision-2026-06-04.md` — Sprint 22 approval package для endpoint sensitivity, rate classes, private proof/document access, CSP enforce path, release evidence discipline and legacy sale alias final mode.
 - `product-accepted-risk-monitoring-decision-2026-06-04.md` — Sprint 23 monitoring package для accepted stack, asset, CSRF, CSP and release-evidence baselines with owners and revisit triggers.

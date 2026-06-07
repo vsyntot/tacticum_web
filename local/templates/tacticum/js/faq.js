@@ -58,17 +58,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    const teamMembers = document.querySelectorAll(".team-member");
-    teamMembers.forEach((member) => {
-        if (member.dataset.tacticumTeamBound) return;
-        member.dataset.tacticumTeamBound = "true";
-        member.addEventListener("mouseenter", function () {
-            const overlay = this.querySelector(".member-overlay");
-            if (overlay) overlay.style.opacity = "1";
-        });
-        member.addEventListener("mouseleave", function () {
-            const overlay = this.querySelector(".member-overlay");
-            if (overlay) overlay.style.opacity = "0";
-        });
-    });
 });
