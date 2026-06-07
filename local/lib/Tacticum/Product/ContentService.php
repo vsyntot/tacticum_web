@@ -4,6 +4,7 @@ namespace Tacticum\Product;
 
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
+use Tacticum\Content\PublicCopyNormalizer;
 
 final class ContentService
 {
@@ -88,6 +89,7 @@ final class ContentService
         }
 
         ContentProofService::applyPublicProof($page, $productId);
+        $page = PublicCopyNormalizer::normalizeArray($page);
         $page['_diagnostics'] = ContentMapper::completenessDiagnostics($page);
 
         return $page;
