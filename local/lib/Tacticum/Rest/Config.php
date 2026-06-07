@@ -41,6 +41,11 @@ final class Config
                 'team_presets_cache_ttl' => 300,
                 'allow_team_presets_fallback' => true,
             ],
+            'offer' => [
+                'taxonomy_source' => 'fallback',
+                'taxonomy_cache_ttl' => 300,
+                'allow_taxonomy_fallback' => true,
+            ],
             'content' => [
                 'faq_section_fallback_ids' => [
                     'home' => 17,

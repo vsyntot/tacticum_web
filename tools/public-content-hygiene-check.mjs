@@ -26,6 +26,8 @@ const PAGE_CONTENT_REPOSITORY_FILE = 'local/lib/Tacticum/PageContent/Repository.
 const CHAT_SURFACE_FILE = 'local/components/tacticum/chat.surface/component.php';
 const OFFER_SOURCE_FILES = [
   'local/lib/Tacticum/Offer/CatalogTaxonomy.php',
+  'local/lib/Tacticum/Offer/OfferTaxonomyFallback.php',
+  'local/lib/Tacticum/Offer/OfferTaxonomyService.php',
   'local/lib/Tacticum/Offer/CatalogMapper.php',
   'local/lib/Tacticum/Offer/CatalogFilters.php',
   'local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php',
@@ -222,13 +224,10 @@ function scanOfferSource(source, fileLabel = '<source>') {
 
   if (fileLabel.endsWith('CatalogTaxonomy.php')) {
     const requiredLiterals = [
-      'PUBLIC_LABELS',
-      'FEATURED_OPTION_KEYS',
-      "'beauty' => 'бьюти и салоны'",
-      "'e-commerce' => 'онлайн-торговля'",
-      "'data platform и mlops' => 'Платформа данных и MLOps'",
-      "'meditsina'",
-      "'ai-assistent-podderzhki'",
+      'OfferTaxonomyService::publicLabel',
+      'OfferTaxonomyService::canonicalCode',
+      'OfferTaxonomyService::featuredOptions',
+      'OfferTaxonomyService::normalizeOptions',
       'formatBudgetAmount',
       'budgetBuckets'
     ];
@@ -238,6 +237,52 @@ function scanOfferSource(source, fileLabel = '<source>') {
           file: fileLabel,
           line: 0,
           rule: 'offer-missing-taxonomy-source',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('OfferTaxonomyFallback.php')) {
+    const requiredLiterals = [
+      "'code' => 'meditsina'",
+      "'code' => 'beauty'",
+      "'publicLabel' => 'бьюти и салоны'",
+      "'code' => 'e-commerce'",
+      "'publicLabel' => 'онлайн-торговля'",
+      "'code' => 'ai-assistent-podderzhki'",
+      "'code' => 'data-platform-i-mlops'",
+      "'publicLabel' => 'Платформа данных и MLOps'",
+      "'featured' => true"
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-approved-taxonomy-fallback',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('OfferTaxonomyService.php')) {
+    const requiredLiterals = [
+      'taxonomy_source',
+      'allow_taxonomy_fallback',
+      'OfferTaxonomyRepository::activeTerms',
+      'OfferTaxonomyFallback::terms()',
+      'aliasMap',
+      'featuredOptions',
+      'normalizeOptions'
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-taxonomy-runtime-source',
           text: `missing literal: ${literal}`
         });
       }
@@ -419,15 +464,32 @@ function runSelfTest() {
 
   const safeOfferSources = [
     ['local/lib/Tacticum/Offer/CatalogTaxonomy.php', [
-      'PUBLIC_LABELS',
-      'FEATURED_OPTION_KEYS',
-      "'beauty' => 'бьюти и салоны'",
-      "'e-commerce' => 'онлайн-торговля'",
-      "'data platform и mlops' => 'Платформа данных и MLOps'",
-      "'meditsina'",
-      "'ai-assistent-podderzhki'",
+      'OfferTaxonomyService::publicLabel',
+      'OfferTaxonomyService::canonicalCode',
+      'OfferTaxonomyService::featuredOptions',
+      'OfferTaxonomyService::normalizeOptions',
       'formatBudgetAmount',
       'budgetBuckets'
+    ].join('\n')],
+    ['local/lib/Tacticum/Offer/OfferTaxonomyFallback.php', [
+      "'code' => 'meditsina'",
+      "'code' => 'beauty'",
+      "'publicLabel' => 'бьюти и салоны'",
+      "'code' => 'e-commerce'",
+      "'publicLabel' => 'онлайн-торговля'",
+      "'code' => 'ai-assistent-podderzhki'",
+      "'code' => 'data-platform-i-mlops'",
+      "'publicLabel' => 'Платформа данных и MLOps'",
+      "'featured' => true"
+    ].join('\n')],
+    ['local/lib/Tacticum/Offer/OfferTaxonomyService.php', [
+      'taxonomy_source',
+      'allow_taxonomy_fallback',
+      'OfferTaxonomyRepository::activeTerms',
+      'OfferTaxonomyFallback::terms()',
+      'aliasMap',
+      'featuredOptions',
+      'normalizeOptions'
     ].join('\n')],
     ['local/lib/Tacticum/Offer/CatalogMapper.php', [
       'CatalogTaxonomy::publicLabel',

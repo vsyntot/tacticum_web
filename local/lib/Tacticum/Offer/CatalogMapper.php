@@ -155,6 +155,9 @@ final class CatalogMapper
         $sector = CatalogTaxonomy::publicLabel('sector', $sectorRaw);
         $phase = CatalogTaxonomy::publicLabel('phase', $phaseRaw);
         $scenario = CatalogTaxonomy::publicLabel('scenario', $scenarioRaw);
+        $sectorKey = CatalogTaxonomy::canonicalCode('sector', $sectorRaw);
+        $phaseKey = CatalogTaxonomy::canonicalCode('phase', $phaseRaw);
+        $scenarioKey = CatalogTaxonomy::canonicalCode('scenario', $scenarioRaw);
         $dateSortRaw = (string)(($fields['DATE_ACTIVE_FROM'] ?? '') ?: ($fields['DATE_CREATE'] ?? '') ?: ($fields['TIMESTAMP_X'] ?? ''));
         $dateSort = function_exists('MakeTimeStamp') ? (int)MakeTimeStamp($dateSortRaw) : (int)strtotime($dateSortRaw);
 
@@ -179,12 +182,12 @@ final class CatalogMapper
             'budget_bucket_label' => $budgetBucket['label'],
             'timeline' => self::propertyText($properties, 'TIMELINE'),
             'sector' => $sector,
-            'sector_key' => self::slug($sectorRaw),
+            'sector_key' => $sectorKey,
             'scenario' => $scenario,
-            'scenario_key' => self::slug($scenarioRaw),
+            'scenario_key' => $scenarioKey,
             'region' => $region,
             'phase' => $phase,
-            'phase_key' => self::slug($phaseRaw),
+            'phase_key' => $phaseKey,
             'is_synthetic' => str_starts_with(self::propertyText($properties, 'GROUP_ID'), 'offer-seed-'),
             'haystack' => mb_strtolower(implode(' ', array_filter([
                 $title,

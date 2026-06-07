@@ -106,6 +106,7 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
     $errors = tacticum_rest_validate_config($scopes);
     $productsConfig = tacticum_rest_get_config_section('products');
     $pageContentConfig = tacticum_rest_get_config_section('page_content');
+    $offerConfig = tacticum_rest_get_config_section('offer');
     $priceConfig = tacticum_rest_get_config_section('price');
     $securityConfig = tacticum_rest_get_config_section('security');
     $contentConfig = tacticum_rest_get_config_section('content');
@@ -120,6 +121,7 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
     $iblocks = [];
     foreach ([
         'offer',
+        'offer_taxonomy_terms',
         'vacancies',
         'clients',
         'feedback',
@@ -170,6 +172,16 @@ function tacticum_config_runtime_check_summary(string $documentRoot): array
             'source_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'source'),
             'live_status_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'live_status'),
             'allow_fallback_config' => tacticum_config_runtime_check_value_source($config, 'page_content', 'allow_fallback'),
+        ],
+        'offer' => [
+            'taxonomy_source' => (string)($offerConfig['taxonomy_source'] ?? 'fallback'),
+            'taxonomy_cache_ttl' => isset($offerConfig['taxonomy_cache_ttl'])
+                ? (int)$offerConfig['taxonomy_cache_ttl']
+                : null,
+            'allow_taxonomy_fallback' => (bool)($offerConfig['allow_taxonomy_fallback'] ?? true),
+            'taxonomy_source_config' => tacticum_config_runtime_check_value_source($config, 'offer', 'taxonomy_source'),
+            'taxonomy_cache_ttl_config' => tacticum_config_runtime_check_value_source($config, 'offer', 'taxonomy_cache_ttl'),
+            'allow_taxonomy_fallback_config' => tacticum_config_runtime_check_value_source($config, 'offer', 'allow_taxonomy_fallback'),
         ],
         'price' => [
             'team_presets_source' => (string)($priceConfig['team_presets_source'] ?? 'fallback'),
@@ -257,6 +269,13 @@ function tacticum_config_runtime_check_print(array $summary): void
         . ' (' . $summary['page_content']['live_status_config'] . ')'
         . ', allow_fallback=' . ($summary['page_content']['allow_fallback'] ? 'true' : 'false')
         . ' (' . $summary['page_content']['allow_fallback_config'] . ')');
+
+    tacticum_config_runtime_check_line('Offer: taxonomy_source=' . $summary['offer']['taxonomy_source']
+        . ' (' . $summary['offer']['taxonomy_source_config'] . ')'
+        . ', cache_ttl=' . (string)$summary['offer']['taxonomy_cache_ttl']
+        . ' (' . $summary['offer']['taxonomy_cache_ttl_config'] . ')'
+        . ', allow_fallback=' . ($summary['offer']['allow_taxonomy_fallback'] ? 'true' : 'false')
+        . ' (' . $summary['offer']['allow_taxonomy_fallback_config'] . ')');
 
     tacticum_config_runtime_check_line('Price: team_presets_source=' . $summary['price']['team_presets_source']
         . ' (' . $summary['price']['team_presets_source_config'] . ')'

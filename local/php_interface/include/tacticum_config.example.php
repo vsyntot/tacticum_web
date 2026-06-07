@@ -3,6 +3,7 @@
 return [
     'iblocks' => [
         'offer' => 5,
+        'offer_taxonomy_terms' => 0,
         'vacancies' => 7,
         'clients' => 8,
         'feedback' => 9,
@@ -54,6 +55,11 @@ return [
         'source' => 'fallback',
         'live_status' => 'live',
         'allow_fallback' => true,
+    ],
+    'offer' => [
+        'taxonomy_source' => 'fallback',
+        'taxonomy_cache_ttl' => 300,
+        'allow_taxonomy_fallback' => true,
     ],
     'price' => [
         'team_presets_source' => 'fallback',

@@ -1,7 +1,7 @@
 # Offer Page Taxonomy / Presets Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has accepted ADR-012 and approved owner JSON; `OFFER-TAX-WP-04` is ready to start implementation with migration/source-switch gates still separate.
+Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has accepted ADR-012 and approved owner JSON; `OFFER-TAX-WP-04` local runtime/tooling slice is implemented with fallback source by default, while Bitrix apply and runtime source switch remain separate production gates.
 
 Source register: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/offer-page-taxonomy-presets-roadmap-2026-06-07.md`
@@ -32,7 +32,7 @@ Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 | `OFFER-TAX-WP-01` | closed-fast-fix-production-evidence | `fast-fix-allowed` + `guard-scope-required` | P1 | Backend/Frontend + QA + Content | `OFFER-TAX-003`, `OFFER-TAX-004` | Fix visible catalog defects: budget formatting and most obvious mixed-language labels. |
 | `OFFER-TAX-WP-02` | interim-deployed-owner-model-pending | `owner-review-required` or `fast-fix-allowed` depending on implementation | P1 | PM + UX + Content + SEO + Frontend/Backend | `OFFER-TAX-002` | Replace arbitrary first-8 quick entries with curated presets/featured terms. |
 | `OFFER-TAX-WP-03` | closed-owner-approved | `owner-review-required` + `adr-gate-required` | P1 | Architect + Backend + PM + Content + SEO + Sales | `OFFER-TAX-001`, `OFFER-TAX-005`, `OFFER-TAX-006`, `OFFER-TAX-011` | Approve taxonomy source-of-truth, labels, aliases, budget bucket governance and Bitrix model. |
-| `OFFER-TAX-WP-04` | ready-for-implementation | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
+| `OFFER-TAX-WP-04` | local-runtime-tooling-implemented-prod-gated | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
 | `OFFER-TAX-WP-05` | production-guard-slice-passed | `guard-scope-required` + `seo-gate-required` | P2 | QA + SEO + Backend + DevOps | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-012` | Add taxonomy/content/SEO/cache guards and production evidence path. |
 | `OFFER-TAX-WP-06` | open | `owner-review-required` + `seo-gate-required` | P2 | PM + Product + SEO + Content + Backend | `OFFER-TAX-008`, `OFFER-TAX-010` | Decide product-family relation and future landing/performance strategy. |
 
@@ -56,6 +56,13 @@ Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 | `npm run offer:taxonomy:approval:check -- docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, local 07.06.2026 | Passed without `--allow-draft`; approved JSON keeps runtime switch and iblock apply not approved. |
 | `npm run offer:taxonomy:implementation-gate:self-test`, local 07.06.2026 | Passed; gate detects runtime/schema markers and verifies blocked/allowed states. |
 | `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, local 07.06.2026 | Passed; current code has no forbidden offer taxonomy runtime/schema markers and the approved artifact is accepted. |
+| `npm run offer:taxonomy:implementation-gate`, local 07.06.2026 | Passed after WP-04 local runtime/tooling implementation; approved owner JSON is uniquely discoverable. |
+| `npm run config:check`, local 07.06.2026 | Passed with `offer_taxonomy_terms` config key and `offer.taxonomy_*` config defaults in example/config contract. |
+| `npm run product:content:safety:check`, local 07.06.2026 | Passed after public content hygiene guard was updated to validate `OfferTaxonomyFallback` and `OfferTaxonomyService` as the new taxonomy source. |
+| Fallback runtime CLI smoke, local 07.06.2026 | Passed: runtime source `fallback`, terms `sector=9`, `scenario=10`, `phase=3`; `beauty` maps to `бьюти и салоны`; `data platform и MLOps` canonicalizes to `data-platform-i-mlops`. |
+| `npm run offer:taxonomy:check`, local 07.06.2026 | Blocked by local Bitrix DB absence: `Mysql connect error [localhost]: (2002) No such file or directory`. Must run on target/prod after deploy/config sync. |
+| `npm run offer:taxonomy:migrate`, local 07.06.2026 | Blocked by local Bitrix DB absence: `Mysql connect error [localhost]: (2002) No such file or directory`. Must run as dry-run on target/prod before `--apply`. |
+| `npm run offer:taxonomy:cache-clear:dry-run:json`, local 07.06.2026 | Blocked by local Bitrix DB absence: `Mysql connect error [localhost]: (2002) No such file or directory`. Must run on target/prod after config sync or admin taxonomy edits. |
 
 ## Production Evidence
 
@@ -175,7 +182,7 @@ Implementation note 07.06.2026: accepted `ADR-012` and `offer-taxonomy-presets-o
 
 Workflow lane: Full Feature.
 Priority: P1.
-Start policy: ready after `OFFER-TAX-WP-03` owner approval. Runtime implementation must reference `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, pass `npm run offer:taxonomy:approval:check -- docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` without `--allow-draft`, and pass `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`.
+Start policy: implementation started after `OFFER-TAX-WP-03` owner approval. Runtime implementation must reference `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, pass `npm run offer:taxonomy:approval:check -- docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` without `--allow-draft`, and pass `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`.
 
 Affected areas:
 
@@ -205,6 +212,8 @@ npm run seo:check
 ```
 
 Plus target-specific migration dry-run/apply/check/cache-clear commands once implemented.
+
+Implementation note 07.06.2026: local runtime/tooling slice is implemented, but production source remains fallback-gated. Added `offer_taxonomy_terms` config key with `0` default, `offer.taxonomy_source=fallback`, `offer.taxonomy_cache_ttl=300` and `offer.allow_taxonomy_fallback=true`; no new hardcoded iblock ID was introduced. `Tacticum\Offer\OfferTaxonomyService` now owns taxonomy source selection (`fallback`, `auto`, `bitrix`), alias normalization, approved public labels, featured options and cache; `CatalogTaxonomy`, `CatalogMapper`, `CatalogFilters` and `CatalogCache` delegate sector/scenario/phase presentation to that service while keeping budget buckets in PHP. Added dry-run/apply migration, runtime checker and cache-clear tooling through `offer:taxonomy:migrate`, `offer:taxonomy:check` and `offer:taxonomy:cache-clear`. The migration creates/seeds only `offer_taxonomy_terms` from the approved JSON; `offer_filter_presets` is intentionally not created because ADR-012/owner JSON approved `preset_source=featured_terms`. Local `config:check` and `offer:taxonomy:implementation-gate` pass. Local Bitrix-dependent dry-run/check cannot run on this workstation because MySQL socket is unavailable; target/prod dry-run, apply, config sync, cache clear, public hygiene and strict check remain required before any `offer.taxonomy_source=bitrix` switch.
 
 ### OFFER-TAX-WP-05 — SEO / Cache / Guard Package
 
@@ -238,7 +247,7 @@ npm run seo:check
 
 Add taxonomy-specific self-test/check commands when implemented.
 
-Implementation note 07.06.2026: guard slice extends existing source/rendered public hygiene checks. Source guard rejects raw budget card rendering and arbitrary first-8 quick filters; rendered self-test rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; SEO check also passed. Full duplicate-code/unknown-alias/Bitrix taxonomy checker remains pending until `OFFER-TAX-WP-03/04` define the target taxonomy model.
+Implementation note 07.06.2026: guard slice extends existing source/rendered public hygiene checks. Source guard rejects raw budget card rendering and arbitrary first-8 quick filters; rendered self-test rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; SEO check also passed. WP-04 now adds target runtime checker and cache-clear tooling; duplicate-code/unknown-alias/Bitrix taxonomy evidence still must be collected on target after the `offer_taxonomy_terms` iblock exists.
 
 ### OFFER-TAX-WP-06 — Product Bridge And Future Landing Strategy
 

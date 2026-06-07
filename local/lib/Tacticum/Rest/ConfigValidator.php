@@ -64,6 +64,7 @@ final class ConfigValidator
         }
         if (in_array('offer', $scopes, true)) {
             $checkIblock('offer');
+            OfferConfigValidator::validate($checkIblock, $addError);
         }
         if (in_array('content', $scopes, true)) {
             foreach (['vacancies', 'clients', 'feedback', 'team', 'policies', 'aiagents'] as $key) {

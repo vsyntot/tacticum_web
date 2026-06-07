@@ -4,51 +4,14 @@ namespace Tacticum\Offer;
 
 final class CatalogTaxonomy
 {
-    private const PUBLIC_LABELS = [
-        'sector' => [
-            'beauty' => 'бьюти и салоны',
-            'e-commerce' => 'онлайн-торговля',
-        ],
-        'scenario' => [
-            'data platform и mlops' => 'Платформа данных и MLOps',
-            'voice analytics и контроль качества' => 'Голосовая аналитика и контроль качества',
-        ],
-        'phase' => [
-            'production-внедрение' => 'внедрение в рабочую эксплуатацию',
-        ],
-    ];
-
-    private const FEATURED_OPTION_KEYS = [
-        'sectors' => [
-            'meditsina',
-            'riteyl',
-            'proizvodstvo',
-            'finansy',
-            'logistika',
-            'e-commerce',
-            'nedvizhimost',
-            'obrazovanie',
-        ],
-        'scenarios' => [
-            'ai-assistent-podderzhki',
-            'ai-kopaylot-dlya-sotrudnikov',
-            'ai-poisk-po-korporativnym-znaniyam',
-            'rpa-i-dokumentooborot',
-            'bi-i-upravlencheskaya-analitika',
-            'prognozirovanie-sprosa',
-            'integratsionnaya-shina-i-api',
-            'prediktivnaya-analitika-oborudovaniya',
-        ],
-    ];
-
     public static function publicLabel(string $dimension, string $label): string
     {
-        $label = CatalogMapper::trim($label);
-        if ($label === '') {
-            return '';
-        }
+        return OfferTaxonomyService::publicLabel($dimension, $label);
+    }
 
-        return self::PUBLIC_LABELS[$dimension][mb_strtolower($label)] ?? $label;
+    public static function canonicalCode(string $dimension, string $label): string
+    {
+        return OfferTaxonomyService::canonicalCode($dimension, $label);
     }
 
     public static function formatBudgetAmount(int $amount): string
@@ -82,25 +45,11 @@ final class CatalogTaxonomy
 
     public static function featuredOptions(array $options, string $group): array
     {
-        $allowedKeys = self::FEATURED_OPTION_KEYS[$group] ?? [];
-        if ($allowedKeys === [] || empty($options[$group]) || !is_array($options[$group])) {
-            return [];
-        }
+        return OfferTaxonomyService::featuredOptions($options, $group);
+    }
 
-        $optionsByKey = [];
-        foreach ($options[$group] as $option) {
-            if (!is_array($option)) {
-                continue;
-            }
-            $key = (string)($option['key'] ?? '');
-            if ($key !== '' && (int)($option['count'] ?? 0) > 0) {
-                $optionsByKey[$key] = $option;
-            }
-        }
-
-        return array_values(array_filter(array_map(
-            static fn(string $key): ?array => $optionsByKey[$key] ?? null,
-            $allowedKeys
-        )));
+    public static function normalizeOptions(array $options, string $group): array
+    {
+        return OfferTaxonomyService::normalizeOptions($options, $group);
     }
 }

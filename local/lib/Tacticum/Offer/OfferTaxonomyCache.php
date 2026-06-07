@@ -1,31 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tacticum\Offer;
 
 use Bitrix\Main\Data\Cache;
 use Tacticum\Rest\Config;
 
-final class CatalogCache
+final class OfferTaxonomyCache
 {
-    public const CACHE_DIR = '/tacticum/offer_catalog';
-    public const CACHE_TTL = 900;
+    public const CACHE_DIR = '/tacticum/offer_taxonomy';
 
-    public static function cacheId(int $iblockId): string
+    private const RELATED_IBLOCK_KEYS = ['offer', 'offer_taxonomy_terms'];
+
+    public static function cacheId(int $termsIblockId = 0): string
     {
-        $offerConfig = Config::section('offer');
-        return 'offer_catalog_items_v3_' . md5(implode('|', [
-            $iblockId,
-            Config::iblockId('offer_taxonomy_terms'),
-            (string)($offerConfig['taxonomy_source'] ?? 'fallback'),
-        ]));
+        $termsIblockId = $termsIblockId > 0 ? $termsIblockId : Config::iblockId('offer_taxonomy_terms');
+
+        return 'offer_taxonomy_terms_' . md5((string)$termsIblockId);
     }
 
-    public static function tag(int $iblockId): string
+    public static function relatedIblockIds(): array
     {
-        return 'iblock_id_' . $iblockId;
+        $ids = [];
+        foreach (self::RELATED_IBLOCK_KEYS as $key) {
+            $id = Config::iblockId($key);
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
-    public static function startTagCache(int $iblockId): void
+    public static function startTagCache(): void
     {
         global $CACHE_MANAGER;
 
@@ -36,23 +44,10 @@ final class CatalogCache
             && method_exists($CACHE_MANAGER, 'RegisterTag')
         ) {
             $CACHE_MANAGER->StartTagCache(self::CACHE_DIR);
-            foreach (self::relatedIblockIds($iblockId) as $relatedIblockId) {
-                $CACHE_MANAGER->RegisterTag(self::tag($relatedIblockId));
+            foreach (self::relatedIblockIds() as $iblockId) {
+                $CACHE_MANAGER->RegisterTag('iblock_id_' . $iblockId);
             }
         }
-    }
-
-    public static function relatedIblockIds(int $offerIblockId = 0): array
-    {
-        $ids = [];
-        foreach ([$offerIblockId, Config::iblockId('offer'), Config::iblockId('offer_taxonomy_terms')] as $id) {
-            $id = (int)$id;
-            if ($id > 0) {
-                $ids[] = $id;
-            }
-        }
-
-        return array_values(array_unique($ids));
     }
 
     public static function endTagCache(): void
@@ -80,7 +75,7 @@ final class CatalogCache
         ) {
             $tagIblockIds = $iblockId > 0 ? [$iblockId] : self::relatedIblockIds();
             foreach ($tagIblockIds as $tagIblockId) {
-                $CACHE_MANAGER->ClearByTag(self::tag($tagIblockId));
+                $CACHE_MANAGER->ClearByTag('iblock_id_' . $tagIblockId);
             }
         }
     }
