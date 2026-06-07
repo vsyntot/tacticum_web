@@ -161,6 +161,7 @@ QA подключается до разработки, если задача к�
 - `about-page-ux-content-challenge-roadmap-2026-06-07.md` — phase roadmap для закрытия `ABOUT-*` gaps: fast fixes, trust narrative rewrite, team UI, content-storage sync and guards.
 - `about-page-ux-content-challenge-issue-backlog-2026-06-07.md` — issue-ready backlog `ABOUT-WP-01` - `ABOUT-WP-08` for `/about/` implementation packages and owner gates.
 - `about-page-ux-content-challenge-guard-proposal-2026-06-07.md` — guard proposal for stale `year + Сегодня`, duplicate IDs, missing anchors, misleading footer anchors and about-specific public language checks.
+- `plans/2026-06-07-about-page-trust-storyline-implementation.md` — implementation plan for the proof-safe local `/about/` trust-storyline slice.
 - `product-frontend-component-hardening-decision-2026-06-04.md` — Sprint 21 approval package для product renderer/component boundary, `/price/`, forms/chat modularity, JS module policy, fixture smoke, FAQ fallback and CSRF accepted-risk triggers.
 - `product-security-release-legacy-closure-decision-2026-06-04.md` — Sprint 22 approval package для endpoint sensitivity, rate classes, private proof/document access, CSP enforce path, release evidence discipline and legacy sale alias final mode.
 - `product-accepted-risk-monitoring-decision-2026-06-04.md` — Sprint 23 monitoring package для accepted stack, asset, CSRF, CSP and release-evidence baselines with owners and revisit triggers.

@@ -1,7 +1,7 @@
 # About Page UX / Content Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / fast-fix and guard scope deployed with production evidence / owner approvals pending for broader work
+Статус: issue backlog draft / fast-fix and guard scope deployed with production evidence / trust-storyline slice implemented locally pending deploy evidence / owner approvals pending for broader work
 
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
@@ -28,10 +28,10 @@ Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-20
 |---|---|---|---:|---|---|---|
 | `ABOUT-WP-01` | closed | `fast-fix-allowed` + `guard-scope-required` | P0 | PM + Content + QA + Frontend/Backend | `ABOUT-001`, `ABOUT-010` | Remove stale `2025 / Сегодня` contradiction and prevent recurrence |
 | `ABOUT-WP-02` | closed | `fast-fix-allowed` + `guard-scope-required` | P1 | Frontend + QA + SEO + Content | `ABOUT-007`, `ABOUT-010` | Fix duplicate IDs, missing `#careers` and misleading `#partners` anchor |
-| `ABOUT-WP-03` | pending-owner-review | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
+| `ABOUT-WP-03` | in-progress-local-proof-safe | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
 | `ABOUT-WP-04` | pending-owner-review | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
-| `ABOUT-WP-05` | in-progress-production-guarded | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
-| `ABOUT-WP-06` | in-progress-production-guarded | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
+| `ABOUT-WP-05` | in-progress-local | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
+| `ABOUT-WP-06` | in-progress-local | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
 | `ABOUT-WP-07` | pending-owner-review | `content-storage-gate-required` | P1 | Architect + Backend + Content + QA | `ABOUT-009` | Define and sync page-content/PHP partial ownership for `/about/` |
 | `ABOUT-WP-08` | closed | `guard-scope-required` | P2 | QA + Frontend + Backend + Content | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` | Implement or adopt `/about/` rendered/source guard package |
 
@@ -42,6 +42,16 @@ Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-20
 | `npm run content:public-cache-clear`, production 07.06.2026 | Passed. Public rendered/menu/component/composite/template caches were cleared after deploy. |
 | `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:24:11Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
 | `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=74964`, expected source `bitrix`. |
+
+## Local Trust Storyline Evidence
+
+| Command / Evidence | Result |
+|---|---|
+| PHP lint, local 07.06.2026 | Passed for about partials, `PublicCopyNormalizer`, `PageContent\\Repository` and page-content seed. |
+| `npm run content:public-hygiene:check`, local 07.06.2026 | Passed. |
+| `npm run content:public-hygiene:rendered:self-test`, local 07.06.2026 | Passed. |
+| `npm run product:content:safety:check`, local 07.06.2026 | Passed. |
+| `npm run seo:check` / `npm run bitrix:check`, local 07.06.2026 | Passed. |
 
 ## Issue Details
 
@@ -147,6 +157,8 @@ Implementation note 07.06.2026: local source and page-content seed replace the m
 
 If Bitrix rows are changed, add page-content audit/source checks and production cache clear.
 
+Implementation note 07.06.2026: local proof-safe slice reframes hardcoded `/about/` copy and wave2 seed around corporate AI launch responsibility without adding claims, metrics, logos or customer proof. Runtime `PublicCopyNormalizer::normalizePageContentSection()` protects old live `/about/` Bitrix rows by section/block key. This advances `ABOUT-WP-03`, but does not close the full trust narrative rewrite until owner review and production evidence exist.
+
 ### ABOUT-WP-04 — Team Section UX / Accessibility
 
 Workflow lane: Full Feature with Design gate.
@@ -209,6 +221,8 @@ npm run seo:check
 
 Implementation note 07.06.2026: production fast-fix removed guarded visible generic stack and internal terminology from `/about/`, but the final capability/risk narrative still requires Architect/Content review.
 
+Implementation note 07.06.2026: local stack section now describes launch-readiness checks instead of a tool inventory. Source/rendered guards block the old generic about stack wording; production evidence is pending.
+
 ### ABOUT-WP-06 — CTA, Career And Culture Cleanup
 
 Workflow lane: Full Feature or Fast Fix depending on scope.
@@ -236,6 +250,8 @@ npm run seo:check
 ```
 
 Implementation note 07.06.2026: production fast-fix removed generic final CTA phrase and exposes a real `#careers` target. Career/culture role and buyer-trust transition remain owner-review scope.
+
+Implementation note 07.06.2026: local footer now points to `/about/#start-work`, final CTA uses first-step assessment framing, and `#careers` remains as a compatibility alias. Production cache clear/rendered evidence and final career strategy decision remain pending.
 
 ### ABOUT-WP-07 — Page-Content / Fallback Ownership And Sync
 
