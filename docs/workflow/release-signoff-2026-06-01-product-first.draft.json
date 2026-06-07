@@ -142,7 +142,8 @@
       "reason": "Product-aware CTA contexts were added across product and commercial pages; controlled staging or production success-flow must confirm forms without exposing PII.",
       "evidence": {
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-manual-success-flow",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json",
+        "handoff": "docs/workflow/release-manual-gates-handoff-2026-06-07-product-first.md"
       }
     },
     "metrika-goals": {
@@ -152,7 +153,8 @@
       "reason": "No new analytics events were added, but affected form/chat goals must be confirmed after product-first CTA/navigation changes.",
       "evidence": {
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-metrika-goals",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json",
+        "handoff": "docs/workflow/release-manual-gates-handoff-2026-06-07-product-first.md"
       }
     },
     "config-sync": {
@@ -167,7 +169,8 @@
       "reason": "Public page entries, menu files and template assets changed; authenticated Bitrix admin/public toolbar smoke is required after cache refresh.",
       "evidence": {
         "runbook": "docs/workflow/manual-release-gates-runbook.md#gate-bitrix-admin",
-        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json"
+        "evidence_template": "docs/workflow/release-signoff-manual-evidence.template.json",
+        "handoff": "docs/workflow/release-manual-gates-handoff-2026-06-07-product-first.md"
       }
     },
     "legacy-sunset": {
