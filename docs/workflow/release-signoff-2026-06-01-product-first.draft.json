@@ -33,8 +33,8 @@
     "content-public-hygiene": {
       "status": "pending",
       "owner": "QA + Content",
-      "due": "after-cls-wp-01-deploy-cache-refresh",
-      "reason": "CLS-WP-01 changes remove visible internal labels; rendered public pages must pass content:public-hygiene:rendered:prod after deploy and cache refresh."
+      "due": "after-price-chat-quick-reply-follow-up-deploy-cache-refresh",
+      "reason": "Post-deploy CLS-WP-01 rendered check improved production from 26 to 4 issues; remaining visible labels are /price/ chat quick replies. Follow-up local fix must be deployed and production must pass content:public-hygiene:rendered:prod."
     },
     "manual-success-flow": {
       "status": "pending",

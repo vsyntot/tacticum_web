@@ -14,17 +14,22 @@ $normalizeText = static function ($value): string {
         $value = reset($value);
     }
 
-    return trim((string)$value);
+    $text = trim((string)$value);
+    if ($text !== '' && class_exists('\Tacticum\Content\PublicCopyNormalizer')) {
+        $text = \Tacticum\Content\PublicCopyNormalizer::normalizeString($text);
+    }
+
+    return $text;
 };
 
-$normalizeList = static function ($value): array {
+$normalizeList = static function ($value) use ($normalizeText): array {
     if (!is_array($value)) {
         $value = preg_split('/\r\n|\r|\n|,/', (string)$value) ?: [];
     }
 
     $items = [];
     foreach ($value as $item) {
-        $item = trim((string)$item);
+        $item = $normalizeText($item);
         if ($item !== '') {
             $items[] = $item;
         }

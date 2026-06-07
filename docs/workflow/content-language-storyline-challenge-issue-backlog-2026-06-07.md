@@ -1,7 +1,7 @@
 # Content Language / Storyline Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / `CLS-WP-01` implemented locally, rendered smoke pending / owner approvals pending
+Статус: issue backlog draft / `CLS-WP-01` implemented locally with post-deploy `/price/` quick-reply follow-up pending deploy / owner approvals pending
 
 Source register: `docs/workflow/content-language-storyline-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/content-language-storyline-challenge-roadmap-2026-06-07.md`
@@ -48,8 +48,11 @@ Affected areas:
 - `local/php_interface/include/product_page_blocks/procurement.php`
 - `tools/public-content-hygiene-check.mjs`
 - `tools/content-storage-page-content-seed.php`
+- `local/components/tacticum/chat.surface/component.php`
+- `local/components/tacticum/price.page/templates/.default/parts/calculator.php`
 - Bitrix `product_blocks` / `product_use_cases` content rows if source data needs cleanup
 - product rendered URLs: `/platform/`, `/agents/`, `/dev/`, `/forum/`
+- price rendered URL: `/price/`
 
 Acceptance criteria:
 
@@ -71,7 +74,7 @@ npm run product:content:safety:check
 npm run seo:check
 ```
 
-Implementation note 07.06.2026: local fallback/source labels, mapper normalization and exact-phrase runtime normalization for old Bitrix product/page-content rows are implemented; `content:public-hygiene:*` was added to guard recurrence. Current production baseline before deploy/cache refresh reports 26 rendered hygiene issues, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure. The JSON variant `content:public-hygiene:rendered:prod:json` is the safe evidence shape for the `content-public-hygiene` release sign-off gate after the rendered check passes.
+Implementation note 07.06.2026: local fallback/source labels, mapper normalization and exact-phrase runtime normalization for old Bitrix product/page-content rows are implemented; `content:public-hygiene:*` was added to guard recurrence. Post-deploy production rendered hygiene improved from 26 issues to 4 issues, all on `/price/` chat quick replies. Local follow-up now normalizes `tacticum:chat.surface` text params and replaces `/price/` quick replies with Russian public labels, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure after the next deploy. The JSON variant `content:public-hygiene:rendered:prod:json` is the safe evidence shape for the `content-public-hygiene` release sign-off gate after the rendered check passes.
 
 ### CLS-WP-02 — Russian-First Glossary And Voice Rules
 

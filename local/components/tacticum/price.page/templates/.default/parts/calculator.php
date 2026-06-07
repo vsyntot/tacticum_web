@@ -22,10 +22,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                             "INTRO" => "Здравствуйте! Опишите задачу, текущий этап и ограничения. Я помогу наметить состав команды, роли и ориентир бюджета, а точный план уточнит специалист Tacticum.",
                             "PLACEHOLDER" => "Опишите вашу задачу...",
                             "QUICK_REPLIES" => [
-                                "Platform assessment",
-                                "Agents pilot",
-                                "Dev workflow",
-                                "Forum launch",
+                                "Предпроектная оценка Platform",
+                                "Пилот Agents",
+                                "Процесс Dev",
+                                "Запуск Forum",
                             ],
                         ],
                         false
