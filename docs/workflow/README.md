@@ -175,6 +175,7 @@ QA подключается до разработки, если задача к�
 - `offer-example-seed-runbook.md` — запуск и контроль CLI-сидера synthetic offer examples для `/offer/`.
 - `local-public-browser-error-challenge.md` — challenge `/local`, публичной части и browser zero-error gate.
 - `release-signoff-gates.md` — release sign-off gates для deploy smoke, success-flow, Метрики, config sync, Bitrix admin, staff sale and Sprint 22 security-sensitive future gates.
+- `release-manual-gates-handoff-2026-06-07-product-first.md` — owner-ready handoff для оставшихся product-first release manual gates: `manual-success-flow`, `metrika-goals`, `bitrix-admin`.
 - `rest-response-contract-decision.md` — решение по сохранению доменных success/error response shapes.
 - `sprints/` — snapshot-ы спринтов.
 
