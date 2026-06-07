@@ -60,6 +60,8 @@ final class TacticumOfferTaxonomyCheck
             }
         } elseif ($termsIblockId <= 0) {
             $this->warnings[] = 'Offer taxonomy terms iblock is not configured; runtime uses fallback while allowed.';
+        } elseif ($schema['valid'] && ($rows['active_total'] ?? 0) < 1) {
+            $this->errors[] = 'Configured offer taxonomy terms iblock has no readable active taxonomy terms.';
         }
 
         $summary = [
@@ -109,17 +111,26 @@ final class TacticumOfferTaxonomyCheck
 
     private function rowSummary(int $iblockId): array
     {
-        $summary = ['active_total' => 0, 'active_by_dimension' => ['sector' => 0, 'scenario' => 0, 'phase' => 0, 'budget' => 0], 'featured_total' => 0, 'duplicate_aliases' => 0];
+        $summary = [
+            'active_elements_seen' => 0,
+            'active_total' => 0,
+            'active_by_dimension' => ['sector' => 0, 'scenario' => 0, 'phase' => 0, 'budget' => 0],
+            'featured_total' => 0,
+            'duplicate_aliases' => 0,
+            'unknown_dimension_rows' => 0,
+        ];
         if ($iblockId <= 0) {
             return $summary;
         }
 
         $aliases = [];
-        $result = CIBlockElement::GetList(['SORT' => 'ASC'], ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'CODE']);
+        $result = CIBlockElement::GetList(['SORT' => 'ASC'], ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'IBLOCK_ID', 'CODE']);
         while ($element = $result->GetNextElement()) {
+            $summary['active_elements_seen']++;
             $properties = $element->GetProperties();
             $dimension = trim((string)($properties['DIMENSION']['VALUE'] ?? ''));
             if (!array_key_exists($dimension, $summary['active_by_dimension'])) {
+                $summary['unknown_dimension_rows']++;
                 continue;
             }
             $summary['active_total']++;
@@ -137,6 +148,9 @@ final class TacticumOfferTaxonomyCheck
         }
         if ($summary['duplicate_aliases'] > 0) {
             $this->errors[] = 'Duplicate taxonomy aliases found.';
+        }
+        if ($summary['unknown_dimension_rows'] > 0) {
+            $this->errors[] = 'Offer taxonomy rows with unknown or unreadable DIMENSION found.';
         }
 
         return $summary;
@@ -163,7 +177,11 @@ final class TacticumOfferTaxonomyCheck
         echo 'Valid: ' . ($summary['valid'] ? 'yes' : 'no') . PHP_EOL;
         echo 'Mode: source=' . $summary['config']['taxonomy_source'] . ', fallback=' . ($summary['config']['allow_taxonomy_fallback'] ? 'true' : 'false') . ', cache_ttl=' . (string)$summary['config']['taxonomy_cache_ttl'] . PHP_EOL;
         echo 'Iblocks: offer_taxonomy_terms=#' . $summary['iblocks']['offer_taxonomy_terms'] . PHP_EOL;
-        echo 'Rows: active=' . $summary['row_summary']['active_total'] . ', featured=' . $summary['row_summary']['featured_total'] . PHP_EOL;
+        echo 'Rows: active=' . $summary['row_summary']['active_total']
+            . ', featured=' . $summary['row_summary']['featured_total']
+            . ', seen=' . $summary['row_summary']['active_elements_seen']
+            . ', unknown_dimension=' . $summary['row_summary']['unknown_dimension_rows']
+            . PHP_EOL;
         echo 'Runtime: source=' . $summary['runtime']['source'] . ', terms=' . json_encode($summary['runtime']['terms_by_dimension'], JSON_UNESCAPED_UNICODE) . PHP_EOL;
         foreach ($summary['warnings'] as $warning) { echo 'WARNING: ' . $warning . PHP_EOL; }
         foreach ($summary['errors'] as $error) { echo 'ERROR: ' . $error . PHP_EOL; }
