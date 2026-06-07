@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: execution roadmap for `offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`; WP-04 local runtime/tooling slice is implemented from approved ADR/owner JSON, but this document still does not approve production iblock apply or runtime source switch.
+Статус: execution roadmap for `offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`; WP-04 runtime/source-switch scope is complete on production with strict `source=bitrix` evidence.
 Scope: `/offer/` filters, public taxonomy, quick presets, budget display and future Bitrix content ownership. No route/canonical/form/analytics changes are included.
 
 ## Purpose
@@ -91,7 +91,7 @@ Exit criteria:
 - ADR is added if new iblocks/config/runtime source switching are introduced.
 - Do-not-store-counts rule is explicitly accepted.
 
-Status 07.06.2026: owner-review package is approved for model semantics. Accepted `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` remains the safe draft; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` is the approved model artifact and passes without `--allow-draft`. `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. `tools/offer-taxonomy-implementation-gate.mjs` blocks accidental runtime/schema markers unless the approved owner JSON is supplied or uniquely discovered. Runtime implementation can start; iblock apply and source switch still require WP-04 migration/cache/rollback evidence.
+Status 07.06.2026: owner-review package is approved for model semantics. Accepted `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` remains the safe draft; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` is the approved model artifact and passes without `--allow-draft`. `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. `tools/offer-taxonomy-implementation-gate.mjs` blocks accidental runtime/schema markers unless the approved owner JSON is supplied or uniquely discovered. WP-04 later completed the approved runtime/source-switch path with production strict evidence.
 
 ## Phase 3 — Runtime Implementation
 
@@ -112,7 +112,7 @@ Exit criteria:
 - Counts match active offers; empty categories do not appear as normal quick entries.
 - Fallback rollback path exists until target checks pass.
 
-Status 07.06.2026: local runtime/tooling slice is implemented. `OfferTaxonomyService` reads approved fallback terms by default and can switch to `auto` or `bitrix` through `offer.taxonomy_source`; `OfferTaxonomyRepository` reads active Bitrix rows from `offer_taxonomy_terms`; `OfferTaxonomyCache` isolates taxonomy cache and managed tags. `CatalogMapper` canonicalizes sector/scenario/phase keys through aliases, `CatalogFilters` orders options through approved terms with runtime-derived counts, and `CatalogCache` includes taxonomy source/config in cache ID plus offer/taxonomy iblock tags. New scripts cover migration, check and cache clear: `offer:taxonomy:migrate`, `offer:taxonomy:migrate:apply`, `offer:taxonomy:check`, `offer:taxonomy:check:strict`, `offer:taxonomy:cache-clear`. Current config remains fallback (`offer_taxonomy_terms=0`, `offer.taxonomy_source=fallback`) until target dry-run/apply, config sync and strict evidence pass.
+Status 07.06.2026: runtime/tooling and production source switch are complete for WP-04. `OfferTaxonomyService` reads approved fallback terms only as rollback code and reads Bitrix terms in production strict mode; `OfferTaxonomyRepository` reads active Bitrix rows from `offer_taxonomy_terms #28`; `OfferTaxonomyCache` isolates taxonomy cache and managed tags. `CatalogMapper` canonicalizes sector/scenario/phase keys through aliases, `CatalogFilters` orders options through approved terms with runtime-derived counts, and `CatalogCache` includes taxonomy source/config in cache ID plus offer/taxonomy iblock tags. New scripts cover migration, check and cache clear: `offer:taxonomy:migrate`, `offer:taxonomy:migrate:apply`, `offer:taxonomy:check`, `offer:taxonomy:check:strict`, `offer:taxonomy:cache-clear`. Production evidence passed through dry-run, apply, config sync, fallback-mode check, `auto` smoke, strict `source=bitrix` check, cache clear, rendered hygiene and SEO check.
 
 ## Phase 4 — Guards And Release Evidence
 
@@ -131,9 +131,9 @@ Exit criteria:
 - Safe JSON evidence can be attached to release sign-off.
 - Rollback instructions are documented.
 
-Status 07.06.2026: guard slice implemented and production-smoked. Source hygiene rejects raw budget rendering and arbitrary first-8 quick filters; rendered hygiene rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; `seo:check:prod` also passed. Full taxonomy integrity guard for duplicate codes, unknown aliases and Bitrix terms remains pending until WP-04 introduces the Bitrix/runtime taxonomy source.
+Status 07.06.2026: guard slice implemented and production-smoked. Source hygiene rejects raw budget rendering and arbitrary first-8 quick filters; rendered hygiene rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; `seo:check:prod` also passed. WP-04 target taxonomy integrity checks passed on production after strict source switch: 22 active terms, 16 featured terms, zero unreadable dimensions, runtime `source=bitrix`, fallback disabled.
 
-Update 07.06.2026: taxonomy integrity tooling now exists locally through `offer:taxonomy:check`, but local execution is Bitrix DB-blocked on the workstation (`Mysql connect error [localhost]`). Production/target evidence must include dry-run migration, apply, config sync, non-strict check, cache clear, rendered hygiene and only then strict check/source switch if approved.
+Update 07.06.2026: taxonomy integrity tooling exists through `offer:taxonomy:check`; local execution remains Bitrix DB-blocked on the workstation (`Mysql connect error [localhost]`), but production evidence completed dry-run migration, apply, config sync, non-strict check, cache clear, rendered hygiene, strict check/source switch and `seo:check:prod`.
 
 ## Phase 5 — Product/SEO Maturity
 
@@ -172,7 +172,7 @@ Additional verification depends on scope:
 - PHP/template changes: `php -l` for changed PHP files.
 - CSS/JS changes: relevant syntax/component checks.
 - Bitrix schema/source changes: migration dry-run, target check, cache clear and production rendered source/hygiene checks.
-- Offer taxonomy source changes: `npm run offer:taxonomy:migrate`, `npm run offer:taxonomy:migrate:apply`, config sync of `offer_taxonomy_terms`, `npm run offer:taxonomy:check`, `npm run offer:taxonomy:cache-clear`, production rendered hygiene, then `npm run offer:taxonomy:check:strict` only after source switch approval.
+- Offer taxonomy source changes: `npm run offer:taxonomy:migrate`, `npm run offer:taxonomy:migrate:apply`, config sync of `offer_taxonomy_terms`, `npm run offer:taxonomy:check`, `npm run offer:taxonomy:cache-clear`, production rendered hygiene and `npm run offer:taxonomy:check:strict` before/after any future taxonomy admin edit or source rollback.
 - SEO-sensitive changes: filtered URL canonical/noindex smoke and `seo:check:prod` after deploy.
 - Public filter label changes: rendered `/offer/` smoke on desktop/mobile if layout can shift.
 
