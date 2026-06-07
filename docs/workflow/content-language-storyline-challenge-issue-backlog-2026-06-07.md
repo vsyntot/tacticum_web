@@ -64,11 +64,13 @@ Verification:
 git diff --check
 npm run content:public-hygiene:self-test
 npm run content:public-hygiene:check
+npm run content:public-hygiene:rendered:self-test
+npm run content:public-hygiene:rendered:prod
 npm run product:content:safety:check
 npm run seo:check
 ```
 
-Implementation note 07.06.2026: local fallback/source labels and mapper normalization are implemented; `content:public-hygiene:*` was added to guard recurrence. Final closure still requires rendered product page smoke after deploy/cache refresh.
+Implementation note 07.06.2026: local fallback/source labels and mapper normalization are implemented; `content:public-hygiene:*` was added to guard recurrence. `content:public-hygiene:rendered:prod` is the post-deploy/cache-refresh evidence gate for rendered public pages.
 
 ### CLS-WP-02 — Russian-First Glossary And Voice Rules
 
