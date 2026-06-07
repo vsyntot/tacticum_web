@@ -1,7 +1,7 @@
 # Content Language / Storyline Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / `CLS-WP-01` implemented locally with post-deploy `/price/` quick-reply follow-up pending deploy / owner approvals pending
+Статус: issue backlog draft / `CLS-WP-01` closed by production rendered evidence / owner approvals pending for remaining work packages
 
 Source register: `docs/workflow/content-language-storyline-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/content-language-storyline-challenge-roadmap-2026-06-07.md`
@@ -24,7 +24,7 @@ Glossary: `docs/workflow/content-language-storyline-public-glossary-2026-06-07.m
 
 | Issue | Status | Start policy | Priority | Owners | Gap IDs | Objective |
 |---|---|---|---:|---|---|---|
-| `CLS-WP-01` | implemented-locally | `fast-fix-allowed` + `guard-scope-required` | P0 | Backend + Content + QA | `CLS-001`, `CLS-012` | Remove public internal labels and define recurrence guard/checklist |
+| `CLS-WP-01` | closed | `fast-fix-allowed` + `guard-scope-required` | P0 | Backend + Content + QA | `CLS-001`, `CLS-012` | Remove public internal labels and define recurrence guard/checklist |
 | `CLS-WP-02` | pending-owner-review | `owner-review-required` | P1 | PM + Content + Sales + SEO | `CLS-002`, `CLS-011` | Approve Russian-first glossary, voice rules and forbidden public terms |
 | `CLS-WP-03` | pending-owner-review | `owner-review-required` | P1 | PM + UX + Content + Sales + SEO | `CLS-003`, `CLS-010` | Approve global storyline and homepage narrative rewrite |
 | `CLS-WP-04` | pending-owner-review | `owner-review-required` | P1 | Content + Architect + Sales + PM | `CLS-004`, `CLS-002` | Rewrite product pages into public-readable Russian-first product copy |
@@ -74,7 +74,7 @@ npm run product:content:safety:check
 npm run seo:check
 ```
 
-Implementation note 07.06.2026: local fallback/source labels, mapper normalization and exact-phrase runtime normalization for old Bitrix product/page-content rows are implemented; `content:public-hygiene:*` was added to guard recurrence. Post-deploy production rendered hygiene improved from 26 issues to 4 issues, all on `/price/` chat quick replies. Local follow-up now normalizes `tacticum:chat.surface` text params and replaces `/price/` quick replies with Russian public labels, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure after the next deploy. The JSON variant `content:public-hygiene:rendered:prod:json` is the safe evidence shape for the `content-public-hygiene` release sign-off gate after the rendered check passes.
+Implementation note 07.06.2026: local fallback/source labels, mapper normalization, exact-phrase runtime normalization for old Bitrix product/page-content rows and `tacticum:chat.surface` quick-reply normalization are implemented; `content:public-hygiene:*` guards recurrence. Production `npm run content:public-hygiene:rendered:prod` passed after deploy/cache refresh on 13 pages with `issues_found=0` at `2026-06-07T06:34:56Z`. The JSON evidence from `content:public-hygiene:rendered:prod:json` is stored in the `content-public-hygiene` release sign-off gate.
 
 ### CLS-WP-02 — Russian-First Glossary And Voice Rules
 
