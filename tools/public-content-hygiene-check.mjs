@@ -15,12 +15,15 @@ const DEFAULT_FILES = [
   'local/php_interface/include/product_data/dev.php',
   'local/php_interface/include/product_data/forum.php',
   'local/lib/Tacticum/PageContent/CalculatorRenderer.php',
+  'local/components/tacticum/chat.surface/component.php',
+  'local/components/tacticum/price.page/templates/.default/parts/calculator.php',
   'tools/content-storage-page-content-seed.php'
 ];
 
 const MAPPER_FILE = 'local/lib/Tacticum/Product/ContentBlockMapper.php';
 const PRODUCT_SERVICE_FILE = 'local/lib/Tacticum/Product/ContentService.php';
 const PAGE_CONTENT_REPOSITORY_FILE = 'local/lib/Tacticum/PageContent/Repository.php';
+const CHAT_SURFACE_FILE = 'local/components/tacticum/chat.surface/component.php';
 
 const FORBIDDEN_PUBLIC_LABELS = [
   'Product fit',
@@ -67,6 +70,11 @@ const PAGE_CONTENT_REQUIRED_LITERALS = [
 const PRODUCT_SERVICE_REQUIRED_LITERALS = [
   'use Tacticum\\Content\\PublicCopyNormalizer;',
   'PublicCopyNormalizer::normalizeArray'
+];
+
+const CHAT_SURFACE_REQUIRED_LITERALS = [
+  '\\Tacticum\\Content\\PublicCopyNormalizer',
+  'PublicCopyNormalizer::normalizeString'
 ];
 
 function visibleLineText(line) {
@@ -215,6 +223,7 @@ function main() {
   issues.push(...verifyRequiredLiterals(MAPPER_FILE, MAPPER_REQUIRED_LITERALS));
   issues.push(...verifyRequiredLiterals(PRODUCT_SERVICE_FILE, PRODUCT_SERVICE_REQUIRED_LITERALS));
   issues.push(...verifyRequiredLiterals(PAGE_CONTENT_REPOSITORY_FILE, PAGE_CONTENT_REQUIRED_LITERALS));
+  issues.push(...verifyRequiredLiterals(CHAT_SURFACE_FILE, CHAT_SURFACE_REQUIRED_LITERALS));
 
   if (issues.length > 0) {
     console.error('Public content hygiene check failed:');
