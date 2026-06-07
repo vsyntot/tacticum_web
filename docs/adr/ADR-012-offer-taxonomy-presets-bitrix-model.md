@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: Предложено
+Статус: Принято
 
 ## Контекст
 
@@ -64,7 +64,7 @@ New code must use `tacticum_rest_get_iblock_id('offer_taxonomy_terms')` or an eq
 Target rollout should be split:
 
 1. Owner approval JSON passes checker.
-2. ADR status changes from `Предложено` to `Принято`.
+2. ADR status is confirmed as `Принято`.
 3. Migration dry-run creates schema plan with no public runtime change.
 4. Migration apply creates iblocks/properties and seeds approved terms/presets.
 5. Strict taxonomy checker passes against Bitrix rows and active offer items.
@@ -85,7 +85,7 @@ Rollback is source-mode switch back to `fallback` plus cache clear. Rollback mus
 
 Минусы и ограничения:
 
-- нужны owner approvals and ADR acceptance before migration;
+- нужны owner approvals before migration;
 - потребуется config sync on every Bitrix environment;
 - taxonomy cache invalidation must include new iblock tags;
 - approved public labels still need Content/SEO ownership, not only backend schema;
@@ -99,13 +99,14 @@ Rollback is source-mode switch back to `fallback` plus cache clear. Rollback mus
 - не меняем lead forms, hidden fields, CRM/upstream payloads or analytics taxonomy;
 - не переносим counts/result lists/item membership into Bitrix rows;
 - не превращаем synthetic examples into proof/cases;
-- не создаем production iblocks without approved owner JSON and accepted ADR.
+- не создаем production iblocks without approved owner JSON.
 
 ## Acceptance Before Runtime Implementation
 
 - `npm run offer:taxonomy:approval:self-test` passes.
+- `npm run offer:taxonomy:implementation-gate:self-test` passes.
+- `npm run offer:taxonomy:implementation-gate` passes before runtime markers are introduced.
 - Owner approval JSON passes `npm run offer:taxonomy:approval:check -- <file>` without `--allow-draft`.
-- ADR status is updated to `Принято`.
+- ADR status is `Принято`.
 - `OFFER-TAX-WP-04` references the approved JSON and this ADR.
 - Migration/check/cache-clear tooling is included in the implementation issue.
-

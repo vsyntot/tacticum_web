@@ -43,15 +43,15 @@
     }
   },
   "gates": {
-    "adr_review": false,
-    "content_storage_boundary": false,
+    "adr_review": true,
+    "content_storage_boundary": true,
     "seo_noindex_preserved": true,
     "counts_runtime_derived": true,
     "no_synthetic_proof_claims": true,
-    "rollback_plan": false,
-    "cache_strategy": false,
-    "qa_checker_scope": false,
-    "config_source_mode": false
+    "rollback_plan": true,
+    "cache_strategy": true,
+    "qa_checker_scope": true,
+    "config_source_mode": true
   },
   "decisions": {
     "taxonomy_source": "bitrix_terms",
