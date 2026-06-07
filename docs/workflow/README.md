@@ -158,6 +158,11 @@ QA подключается до разработки, если задача к�
 - `content-language-storyline-challenge-roadmap-2026-06-07.md` — phase roadmap для закрытия `CLS-*` gaps: public label leak, Russian-first glossary, homepage/product copy, `/price/`, `/aiagents/`, `/offer/`, FAQ and governance.
 - `content-language-storyline-challenge-issue-backlog-2026-06-07.md` — issue-ready backlog `CLS-WP-01` - `CLS-WP-08` for content/storyline work packages and owner gates.
 - `content-language-storyline-public-glossary-2026-06-07.md` — draft Russian-first public glossary, tone rules, CTA language and editor checklist for future public content changes.
+- `offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md` — docs-only source register challenge страницы `/offer/`: taxonomy ownership, quick presets, synthetic examples, public labels, budget UX and SEO/indexability boundaries.
+- `offer-page-taxonomy-presets-roadmap-2026-06-07.md` — phase roadmap для закрытия `OFFER-TAX-*` gaps: visible fast fixes, taxonomy/preset approval, Bitrix runtime, guards and future product/SEO maturity.
+- `offer-page-taxonomy-presets-issue-backlog-2026-06-07.md` — issue-ready backlog `OFFER-TAX-WP-01` - `OFFER-TAX-WP-06` for `/offer/` taxonomy/preset implementation packages and owner gates.
+- `offer-page-taxonomy-presets-decision-2026-06-07.md` — decision proposal: move governed labels/aliases/order/featured presets to Bitrix or equivalent model, keep counts/results runtime-derived and preserve noindex/canonical.
+- `plans/2026-06-07-offer-taxonomy-presets-documentation.md` — docs-only Codex plan for the `/offer/` taxonomy/preset challenge package.
 - `about-page-ux-content-challenge-gap-analysis-2026-06-07.md` — docs-only source register challenge страницы `/about/`: stale timeline, trust storyline, Russian-first language, team UI, anchors/IDs and page-content ownership.
 - `about-page-ux-content-challenge-roadmap-2026-06-07.md` — phase roadmap для закрытия `ABOUT-*` gaps: fast fixes, trust narrative rewrite, team UI, content-storage sync and guards.
 - `about-page-ux-content-challenge-issue-backlog-2026-06-07.md` — issue-ready backlog `ABOUT-WP-01` - `ABOUT-WP-08` for `/about/` implementation packages and owner gates.

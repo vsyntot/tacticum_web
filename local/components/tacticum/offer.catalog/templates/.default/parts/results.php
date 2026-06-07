@@ -23,7 +23,7 @@
                 <dl class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                     <div>
                         <dt class="text-xs text-gray-500 mb-1">Бюджет</dt>
-                        <dd class="text-sm font-semibold text-secondary"><?=htmlspecialcharsbx((string)($offerItem['budget'] ?: 'по запросу'))?></dd>
+                        <dd class="text-sm font-semibold text-secondary"><?=htmlspecialcharsbx((string)($offerItem['budget_display'] ?: 'по запросу'))?></dd>
                     </div>
                     <div>
                         <dt class="text-xs text-gray-500 mb-1">Срок</dt>

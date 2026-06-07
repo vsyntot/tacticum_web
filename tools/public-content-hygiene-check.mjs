@@ -24,6 +24,13 @@ const MAPPER_FILE = 'local/lib/Tacticum/Product/ContentBlockMapper.php';
 const PRODUCT_SERVICE_FILE = 'local/lib/Tacticum/Product/ContentService.php';
 const PAGE_CONTENT_REPOSITORY_FILE = 'local/lib/Tacticum/PageContent/Repository.php';
 const CHAT_SURFACE_FILE = 'local/components/tacticum/chat.surface/component.php';
+const OFFER_SOURCE_FILES = [
+  'local/lib/Tacticum/Offer/CatalogTaxonomy.php',
+  'local/lib/Tacticum/Offer/CatalogMapper.php',
+  'local/lib/Tacticum/Offer/CatalogFilters.php',
+  'local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php',
+  'local/components/tacticum/offer.catalog/templates/.default/parts/results.php'
+];
 const ABOUT_STATIC_SOURCE_FILES = [
   '.bottom.menu.php',
   'local/components/tacticum/about.page/templates/.default/parts/company-trust.php',
@@ -210,6 +217,105 @@ function scanFooterTechnologySource(source, fileLabel = '<source>') {
   return issues;
 }
 
+function scanOfferSource(source, fileLabel = '<source>') {
+  const issues = [];
+
+  if (fileLabel.endsWith('CatalogTaxonomy.php')) {
+    const requiredLiterals = [
+      'PUBLIC_LABELS',
+      'FEATURED_OPTION_KEYS',
+      "'beauty' => 'бьюти и салоны'",
+      "'e-commerce' => 'онлайн-торговля'",
+      "'data platform и mlops' => 'Платформа данных и MLOps'",
+      "'meditsina'",
+      "'ai-assistent-podderzhki'",
+      'formatBudgetAmount',
+      'budgetBuckets'
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-taxonomy-source',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('CatalogMapper.php')) {
+    const requiredLiterals = [
+      'CatalogTaxonomy::publicLabel',
+      'CatalogTaxonomy::budgetBucket',
+      "'budget_display' => CatalogTaxonomy::formatBudgetAmount($budgetAmount)"
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-public-taxonomy-or-budget-format',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('CatalogFilters.php')) {
+    for (const literal of ['CatalogTaxonomy::budgetBuckets', 'CatalogTaxonomy::featuredOptions']) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-curated-quick-filter-source',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('quick-filters.php')) {
+    if (source.includes('array_slice($offerOptions')) {
+      issues.push({
+        file: fileLabel,
+        line: 0,
+        rule: 'offer-arbitrary-first-eight-quick-filters',
+        text: 'quick filters must use curated featured options, not first 8 aggregated options'
+      });
+    }
+    if (!source.includes('featuredOptions')) {
+      issues.push({
+        file: fileLabel,
+        line: 0,
+        rule: 'offer-missing-featured-options-rendering',
+        text: 'quick filter template must use featuredOptions'
+      });
+    }
+  }
+
+  if (fileLabel.endsWith('results.php')) {
+    if (source.includes("offerItem['budget'] ?:") || source.includes('(string)($offerItem[\'budget\']')) {
+      issues.push({
+        file: fileLabel,
+        line: 0,
+        rule: 'offer-raw-budget-rendering',
+        text: 'offer catalog cards must render budget_display instead of raw budget'
+      });
+    }
+    if (!source.includes('budget_display')) {
+      issues.push({
+        file: fileLabel,
+        line: 0,
+        rule: 'offer-missing-budget-display-rendering',
+        text: 'offer catalog cards must render budget_display'
+      });
+    }
+  }
+
+  return issues;
+}
+
 function verifyRequiredLiterals(relativeFile, requiredLiterals) {
   const sourcePath = path.resolve(ROOT, relativeFile);
   const issues = [];
@@ -310,6 +416,48 @@ function runSelfTest() {
   if (!unsafeFooterIssues.some((issue) => issue.rule === 'footer-technology-link-target')) {
     throw new Error('Unsafe footer fixture missed footer-technology-link-target');
   }
+
+  const safeOfferSources = [
+    ['local/lib/Tacticum/Offer/CatalogTaxonomy.php', [
+      'PUBLIC_LABELS',
+      'FEATURED_OPTION_KEYS',
+      "'beauty' => 'бьюти и салоны'",
+      "'e-commerce' => 'онлайн-торговля'",
+      "'data platform и mlops' => 'Платформа данных и MLOps'",
+      "'meditsina'",
+      "'ai-assistent-podderzhki'",
+      'formatBudgetAmount',
+      'budgetBuckets'
+    ].join('\n')],
+    ['local/lib/Tacticum/Offer/CatalogMapper.php', [
+      'CatalogTaxonomy::publicLabel',
+      'CatalogTaxonomy::budgetBucket',
+      "'budget_display' => CatalogTaxonomy::formatBudgetAmount($budgetAmount)"
+    ].join('\n')],
+    ['local/lib/Tacticum/Offer/CatalogFilters.php', [
+      'CatalogTaxonomy::budgetBuckets',
+      'CatalogTaxonomy::featuredOptions'
+    ].join('\n')],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php', 'featuredOptions($offerOptions, \'sectors\')'],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/results.php', "$offerItem['budget_display'] ?: 'по запросу'"]
+  ];
+  for (const [fileLabel, source] of safeOfferSources) {
+    const issues = scanOfferSource(source, fileLabel);
+    if (issues.length !== 0) {
+      throw new Error(`Safe offer fixture failed:\n${formatIssues(issues).join('\n')}`);
+    }
+  }
+
+  const unsafeOfferSources = [
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php', 'array_slice($offerOptions[\'sectors\'], 0, 8)'],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/results.php', "$offerItem['budget'] ?: 'по запросу'"]
+  ];
+  for (const [fileLabel, source] of unsafeOfferSources) {
+    const issues = scanOfferSource(source, fileLabel);
+    if (issues.length === 0) {
+      throw new Error(`Unsafe offer fixture missed issue for ${fileLabel}`);
+    }
+  }
 }
 
 function formatIssues(issues) {
@@ -378,6 +526,21 @@ function main() {
     }
 
     issues.push(...scanAboutSource(fs.readFileSync(filePath, 'utf8'), relativeFile));
+  }
+
+  for (const relativeFile of OFFER_SOURCE_FILES) {
+    const filePath = path.resolve(ROOT, relativeFile);
+    if (!fs.existsSync(filePath)) {
+      issues.push({
+        file: relativeFile,
+        line: 0,
+        rule: 'missing-file',
+        text: 'configured offer source is missing'
+      });
+      continue;
+    }
+
+    issues.push(...scanOfferSource(fs.readFileSync(filePath, 'utf8'), relativeFile));
   }
 
   const bottomMenuPath = path.resolve(ROOT, '.bottom.menu.php');

@@ -102,6 +102,45 @@ Implementation update 05.06.2026:
 - `product:content:check:strict:json` evidence now includes `faq_source` and must report `iblock`.
 - Services template fallback is removed; target content must seed/activate service cards instead.
 
+## Current Offer Taxonomy / Presets Layer — 07.06.2026
+
+Challenge `/offer/` quick filters and presets выявил отдельный product/content-storage gap: публичная taxonomy каталога сейчас не является управляемым справочником. Sector/scenario/phase labels derive from active offer `RESPONSE` payloads, budget buckets are PHP-defined, and quick entries are first aggregated options rather than curated presets. This works technically for the current generated catalog, but it lets synthetic seed vocabulary and raw labels become public navigation.
+
+Документальный пакет:
+
+- source register: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`;
+- execution roadmap: `docs/workflow/offer-page-taxonomy-presets-roadmap-2026-06-07.md`;
+- issue backlog: `docs/workflow/offer-page-taxonomy-presets-issue-backlog-2026-06-07.md`;
+- decision proposal: `docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07.md`;
+- Codex plan: `docs/workflow/plans/2026-06-07-offer-taxonomy-presets-documentation.md`.
+
+### Challenge Verdict
+
+Do not move current filter heuristics into Bitrix one-to-one. Move governed taxonomy and preset metadata: public labels, stable codes, aliases, sort order, active/featured flags and optional product relation. Keep counts, filter result availability and item membership runtime-derived from active offers. Preserve current filtered URL `noindex,follow` and canonical `/offer/` unless SEO approves a separate indexable landing-page strategy.
+
+### Current Gap Coverage
+
+| Cluster | Gap IDs | Current Risk |
+|---|---|---|
+| Public taxonomy ownership | `OFFER-TAX-001`, `OFFER-TAX-003`, `OFFER-TAX-005`, `OFFER-TAX-011` | Open: raw/generated labels define public vocabulary; budget buckets and mixed Russian/English labels need owner decision. |
+| Quick entries / presets | `OFFER-TAX-002` | Open: current quick entries are first sorted aggregated options, not PM/UX curated presets. |
+| Bitrix content model | `OFFER-TAX-006` | Blocked: new taxonomy/preset iblock or equivalent model requires ADR/content-storage approval, config registry, cache plan and rollback. |
+| Visible catalog UX | `OFFER-TAX-004` | Open: card budget formatting can expose raw values like `50600000 RUB`; this is a Fast Fix candidate independent of taxonomy migration. |
+| SEO / guards / scaling | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-010`, `OFFER-TAX-012` | Filtered URL SEO is currently safe and accepted-monitor; taxonomy integrity/rendered checks and docs adoption are open; PHP cached-array filtering is acceptable for current volume but monitored. |
+| Product bridge | `OFFER-TAX-008` | Open: taxonomy is not yet connected to `Platform / Agents / Dev / Forum` relation decisions. |
+
+Implementation update 07.06.2026:
+
+- `OFFER-TAX-WP-01` is implemented locally for Fast Fix scope: `CatalogTaxonomy` provides public label normalization and budget formatting; `CatalogMapper` adds `budget_display`; catalog cards render formatted ruble amounts instead of raw `budget`.
+- Interim `OFFER-TAX-WP-02` is implemented locally without Bitrix schema: quick entries render curated active keys via `CatalogTaxonomy::featuredOptions()` instead of first sorted aggregated options. Durable owner-approved Bitrix preset/taxonomy model remains open.
+- `OFFER-TAX-WP-05` local guard slice is implemented: source hygiene checks reject raw budget rendering and arbitrary first-8 quick filters; rendered hygiene self-test rejects visible machine budget on `/offer/`.
+- Local verification passed: PHP lint for changed offer PHP files, JS syntax for hygiene tools, `content:public-hygiene:self-test`, `content:public-hygiene:rendered:self-test`, `content:public-hygiene:check`, `seo:check`, `bitrix:check`, PHP output smoke snippets and `git diff --check`.
+- Production cache clear and rendered `/offer/` hygiene evidence are pending after deploy. `OFFER-TAX-WP-03`, `OFFER-TAX-WP-04` and `OFFER-TAX-WP-06` remain owner/ADR/content-storage/SEO gated.
+
+### Planning Rule
+
+Any future task touching `/offer/` public filters, quick entries, taxonomy labels, budget buckets, offer seed dictionaries, filtered URL SEO behavior or offer catalog cache must reference the relevant `OFFER-TAX-*` IDs. Fast fixes may address budget display or temporary curated quick entries without ADR if no schema/source-switch pattern changes. Bitrix taxonomy implementation must start from `OFFER-TAX-WP-03` owner decision and must not store counts as editor-maintained data.
+
 ## Current Price Team Presets Layer — 06.06.2026
 
 Challenge `/price/` quick team presets выявил отдельный product/config gap: пресеты были функциональной доменной сущностью, но хранились как split PHP/JS hardcode and applied roles by keyword matching visible rate-card copy.
@@ -178,7 +217,7 @@ Current gap coverage:
 
 07.06.2026 `/about/` team/readiness de-dup follow-up is deployed with production evidence: the team section now reads as launch responsibility rather than a founder gallery, uses compact count-aware cards, keeps existing Bitrix team data unchanged and adds a role-composition matrix under the cards. The duplicate `Контуры надёжного AI-запуска` card grid is removed from `values-team.php`; `stack-cta.php` now owns `#technology`, keeps `#stack` as alias and collapses the eight-card checklist into four readiness groups with client outcomes. CSS is split into component-owned `style.css` files to stay inside architecture guard budgets and avoid new template-level CSS allowlist entries. No Bitrix rows, personal/team data, form params, routes, SEO metadata or proof claims changed. Production `content:public-cache-clear` completed; `content:public-hygiene:rendered:prod:json` passed at `2026-06-07T11:17:39Z` with `pages_checked=13`, `issues_found=0`; `page-content:source:http:wave2:prod` confirmed `/about/ source=bitrix sections=3/3 bytes=76925`. Chrome-capable visual smoke for `/about/` passed at `2026-06-07T11:18:17Z` for desktop and mobile with status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok; manifest is `/tmp/tacticum-about-team-readiness-dedup-2026-06-07-visual/manifest.json`. PM/Design visual acceptance remains pending for full design-gated Phase 3 closure.
 
-07.06.2026 tech-stack discoverability follow-up is implemented locally and pending deploy/cache evidence: the stack information was not absent, but the public route was ambiguous. The broad FAQ answer on `/` lists many technologies, while the cleaner canonical stack framing is the `/services/` page-content `tech` section. The footer `Технологии` link no longer points to `/about/#technology` readiness copy; it now points to `/services/#technology`, and `RenderSupport` adds the required `id="technology"` to the live services tech section. Source/rendered hygiene guards cover the footer target and anchor. This closes the navigation/discoverability slice of `ABOUT-006` / `STACK-*` after production cache clear and rendered hygiene evidence. It does not close the separate content-governance question for the homepage FAQ technology answer, which still needs Content + Architect review to avoid overbroad vendor/language claims.
+07.06.2026 tech-stack discoverability follow-up is deployed with production evidence: the stack information was not absent, but the public route was ambiguous. The broad FAQ answer on `/` lists many technologies, while the cleaner canonical stack framing is the `/services/` page-content `tech` section. The footer `Технологии` link no longer points to `/about/#technology` readiness copy; it now points to `/services/#technology`, and `RenderSupport` adds the required `id="technology"` to the live services tech section. Source/rendered hygiene guards cover the footer target and anchor. Production `content:public-cache-clear` completed; `content:public-hygiene:rendered:prod:json` passed at `2026-06-07T11:36:50Z` with `pages_checked=13`, `issues_found=0` and `/services/ ok=true`; `page-content:source:http:wave2:prod` also passed for wave2 pages with expected Bitrix source. This closes the navigation/discoverability slice of `ABOUT-006` / `STACK-*`. It does not close the separate content-governance question for the homepage FAQ technology answer, which still needs Content + Architect review to avoid overbroad vendor/language claims.
 
 ### Challenge Verdict
 
