@@ -149,7 +149,7 @@ Any future task touching `/offer/` public filters, quick entries, taxonomy label
 
 ## Current Offer Filter Interaction Layer — 07.06.2026
 
-Challenge `/offer/` filter and preset interaction выявил отдельный UX/UI gap после taxonomy-source closure: state ownership is now governed, but state expression was weak. Local implementation on 07.06.2026 adds visible selected state, applied-filter summary, `#offer-catalog` fallback, same-URL progressive enhancement, browser history handling, accessible update state and source hygiene guard coverage. Production deploy/cache/rendered/browser evidence is still required before final `closed` status.
+Challenge `/offer/` filter and preset interaction выявил отдельный UX/UI gap после taxonomy-source closure: state ownership is now governed, but state expression was weak. Implementation on 07.06.2026 added visible selected state, applied-filter summary, `#offer-catalog` fallback, same-URL progressive enhancement, browser history handling, accessible update state, source hygiene guard coverage and repeatable `browser:smoke:offer`. Production cache/rendered/SEO/browser evidence passed for the current V1 scope.
 
 Документальный пакет:
 
@@ -167,12 +167,12 @@ Do not rewrite `/offer/` filters as a client-only SPA. Preserve server-rendered 
 
 | Cluster | Gap IDs | Current Risk |
 |---|---|---|
-| Context retention | `OFFER-FILTER-001` | Implemented locally: links/form/pagination target `#offer-catalog`; production rendered/browser evidence pending. |
-| Active selected state | `OFFER-FILTER-002`, `OFFER-FILTER-003` | Implemented locally: active quick chips and removable applied-filter summary exist; production rendered/browser evidence pending. |
-| Quick-entry behavior | `OFFER-FILTER-004` | Implemented locally for V1: quick entries remain replacement controls and copy says they reset other filters; additive behavior remains future owner decision. |
-| Progressive filtering | `OFFER-FILTER-005`, `OFFER-FILTER-006`, `OFFER-FILTER-010`, `OFFER-FILTER-012` | Implemented locally/monitor: same-URL AJAX, history and pagination selectors exist; performance/partial endpoint remains accepted-monitor. |
-| Accessibility and mobile | `OFFER-FILTER-007`, `OFFER-FILTER-008` | Implemented locally: `aria-live`, `aria-busy`, deterministic focus and mobile loading feedback exist; a11y/mobile browser smoke pending. |
-| SEO and guard coverage | `OFFER-FILTER-009`, `OFFER-FILTER-011` | Implemented locally: JS keeps server URLs/head metadata and source hygiene guard covers the interaction contract; production `seo:check:prod` and browser smoke pending. |
+| Context retention | `OFFER-FILTER-001` | Closed: links/form/pagination target `#offer-catalog`; production browser smoke confirms catalog-context actions. |
+| Active selected state | `OFFER-FILTER-002`, `OFFER-FILTER-003` | Closed: active quick chips and removable applied-filter summary exist; production browser smoke confirms both. |
+| Quick-entry behavior | `OFFER-FILTER-004` | Closed for V1: quick entries remain replacement controls and copy says they reset other filters; additive behavior requires future owner decision. |
+| Progressive filtering | `OFFER-FILTER-005`, `OFFER-FILTER-006`, `OFFER-FILTER-010`, `OFFER-FILTER-012` | Closed/monitor: same-URL AJAX, history and pagination passed production browser smoke; performance/partial endpoint remains accepted-monitor. |
+| Accessibility and mobile | `OFFER-FILTER-007`, `OFFER-FILTER-008` | Closed: `aria-live`, `aria-busy`, deterministic focus and mobile loading feedback exist; desktop/mobile browser smoke passed. |
+| SEO and guard coverage | `OFFER-FILTER-009`, `OFFER-FILTER-011` | Closed: JS keeps server URLs/head metadata; source guard, production rendered hygiene, `seo:check:prod` and `browser:smoke:offer` passed. |
 
 ### Planning Rule
 

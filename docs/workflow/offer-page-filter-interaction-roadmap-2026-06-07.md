@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: local implementation slice completed on 07.06.2026; production deploy/cache/rendered/browser evidence pending before final closure.
+Статус: production-validated for current V1 implementation on 07.06.2026; only `OFFER-FILTER-012` remains accepted-monitor for future performance/partial-endpoint decisions.
 Scope: `/offer/` filter and quick-entry interaction, active state, applied summary, progressive enhancement, browser history, accessibility and SEO-preserving filtered URLs. No taxonomy source, Bitrix schema, offer detail, sitemap, calculator, forms or analytics changes are included.
 
 ## Purpose
@@ -63,7 +63,7 @@ Exit criteria:
 - User can remove one selected filter without rebuilding the full form manually.
 - No route, SEO or taxonomy behavior changes.
 
-Status 07.06.2026: implemented locally. Quick chips now expose active state, summary chips provide individual removal, reset/full reload paths target `#offer-catalog`, and quick-entry copy explicitly says the quick entry resets other filters. Production rendered/browser evidence is pending.
+Status 07.06.2026: closed for current V1 scope. Quick chips expose active state, summary chips provide individual removal, reset/full reload paths target `#offer-catalog`, and quick-entry copy explicitly says the quick entry resets other filters. Production rendered hygiene and browser smoke passed.
 
 Suggested verification:
 
@@ -102,7 +102,7 @@ Exit criteria:
 - Disabling JS still works through links/form.
 - Failed fetch degrades to normal navigation or shows a safe retry state.
 
-Status 07.06.2026: implemented locally. Component JS intercepts only catalog-scoped links/form, fetches the same server URL, replaces the catalog root, updates head canonical/robots/title from the fetched document and uses `pushState`/`popstate`. Browser evidence is pending.
+Status 07.06.2026: closed for current V1 scope. Component JS intercepts only catalog-scoped links/form, fetches the same server URL, replaces the catalog root, updates head canonical/robots/title from the fetched document and uses `pushState`/`popstate`. Production browser smoke confirms quick apply, form submit, pagination and Back/Forward.
 
 Suggested verification:
 
@@ -141,7 +141,7 @@ Exit criteria:
 - Manual or automated browser evidence is attached to release notes.
 - Rollback is simple: JS enhancement can be disabled while server-rendered filters keep working.
 
-Status 07.06.2026: partially implemented locally. Source hygiene guard now asserts the selected-state summary, AJAX/history selectors and loading/mobile style contract. Production rendered hygiene, SEO and browser/mobile smoke are still required.
+Status 07.06.2026: closed for current V1 source/browser scope. Source hygiene guard asserts the selected-state summary, AJAX/history selectors and loading/mobile style contract; production rendered hygiene, SEO and desktop/mobile browser smoke passed. `OFFER-FILTER-012` remains accepted-monitor for future performance/partial-endpoint review.
 
 ## Non-Goals
 

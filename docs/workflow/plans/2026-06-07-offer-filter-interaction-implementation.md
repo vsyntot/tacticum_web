@@ -111,6 +111,7 @@ npm run content:public-cache-clear
 npm run content:public-hygiene:rendered:prod
 npm run content:public-hygiene:rendered:prod:json
 npm run seo:check:prod
+npm run browser:smoke:offer
 ```
 
 ### Manual / Browser Smoke
@@ -127,6 +128,18 @@ npm run seo:check:prod
 - Revert template/CSS changes if active summary UI regresses.
 - Run public cache clear and rendered hygiene after rollback.
 - Do not change canonical/noindex as rollback mitigation.
+
+## Production Evidence
+
+07.06.2026 production closure for current V1 scope:
+
+- `content:public-cache-clear` completed.
+- `content:public-hygiene:rendered:prod` passed for 13 public pages.
+- `content:public-hygiene:rendered:prod:json` passed at `2026-06-07T15:05:42Z` with `pages_checked=13`, `issues_found=0`.
+- `seo:check:prod` passed.
+- `browser:smoke:offer` passed against `https://tacticum.ru/offer/` on desktop and mobile.
+- Browser manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-07T15-08-08-184Z/manifest.json`.
+- Action evidence: `offer filter interaction ok quick, summary, form, pagination, history` for desktop and mobile.
 
 ## Docs To Update
 
