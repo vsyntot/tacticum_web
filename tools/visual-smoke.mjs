@@ -1035,6 +1035,21 @@ async function runActionSmoke(cdp) {
         }
         element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
       };
+      const waitUntil = async (predicate, message, timeout = 5000) => {
+        const startedAt = Date.now();
+        let lastError = null;
+        while (Date.now() - startedAt < timeout) {
+          try {
+            if (predicate()) {
+              return true;
+            }
+          } catch (error) {
+            lastError = error;
+          }
+          await sleep(100);
+        }
+        throw new Error(message + (lastError && lastError.message ? ': ' + lastError.message : ''));
+      };
 
       const run = async (label, fn, required = false) => {
         try {
@@ -1191,6 +1206,115 @@ async function runActionSmoke(cdp) {
           }
           return 'height=' + chatHeight;
         }, path === '/calculator/' || path === '/price/');
+
+        await run('offer filter interaction', async () => {
+          const rootSelector = '[data-offer-catalog-root]';
+          let root = find(rootSelector);
+          if (!root) return false;
+
+          const quickLink = find('a[data-offer-catalog-link][href*="/offer/catalog/sector/"]', root)
+            || find('a[data-offer-catalog-link][href*="/offer/catalog/scenario/"]', root);
+          if (!quickLink) {
+            throw new Error('quick filter link is missing');
+          }
+          activate(quickLink);
+          await waitUntil(
+            () => window.location.pathname.startsWith('/offer/catalog/') && find(rootSelector),
+            'quick filter did not update catalog URL'
+          );
+
+          root = find(rootSelector);
+          const activeQuick = find('a[data-offer-catalog-link][aria-current="true"]', root);
+          const summary = find('[aria-label="Примененные фильтры"]', root);
+          const status = find('[data-offer-catalog-status]', root);
+          if (!activeQuick) {
+            throw new Error('active quick filter chip is missing after quick apply');
+          }
+          if (!summary || !/Выбрано/.test(summary.textContent || '')) {
+            throw new Error('applied filter summary is missing after quick apply');
+          }
+          if (!status || status.getAttribute('aria-live') !== 'polite') {
+            throw new Error('offer status live region is missing');
+          }
+          if (document.activeElement !== status) {
+            throw new Error('offer update did not move focus to status region');
+          }
+
+          const removeChip = find('a[data-offer-catalog-link]', summary);
+          if (!removeChip) {
+            throw new Error('individual remove chip is missing');
+          }
+          activate(removeChip);
+          await waitUntil(
+            () => window.location.pathname === '/offer/' && !find('[aria-label="Примененные фильтры"]', find(rootSelector)),
+            'remove chip did not reset selected quick filter'
+          );
+
+          root = find(rootSelector);
+          const form = find('form[data-offer-catalog-form]', root);
+          if (!form) {
+            throw new Error('offer filter form is missing');
+          }
+          const filterSelect = ['budget', 'scenario', 'sector', 'phase']
+            .map((name) => find('select[name="' + name + '"]', form))
+            .find((select) => select && Array.from(select.options || []).some((option) => option.value));
+          if (!filterSelect) {
+            throw new Error('offer form has no selectable filter options');
+          }
+          const filterOption = Array.from(filterSelect.options || []).find((option) => option.value);
+          filterSelect.value = filterOption.value;
+          filterSelect.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+          await waitUntil(
+            () => window.location.pathname.includes('/offer/catalog/' + filterSelect.name + '/') && find('[aria-label="Примененные фильтры"]', find(rootSelector)),
+            'form submit did not update URL and summary'
+          );
+
+          root = find(rootSelector);
+          const resetLink = find('a[data-offer-catalog-link][href$="/offer/#offer-catalog"]', root)
+            || Array.from(findAll('a[data-offer-catalog-link]', root)).find((link) => /Сбросить/.test(link.textContent || ''));
+          if (!resetLink) {
+            throw new Error('reset link is missing after form submit');
+          }
+          activate(resetLink);
+          await waitUntil(
+            () => window.location.pathname === '/offer/' && find(rootSelector),
+            'reset link did not return to base offer URL'
+          );
+
+          root = find(rootSelector);
+          const paginationLink = find('nav[aria-label="Навигация по страницам расчетов"] a[data-offer-catalog-link][href*="/page/"]', root)
+            || find('nav[aria-label="Навигация по страницам расчетов"] a[data-offer-catalog-link]', root);
+          if (!paginationLink) {
+            throw new Error('pagination link is missing');
+          }
+          activate(paginationLink);
+          await waitUntil(
+            () => window.location.pathname.includes('/page/') && find(rootSelector),
+            'pagination did not update URL'
+          );
+          const pagePath = window.location.pathname;
+          window.history.back();
+          await waitUntil(
+            () => window.location.pathname === '/offer/' && find(rootSelector),
+            'browser Back did not restore base offer URL'
+          );
+          window.history.forward();
+          await waitUntil(
+            () => window.location.pathname === pagePath && find(rootSelector),
+            'browser Forward did not restore paginated offer URL'
+          );
+
+          root = find(rootSelector);
+          const finalReset = find('a[data-offer-catalog-link][href$="/offer/#offer-catalog"]', root)
+            || Array.from(findAll('a[data-offer-catalog-link]', root)).find((link) => /Сбросить/.test(link.textContent || ''));
+          if (finalReset) {
+            activate(finalReset);
+            await waitUntil(() => window.location.pathname === '/offer/' && find(rootSelector), 'final reset did not restore /offer/');
+          }
+
+          return 'quick, summary, form, pagination, history';
+        }, path === '/offer/');
 
         await run('price filters/search/level', async () => {
           const priceRoot = find('[data-price-list]') || find('.pricing-card')?.closest('section, main, body');

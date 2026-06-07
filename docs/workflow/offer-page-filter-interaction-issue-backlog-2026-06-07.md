@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: local implementation backlog state for `offer-page-filter-interaction-challenge-gap-analysis-2026-06-07.md`; production deploy/cache/rendered/browser evidence pending before final closure.
+Статус: production-validated backlog state for `offer-page-filter-interaction-challenge-gap-analysis-2026-06-07.md`; current V1 scope is closed, while future additive quick-entry behavior and partial endpoint/performance changes require new owner scope.
 Source register: `docs/workflow/offer-page-filter-interaction-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/offer-page-filter-interaction-roadmap-2026-06-07.md`
 Related taxonomy docs: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`
@@ -26,10 +26,10 @@ Related taxonomy docs: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-
 
 | Issue | Status | Start policy | Priority | Owners | Gap IDs | Objective |
 |---|---|---|---:|---|---|---|
-| `OFFER-FILTER-WP-01` | implemented-local-prod-pending | `fast-fix-allowed` + `design-gate-required` | P1 | UX + Frontend + QA + Content | `OFFER-FILTER-001`, `OFFER-FILTER-002`, `OFFER-FILTER-003`, `OFFER-FILTER-004` | Make selected filter state visible and reversible without changing architecture. |
-| `OFFER-FILTER-WP-02` | implemented-local-prod-pending | `progressive-enhancement-required` + `seo-gate-required` | P1 | Frontend + Backend + Architect + QA + SEO | `OFFER-FILTER-005`, `OFFER-FILTER-006`, `OFFER-FILTER-009`, `OFFER-FILTER-010`, `OFFER-FILTER-012` | Add same-URL AJAX enhancement with history and pagination while preserving URL/SEO fallback. |
-| `OFFER-FILTER-WP-03` | implemented-local-guarded-prod-pending | `design-gate-required` + `guard-scope-required` | P2 | UX + Frontend + QA | `OFFER-FILTER-007`, `OFFER-FILTER-008`, `OFFER-FILTER-011` | Harden accessibility, mobile state visibility and regression evidence. |
-| `OFFER-FILTER-WP-04` | v1-decision-encoded | `owner-review-required` + `seo-gate-required` | P2 | PM + UX + Content + SEO | `OFFER-FILTER-004`, `OFFER-TAX-008` | Decide whether quick entries replace current filters or combine with product/taxonomy journey. |
+| `OFFER-FILTER-WP-01` | closed | `fast-fix-allowed` + `design-gate-required` | P1 | UX + Frontend + QA + Content | `OFFER-FILTER-001`, `OFFER-FILTER-002`, `OFFER-FILTER-003`, `OFFER-FILTER-004` | Make selected filter state visible and reversible without changing architecture. |
+| `OFFER-FILTER-WP-02` | closed | `progressive-enhancement-required` + `seo-gate-required` | P1 | Frontend + Backend + Architect + QA + SEO | `OFFER-FILTER-005`, `OFFER-FILTER-006`, `OFFER-FILTER-009`, `OFFER-FILTER-010`, `OFFER-FILTER-012` | Add same-URL AJAX enhancement with history and pagination while preserving URL/SEO fallback. |
+| `OFFER-FILTER-WP-03` | closed | `design-gate-required` + `guard-scope-required` | P2 | UX + Frontend + QA | `OFFER-FILTER-007`, `OFFER-FILTER-008`, `OFFER-FILTER-011` | Harden accessibility, mobile state visibility and regression evidence. |
+| `OFFER-FILTER-WP-04` | closed-v1 | `owner-review-required` + `seo-gate-required` | P2 | PM + UX + Content + SEO | `OFFER-FILTER-004`, `OFFER-TAX-008` | Decide whether quick entries replace current filters or combine with product/taxonomy journey. |
 
 ## Local Challenge Evidence
 
@@ -47,10 +47,10 @@ Related taxonomy docs: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-
 
 | Work Package | Local Result | Production Gate Still Required |
 |---|---|---|
-| `OFFER-FILTER-WP-01` | Active quick chips, `#offer-catalog` fallback, applied summary, individual remove chips and full reset are implemented in `offer.catalog` templates. | Rendered prod smoke and desktop/mobile visual acceptance. |
-| `OFFER-FILTER-WP-02` | Same-URL progressive enhancement implemented in component JS with scoped link/form interception, DOM replacement, head sync and history support. | Browser smoke for quick apply, form submit, pagination, Back/Forward and failed-fetch fallback. |
-| `OFFER-FILTER-WP-03` | `aria-live`, `aria-busy`, deterministic focus target, mobile loading feedback and source hygiene guard coverage are implemented locally. | Keyboard/screen-reader smoke and mobile viewport evidence. |
-| `OFFER-FILTER-WP-04` | V1 behavior keeps quick entries as replacement controls; UI copy states that quick entry resets other filters. | Future owner review only if additive/combined quick-entry behavior is desired. |
+| `OFFER-FILTER-WP-01` | Active quick chips, `#offer-catalog` fallback, applied summary, individual remove chips and full reset are implemented in `offer.catalog` templates. | Production rendered hygiene and browser smoke passed. |
+| `OFFER-FILTER-WP-02` | Same-URL progressive enhancement implemented in component JS with scoped link/form interception, DOM replacement, head sync and history support. | Production browser smoke passed for quick apply, form submit, pagination and Back/Forward. |
+| `OFFER-FILTER-WP-03` | `aria-live`, `aria-busy`, deterministic focus target, mobile loading feedback and source/browser guard coverage are implemented. | Desktop/mobile production browser smoke passed. |
+| `OFFER-FILTER-WP-04` | V1 behavior keeps quick entries as replacement controls; UI copy states that quick entry resets other filters. | Closed for V1; future owner review only if additive/combined quick-entry behavior is desired. |
 
 Local check set:
 
@@ -71,6 +71,26 @@ npm run product:content:safety:check
 npm run seo:check
 git diff --check
 ```
+
+## Production Closure Evidence — 07.06.2026
+
+Production checks:
+
+```bash
+npm run content:public-cache-clear
+npm run content:public-hygiene:rendered:prod
+npm run content:public-hygiene:rendered:prod:json
+npm run seo:check:prod
+npm run browser:smoke:offer
+```
+
+Evidence:
+
+- rendered hygiene JSON passed at `2026-06-07T15:05:42Z` with `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`;
+- `seo:check:prod` passed;
+- `browser:smoke:offer` passed against `https://tacticum.ru/offer/` on desktop and mobile;
+- browser manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-07T15-08-08-184Z/manifest.json`;
+- desktop and mobile action evidence: `offer filter interaction ok quick, summary, form, pagination, history`.
 
 ## Issue Details
 

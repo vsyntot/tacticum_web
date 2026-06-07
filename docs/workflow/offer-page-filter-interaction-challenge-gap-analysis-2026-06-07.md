@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: local implementation complete for the first UX/progressive-enhancement slice; production deploy, cache clear, rendered smoke and browser/mobile evidence are still pending. No routes, canonical/noindex, Bitrix schema, taxonomy labels, offer detail, calculator or form payload changes are approved by this document.
+Статус: production-validated for the current V1 UX/progressive-enhancement slice. No routes, canonical/noindex, Bitrix schema, taxonomy labels, offer detail, calculator or form payload changes are approved by this document.
 Workflow lane: Full Feature discovery / UX documentation, with Fast Fix candidates.
 Scope: `/offer/` catalog page `https://tacticum.ru/offer/`, quick entries, filter form, result state, pagination, progressive enhancement, URL/history behavior, accessibility and SEO preservation.
 
@@ -73,23 +73,23 @@ It should not behave like:
 | `blocked` | Requires PM/UX/SEO/Architect/QA approval before implementation. |
 | `implemented-local` | Implemented and locally checked, but not production-closed until deploy/cache/rendered/browser evidence exists. |
 | `accepted-monitor` | Current risk is accepted and must be monitored on future changes. |
-| `closed` | Do not use unless implementation and evidence exist. |
+| `closed` | Implementation, local checks and production evidence exist for the stated scope. |
 
 ## Complete Gap Register
 
 | ID | Status | Priority | Area | Gap | Required Task | Existing Gap Mapping | Owner Group | Gates / Evidence |
 |---|---|---:|---|---|---|---|---|---|
-| `OFFER-FILTER-001` | implemented-local | P1 | Context retention | Applying quick entry/filter performs full navigation and leaves the user at the top of the page, away from the catalog area. | Preserve context after apply through anchor/scroll fallback and progressive AJAX replacement. | `UX-010`, `REL-002`, `CMP-008` | UX + Frontend + QA | Local links/forms/pagination now target `#offer-catalog`; browser evidence pending. |
-| `OFFER-FILTER-002` | implemented-local | P1 | Active state | Quick chips do not visually indicate the selected sector/scenario. | Add active styles, semantic attributes and current-state labels for selected quick entries. | `UX-002`, `UI-002`, `A11Y-001` | UX + Frontend + QA | Local quick chips render active styling, `aria-current` and check marker; browser evidence pending. |
-| `OFFER-FILTER-003` | implemented-local | P1 | Applied summary | Result count exists, but applied filters are not summarized as readable removable chips. | Add applied-filter summary with individual remove actions and full reset. | `UX-010`, `CLS-002`, `REL-002` | UX + Frontend + Content + QA | Local summary names active filters and exposes per-filter remove links; rendered evidence pending. |
-| `OFFER-FILTER-004` | implemented-local | P1 | Quick-entry semantics | Quick entries currently replace other dimensions, but the UI does not explain this. | Decide and encode behavior: replace-preset vs additive filter; update labels/copy accordingly. | `UX-002`, `CONTENT-004`, `OFFER-TAX-002` | PM + UX + Content + SEO | V1 keeps replacement semantics and says quick entry resets other filters; additive behavior remains a future owner decision. |
-| `OFFER-FILTER-005` | implemented-local | P2 | Progressive enhancement | There is no AJAX layer for filter submit, quick links or pagination. | Add JS enhancement that fetches same URL, replaces catalog subtree and updates history. | `CMP-008`, `STACK-003`, `REL-002` | Frontend + Backend + QA | Local JS fetches same URL and replaces `[data-offer-catalog-root]`; browser evidence pending. |
-| `OFFER-FILTER-006` | implemented-local | P2 | Browser history | A future AJAX implementation could break Back/Forward if state is not tied to URL. | Use `history.pushState`/`popstate`; always fetch/render from canonical pretty URL. | `SEO-009`, `REL-002`, `STACK-005` | Frontend + QA + SEO | Local JS uses `pushState`, `replaceState` and `popstate`; browser Back/Forward evidence pending. |
-| `OFFER-FILTER-007` | implemented-local | P2 | Accessibility | Filter updates have no loading state, focus management or `aria-live` result announcement. | Add accessible busy state, result-count live region and deterministic focus target. | `A11Y-001`, `UX-010`, `CMP-008` | UX + Frontend + QA | Local markup/JS adds `aria-live`, `aria-busy`, disabled submit during load and status focus; a11y smoke pending. |
-| `OFFER-FILTER-008` | implemented-local | P2 | Mobile UX | On mobile, full reload and long page structure make filtering feel especially lossy. | Add mobile-safe sticky/compact applied-state area or scroll positioning after apply. | `UX-006`, `UI-004`, `REL-002` | UX + Frontend + QA | Local anchor/scroll-margin/loading toast has mobile media handling; mobile browser smoke pending. |
-| `OFFER-FILTER-009` | implemented-local | P1 | SEO contract | AJAX can accidentally create client-only filtered states or change canonical/indexability behavior. | Preserve current server URLs, canonical `/offer/`, `noindex,follow` and sitemap behavior. | `SEO-009`, `OFFER-TAX-007`, `REL-002` | SEO + Architect + Frontend + QA | Local implementation fetches server URLs and updates title/canonical/robots from response; local `seo:check` passed, production `seo:check:prod` pending. |
-| `OFFER-FILTER-010` | implemented-local | P2 | Pagination integration | Pagination is part of filter state and must not regress under AJAX or active chips. | Include pagination links in the same enhancement path and reset page on filter changes. | `REL-002`, `STACK-005`, `UX-010` | Frontend + QA | Local pagination links use catalog href and enhancement selector; browser evidence pending. |
-| `OFFER-FILTER-011` | implemented-local | P2 | Guard coverage | Existing hygiene/SEO checks do not assert active chip, applied summary or no-JS fallback behavior. | Add source/browser smoke scope for selected-state UI and URL/history behavior. | `REL-002`, `STACK-005`, `CMP-008` | QA + Frontend + SEO | Source hygiene guard now asserts active chips, summary, AJAX/history selectors and loading styles; browser smoke pending. |
+| `OFFER-FILTER-001` | closed | P1 | Context retention | Applying quick entry/filter performs full navigation and leaves the user at the top of the page, away from the catalog area. | Preserve context after apply through anchor/scroll fallback and progressive AJAX replacement. | `UX-010`, `REL-002`, `CMP-008` | UX + Frontend + QA | Production browser smoke confirms quick apply, reset and pagination keep catalog context. |
+| `OFFER-FILTER-002` | closed | P1 | Active state | Quick chips do not visually indicate the selected sector/scenario. | Add active styles, semantic attributes and current-state labels for selected quick entries. | `UX-002`, `UI-002`, `A11Y-001` | UX + Frontend + QA | Production browser smoke confirms active quick chip with `aria-current` after quick apply. |
+| `OFFER-FILTER-003` | closed | P1 | Applied summary | Result count exists, but applied filters are not summarized as readable removable chips. | Add applied-filter summary with individual remove actions and full reset. | `UX-010`, `CLS-002`, `REL-002` | UX + Frontend + Content + QA | Production browser smoke confirms applied summary, individual remove and reset. |
+| `OFFER-FILTER-004` | closed | P1 | Quick-entry semantics | Quick entries currently replace other dimensions, but the UI does not explain this. | Decide and encode behavior: replace-preset vs additive filter; update labels/copy accordingly. | `UX-002`, `CONTENT-004`, `OFFER-TAX-002` | PM + UX + Content + SEO | V1 replacement semantics are encoded in UI copy; reopen only if additive behavior is desired. |
+| `OFFER-FILTER-005` | closed | P2 | Progressive enhancement | There is no AJAX layer for filter submit, quick links or pagination. | Add JS enhancement that fetches same URL, replaces catalog subtree and updates history. | `CMP-008`, `STACK-003`, `REL-002` | Frontend + Backend + QA | Production browser smoke confirms same-URL quick/filter/pagination updates. |
+| `OFFER-FILTER-006` | closed | P2 | Browser history | A future AJAX implementation could break Back/Forward if state is not tied to URL. | Use `history.pushState`/`popstate`; always fetch/render from canonical pretty URL. | `SEO-009`, `REL-002`, `STACK-005` | Frontend + QA + SEO | Production browser smoke confirms Back/Forward restore offer catalog states. |
+| `OFFER-FILTER-007` | closed | P2 | Accessibility | Filter updates have no loading state, focus management or `aria-live` result announcement. | Add accessible busy state, result-count live region and deterministic focus target. | `A11Y-001`, `UX-010`, `CMP-008` | UX + Frontend + QA | Production browser smoke confirms status `aria-live` and focus target after update. |
+| `OFFER-FILTER-008` | closed | P2 | Mobile UX | On mobile, full reload and long page structure make filtering feel especially lossy. | Add mobile-safe sticky/compact applied-state area or scroll positioning after apply. | `UX-006`, `UI-004`, `REL-002` | UX + Frontend + QA | Production browser smoke passed on desktop and mobile viewports. |
+| `OFFER-FILTER-009` | closed | P1 | SEO contract | AJAX can accidentally create client-only filtered states or change canonical/indexability behavior. | Preserve current server URLs, canonical `/offer/`, `noindex,follow` and sitemap behavior. | `SEO-009`, `OFFER-TAX-007`, `REL-002` | SEO + Architect + Frontend + QA | Production `seo:check:prod` and rendered hygiene passed after deploy/cache clear. |
+| `OFFER-FILTER-010` | closed | P2 | Pagination integration | Pagination is part of filter state and must not regress under AJAX or active chips. | Include pagination links in the same enhancement path and reset page on filter changes. | `REL-002`, `STACK-005`, `UX-010` | Frontend + QA | Production browser smoke confirms pagination AJAX and Back/Forward. |
+| `OFFER-FILTER-011` | closed | P2 | Guard coverage | Existing hygiene/SEO checks do not assert active chip, applied summary or no-JS fallback behavior. | Add source/browser smoke scope for selected-state UI and URL/history behavior. | `REL-002`, `STACK-005`, `CMP-008` | QA + Frontend + SEO | Source guard and new `browser:smoke:offer` cover the interaction contract. |
 | `OFFER-FILTER-012` | accepted-monitor | P3 | Response strategy | Fetching full HTML and replacing catalog is acceptable now, but may need a partial endpoint later. | Start with same-URL HTML fetch; revisit partial endpoint only if payload/performance becomes an issue. | `BPC-ARCH-003`, `STACK-005` | Architect + Frontend + Backend | Performance smoke after implementation; no new API unless justified. |
 
 ## Minimum Closure Bundles
@@ -172,13 +172,27 @@ npm run seo:check
 git diff --check
 ```
 
-Production evidence still required before using `closed`:
+## Production Closure Evidence — 07.06.2026
 
-- `npm run content:public-cache-clear`;
-- `npm run content:public-hygiene:rendered:prod`;
-- `npm run content:public-hygiene:rendered:prod:json`;
-- `npm run seo:check:prod`;
-- browser/mobile smoke for quick chip apply, form submit, per-chip remove, reset all, pagination, Back/Forward and JS-disabled fallback if tooling supports it.
+Production checks after deploy/cache clear:
+
+- `npm run content:public-cache-clear` completed on production.
+- `npm run content:public-hygiene:rendered:prod` passed for 13 public pages, including `/offer/`.
+- `npm run content:public-hygiene:rendered:prod:json` passed at `2026-06-07T15:05:42Z` with `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`.
+- `npm run seo:check:prod` passed.
+- `npm run browser:smoke:offer` passed locally against `https://tacticum.ru/offer/` after deploy: desktop and mobile status `200`, runtime errors `0`, SEO ok, action errors `0`.
+- Browser smoke manifest: `/var/folders/57/qk1pl2_d2ydgzzhvk4p3swrw0000gn/T/tacticum-visual-smoke-2026-06-07T15-08-08-184Z/manifest.json`.
+- Manifest action evidence: `offer filter interaction ok quick, summary, form, pagination, history` for both desktop and mobile.
+
+Repeatable post-deploy command set:
+
+```bash
+npm run content:public-cache-clear
+npm run content:public-hygiene:rendered:prod
+npm run content:public-hygiene:rendered:prod:json
+npm run seo:check:prod
+npm run browser:smoke:offer
+```
 
 ## Related Documents
 
