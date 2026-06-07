@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: challenge source register, not an approval package; fast-fix/guard implementation deployed and production-rendered evidence passed; proof-safe trust-storyline implementation is local pending deploy evidence; owner approvals pending for broader work.
+Статус: challenge source register, not an approval package; fast-fix/guard implementation and proof-safe trust-storyline implementation are deployed with production-rendered evidence; owner approvals pending for broader work.
 Workflow lane: Full Feature discovery / documentation, with Fast Fix candidates.
 Scope: `/about/` product trust page, UX/UI, content, Russian-first language, storyline, rendered anchors/IDs and page-content ownership. No PHP, JS, CSS, Bitrix admin data, REST, CRM, analytics or SEO route changes in this task.
 
@@ -50,7 +50,7 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:24:11Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
 | `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=74964`, all wave2 pages rendered from Bitrix source as expected. |
 
-## Local Evidence After Trust Storyline Slice
+## Trust Storyline Slice Evidence
 
 | Command / Evidence | Result |
 |---|---|
@@ -59,6 +59,9 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | `npm run content:public-hygiene:rendered:self-test`, local 07.06.2026 | Passed; rendered guard fixture covers `#start-work` and old career/stack terms. |
 | `npm run product:content:safety:check`, local 07.06.2026 | Passed. |
 | `npm run seo:check` / `npm run bitrix:check`, local 07.06.2026 | Passed. |
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed after trust-storyline deploy. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:49:12Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=76054`, all wave2 pages rendered from Bitrix source as expected. |
 
 ## Challenge Verdict
 
@@ -108,35 +111,35 @@ Recommended hierarchy:
 | ID | Status | Priority | Area | Gap | Required Task | Existing Gap Mapping | Owner Group | Gates / Evidence |
 |---|---|---:|---|---|---|---|---|---|
 | `ABOUT-001` | closed | P0 | Timeline / trust | Rendered page showed `2025` badge with `Сегодня` heading on 07.06.2026. | Split `2025` as a past milestone and add a non-stale current-focus block, or use approved dynamic/current wording. | `CLS-002`, `CLS-003`, `REL-002`, `CONTENT-004` | PM + Content + QA | Production rendered hygiene passed at `2026-06-07T08:24:11Z`; `/about/` has no stale `year + Сегодня` contradiction. |
-| `ABOUT-002` | in-progress | P1 | Storyline | Page narrative was fragmented: company story, trust, tech stack, career/culture and CTA sections competed. | Rewrite `/about/` as one trust storyline with a clear page role and section hierarchy. | `CLS-003`, `CLS-010`, `UX-001`, `CONTENT-005`, `PCJMU-001` | PM + UX + Content + Sales | Local proof-safe rewrite reframes hardcoded copy and seed around corporate AI launch; production evidence and owner review pending. |
-| `ABOUT-003` | in-progress | P1 | Language | Public copy exposed internal English/product terms: `product-first`, `delivery`, `backend`, `data/RAG`, `quality gates`, `production rollout`. | Apply Russian-first glossary; explain necessary technical terms on first use. | `CLS-002`, `CLS-011`, `CONTENT-004`, `SEO-009` | Content + PM + SEO + Architect | Local source/runtime guard removes visible old terms and generic about wording; broader editorial review remains open. |
+| `ABOUT-002` | in-progress | P1 | Storyline | Page narrative was fragmented: company story, trust, tech stack, career/culture and CTA sections competed. | Rewrite `/about/` as one trust storyline with a clear page role and section hierarchy. | `CLS-003`, `CLS-010`, `UX-001`, `CONTENT-005`, `PCJMU-001` | PM + UX + Content + Sales | Proof-safe rewrite is deployed and rendered hygiene passed at `2026-06-07T08:49:12Z`; owner review and proof matrix pending. |
+| `ABOUT-003` | in-progress | P1 | Language | Public copy exposed internal English/product terms: `product-first`, `delivery`, `backend`, `data/RAG`, `quality gates`, `production rollout`. | Apply Russian-first glossary; explain necessary technical terms on first use. | `CLS-002`, `CLS-011`, `CONTENT-004`, `SEO-009` | Content + PM + SEO + Architect | Source/runtime guard and production rendered hygiene remove visible old terms and generic about wording; broader editorial review remains open. |
 | `ABOUT-004` | blocked | P1 | Trust / proof | Page does not provide enough verifiable trust artifacts for enterprise AI: governance, data boundary, delivery responsibility, support model, evidence status. | Build proof-safe trust matrix for `/about/`; decide what can be public, private-by-request or blocked. | `CLS-007`, `CONTENT-001`, `CONTENT-002`, `CONTENT-003`, `ARCH-009`, `UI-005` | PM + Sales + Legal + Content | Legal/Sales/PM approval before new claims, metrics, logos, certifications or named proof. |
 | `ABOUT-005` | open | P1 | Team UX/UI / accessibility | Team section uses large portrait crops and hover/overlay-heavy presentation; critical bio/detail text can be inaccessible or visually noisy. | Redesign team cards for consistent crop, readable role summary and keyboard/mobile accessibility. | `UI-001`, `UI-002`, `UI-005`, `UI-010`, `CMP-008` | Design + Frontend + QA + PM | Design gate; browser/mobile smoke; no personal/team data changes without owner approval. |
-| `ABOUT-006` | in-progress | P1 | Technology stack | Stack block read generic and partly dated: `BERT`, `NLTK`, `Hadoop`, `Tableau`, `передовые технологии`; weak tie to current product trust. | Replace stack inventory with capability/risk contours tied to enterprise AI launch, or retire stack block. | `CLS-004`, `CLS-002`, `STACK-003`, `CONTENT-004`, `UI-006` | Content + Architect + Sales + PM | Local stack copy now describes launch-readiness checks; Architect/Content review and production evidence pending. |
+| `ABOUT-006` | in-progress | P1 | Technology stack | Stack block read generic and partly dated: `BERT`, `NLTK`, `Hadoop`, `Tableau`, `передовые технологии`; weak tie to current product trust. | Replace stack inventory with capability/risk contours tied to enterprise AI launch, or retire stack block. | `CLS-004`, `CLS-002`, `STACK-003`, `CONTENT-004`, `UI-006` | Content + Architect + Sales + PM | Stack copy now describes launch-readiness checks and production rendered hygiene passed; Architect/Content review pending. |
 | `ABOUT-007` | closed | P1 | Navigation / HTML integrity | Rendered HTML had duplicate `id="about-company"`; footer linked to missing `#careers`; `#partners` pointed to technology contours. | Fix form/section ID collision; add/remove/rename anchors; align footer labels with actual sections. | `CMP-001`, `CMP-008`, `SEO-009`, `REL-002`, `BPC-CMP-001` | Frontend + QA + SEO | Production rendered hygiene passed at `2026-06-07T08:24:11Z`; rendered IDs are unique and `/about/#...` anchors resolve. |
-| `ABOUT-008` | in-progress | P2 | CTA / career-culture mismatch | Career/culture and final CTA copy were generic: `достичь новых высот`; page mixed hiring/culture with buyer trust without clear transition. | Decide whether careers remains on `/about/`; rewrite culture/CTA around buyer trust or create explicit careers section. | `CLS-010`, `CLS-009`, `UX-010`, `CONTENT-004` | PM + Content + UX | Local footer/final section now uses `#start-work` while keeping `#careers` alias; production evidence and final career strategy pending. |
+| `ABOUT-008` | in-progress | P2 | CTA / career-culture mismatch | Career/culture and final CTA copy were generic: `достичь новых высот`; page mixed hiring/culture with buyer trust without clear transition. | Decide whether careers remains on `/about/`; rewrite culture/CTA around buyer trust or create explicit careers section. | `CLS-010`, `CLS-009`, `UX-010`, `CONTENT-004` | PM + Content + UX | Footer/final section uses `#start-work`, keeps `#careers` alias and passed production rendered hygiene; final career strategy pending. |
 | `ABOUT-009` | open | P1 | Content storage / runtime ownership | About page mixes hardcoded partials, live page-content rows and fallback-retirement comments. This makes source of truth unclear. | Decide per section whether Bitrix row, PHP partial or component owns public content; sync seed/live rows and comments. | `CSG-007`, `CSG-008`, `CSG-012`, `BPC-CMP-002`, `ARCH-001` | Architect + Backend + Content + QA | Page-content audit/source marker checks; cache clear after Bitrix row changes; no silent fallback resurrection. |
 | `ABOUT-010` | closed | P2 | Guard coverage | Existing content hygiene guards passed public label checks, but did not explicitly catch stale timeline, duplicate IDs or missing anchors for `/about/`. | Add source/rendered guard or release checklist for `/about/` trust defects. | `CLS-012`, `STACK-004`, `STACK-005`, `REL-002` | QA + Frontend + Backend | Source/rendered hygiene guards implemented; self-tests pass locally and production rendered hygiene passed at `2026-06-07T08:24:11Z`. |
 
 Implementation note 07.06.2026: fast-fix implementation updated `/about/` source partials, footer menu, page-content seed, `PublicCopyNormalizer`, source hygiene and rendered hygiene guards. The timeline now separates the 2025 milestone from current focus, `FIELD_PREFIX` for `about-cta` no longer collides with `id="about-company"`, footer navigation uses `/about/#technology` instead of `/about/#partners`, `#careers` has a real rendered anchor, generic CTA copy was removed, visible `quality gates` / `production rollout` / generic stack terms were replaced, and source/rendered hygiene self-tests pass. Production deploy/cache clear evidence passed on 07.06.2026: `content:public-hygiene:rendered:prod:json` reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`; `page-content:source:http:wave2:prod` confirms `/about/ source=bitrix sections=3/3`. This closes `ABOUT-001`, `ABOUT-007` and `ABOUT-010` for fast-fix/guard scope. `ABOUT-003`, `ABOUT-006` and `ABOUT-008` remain partial owner-gated maturity work.
 
-Implementation note 07.06.2026, trust-storyline local slice: source partials and wave2 page-content seed now frame `/about/` around corporate AI launch responsibility: scenario, data/integration contour, risk control, launch plan, team roles and first safe step. `.bottom.menu.php` now points company footer navigation to `/about/#start-work`; `#careers` remains as a backward-compatible alias. `PublicCopyNormalizer::normalizePageContentSection()` and `PageContent\\Repository` protect old live `/about/` Bitrix rows without global short-word replacements. This advances `ABOUT-002`, `ABOUT-003`, `ABOUT-006` and `ABOUT-008` locally, but does not close owner-gated proof, team UI, page-content ownership or production evidence gates.
+Implementation note 07.06.2026, trust-storyline slice: source partials and wave2 page-content seed now frame `/about/` around corporate AI launch responsibility: scenario, data/integration contour, risk control, launch plan, team roles and first safe step. `.bottom.menu.php` now points company footer navigation to `/about/#start-work`; `#careers` remains as a backward-compatible alias. `PublicCopyNormalizer::normalizePageContentSection()` and `PageContent\\Repository` protect old live `/about/` Bitrix rows without global short-word replacements. Production deploy/cache clear evidence passed on 07.06.2026: `content:public-hygiene:rendered:prod:json` reports `checked_at=2026-06-07T08:49:12Z`, `pages_checked=13`, `issues_found=0`; `page-content:source:http:wave2:prod` confirms `/about/ source=bitrix sections=3/3 bytes=76054`. This advances `ABOUT-002`, `ABOUT-003`, `ABOUT-006` and `ABOUT-008` with production evidence, but does not close owner-gated proof, team UI or page-content ownership gates.
 
 ## Section-Level Findings
 
 | Section / Area | Finding | Priority | Related IDs |
 |---|---|---:|---|
-| Hero | Local source now frames Tacticum as responsible for corporate AI launch; production rendered evidence pending. | P1 | `ABOUT-002`, `ABOUT-003` |
-| Company intro | Local source now explains scenario, data, roles, integrations, risks and next step; proof matrix remains owner-gated. | P1 | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` |
-| Stats cards | Old `AI/IT`, `B2B`, `Team` labels are removed locally and guarded; production rendered evidence pending. | P1 | `ABOUT-004`, `ABOUT-002` |
+| Hero | Production rendered hygiene passed after copy was reframed around responsibility for corporate AI launch. | P1 | `ABOUT-002`, `ABOUT-003` |
+| Company intro | Production copy explains scenario, data, roles, integrations, risks and next step; proof matrix remains owner-gated. | P1 | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` |
+| Stats cards | Old `AI/IT`, `B2B`, `Team` labels are removed and guarded; production rendered hygiene passed. | P1 | `ABOUT-004`, `ABOUT-002` |
 | Timeline | Original `2025 / Сегодня` stale issue is fixed in production; guard should prevent recurrence. | P0 | `ABOUT-001`, `ABOUT-010` |
 | Trust page-content | Local seed and runtime normalizer reframe live rows around launch risk; proof-safe trust artifacts still need owner review. | P1 | `ABOUT-003`, `ABOUT-004` |
 | Values | Local seed replaces generic value labels with operating behavior: hypothesis, responsibility and constraints. | P2 | `ABOUT-002`, `ABOUT-008` |
 | Team | Portrait grid dominates; detail/role information needs buyer-trust purpose and accessible presentation. | P1 | `ABOUT-005` |
 | `Технологические контуры` | Local source reframes the section as reliable AI launch contours; Architect/Content review pending. | P1 | `ABOUT-003`, `ABOUT-006`, `ABOUT-007` |
-| Stack | Local source replaces tool inventory with launch-readiness checks; production evidence pending. | P1 | `ABOUT-006` |
+| Stack | Tool inventory was replaced with launch-readiness checks and production rendered hygiene passed. | P1 | `ABOUT-006` |
 | Career/culture | Local footer/final section use start-work framing; `#careers` remains as compatibility alias. | P2 | `ABOUT-008`, `ABOUT-007` |
-| CTA | Local CTA asks for the AI scenario and first safe step; production evidence pending. | P2 | `ABOUT-008`, `ABOUT-010` |
+| CTA | CTA asks for the AI scenario and first safe step; production rendered hygiene passed. | P2 | `ABOUT-008`, `ABOUT-010` |
 | Footer anchors | Original missing/misleading anchors are fixed in production and covered by rendered hygiene guard. | P1 | `ABOUT-007`, `ABOUT-010` |
 
 ## Minimum Closure Bundles
@@ -161,7 +164,7 @@ Must close before calling `/about/` product-trust mature:
 - `ABOUT-006`
 - `ABOUT-008`
 
-Status 07.06.2026: local proof-safe copy/storyline slice is implemented and guarded, but bundle is not closed until owner review, production deploy/cache clear and rendered evidence pass.
+Status 07.06.2026: proof-safe copy/storyline slice is implemented, deployed and guarded with production rendered evidence at `2026-06-07T08:49:12Z`, but bundle is not fully closed until owner review and proof matrix decisions exist.
 
 ### Bundle C — Team/UI And Accessibility
 
