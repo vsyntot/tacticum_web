@@ -81,7 +81,7 @@ The challenge initially found release-hygiene and editorial gaps that should not
 | `PUBLIC-E2E-011` | accepted-monitor | P2 | CSP hardening | CSP is still `Content-Security-Policy-Report-Only`. | Home response header shows report-only CSP with Yandex/inline allowances. | Keep as monitor until report-only baseline is triaged; enforce only after Security/QA review and production smoke. |
 | `PUBLIC-E2E-012` | open | P3 | `/contacts/` conversion clarity | Contact page is technically clean but could better set response expectations and required input. | `/contacts/` smoke/SEO pass; content review notes weak expectation-setting. | Add concise response-time/channel/preparation copy if PM approves; no form payload contract change unless Security/Integration lane is opened. |
 | `PUBLIC-E2E-013` | open | P3 | `/policies/` document navigation | Policy page has one main legal H1 and only CTA-level H2, making long legal text less navigable. | `/policies/` smoke/SEO pass; H2 count is 1 and it is `Связаться с нами`. | Add legal section anchors/headings if Content/Legal approve; keep canonical and policy source intact. |
-| `PUBLIC-E2E-014` | closed for lang/release guard scope | P2 | Guard coverage | Existing `seo:check` did not catch missing `<html lang>` before manual crawl, and sitemap freshness was split into a separate command. | `seo:check` now verifies template language declaration and HTTP `lang=ru`; `release:public-precheck` now checks public page `lang=ru`; production `seo:check:prod` and `release:public-precheck:prod` passed after deploy; `sitemap:static:check` passes locally after artifact regeneration. | Closed for immediate guard gap. Optional future hardening can fold static sitemap freshness into release precheck. |
+| `PUBLIC-E2E-014` | closed | P2 | Guard coverage | Existing `seo:check` did not catch missing `<html lang>` before manual crawl, and release precheck did not cover the full public SEO surface. | `seo:check` now verifies template language declaration and HTTP `lang=ru`; `release:public-precheck` now checks public page `lang=ru`, robots, sitemap index, static sitemap, offer sitemap and webmanifest; production `seo:check:prod` and `release:public-precheck:prod` passed after deploy; `sitemap:static:check` passes locally after artifact regeneration. | Closed for current release-critical public SEO surface guard coverage. |
 
 ## Page-By-Page Challenge Notes
 
@@ -163,6 +163,16 @@ Fast Fix implementation closed `PUBLIC-E2E-010`:
 - Production evidence passed after deploy/cache refresh: `npm run content:public-cache-clear`, `npm run seo:check:prod`, and `npm run content:public-hygiene:rendered:prod:json` at `2026-06-07T20:37:59Z` with `pages_checked=13`, `issues_found=0`.
 
 If a future `seo:check:prod` reports an empty or wrong manifest type, the likely fix is server/nginx MIME configuration, not PHP/template code.
+
+## Release Precheck SEO Surface Update 2026-06-07
+
+Fast Fix implementation closed the optional `PUBLIC-E2E-WP-05` consolidation scope:
+
+- `tools/release-public-precheck.mjs` now checks `robots_txt`, `sitemap_index`, `static_sitemap`, `offer_sitemap` and `webmanifest` in addition to existing health, public `lang=ru`, product source, Metrika, admin-surface and legacy-alias checks.
+- The checks are HTTP-only and do not require Chrome/Chromium.
+- `/offer/sitemap.php` is checked by loc inventory and ownership, not by full URL HEAD crawl; `seo:check:prod` remains the deeper SEO guard.
+- Local `node --check tools/release-public-precheck.mjs` passed.
+- Production `npm run release:public-precheck:prod` passed with `robots_txt status=200 sitemap=ok`, `sitemap_index status=200 sitemaps=2`, `static_sitemap status=200 urls=13 missing=0`, `offer_sitemap status=200 urls=1118` and `webmanifest status=200 type=application/manifest+json`.
 
 ## Reopen Triggers
 

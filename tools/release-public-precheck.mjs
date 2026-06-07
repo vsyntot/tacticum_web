@@ -34,18 +34,28 @@ const REQUIRED_PRODUCT_BLOCKS = [
 ];
 const REQUIRED_HEALTH_SCOPES = ['api', 'ai', 'telegram', 'offer', 'content', 'products', 'rest', 'security'];
 const LEGACY_ENDPOINTS = ['/local/rest/tacticum_offer.php', '/local/rest/tacticum_sale.php'];
+const ROOT_SITEMAP_PATH = '/sitemap.xml';
+const STATIC_SITEMAP_PATH = '/sitemap-basic-files.xml';
+const OFFER_SITEMAP_PATH = '/offer/sitemap.php';
+const WEBMANIFEST_PATH = '/local/templates/tacticum/images/site.webmanifest';
+const ACCEPTED_WEBMANIFEST_CONTENT_TYPES = new Set([
+  'application/manifest+json',
+  'application/json',
+]);
 
 const baseUrl = normalizeBaseUrl(
   process.env.TACTICUM_RELEASE_BASE_URL
     || process.env.TACTICUM_PRODUCT_SOURCE_BASE_URL
     || 'https://tacticum.ru'
 );
+const siteOrigin = new URL(baseUrl).origin;
 
 const checks = [];
 const failures = [];
 
 await checkHealthConfig();
 await checkPublicHtmlLanguage();
+await checkSeoPublicSurface();
 await checkProductSource();
 await checkMetrikaPublicTag();
 await checkBitrixAdminSurface();
@@ -102,6 +112,60 @@ async function checkPublicHtmlLanguage() {
     if (!ok) {
       fail(`html_lang ${page}`, `expected public page to render <html lang="ru">; status=${response.status}`);
     }
+  }
+}
+
+async function checkSeoPublicSurface() {
+  const rootSitemapUrl = `${siteOrigin}${ROOT_SITEMAP_PATH}`;
+  const staticSitemapUrl = `${siteOrigin}${STATIC_SITEMAP_PATH}`;
+  const offerSitemapUrl = `${siteOrigin}${OFFER_SITEMAP_PATH}`;
+
+  const robots = await requestText(new URL('/robots.txt', baseUrl));
+  const robotsOk = robots.status === 200 && robots.body.includes(`Sitemap: ${rootSitemapUrl}`);
+  addCheck('robots_txt', robotsOk, `status=${robots.status} sitemap=${robotsOk ? 'ok' : 'missing'}`);
+  if (!robotsOk) {
+    fail('robots_txt', `expected HTTP 200 and Sitemap: ${rootSitemapUrl}; status=${robots.status}`);
+  }
+
+  const sitemapIndex = await requestText(new URL(ROOT_SITEMAP_PATH, baseUrl));
+  const sitemapIndexLocs = extractTags(sitemapIndex.body, 'loc');
+  const sitemapIndexOk = sitemapIndex.status === 200
+    && sitemapIndexLocs.includes(staticSitemapUrl)
+    && sitemapIndexLocs.includes(offerSitemapUrl)
+    && !sitemapIndexLocs.some((loc) => loc.includes('/sitemap-files.xml') || loc.includes('/sitemap-basic.xml'));
+  addCheck('sitemap_index', sitemapIndexOk, `status=${sitemapIndex.status} sitemaps=${sitemapIndexLocs.length}`);
+  if (!sitemapIndexOk) {
+    fail('sitemap_index', `expected root sitemap to include ${staticSitemapUrl} and ${offerSitemapUrl} only; got=${sitemapIndexLocs.join(',') || '-'}`);
+  }
+
+  const staticSitemap = await requestText(new URL(STATIC_SITEMAP_PATH, baseUrl));
+  const staticSitemapLocs = extractTags(staticSitemap.body, 'loc');
+  const expectedStaticUrls = DEFAULT_PUBLIC_PAGES.map((page) => `${siteOrigin}${page}`);
+  const missingStaticUrls = expectedStaticUrls.filter((loc) => !staticSitemapLocs.includes(loc));
+  const unsafeStaticUrls = staticSitemapLocs.filter((loc) => loc.includes('/bitrix/') || loc.includes('/local/') || loc.includes('/404.php'));
+  const staticSitemapOk = staticSitemap.status === 200 && missingStaticUrls.length === 0 && unsafeStaticUrls.length === 0;
+  addCheck('static_sitemap', staticSitemapOk, `status=${staticSitemap.status} urls=${staticSitemapLocs.length} missing=${missingStaticUrls.length}`);
+  if (!staticSitemapOk) {
+    fail('static_sitemap', `expected ${expectedStaticUrls.length} public URLs and no unsafe locs; missing=${missingStaticUrls.join(',') || '-'} unsafe=${unsafeStaticUrls.join(',') || '-'} status=${staticSitemap.status}`);
+  }
+
+  const offerSitemap = await requestText(new URL(OFFER_SITEMAP_PATH, baseUrl));
+  const offerSitemapLocs = extractTags(offerSitemap.body, 'loc');
+  const offerSitemapOk = offerSitemap.status === 200
+    && offerSitemapLocs.length > 0
+    && offerSitemapLocs.every((loc) => loc.startsWith(`${siteOrigin}/offer/`))
+    && !offerSitemapLocs.some((loc) => loc.includes('/bitrix/') || loc.includes('/local/') || loc.includes('/404.php'));
+  addCheck('offer_sitemap', offerSitemapOk, `status=${offerSitemap.status} urls=${offerSitemapLocs.length}`);
+  if (!offerSitemapOk) {
+    fail('offer_sitemap', `expected offer sitemap locs under ${siteOrigin}/offer/ and no unsafe locs; urls=${offerSitemapLocs.length} status=${offerSitemap.status}`);
+  }
+
+  const manifest = await requestText(new URL(WEBMANIFEST_PATH, baseUrl), { method: 'HEAD' });
+  const manifestType = String(manifest.headers['content-type'] || '').split(';', 1)[0].trim().toLowerCase();
+  const manifestOk = manifest.status === 200 && ACCEPTED_WEBMANIFEST_CONTENT_TYPES.has(manifestType);
+  addCheck('webmanifest', manifestOk, `status=${manifest.status} type=${manifestType || '-'}`);
+  if (!manifestOk) {
+    fail('webmanifest', `expected application/manifest+json or application/json; got type=${manifestType || '-'} status=${manifest.status}`);
   }
 }
 
@@ -186,8 +250,9 @@ async function checkLegacyAliasHeaders() {
 function requestText(url, options = {}, redirects = 0) {
   return new Promise((resolve, reject) => {
     const client = url.protocol === 'http:' ? http : https;
-    const request = client.get(url, {
+    const request = client.request(url, {
       ...options,
+      method: options.method || 'GET',
       headers: {
         'User-Agent': 'tacticum-release-public-precheck/1.0',
         ...(options.headers || {}),
@@ -206,6 +271,14 @@ function requestText(url, options = {}, redirects = 0) {
         return;
       }
 
+      if ((options.method || 'GET').toUpperCase() === 'HEAD') {
+        response.resume();
+        response.on('end', () => {
+          resolve({ status, headers: response.headers, body: '' });
+        });
+        return;
+      }
+
       response.setEncoding('utf8');
       let body = '';
       response.on('data', (chunk) => {
@@ -220,6 +293,7 @@ function requestText(url, options = {}, redirects = 0) {
       request.destroy(new Error(`Request timeout: ${url.toString()}`));
     });
     request.on('error', reject);
+    request.end();
   });
 }
 
@@ -242,6 +316,20 @@ function normalizeBaseUrl(value) {
 
 function unique(items) {
   return items.filter((item, index) => items.indexOf(item) === index);
+}
+
+function extractTags(xml, tagName) {
+  const pattern = new RegExp(`<${tagName}>([^<]+)</${tagName}>`, 'gi');
+  return [...String(xml || '').matchAll(pattern)].map((match) => decodeXml(match[1].trim()));
+}
+
+function decodeXml(value) {
+  return value
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
 }
 
 function unsafeHrefValues(html) {

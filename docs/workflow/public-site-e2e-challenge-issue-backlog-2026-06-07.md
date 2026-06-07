@@ -12,7 +12,7 @@ Roadmap: `public-site-e2e-challenge-roadmap-2026-06-07.md`
 | `PUBLIC-E2E-WP-02` | closed with server-Chrome caveat | P1 | Engineering + QA | `PUBLIC-E2E-002` | Sync Tailwind generated artifact and CSS evidence |
 | `PUBLIC-E2E-WP-03` | closed | P1 | Engineering + SEO | `PUBLIC-E2E-003`, `PUBLIC-E2E-004` | Fix static sitemap freshness and index lastmod policy |
 | `PUBLIC-E2E-WP-04` | closed | P3 | Engineering / DevOps | `PUBLIC-E2E-010` | Fix webmanifest response type hygiene |
-| `PUBLIC-E2E-WP-05` | closed for lang guard | P2 | Engineering + QA + SEO | `PUBLIC-E2E-014` | Consolidate release public E2E guard coverage |
+| `PUBLIC-E2E-WP-05` | closed | P2 | Engineering + QA + SEO | `PUBLIC-E2E-014` | Consolidate release public E2E guard coverage |
 | `PUBLIC-E2E-WP-06` | owner-review | P2 | Content + Architect | `PUBLIC-E2E-005` | Approve Russian-first public glossary rules |
 | `PUBLIC-E2E-WP-07` | blocked-owner | P2 | Content + Architect + SEO | `PUBLIC-E2E-005`, `PUBLIC-E2E-009` | Rewrite jargon-heavy product pages |
 | `PUBLIC-E2E-WP-08` | blocked-owner | P3 | Content + Legal where needed | `PUBLIC-E2E-012`, `PUBLIC-E2E-013` | Polish supporting page content |
@@ -168,20 +168,20 @@ Required checks:
 
 ## PUBLIC-E2E-WP-05: Consolidate Release Public E2E Guard Coverage
 
-Status: closed for lang guard; backlog for optional sitemap consolidation
+Status: closed
 Priority: P2
 Workflow lane: Fast Fix Lane
 Affected areas: `tools/seo-check.mjs`, `tools/release-public-precheck.mjs`, package scripts if needed.
 
 Problem:
 
-The challenge caught issues manually that existing green guards did not catch together: missing `<html lang>` and static sitemap drift.
+The challenge caught issues manually that existing green guards did not catch together: missing `<html lang>`, static sitemap drift and public SEO surface header/inventory hygiene.
 
 Acceptance criteria:
 
 - Release/precheck tooling asserts public HTML language declaration.
-- Release/precheck either validates static sitemap freshness or documents the explicit lastmod bypass contract.
-- Optional safe mode can sample or fully check `/offer/sitemap.php` URLs without overloading production.
+- Release/precheck validates the public robots/sitemap/manifest critical surface without requiring browser automation.
+- Safe mode samples `/offer/sitemap.php` by sitemap inventory and loc ownership without full URL HEAD crawl.
 - Existing release checks remain deterministic.
 
 Implementation evidence 2026-06-07:
@@ -189,7 +189,9 @@ Implementation evidence 2026-06-07:
 - `tools/seo-check.mjs` now checks source template language declaration and HTTP-mode public page `lang=ru`.
 - `tools/release-public-precheck.mjs` now checks `lang=ru` on all 13 public pages.
 - Production `npm run seo:check:prod` and `npm run release:public-precheck:prod` passed after deploy/cache refresh.
-- Static sitemap artifact freshness remains covered by `npm run sitemap:static:check` and deploy workflow generation/check; optional consolidation into `release-public-precheck` remains a future hardening task.
+- `tools/release-public-precheck.mjs` now checks `robots_txt`, `sitemap_index`, `static_sitemap`, `offer_sitemap` and `webmanifest` through HTTP-only production checks.
+- Production `npm run release:public-precheck:prod` passed with `robots_txt status=200 sitemap=ok`, `sitemap_index sitemaps=2`, `static_sitemap urls=13 missing=0`, `offer_sitemap urls=1118` and `webmanifest type=application/manifest+json`.
+- Static sitemap artifact freshness remains covered by `npm run sitemap:static:check`, deploy workflow generation/check and `seo:check:prod`; release precheck now guards the public inventory actually served by production.
 
 Required checks:
 
