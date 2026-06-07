@@ -91,7 +91,7 @@ Exit criteria:
 - ADR is added if new iblocks/config/runtime source switching are introduced.
 - Do-not-store-counts rule is explicitly accepted.
 
-Status 07.06.2026: owner-review package is prepared but not owner-approved. Accepted `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` provides a safe draft with current candidate terms and governance decisions; `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. `tools/offer-taxonomy-implementation-gate.mjs` blocks accidental runtime/schema markers while the owner approval JSON remains draft. Runtime implementation remains blocked until the approval JSON passes without `--allow-draft` and implementation gate passes with the approved artifact.
+Status 07.06.2026: owner-review package is approved for model semantics. Accepted `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` remains the safe draft; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` is the approved model artifact and passes without `--allow-draft`. `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. `tools/offer-taxonomy-implementation-gate.mjs` blocks accidental runtime/schema markers unless the approved owner JSON is supplied or uniquely discovered. Runtime implementation can start; iblock apply and source switch still require WP-04 migration/cache/rollback evidence.
 
 ## Phase 3 — Runtime Implementation
 
@@ -129,7 +129,7 @@ Exit criteria:
 - Safe JSON evidence can be attached to release sign-off.
 - Rollback instructions are documented.
 
-Status 07.06.2026: guard slice implemented and production-smoked. Source hygiene rejects raw budget rendering and arbitrary first-8 quick filters; rendered hygiene rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; `seo:check:prod` also passed. Full taxonomy integrity guard for duplicate codes, unknown aliases and Bitrix terms remains pending until the owner-approved model exists.
+Status 07.06.2026: guard slice implemented and production-smoked. Source hygiene rejects raw budget rendering and arbitrary first-8 quick filters; rendered hygiene rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; `seo:check:prod` also passed. Full taxonomy integrity guard for duplicate codes, unknown aliases and Bitrix terms remains pending until WP-04 introduces the Bitrix/runtime taxonomy source.
 
 ## Phase 5 — Product/SEO Maturity
 

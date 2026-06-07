@@ -1,13 +1,14 @@
 # Offer Page Taxonomy / Presets Decision — 2026-06-07
 
 Дата: 07.06.2026
-Статус: architecture/product decision baseline; ADR-012 is accepted, owner approval JSON remains draft.
+Статус: architecture/product decision baseline; ADR-012 is accepted and owner approval JSON is approved for model semantics.
 Scope: `/offer/` public filters, quick entries/presets and future taxonomy governance.
 
 Follow-up artifacts:
 
 - accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`;
 - safe owner approval draft: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json`;
+- approved owner approval: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`;
 - checkers: `npm run offer:taxonomy:approval:draft-check`, `npm run offer:taxonomy:approval:check -- <approved.json>` and `npm run offer:taxonomy:implementation-gate`.
 
 ## Decision Question
@@ -121,7 +122,7 @@ ADR is required if implementation adds:
 
 ADR is not required for the limited Fast Fix path: budget formatting, temporary approved quick list, or a small label normalization shim without new schema/source switch.
 
-As of 07.06.2026, `ADR-012` is accepted. The owner approval JSON remains draft and may approve model semantics only; it must not approve iblock apply or runtime source switch. `offer:taxonomy:implementation-gate` blocks runtime/schema markers while owner approval is missing. Iblock apply and runtime source switch require a separate implementation issue with migration, cache and production evidence.
+As of 07.06.2026, `ADR-012` is accepted and `offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` approves model semantics only. It does not approve iblock apply or runtime source switch. Iblock apply and runtime source switch require WP-04 implementation with migration, cache, rollback and production evidence.
 
 ## Non-Goals
 
@@ -137,7 +138,7 @@ As of 07.06.2026, `ADR-012` is accepted. The owner approval JSON remains draft a
 - Public filters use approved Russian-first labels and stable canonical codes.
 - Owner approval JSON passes `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft`.
 - `ADR-012` status is accepted before any Bitrix schema/source-switch implementation.
-- `npm run offer:taxonomy:implementation-gate` passes for the implementation branch.
+- `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` passes for the implementation branch.
 - Counts are derived from active offer items.
 - Featured quick entries are owner-approved and ordered.
 - Unknown raw labels are caught before release.
