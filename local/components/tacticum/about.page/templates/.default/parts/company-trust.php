@@ -52,68 +52,74 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
         <div class="bg-gray-50 rounded-2xl p-8 md:p-12">
             <h3 class="text-2xl font-bold text-secondary mb-8 text-center">История компании</h3>
-            <div class="space-y-12">
-                <div class="relative pl-14 timeline-item">
-                    <div class="absolute left-0 top-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span class="text-primary font-bold">2019</span>
+            <ol class="space-y-12">
+                <li class="relative pl-14 timeline-item">
+                    <div class="timeline-marker top-0 timeline-marker--past">
+                        <span>2019</span>
                     </div>
                     <h4 class="text-xl font-bold text-secondary mb-2">Предыстория команды</h4>
                     <p class="text-gray-600">
                         Будущая команда Tacticum начала работать над проектами в области искусственного интеллекта,
                         машинного обучения и разработки программных решений для автоматизации реальных бизнес-задач.
                     </p>
-                </div>
-                <div class="relative pl-14 timeline-item">
-                    <div class="absolute left-0 top-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span class="text-primary font-bold">2020</span>
+                </li>
+                <li class="relative pl-14 timeline-item">
+                    <div class="timeline-marker top-0 timeline-marker--past">
+                        <span>2020</span>
                     </div>
                     <h4 class="text-xl font-bold text-secondary mb-2">Первые крупные проекты</h4>
                     <p class="text-gray-600">
                         Реализация первых масштабных проектов в сфере логистики и ритейла. Формирование ключевых
                         методологий и подходов к внедрению AI-решений.
                     </p>
-                </div>
-                <div class="relative pl-14 timeline-item">
-                    <div class="absolute left-0 top-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span class="text-primary font-bold">2022</span>
+                </li>
+                <li class="relative pl-14 timeline-item">
+                    <div class="timeline-marker top-0 timeline-marker--past">
+                        <span>2022</span>
                     </div>
                     <h4 class="text-xl font-bold text-secondary mb-2">Регистрация ООО и расширение экспертизы</h4>
                     <p class="text-gray-600">
                         Зарегистрировано ООО «Тактикум» с основным ОКВЭД 62.01 «Разработка компьютерного программного
                         обеспечения». Команда расширила спектр услуг и начала работу с более сложными проектами.
                     </p>
-                </div>
-                <div class="relative pl-14 timeline-item">
-                    <div class="absolute left-0 top-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span class="text-primary font-bold">2023</span>
+                </li>
+                <li class="relative pl-14 timeline-item">
+                    <div class="timeline-marker top-0 timeline-marker--past">
+                        <span>2023</span>
                     </div>
                     <h4 class="text-xl font-bold text-secondary mb-2">Развитие собственных продуктов</h4>
                     <p class="text-gray-600">
                         Запуск линейки собственных AI-продуктов для автоматизации бизнес-процессов. Формирование
                         повторяемых подходов к оценке, пилотированию и внедрению AI-решений.
                     </p>
-                </div>
-                <div class="relative pl-14 timeline-item">
-                    <div class="absolute left-0 top-0 w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold">2025</span>
+                </li>
+                <li class="relative pl-14 timeline-item">
+                    <div class="timeline-marker top-0 timeline-marker--milestone">
+                        <span>2025</span>
                     </div>
-                    <h4 class="text-xl font-bold text-secondary mb-2">Переход к продуктовой линейке</h4>
+                    <h4 class="timeline-heading text-xl font-bold text-secondary mb-2">
+                        <span>Переход к продуктовой линейке</span>
+                        <span class="timeline-badge timeline-badge--milestone">Ключевой этап</span>
+                    </h4>
                     <p class="text-gray-600">
                         Tacticum сфокусировался на повторяемой линейке Platform, Agents, Dev и Forum, чтобы быстрее
                         переводить проверенные AI-сценарии из оценки и пилота в рабочий процесс.
                     </p>
-                </div>
-                <div class="relative pl-14">
-                    <div class="absolute left-0 top-0 w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-xs">Сейчас</span>
+                </li>
+                <li class="relative pl-14 timeline-item timeline-item--current">
+                    <div class="timeline-marker top-0 timeline-marker--current" aria-hidden="true">
+                        <span></span>
                     </div>
-                    <h4 class="text-xl font-bold text-secondary mb-2">Текущий фокус</h4>
+                    <h4 class="timeline-heading text-xl font-bold text-secondary mb-2">
+                        <span>Текущий фокус</span>
+                        <span class="timeline-badge timeline-badge--current">Сейчас</span>
+                    </h4>
                     <p class="text-gray-600">
                         Команда помогает компаниям выбирать AI-сценарии без лишних обещаний: сначала проверяем задачу,
                         данные, ограничения и состав работ, затем предлагаем безопасный формат запуска.
                     </p>
-                </div>
-            </div>
+                </li>
+            </ol>
         </div>
     </div>
 </section>

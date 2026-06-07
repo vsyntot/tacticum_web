@@ -2,9 +2,9 @@
 
 Дата: 07.06.2026
 
-Статус: challenge source register, not an approval package; fast-fix/guard implementation and proof-safe trust-storyline implementation are deployed with production-rendered evidence; proof/ownership owner-review package is prepared; owner approvals pending for broader work.
+Статус: challenge source register, not an approval package; fast-fix/guard implementation and proof-safe trust-storyline implementation are deployed with production-rendered evidence; proof/ownership owner-review package is prepared; timeline marker UI follow-up is implemented locally and pending deploy evidence; owner approvals pending for broader work.
 Workflow lane: Full Feature discovery / documentation, with Fast Fix candidates.
-Scope: `/about/` product trust page, UX/UI, content, Russian-first language, storyline, rendered anchors/IDs and page-content ownership. No PHP, JS, CSS, Bitrix admin data, REST, CRM, analytics or SEO route changes in this task.
+Scope: `/about/` product trust page, UX/UI, content, Russian-first language, storyline, rendered anchors/IDs and page-content ownership. Original challenge was docs-only; implementation notes below record later scoped PHP/CSS fast-fixes. No Bitrix admin data, REST, CRM, analytics or SEO route changes are implied by this document.
 
 ## Purpose
 
@@ -41,6 +41,7 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | `tools/content-storage-page-content-seed.php` | `/about/` seed contains `product-first`, `delivery`, `backend`, `data/RAG` and related internal terms in page-content rows |
 | `.bottom.menu.php` | Footer links to `/about/#careers` and `/about/#partners` |
 | User screenshots, 07.06.2026 | Confirm visual concerns: generic values/culture cards, large team portraits/crops, `2025 / Сегодня` timeline and technology contours positioning |
+| User screenshot follow-up, 07.06.2026 | Timeline marker color states were ambiguous: filled blue `2025` read as active/current, dark `Сейчас` read as a separate special case, and older years read as quiet history |
 
 ## Production Evidence After Fast Fix
 
@@ -70,6 +71,16 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | `docs/workflow/about-page-proof-matrix-owner-review-2026-06-07.md` | Prepared no-raw-copy proof/trust matrix for `ABOUT-004`: public-safe-now, public-after-owner-approval, private-by-request, blocked-no-evidence and remove-if-present categories. No public claims approved. |
 | `docs/workflow/about-page-content-ownership-map-2026-06-07.md` | Prepared actual render ownership map for `ABOUT-009`: PHP partials, Bitrix live page-content rows, team iblock, lead CTA, footer menu and `PublicCopyNormalizer` compatibility. No fallback retirement approved. |
 | `docs/workflow/plans/2026-06-07-about-owner-review-proof-ownership.md` | Docs-only plan for the owner-review package; no PHP, JS, CSS, Bitrix row, route, metadata, form or analytics changes. |
+
+## Timeline Marker UI Follow-Up
+
+| Command / Evidence | Result |
+|---|---|
+| Local implementation, 07.06.2026 | Timeline markers now use explicit `past`, `milestone` and `current` visual states. `2025` is a bordered key milestone, while `Текущий фокус` carries the primary current marker and visible `Сейчас` badge. |
+| PHP lint, local 07.06.2026 | Passed for `local/components/tacticum/about.page/templates/.default/parts/company-trust.php`. |
+| `npm run css:syntax`, local 07.06.2026 | Passed after adding timeline marker/badge CSS. |
+| `npm run content:public-hygiene:check` / `npm run seo:check`, local 07.06.2026 | Passed. |
+| Production evidence | Pending deploy, public cache clear, rendered hygiene and desktop/mobile browser smoke. |
 
 ## Challenge Verdict
 
@@ -123,7 +134,7 @@ Recommended hierarchy:
 | `ABOUT-002` | in-progress | P1 | Storyline | Page narrative was fragmented: company story, trust, tech stack, career/culture and CTA sections competed. | Rewrite `/about/` as one trust storyline with a clear page role and section hierarchy. | `CLS-003`, `CLS-010`, `UX-001`, `CONTENT-005`, `PCJMU-001` | PM + UX + Content + Sales | Proof-safe rewrite is deployed and rendered hygiene passed at `2026-06-07T08:49:12Z`; owner review and proof decisions pending. |
 | `ABOUT-003` | in-progress | P1 | Language | Public copy exposed internal English/product terms: `product-first`, `delivery`, `backend`, `data/RAG`, `quality gates`, `production rollout`. | Apply Russian-first glossary; explain necessary technical terms on first use. | `CLS-002`, `CLS-011`, `CONTENT-004`, `SEO-009` | Content + PM + SEO + Architect | Source/runtime guard and production rendered hygiene remove visible old terms and generic about wording; broader editorial review remains open. |
 | `ABOUT-004` | blocked | P1 | Trust / proof | Page does not provide enough verifiable trust artifacts for enterprise AI: governance, data boundary, delivery responsibility, support model, evidence status. | Build proof-safe trust matrix for `/about/`; decide what can be public, private-by-request or blocked. | `CLS-007`, `CONTENT-001`, `CONTENT-002`, `CONTENT-003`, `ARCH-009`, `UI-005` | PM + Sales + Legal + Content | Owner-review proof matrix is prepared; Legal/Sales/PM approval still required before new claims, metrics, logos, certifications or named proof. |
-| `ABOUT-005` | in-progress | P1 | Team UX/UI / accessibility | Team section used large portrait crops and hover/overlay-heavy presentation; critical bio/detail text could be inaccessible or visually noisy. | Redesign team cards for consistent crop, readable role summary and keyboard/mobile accessibility. | `UI-001`, `UI-002`, `UI-005`, `UI-010`, `CMP-008` | Design + Frontend + QA + PM | Card template slice has production rendered/source evidence without personal data changes; browser/mobile visual smoke still required before closure. |
+| `ABOUT-005` | in-progress | P1 | Team UX/UI / accessibility | Team section used large portrait crops and hover/overlay-heavy presentation; critical bio/detail text could be inaccessible or visually noisy. | Redesign team cards for consistent crop, readable role summary and keyboard/mobile accessibility. | `UI-001`, `UI-002`, `UI-005`, `UI-010`, `CMP-008` | Design + Frontend + QA + PM | Card template slice has production rendered/source/browser evidence without personal data changes; PM/Design visual acceptance still required before full closure. |
 | `ABOUT-006` | in-progress | P1 | Technology stack | Stack block read generic and partly dated: `BERT`, `NLTK`, `Hadoop`, `Tableau`, `передовые технологии`; weak tie to current product trust. | Replace stack inventory with capability/risk contours tied to enterprise AI launch, or retire stack block. | `CLS-004`, `CLS-002`, `STACK-003`, `CONTENT-004`, `UI-006` | Content + Architect + Sales + PM | Stack copy now describes launch-readiness checks and production rendered hygiene passed; Architect/Content review pending. |
 | `ABOUT-007` | closed | P1 | Navigation / HTML integrity | Rendered HTML had duplicate `id="about-company"`; footer linked to missing `#careers`; `#partners` pointed to technology contours. | Fix form/section ID collision; add/remove/rename anchors; align footer labels with actual sections. | `CMP-001`, `CMP-008`, `SEO-009`, `REL-002`, `BPC-CMP-001` | Frontend + QA + SEO | Production rendered hygiene passed at `2026-06-07T08:24:11Z`; rendered IDs are unique and `/about/#...` anchors resolve. |
 | `ABOUT-008` | in-progress | P2 | CTA / career-culture mismatch | Career/culture and final CTA copy were generic: `достичь новых высот`; page mixed hiring/culture with buyer trust without clear transition. | Decide whether careers remains on `/about/`; rewrite culture/CTA around buyer trust or create explicit careers section. | `CLS-010`, `CLS-009`, `UX-010`, `CONTENT-004` | PM + Content + UX | Footer/final section uses `#start-work`, keeps `#careers` alias and passed production rendered hygiene; final career strategy pending. |
@@ -136,7 +147,7 @@ Implementation note 07.06.2026, trust-storyline slice: source partials and wave2
 
 Implementation note 07.06.2026, owner-review package: proof/trust matrix and actual render ownership map are documented for owner decisions. `ABOUT-004` remains blocked for public claims until PM/Sales/Legal/Content approve evidence and wording. `ABOUT-009` is owner-review-ready, but runtime ownership, Bitrix live-row sync and fallback retirement remain unapproved.
 
-Implementation note 07.06.2026, team UI/accessibility slice: `news.list/team` now renders team data in normal card flow instead of hover-only overlay. Role, preview, non-duplicate detail and labelled contact links are visible and keyboard/mobile reachable; `values-team.php` explicitly requests `PHOTO`; obsolete `.member-overlay` CSS/JS was removed. No names, photos, roles, bios, emails, LinkedIn values, Bitrix rows, claims, form payloads or SEO metadata changed. Production cache clear, rendered hygiene and wave2 source checks passed at `2026-06-07T10:01:10Z` with `/about/ source=bitrix sections=3/3 bytes=77945`. `ABOUT-005` remains in-progress until browser/mobile visual smoke exists.
+Implementation note 07.06.2026, team UI/accessibility slice: `news.list/team` now renders team data in normal card flow instead of hover-only overlay. Role, preview, non-duplicate detail and labelled contact links are visible and keyboard/mobile reachable; `values-team.php` explicitly requests `PHOTO`; obsolete `.member-overlay` CSS/JS was removed. No names, photos, roles, bios, emails, LinkedIn values, Bitrix rows, claims, form payloads or SEO metadata changed. Production cache clear, rendered hygiene and wave2 source checks passed at `2026-06-07T10:01:10Z` with `/about/ source=bitrix sections=3/3 bytes=77945`. Chrome-capable visual smoke passed at `2026-06-07T10:05:26Z` for desktop/mobile with runtime errors `0`, warnings `0`, broken images `0`, action errors `0` and manifest `/tmp/tacticum-about-team-ui-2026-06-07-visual/manifest.json`. `ABOUT-005` remains in-progress only because PM/Design visual acceptance is not recorded.
 
 ## Section-Level Findings
 
@@ -148,7 +159,7 @@ Implementation note 07.06.2026, team UI/accessibility slice: `news.list/team` no
 | Timeline | Original `2025 / Сегодня` stale issue is fixed in production; guard should prevent recurrence. | P0 | `ABOUT-001`, `ABOUT-010` |
 | Trust page-content | Local seed and runtime normalizer reframe live rows around launch risk; proof-safe trust artifacts have an owner-review matrix but no public proof approval. | P1 | `ABOUT-003`, `ABOUT-004` |
 | Values | Local seed replaces generic value labels with operating behavior: hypothesis, responsibility and constraints. | P2 | `ABOUT-002`, `ABOUT-008` |
-| Team | Card template removes hover-only detail dependency and exposes role/summary/detail in normal flow; production rendered/source evidence passed, browser/mobile evidence pending. | P1 | `ABOUT-005` |
+| Team | Card template removes hover-only detail dependency and exposes role/summary/detail in normal flow; production rendered/source/browser evidence passed, PM/Design acceptance pending. | P1 | `ABOUT-005` |
 | `Технологические контуры` | Local source reframes the section as reliable AI launch contours; Architect/Content review pending. | P1 | `ABOUT-003`, `ABOUT-006`, `ABOUT-007` |
 | Stack | Tool inventory was replaced with launch-readiness checks and production rendered hygiene passed. | P1 | `ABOUT-006` |
 | Career/culture | Local footer/final section use start-work framing; `#careers` remains as compatibility alias. | P2 | `ABOUT-008`, `ABOUT-007` |
@@ -187,7 +198,7 @@ Should run after narrative direction is approved:
 - `ABOUT-005`
 - related `UI-*` and `CMP-*` gaps
 
-Status 07.06.2026: `ABOUT-WP-04` template slice has production rendered/source evidence. Bundle is not closed; browser/mobile visual smoke is pending.
+Status 07.06.2026: `ABOUT-WP-04` template slice has production rendered/source/browser evidence. Bundle is not fully closed only because PM/Design visual acceptance is not recorded.
 
 ### Bundle D — Page-Content Ownership
 

@@ -17,6 +17,76 @@
     background-color: #E5E7EB;
 }
 
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.timeline-marker--past {
+    color: #0066CC;
+    background-color: rgba(0, 102, 204, 0.1);
+}
+
+.timeline-marker--milestone {
+    color: #0066CC;
+    background-color: #FFFFFF;
+    border: 2px solid rgba(0, 102, 204, 0.55);
+    box-shadow: 0 0 0 6px rgba(0, 102, 204, 0.06);
+}
+
+.timeline-marker--current {
+    color: #FFFFFF;
+    background-color: #0066CC;
+    box-shadow: 0 10px 24px rgba(0, 102, 204, 0.24);
+}
+
+.timeline-marker--current span {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.24);
+}
+
+.timeline-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timeline-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.5rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.timeline-badge--milestone {
+    color: #0052A3;
+    background-color: rgba(0, 102, 204, 0.1);
+}
+
+.timeline-badge--current {
+    color: #FFFFFF;
+    background-color: #0066CC;
+}
+
 .value-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.1);

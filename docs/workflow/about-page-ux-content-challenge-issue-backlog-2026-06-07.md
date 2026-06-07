@@ -1,7 +1,7 @@
 # About Page UX / Content Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / fast-fix, guard and trust-storyline slices deployed with production evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
+Статус: issue backlog draft / fast-fix, guard, trust-storyline and team slices deployed with production evidence / timeline marker UI follow-up implemented locally and pending deploy evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
 
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
@@ -31,7 +31,7 @@ Ownership map: `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
 | `ABOUT-WP-01` | closed | `fast-fix-allowed` + `guard-scope-required` | P0 | PM + Content + QA + Frontend/Backend | `ABOUT-001`, `ABOUT-010` | Remove stale `2025 / Сегодня` contradiction and prevent recurrence |
 | `ABOUT-WP-02` | closed | `fast-fix-allowed` + `guard-scope-required` | P1 | Frontend + QA + SEO + Content | `ABOUT-007`, `ABOUT-010` | Fix duplicate IDs, missing `#careers` and misleading `#partners` anchor |
 | `ABOUT-WP-03` | owner-review-ready-production-guarded | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
-| `ABOUT-WP-04` | production-rendered-evidence-visual-pending | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
+| `ABOUT-WP-04` | production-browser-smoke-passed-owner-review-pending | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
 | `ABOUT-WP-05` | in-progress-production-guarded | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
 | `ABOUT-WP-06` | in-progress-production-guarded | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
 | `ABOUT-WP-07` | owner-review-ready | `content-storage-gate-required` | P1 | Architect + Backend + Content + QA | `ABOUT-009` | Define and sync page-content/PHP partial ownership for `/about/` |
@@ -105,6 +105,8 @@ npm run seo:check
 Rendered `/about/` smoke is now covered by `content:public-hygiene:rendered:prod`; refresh it after any future public template/menu/page-content deploy.
 
 Implementation note 07.06.2026: source timeline now separates the `2025` milestone from current focus and rendered hygiene covers stale `2025 + Сегодня`. Production closure passed after public cache clear: rendered hygiene JSON reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`.
+
+Timeline UI follow-up 07.06.2026: local fast-fix changes marker semantics so past years are quiet, `2025` is a bordered key milestone and `Текущий фокус` carries the primary current marker plus visible `Сейчас` badge. This is a UI clarification only: no copy claims, Bitrix rows, routes, forms, SEO metadata or team data changed. Production deploy/cache/browser evidence is still pending.
 
 ### ABOUT-WP-02 — Anchor, ID And Footer Navigation Integrity
 
@@ -209,7 +211,7 @@ Implementation note 07.06.2026: production fast-fix removed `достичь но
 
 Add relevant browser/mobile visual smoke after UI changes.
 
-Implementation note 07.06.2026: scoped slice replaces hover-only team overlay with readable cards. `news.list/team` renders existing approved team data as article cards with visible role, preview, non-duplicate detail and labelled contact links; `values-team.php` explicitly requests `PHOTO`; legacy `.member-overlay` CSS/JS was removed. No personal/team data or Bitrix rows changed. Production cache clear, rendered hygiene and wave2 source checks passed at `2026-06-07T10:01:10Z`; `/about/ source=bitrix sections=3/3 bytes=77945`. Production closure still requires browser/mobile visual smoke.
+Implementation note 07.06.2026: scoped slice replaces hover-only team overlay with readable cards. `news.list/team` renders existing approved team data as article cards with visible role, preview, non-duplicate detail and labelled contact links; `values-team.php` explicitly requests `PHOTO`; legacy `.member-overlay` CSS/JS was removed. No personal/team data or Bitrix rows changed. Production cache clear, rendered hygiene and wave2 source checks passed at `2026-06-07T10:01:10Z`; `/about/ source=bitrix sections=3/3 bytes=77945`. Chrome-capable visual smoke passed at `2026-06-07T10:05:26Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok, manifest `/tmp/tacticum-about-team-ui-2026-06-07-visual/manifest.json`. Full closure still requires PM/Design visual acceptance.
 
 ### ABOUT-WP-05 — Technology Stack And Terminology Cleanup
 

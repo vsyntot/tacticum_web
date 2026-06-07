@@ -37,6 +37,12 @@ Machine-readable backlog: `docs/workflow/product-tech-challenge-issue-backlog-20
 | PTC-WP-08 | WP-08 | blocked-external | blocked-external | 22 | P1 | Security + Backend + DevOps + QA + PM + Legal | `CFG-006`, `ARCH-007`, `ARCH-008`, `ARCH-012`, `SEC-002`, `SEC-003`, `REL-001`, `REL-002` |
 | PTC-WP-09 | WP-09 | accepted-monitor | monitor-only | 23 | P2 | PM + Architect + Security + Frontend + QA | `STACK-001`, `STACK-006`, `SEC-001`, `ARCH-007`, `REL-002` |
 
+## Evidence Refreshes
+
+| Work Package | Date | Evidence | Status |
+|---|---|---|---|
+| `PTC-WP-01` | 07.06.2026 | `product:content:safety:check`, `product:source:http:prod`, `release:public-precheck:prod`; details in `docs/workflow/product-content-target-evidence-refresh-2026-06-07.md` | Local and HTTP production evidence refreshed; target Bitrix/PHP strict JSON, cache-clear dry-run JSON and owner-approved target negative fixture path remain pending. |
+
 ## Import Rules
 
 1. Create one tracker issue per `PTC-WP-*`.
