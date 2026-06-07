@@ -141,11 +141,18 @@ final class RenderSupport
 
     private static function sectionAttributes(array $section): array
     {
-        if (self::text($section['page_key'] ?? '') !== '/') {
+        $pageKey = self::text($section['page_key'] ?? '');
+        $sectionKey = self::text($section['section_key'] ?? '');
+
+        if ($pageKey === '/services/' && $sectionKey === 'tech') {
+            return ['id' => 'technology'];
+        }
+
+        if ($pageKey !== '/') {
             return [];
         }
 
-        return match (self::text($section['section_key'] ?? '')) {
+        return match ($sectionKey) {
             'ecosystem' => ['data-home-block' => 'ecosystem-map'],
             'fit-matrix' => ['data-home-block' => 'fit-matrix'],
             'commercial' => ['data-home-block' => 'commercial-next-steps'],

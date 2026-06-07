@@ -93,6 +93,9 @@ function scanRenderedHtml(html, page = '<html>') {
   if (normalizePagePath(page) === '/about/') {
     issues.push(...scanAboutRenderedHtml(html, lines, page));
   }
+  if (normalizePagePath(page) === '/services/') {
+    issues.push(...scanServicesRenderedHtml(html, page));
+  }
 
   return issues;
 }
@@ -162,6 +165,41 @@ function scanAboutRenderedHtml(html, lines, page) {
   return issues;
 }
 
+function scanServicesRenderedHtml(html, page) {
+  const issues = [];
+  const techSection = renderedSectionTag(html, {
+    'data-page-content-page': '/services/',
+    'data-page-content-section': 'tech',
+  });
+
+  if (techSection === '') {
+    issues.push({
+      page,
+      line: 0,
+      rule: 'services-missing-tech-section',
+      text: '/services/ has no rendered tech page-content section'
+    });
+  } else if (!/\bid=["']technology["']/i.test(techSection)) {
+    issues.push({
+      page,
+      line: 0,
+      rule: 'services-tech-missing-anchor',
+      text: '/services/ tech section must expose id="technology" for footer navigation'
+    });
+  }
+
+  if (/\bhref=["']\/about\/#technology["']/i.test(html)) {
+    issues.push({
+      page,
+      line: 0,
+      rule: 'services-misleading-technology-footer-link',
+      text: 'footer technology link points to /about/#technology instead of /services/#technology'
+    });
+  }
+
+  return issues;
+}
+
 function visibleTextLines(html) {
   return html
     .replace(/<!--[\s\S]*?-->/g, '\n')
@@ -195,6 +233,12 @@ function runSelfTest() {
     <section><span>2025</span><h3>Переход к продуктовой линейке</h3></section>
     <section><span>Сейчас</span><h3>Текущий фокус</h3></section>
   `;
+  const safeServicesHtml = `
+    <section data-page-content-source="bitrix" data-page-content-page="/services/" data-page-content-section="tech" data-page-content-template="tech-grid" id="technology">
+      <h2>Технологии, с которыми мы работаем</h2>
+    </section>
+    <footer><a href="/services/#technology">Технологии</a></footer>
+  `;
   const unsafeHtml = `
     <section><p>Product fit</p><h3>fits</h3><h3>not_fits</h3><h3>start</h3></section>
     <section><p>Security / procurement</p><h3>Platform assessment</h3></section>
@@ -212,6 +256,12 @@ function runSelfTest() {
     <p>Почему product-first модель требует сильной delivery-команды</p>
     <p>Роли, аудит, журналирование, quality gates и production rollout.</p>
   `;
+  const unsafeServicesHtml = `
+    <section data-page-content-source="bitrix" data-page-content-page="/services/" data-page-content-section="tech" data-page-content-template="tech-grid">
+      <h2>Технологии, с которыми мы работаем</h2>
+    </section>
+    <footer><a href="/about/#technology">Технологии</a></footer>
+  `;
 
   const safeIssues = scanRenderedHtml(safeHtml, '/safe/');
   if (safeIssues.length !== 0) {
@@ -220,6 +270,10 @@ function runSelfTest() {
   const safeAboutIssues = scanRenderedHtml(safeAboutHtml, '/about/');
   if (safeAboutIssues.length !== 0) {
     throw new Error(`Safe about fixture failed:\n${formatIssues(safeAboutIssues).join('\n')}`);
+  }
+  const safeServicesIssues = scanRenderedHtml(safeServicesHtml, '/services/');
+  if (safeServicesIssues.length !== 0) {
+    throw new Error(`Safe services fixture failed:\n${formatIssues(safeServicesIssues).join('\n')}`);
   }
 
   const unsafeIssues = scanRenderedHtml(unsafeHtml, '/unsafe/');
@@ -232,6 +286,12 @@ function runSelfTest() {
   for (const expectedRule of ['about-stale-timeline-current', 'about-duplicate-id', 'about-missing-anchor', 'about-misleading-partners-anchor', 'about-forbidden-visible-phrase']) {
     if (!unsafeAboutIssues.some((issue) => issue.rule === expectedRule)) {
       throw new Error(`Unsafe about fixture missed rule: ${expectedRule}`);
+    }
+  }
+  const unsafeServicesIssues = scanRenderedHtml(unsafeServicesHtml, '/services/');
+  for (const expectedRule of ['services-tech-missing-anchor', 'services-misleading-technology-footer-link']) {
+    if (!unsafeServicesIssues.some((issue) => issue.rule === expectedRule)) {
+      throw new Error(`Unsafe services fixture missed rule: ${expectedRule}`);
     }
   }
 
@@ -371,6 +431,9 @@ function normalizePagePath(page) {
   if (normalized === '/about' || normalized === '/about/') {
     return '/about/';
   }
+  if (normalized === '/services' || normalized === '/services/') {
+    return '/services/';
+  }
 
   return normalized;
 }
@@ -404,6 +467,15 @@ function textAroundId(html, id) {
   const end = Math.min(html.length, match.index + 1500);
 
   return visibleTextLines(html.slice(start, end)).join(' ');
+}
+
+function renderedSectionTag(html, attributes) {
+  const tags = [...html.matchAll(/<section\b[^>]*>/gi)].map((match) => match[0]);
+
+  return tags.find((tag) => Object.entries(attributes).every(([name, value]) => {
+    const pattern = new RegExp(`\\b${escapeRegExp(name)}=["']${escapeRegExp(value)}["']`, 'i');
+    return pattern.test(tag);
+  })) || '';
 }
 
 function escapeRegExp(value) {
