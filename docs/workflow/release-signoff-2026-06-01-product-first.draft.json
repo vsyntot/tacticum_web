@@ -2,7 +2,7 @@
   "release": {
     "id": "2026-06-01-product-first",
     "date": "2026-06-01",
-    "commit": "working-tree-2026-06-01-product-first",
+    "commit": "218ce2119617a160e42772ba5bbb5acb1c533551",
     "base_url": "https://tacticum.ru"
   },
   "gates": {
@@ -31,10 +31,97 @@
       "reason": "Product FAQ assets, navigation and public page layout need production visual/browser e2e readiness evidence."
     },
     "content-public-hygiene": {
-      "status": "pending",
+      "status": "passed",
       "owner": "QA + Content",
-      "due": "after-price-chat-quick-reply-follow-up-deploy-cache-refresh",
-      "reason": "Post-deploy CLS-WP-01 rendered check improved production from 26 to 4 issues; remaining visible labels are /price/ chat quick replies. Follow-up local fix must be deployed and production must pass content:public-hygiene:rendered:prod."
+      "evidence": {
+        "command": "npm run content:public-hygiene:rendered:prod",
+        "base_url": "https://tacticum.ru",
+        "checked_at": "2026-06-07T06:34:56Z",
+        "checked_by": "automated-public-content-hygiene-check",
+        "pages_checked": 13,
+        "issues_found": 0,
+        "result": "public rendered content hygiene passed",
+        "pages": [
+          {
+            "page": "/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/platform/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/agents/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/dev/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/forum/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/services/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/price/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/calculator/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/offer/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/aiagents/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/about/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/contacts/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          },
+          {
+            "page": "/policies/",
+            "status": 200,
+            "issues": 0,
+            "ok": true
+          }
+        ]
+      }
     },
     "manual-success-flow": {
       "status": "pending",
