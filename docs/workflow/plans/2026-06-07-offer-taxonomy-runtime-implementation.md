@@ -45,6 +45,7 @@ Runtime can use an approved taxonomy model for sector/scenario/phase labels, ali
 | `local/lib/Tacticum/Rest/Config*.php` | Add offer taxonomy config defaults and validation. |
 | `local/php_interface/include/tacticum_config*.php` | Add `offer_taxonomy_terms` key and fallback offer taxonomy config. |
 | `tools/offer-taxonomy-*.php` | Add migration, check and cache-clear CLI tooling. |
+| `tools/offer-taxonomy-approved-model.php` | Deployable embedded approved model for production environments where `/docs` is not deployed. |
 | `package.json` | Add npm scripts for migration, check and cache clear. |
 | `docs/workflow/*` | Record local implementation status and remaining production gates. |
 
@@ -96,6 +97,8 @@ npm run offer:taxonomy:check:strict
 ## Known Local Blocker
 
 Local Bitrix/PHP commands that require database access fail on this workstation with `Mysql connect error [localhost]: (2002) No such file or directory`. Migration/check evidence must therefore be collected on target/prod.
+
+Production deploy note: `/docs` may be absent on the target server. The migration script must use `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` when it is present, but must fall back to `tools/offer-taxonomy-approved-model.php` for default production runs without weakening the approval checks.
 
 ## Rollback
 

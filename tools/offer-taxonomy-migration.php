@@ -11,10 +11,12 @@ tacticum_tools_reexec_with_short_open_tag($argv);
 
 const TACTICUM_OFFER_TAXONOMY_IBLOCK_TYPE = 'tacticum_content';
 const TACTICUM_OFFER_TAXONOMY_APPROVAL = 'docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json';
+const TACTICUM_OFFER_TAXONOMY_EMBEDDED_APPROVAL = 'tools/offer-taxonomy-approved-model.php';
 
 final class TacticumOfferTaxonomyMigration
 {
     private array $siteIds = [];
+    private string $approvalSource = '';
 
     public function __construct(private bool $apply, private string $documentRoot, private string $approvalPath) {}
 
@@ -39,10 +41,16 @@ final class TacticumOfferTaxonomyMigration
     private function approval(): array
     {
         $path = $this->absolutePath($this->approvalPath);
-        if (!is_file($path)) {
+        if (is_file($path)) {
+            $payload = json_decode((string)file_get_contents($path), true);
+            $this->approvalSource = $path;
+        } elseif ($this->approvalPath === TACTICUM_OFFER_TAXONOMY_APPROVAL) {
+            $embeddedPath = $this->absolutePath(TACTICUM_OFFER_TAXONOMY_EMBEDDED_APPROVAL);
+            $payload = is_file($embeddedPath) ? require $embeddedPath : null;
+            $this->approvalSource = 'embedded:' . TACTICUM_OFFER_TAXONOMY_EMBEDDED_APPROVAL;
+        } else {
             throw new RuntimeException('Approval JSON not found: ' . $path);
         }
-        $payload = json_decode((string)file_get_contents($path), true);
         if (!is_array($payload) || ($payload['status'] ?? '') !== 'approved') {
             throw new RuntimeException('Approval JSON must have status=approved.');
         }
@@ -269,6 +277,7 @@ final class TacticumOfferTaxonomyMigration
 
     private function printConfigHints(int $termsIblockId): void
     {
+        $this->line('Approval source: ' . $this->approvalSource);
         $this->line('Config registry hint after apply:');
         $this->line("- iblocks.offer_taxonomy_terms => {$termsIblockId}");
         $this->line('- offer.taxonomy_source stays fallback/auto until strict checks and cache clear pass.');
@@ -295,6 +304,7 @@ try {
     $options = tacticum_offer_taxonomy_migration_options($argv);
     if ($options['help']) {
         echo "Usage:\n  php tools/offer-taxonomy-migration.php [--apply] [--approval=approved.json] [--document-root=/path]\n";
+        echo "\nDefault approval path may be absent on production deploys; in that case the script uses the embedded approved model from tools/.\n";
         exit(0);
     }
     (new TacticumOfferTaxonomyMigration((bool)$options['apply'], (string)$options['document_root'], (string)$options['approval']))->run();

@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 const file = 'local/php_interface/include/tacticum_config.example.php';
 const source = await readFile(file, 'utf8');
 const packageSource = await readFile('package.json', 'utf8');
+const offerTaxonomyEmbeddedSource = await readFile('tools/offer-taxonomy-approved-model.php', 'utf8');
 
 const requiredPatterns = [
   [/['"]iblocks['"]\s*=>\s*\[/, 'iblocks registry'],
@@ -76,6 +77,21 @@ const insecureExample = source.match(/['"](?:AI_SERVICE_BASE_URL|TELEGRAM_RESOLV
 if (insecureExample) {
   console.error('Config example must not use plain HTTP for external service URLs.');
   process.exit(1);
+}
+
+for (const [pattern, label] of [
+  [/['"]status['"]\s*=>\s*['"]approved['"]/, 'embedded offer taxonomy approved status'],
+  [/['"]runtime_switch_approved['"]\s*=>\s*false/, 'embedded offer taxonomy runtime switch block'],
+  [/['"]iblock_apply_approved['"]\s*=>\s*false/, 'embedded offer taxonomy iblock apply block'],
+  [/['"]taxonomy_source['"]\s*=>\s*['"]bitrix_terms['"]/, 'embedded offer taxonomy source decision'],
+  [/['"]code['"]\s*=>\s*['"]meditsina['"]/, 'embedded offer taxonomy meditsina term'],
+  [/['"]public_label['"]\s*=>\s*['"]бьюти и салоны['"]/, 'embedded offer taxonomy beauty label'],
+  [/['"]code['"]\s*=>\s*['"]ai-assistent-podderzhki['"]/, 'embedded offer taxonomy featured scenario']
+]) {
+  if (!pattern.test(offerTaxonomyEmbeddedSource)) {
+    console.error(`tools/offer-taxonomy-approved-model.php is missing ${label}.`);
+    process.exit(1);
+  }
 }
 
 for (const scriptName of [
