@@ -4,6 +4,21 @@ import http from 'node:http';
 import https from 'node:https';
 
 const DEFAULT_PRODUCT_PAGES = ['/platform/', '/agents/', '/dev/', '/forum/'];
+const DEFAULT_PUBLIC_PAGES = [
+  '/',
+  '/platform/',
+  '/agents/',
+  '/dev/',
+  '/forum/',
+  '/services/',
+  '/price/',
+  '/calculator/',
+  '/offer/',
+  '/aiagents/',
+  '/about/',
+  '/contacts/',
+  '/policies/',
+];
 const REQUIRED_PRODUCT_BLOCKS = [
   'hero',
   'fit-guide',
@@ -30,6 +45,7 @@ const checks = [];
 const failures = [];
 
 await checkHealthConfig();
+await checkPublicHtmlLanguage();
 await checkProductSource();
 await checkMetrikaPublicTag();
 await checkBitrixAdminSurface();
@@ -75,6 +91,17 @@ async function checkHealthConfig() {
   addCheck('health_config', ok, `status=${response.status} scopes=${scopes.join(',') || '-'}`);
   if (!ok) {
     fail('health_config', `expected success=true and scopes ${REQUIRED_HEALTH_SCOPES.join(',')}; missing=${missingScopes.join(',') || '-'} status=${response.status}`);
+  }
+}
+
+async function checkPublicHtmlLanguage() {
+  for (const page of DEFAULT_PUBLIC_PAGES) {
+    const response = await requestText(new URL(page, baseUrl));
+    const ok = response.status === 200 && /<html\b[^>]*\blang=(["'])ru\1/i.test(response.body);
+    addCheck(`html_lang ${page}`, ok, `status=${response.status} lang=${ok ? 'ru' : 'missing'}`);
+    if (!ok) {
+      fail(`html_lang ${page}`, `expected public page to render <html lang="ru">; status=${response.status}`);
+    }
   }
 }
 

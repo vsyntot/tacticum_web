@@ -886,6 +886,12 @@
       border-color: color-mix(in oklab, var(--color-primary) 20%, transparent);
     }
   }
+  .border-primary\/30 {
+    border-color: color-mix(in srgb, #0066CC 30%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+    }
+  }
   .border-red-100 {
     border-color: var(--color-red-100);
   }

@@ -20,6 +20,10 @@ $bodyClass = trim((string)$APPLICATION->GetPageProperty('tacticum_body_class', '
 if ($bodyClass === '') {
     $bodyClass = 'bg-white font-sans';
 }
+$htmlLang = defined('LANGUAGE_ID') ? strtolower(trim((string)LANGUAGE_ID)) : 'ru';
+if ($htmlLang === '' || !preg_match('/^[a-z]{2}(?:-[a-z0-9]+)*$/', $htmlLang)) {
+    $htmlLang = 'ru';
+}
 if (!headers_sent()) {
     $securityConfig = function_exists('tacticum_rest_get_config_section')
         ? tacticum_rest_get_config_section('security')
@@ -40,7 +44,7 @@ if (!headers_sent()) {
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="<?=htmlspecialchars($htmlLang, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')?>">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
