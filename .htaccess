@@ -1,6 +1,10 @@
 Options -Indexes 
 ErrorDocument 404 /404.php
 
+<IfModule mod_mime.c>
+	AddType application/manifest+json .webmanifest
+</IfModule>
+
 <IfModule mod_rewrite.c>
 	Options +FollowSymLinks
 	RewriteEngine On
