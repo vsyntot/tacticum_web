@@ -91,7 +91,7 @@ Exit criteria:
 - ADR is added if new iblocks/config/runtime source switching are introduced.
 - Do-not-store-counts rule is explicitly accepted.
 
-Status 07.06.2026: owner-review package is prepared but not approved. Proposed `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern in status `Предложено`; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` provides a safe draft with current candidate terms and governance decisions; `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. Runtime implementation remains blocked until the approval JSON passes without `--allow-draft` and ADR-012 is accepted.
+Status 07.06.2026: owner-review package is prepared but not owner-approved. Accepted `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` provides a safe draft with current candidate terms and governance decisions; `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. `tools/offer-taxonomy-implementation-gate.mjs` blocks accidental runtime/schema markers while the owner approval JSON remains draft. Runtime implementation remains blocked until the approval JSON passes without `--allow-draft` and implementation gate passes with the approved artifact.
 
 ## Phase 3 — Runtime Implementation
 
