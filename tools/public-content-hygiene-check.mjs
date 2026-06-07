@@ -24,6 +24,14 @@ const MAPPER_FILE = 'local/lib/Tacticum/Product/ContentBlockMapper.php';
 const PRODUCT_SERVICE_FILE = 'local/lib/Tacticum/Product/ContentService.php';
 const PAGE_CONTENT_REPOSITORY_FILE = 'local/lib/Tacticum/PageContent/Repository.php';
 const CHAT_SURFACE_FILE = 'local/components/tacticum/chat.surface/component.php';
+const ABOUT_STATIC_SOURCE_FILES = [
+  '.bottom.menu.php',
+  'local/components/tacticum/about.page/templates/.default/parts/company-trust.php',
+  'local/components/tacticum/about.page/templates/.default/parts/values-team.php',
+  'local/components/tacticum/about.page/templates/.default/parts/stack-cta.php',
+  'local/components/tacticum/about.page/templates/.default/parts/career-final.php'
+];
+const ABOUT_SEED_FILE = 'tools/content-storage-page-content-seed.php';
 
 const FORBIDDEN_PUBLIC_LABELS = [
   'Product fit',
@@ -52,6 +60,29 @@ const FORBIDDEN_PUBLIC_LABELS = [
   'Legacy AI-bot entry',
   'product path',
   'Agents rollout'
+];
+
+const ABOUT_STATIC_FORBIDDEN_LABELS = [
+  '/about/#partners',
+  'id="partners"',
+  '"FIELD_PREFIX" => "about"',
+  'delivery практи',
+  'под delivery',
+  'quality gates',
+  'production rollout',
+  'runtime-сервисы',
+  'достичь новых высот',
+  'BERT, GPT, NLTK',
+  'Hadoop, Spark, Kafka',
+  'Tableau, Power BI',
+  'передовые технологии и инструменты',
+];
+
+const ABOUT_SEED_FORBIDDEN_LABELS = [
+  'Почему product-first модель требует сильной delivery-команды',
+  'до production.',
+  'backend, data/RAG',
+  'scope, риски',
 ];
 
 const MAPPER_REQUIRED_LITERALS = [
@@ -112,6 +143,43 @@ function scanSource(source, fileLabel = '<source>') {
   return issues;
 }
 
+function scanAboutSource(source, fileLabel = '<source>', forbiddenLabels = ABOUT_STATIC_FORBIDDEN_LABELS) {
+  const issues = [];
+  const lines = source.split(/\r?\n/);
+
+  lines.forEach((line, index) => {
+    const normalized = visibleLineText(line);
+    const raw = line.trim();
+    if (normalized === '' && raw === '') {
+      return;
+    }
+
+    for (const label of forbiddenLabels) {
+      if (!normalized.includes(label) && !raw.includes(label)) {
+        continue;
+      }
+
+      issues.push({
+        file: fileLabel,
+        line: index + 1,
+        rule: 'about-forbidden-public-copy',
+        text: raw.includes(label) ? raw : normalized
+      });
+    }
+  });
+
+  if (/2025[\s\S]{0,700}Сегодня/.test(source)) {
+    issues.push({
+      file: fileLabel,
+      line: 0,
+      rule: 'about-stale-timeline-source',
+      text: 'source contains stale 2025 + Сегодня timeline pattern'
+    });
+  }
+
+  return issues;
+}
+
 function verifyRequiredLiterals(relativeFile, requiredLiterals) {
   const sourcePath = path.resolve(ROOT, relativeFile);
   const issues = [];
@@ -160,6 +228,14 @@ function runSelfTest() {
     "'text' => 'Legacy AI-bot entry полезен как быстрый демонстрационный вход.',",
     "'text' => 'Не заменяет product path для Agents rollout.',"
   ].join('\n');
+  const unsafeAboutSource = [
+    '<a href="/about/#partners">Партнеры</a>',
+    '<div id="partners"><h2>Технологические контуры</h2></div>',
+    '"FIELD_PREFIX" => "about",',
+    '<span>2025</span><h4>Сегодня</h4>',
+    '<p>Роли, аудит, журналирование, quality gates и production rollout</p>',
+    '<p>Свяжитесь с нами, чтобы достичь новых высот.</p>'
+  ].join('\n');
 
   const safeIssues = scanSource(safeSource, 'safe-fixture.php');
   if (safeIssues.length !== 0) {
@@ -170,6 +246,15 @@ function runSelfTest() {
   for (const expected of ['Product fit', 'Use cases', 'Security / procurement', 'Platform assessment', 'Dev examples', 'Оставьте /aiagents/ для демо', 'Legacy AI-bot entry', 'product path']) {
     if (!unsafeIssues.some((issue) => issue.text.includes(expected))) {
       throw new Error(`Unsafe fixture missed forbidden label: ${expected}`);
+    }
+  }
+  const unsafeAboutIssues = scanAboutSource(unsafeAboutSource, 'unsafe-about.php');
+  for (const expected of ['/about/#partners', 'id="partners"', '"FIELD_PREFIX" => "about"', 'quality gates', 'production rollout', 'достичь новых высот', '2025 + Сегодня']) {
+    const found = expected === '2025 + Сегодня'
+      ? unsafeAboutIssues.some((issue) => issue.rule === 'about-stale-timeline-source')
+      : unsafeAboutIssues.some((issue) => issue.text.includes(expected));
+    if (!found) {
+      throw new Error(`Unsafe about fixture missed forbidden label: ${expected}`);
     }
   }
 }
@@ -225,6 +310,33 @@ function main() {
 
     const source = fs.readFileSync(filePath, 'utf8');
     issues.push(...scanSource(source, relativeFile));
+  }
+
+  for (const relativeFile of ABOUT_STATIC_SOURCE_FILES) {
+    const filePath = path.resolve(ROOT, relativeFile);
+    if (!fs.existsSync(filePath)) {
+      issues.push({
+        file: relativeFile,
+        line: 0,
+        rule: 'missing-file',
+        text: 'configured about source is missing'
+      });
+      continue;
+    }
+
+    issues.push(...scanAboutSource(fs.readFileSync(filePath, 'utf8'), relativeFile));
+  }
+
+  const aboutSeedPath = path.resolve(ROOT, ABOUT_SEED_FILE);
+  if (!fs.existsSync(aboutSeedPath)) {
+    issues.push({
+      file: ABOUT_SEED_FILE,
+      line: 0,
+      rule: 'missing-file',
+      text: 'configured about page-content seed is missing'
+    });
+  } else {
+    issues.push(...scanAboutSource(fs.readFileSync(aboutSeedPath, 'utf8'), ABOUT_SEED_FILE, ABOUT_SEED_FORBIDDEN_LABELS));
   }
 
   issues.push(...verifyRequiredLiterals(MAPPER_FILE, MAPPER_REQUIRED_LITERALS));
