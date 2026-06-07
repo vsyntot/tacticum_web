@@ -13,11 +13,11 @@ if (!function_exists('tacticum_product_page_render_procurement')) {
             return;
         }
 
-        $eyebrow = tacticum_product_page_string($procurement, 'eyebrow', 'Security / procurement');
+        $eyebrow = tacticum_product_page_string($procurement, 'eyebrow', 'Безопасность и закупка');
         $title = tacticum_product_page_string($procurement, 'title', 'Что вынести на техническое и закупочное обсуждение');
         $text = tacticum_product_page_string($procurement, 'text', 'До промышленного запуска важно отдельно проверить контур данных, интеграции, роли доступа, журналирование и порядок эксплуатации.');
-        $noteTitle = tacticum_product_page_string($procurement, 'note_title', 'Что не обещаем без assessment');
-        $noteText = tacticum_product_page_string($procurement, 'note_text', 'Deployment-модель, сертификационный статус, SLA, перечень интеграций и регуляторные формулировки фиксируются только после проверки требований и evidence.');
+        $noteTitle = tacticum_product_page_string($procurement, 'note_title', 'Что не обещаем без предварительной проверки');
+        $noteText = tacticum_product_page_string($procurement, 'note_text', 'Модель размещения, сертификационный статус, SLA, перечень интеграций и регуляторные формулировки фиксируются только после проверки требований и подтверждений.');
         $ctaText = tacticum_product_page_string($procurement, 'cta_text', 'Запросить архитектурную сессию');
         $ctaHref = tacticum_product_page_safe_href($procurement['cta_href'] ?? '', '#contact-form');
         ?>

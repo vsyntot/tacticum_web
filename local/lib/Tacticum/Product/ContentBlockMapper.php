@@ -23,6 +23,7 @@ final class ContentBlockMapper
             default => $payload,
         };
 
+        $payload = self::normalizePublicBlockLabels($type, $payload);
         $payload = self::withoutEmpty($payload);
 
         return empty($payload) ? $legacy : array_merge($legacy, $payload);
@@ -60,7 +61,7 @@ final class ContentBlockMapper
                 continue;
             }
 
-            $column = self::childCard($child);
+            $column = self::normalizeFitGuideColumn($type, self::childCard($child));
             if (!empty($column)) {
                 $payload[$type] = $column;
             }
@@ -161,6 +162,36 @@ final class ContentBlockMapper
             'proof_status' => ContentMapper::propertyScalar($properties, 'PROOF_STATUS'),
             'items' => ContentMapper::propertyList($properties, 'ITEMS'),
         ]);
+    }
+
+    private static function normalizeFitGuideColumn(string $type, array $column): array
+    {
+        $technicalTitles = ['fits' => 'fits', 'not_fits' => 'not_fits', 'start' => 'start'];
+        $title = self::plain((string)($column['title'] ?? ''));
+        if ($title !== '' && isset($technicalTitles[$type]) && strcasecmp($title, $technicalTitles[$type]) === 0) {
+            unset($column['title']);
+        }
+
+        return $column;
+    }
+
+    private static function normalizePublicBlockLabels(string $type, array $payload): array
+    {
+        $replacements = [
+            'fit_guide' => [['eyebrow', 'Product fit', 'Когда подходит продукт']],
+            'use_cases' => [['eyebrow', 'Use cases', 'Сценарии применения']],
+            'procurement' => [
+                ['eyebrow', 'Security / procurement', 'Безопасность и закупка'],
+                ['note_title', 'Что не обещаем без assessment', 'Что не обещаем без предварительной проверки'],
+            ],
+        ];
+        foreach ($replacements[$type] ?? [] as [$key, $from, $to]) {
+            if (isset($payload[$key]) && is_string($payload[$key]) && strcasecmp(trim($payload[$key]), $from) === 0) {
+                $payload[$key] = $to;
+            }
+        }
+
+        return $payload;
     }
 
     private static function plain(string $value): string

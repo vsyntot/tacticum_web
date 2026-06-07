@@ -68,7 +68,7 @@ if (!function_exists('tacticum_product_page_render_fit_guide')) {
             return;
         }
 
-        $eyebrow = tacticum_product_page_string($fitGuide, 'eyebrow', 'Product fit');
+        $eyebrow = tacticum_product_page_string($fitGuide, 'eyebrow', 'Когда подходит продукт');
         $title = tacticum_product_page_string($fitGuide, 'title', 'Когда этот продукт подходит');
         $text = tacticum_product_page_string($fitGuide, 'text', 'Короткий фильтр помогает понять, какой продукт смотреть дальше и какой следующий шаг выбирать.');
         ?>

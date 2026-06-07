@@ -13,7 +13,7 @@ if (!function_exists('tacticum_product_page_render_use_cases')) {
             return;
         }
 
-        $eyebrow = tacticum_product_page_string($useCases, 'eyebrow', 'Use cases');
+        $eyebrow = tacticum_product_page_string($useCases, 'eyebrow', 'Сценарии применения');
         $title = tacticum_product_page_string($useCases, 'title', 'Какие сценарии проверять первыми');
         $text = tacticum_product_page_string($useCases, 'text', 'Каждый сценарий лучше начинать как ограниченный пилот: с понятным триггером, владельцем, входными данными, выходным артефактом и явными ограничениями.');
         ?>
