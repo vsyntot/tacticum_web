@@ -45,7 +45,7 @@ Scope: public site content, Russian-first language, tone of voice, storyline coh
 | `local/templates/tacticum/components/bitrix/news.detail/offer/parts/risks.php` | Offer detail uses negative framing: risks without professional team |
 | `local/templates/tacticum/components/bitrix/news.detail/offer/parts/reasons.php` | Offer detail contains generic claims: rich industry experience, optimal solutions, always know result timing |
 
-Implementation note 07.06.2026: local `CLS-WP-01` implementation normalized product page fallback labels, added `ContentBlockMapper` protection for legacy Bitrix `fits/not_fits/start` names, cleaned page-content seed labels and added `npm run content:public-hygiene:check`. Production/rendered smoke evidence is still required before using `closed`.
+Implementation note 07.06.2026: local `CLS-WP-01` implementation normalized product page fallback labels, added `ContentBlockMapper` protection for legacy Bitrix `fits/not_fits/start` names, cleaned page-content seed labels and added source/rendered public hygiene guards. Production rendered evidence via `npm run content:public-hygiene:rendered:prod` is still required before using `closed`.
 
 ## Challenge Verdict
 
@@ -113,7 +113,7 @@ Every public page should support this hierarchy:
 | `CLS-009` | open | P2 | FAQ / legacy copy | FAQ and old generic blocks retain earlier broad AI-service tone and conflict with product-first narrative. | Inventory and rewrite FAQ/global copy by page role; retire bot/startup phrasing where enterprise trust is needed. | `CONTENT-004`, `UX-010`, `CONTENT-005` | Content + PM + Sales + Legal | FAQ source review; no unsupported guarantee/speed/result claims. |
 | `CLS-010` | open | P2 | CTA / next-step copy | CTA copy repeats generic `следующий шаг`, `обсудить`, `уточнить`, and often does not say what artifact user receives. | Define CTA/action language by stage: scenario, pilot, architecture, estimate, team, procurement, demo. | `UX-002`, `UX-010`, `CMP-003`, `PCJMU-007` | PM + UX + Content + Sales | CTA matrix approved; form/upstream payload unchanged unless separate Security / Integration issue. |
 | `CLS-011` | open | P1 | Editorial governance | No public tone-of-voice and glossary document governs Bitrix/page-content/product-content edits. | Adopt `content-language-storyline-public-glossary-2026-06-07.md` as editorial baseline and add owner review path. | `CONTENT-004`, `CONTENT-005`, `CFG-002`, `ARCH-001` | Content + PM + SEO | Owner-approved glossary and editor checklist. |
-| `CLS-012` | in-progress | P1 | QA / release guard | Current guards do not explicitly scan rendered public HTML for forbidden editorial labels and internal terms. | Add source/rendered content hygiene guard or checklist before content release. | `STACK-004`, `STACK-005`, `ARCH-003`, `REL-002` | QA + Frontend + Backend + Content | Source guard `npm run content:public-hygiene:check` exists; rendered public HTML guard/smoke evidence remains pending. |
+| `CLS-012` | in-progress | P1 | QA / release guard | Current guards do not explicitly scan rendered public HTML for forbidden editorial labels and internal terms. | Add source/rendered content hygiene guard or checklist before content release. | `STACK-004`, `STACK-005`, `ARCH-003`, `REL-002` | QA + Frontend + Backend + Content | Source guard `npm run content:public-hygiene:check` and rendered guard `npm run content:public-hygiene:rendered:prod` exist; post-deploy rendered evidence remains pending. |
 
 ## Page-Specific Findings
 
