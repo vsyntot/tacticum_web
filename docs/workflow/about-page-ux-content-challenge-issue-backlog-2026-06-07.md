@@ -1,7 +1,7 @@
 # About Page UX / Content Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / fast-fix, guard, trust-storyline, team, timeline marker UI and work-model feature-grid slices deployed with production evidence / team-readiness de-dup local slice pending deploy evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
+Статус: issue backlog draft / fast-fix, guard, trust-storyline, team, timeline marker UI, work-model feature-grid and team-readiness de-dup slices deployed with production evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
 
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
@@ -215,7 +215,7 @@ Implementation note 07.06.2026: scoped slice replaces hover-only team overlay wi
 
 Work-model feature-grid follow-up 07.06.2026: renderer and copy fix for the `values-team` block restores section heading/intro, removes the 5-column layout gap for 3 cards, replaces centered generic value cards with static process cards and reframes copy as pre-launch operating model: scenario, responsibility and constraints. `PublicCopyNormalizer` protects old and current Bitrix block keys without manual row edits. Local PHP lint, render fixture, CSS checks, content hygiene, SEO, Bitrix architecture and component state checks passed. Production cache clear, rendered hygiene JSON and wave2 source checks passed at `2026-06-07T10:52:28Z`; `/about/ source=bitrix sections=3/3 bytes=77902`. Chrome-capable visual smoke passed at `2026-06-07T10:53:28Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok, manifest `/tmp/tacticum-about-work-model-feature-grid-2026-06-07-visual/manifest.json`.
 
-Team/readiness de-dup follow-up 07.06.2026: local slice reframes the team section as `Кто отвечает за запуск`, makes founder cards compact/count-aware, exposes existing preview/detail as focus/experience, and adds a role-composition matrix without changing Bitrix team data. The duplicate hardcoded `Контуры надёжного AI-запуска` row is removed from `values-team.php`; `#technology` moves to the single `stack-cta.php` readiness section with `#stack` kept as alias. Production cache/rendered/source/browser evidence is pending.
+Team/readiness de-dup follow-up 07.06.2026: slice reframes the team section as `Кто отвечает за запуск`, makes founder cards compact/count-aware, exposes existing preview/detail as focus/experience, and adds a role-composition matrix without changing Bitrix team data. The duplicate hardcoded `Контуры надёжного AI-запуска` row is removed from `values-team.php`; `#technology` moves to the single `stack-cta.php` readiness section with `#stack` kept as alias. Production cache clear, rendered hygiene JSON and wave2 source checks passed at `2026-06-07T11:17:39Z`; `/about/ source=bitrix sections=3/3 bytes=76925`. Chrome-capable visual smoke passed at `2026-06-07T11:18:17Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok, manifest `/tmp/tacticum-about-team-readiness-dedup-2026-06-07-visual/manifest.json`.
 
 ### ABOUT-WP-05 — Technology Stack And Terminology Cleanup
 
@@ -249,7 +249,7 @@ Implementation note 07.06.2026: production fast-fix removed guarded visible gene
 
 Implementation note 07.06.2026: stack section now describes launch-readiness checks instead of a tool inventory. Source/rendered guards block the old generic about stack wording and production rendered hygiene passed at `2026-06-07T08:49:12Z`.
 
-Team/readiness de-dup follow-up 07.06.2026: local `stack-cta.php` implementation collapses eight equal checklist cards into four readiness groups with explicit client outcomes and becomes the only `#technology` target. This advances the technology/terminology cleanup by removing an adjacent duplicate card grid; Architect/Content review and production evidence remain pending.
+Team/readiness de-dup follow-up 07.06.2026: `stack-cta.php` implementation collapses eight equal checklist cards into four readiness groups with explicit client outcomes and becomes the only `#technology` target. This advances the technology/terminology cleanup by removing an adjacent duplicate card grid. Production rendered/source/browser evidence passed; Architect/Content review remains pending for full terminology closure.
 
 ### ABOUT-WP-06 — CTA, Career And Culture Cleanup
 
