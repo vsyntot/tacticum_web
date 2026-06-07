@@ -2,8 +2,8 @@
 
 Дата: 07.06.2026
 
-Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`.
-Scope: `/about/` UX/UI/content planning only. No runtime implementation is approved by this roadmap.
+Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes and Phase 5 minimal guard are completed in production for the scoped issues.
+Scope: `/about/` UX/UI/content planning only. No further runtime implementation is approved by this roadmap without the gates below.
 
 ## Purpose
 
@@ -68,6 +68,8 @@ Exit criteria:
 - Rendered `/about/` has no duplicate IDs and no missing `/about/#...` anchor targets.
 - Footer labels match visible section semantics or are adjusted with SEO awareness.
 - `git diff --check`, `seo:check` and relevant rendered smoke pass.
+
+Status 07.06.2026: completed for `ABOUT-001`, `ABOUT-007`, `ABOUT-010`, `ABOUT-WP-01` and `ABOUT-WP-02` after production public cache clear and rendered hygiene evidence at `2026-06-07T08:24:11Z`. Broader `ABOUT-003`, `ABOUT-006` and `ABOUT-008` maturity work remains owner-gated.
 
 ## Phase 2 — Trust Narrative Rewrite
 
@@ -156,6 +158,8 @@ Exit criteria:
 - `ABOUT-001`, `ABOUT-007` and key internal-term recurrences are caught before release.
 - Guard produces safe, no-PII JSON evidence if used in release sign-off.
 
+Status 07.06.2026: minimal guard package completed through existing `content:public-hygiene:*` tools. Production `content:public-hygiene:rendered:prod:json` passed for 13 pages with `issues_found=0` at `2026-06-07T08:24:11Z`; `page-content:source:http:wave2:prod` confirmed `/about/ source=bitrix sections=3/3`.
+
 ## Suggested Issue Packaging
 
 | Issue | Theme | Must Include |
@@ -168,6 +172,8 @@ Exit criteria:
 | `ABOUT-WP-06` | CTA, career and culture cleanup | `ABOUT-008`, `ABOUT-007` |
 | `ABOUT-WP-07` | Page-content/fallback ownership and sync | `ABOUT-009` |
 | `ABOUT-WP-08` | Guard/smoke package | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` |
+
+Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. Start new non-regression work from `ABOUT-WP-03`, `ABOUT-WP-04`, `ABOUT-WP-05`, `ABOUT-WP-06` or `ABOUT-WP-07`.
 
 ## Verification Guidance
 

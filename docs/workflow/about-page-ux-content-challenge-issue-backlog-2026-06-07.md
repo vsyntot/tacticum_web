@@ -1,7 +1,7 @@
 # About Page UX / Content Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / local fast-fix implementation pending deploy evidence / owner approvals pending for broader work
+Статус: issue backlog draft / fast-fix and guard scope deployed with production evidence / owner approvals pending for broader work
 
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
@@ -9,7 +9,7 @@ Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-20
 
 ## Purpose
 
-Этот документ переводит `ABOUT-*` gaps into backlog-ready work packages. Его можно использовать для ручного создания задач в трекере. Он не является owner approval and does not close any gap.
+Этот документ переводит `ABOUT-*` gaps into backlog-ready work packages. Его можно использовать для ручного создания задач в трекере. Он не является owner approval. Closed statuses below mean only that the scoped fast-fix/guard evidence exists; broader trust, proof, team UI and content ownership work remains owner-gated.
 
 ## Start Policy
 
@@ -26,14 +26,22 @@ Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-20
 
 | Issue | Status | Start policy | Priority | Owners | Gap IDs | Objective |
 |---|---|---|---:|---|---|---|
-| `ABOUT-WP-01` | in-progress-local | `fast-fix-allowed` + `guard-scope-required` | P0 | PM + Content + QA + Frontend/Backend | `ABOUT-001`, `ABOUT-010` | Remove stale `2025 / Сегодня` contradiction and prevent recurrence |
-| `ABOUT-WP-02` | in-progress-local | `fast-fix-allowed` + `guard-scope-required` | P1 | Frontend + QA + SEO + Content | `ABOUT-007`, `ABOUT-010` | Fix duplicate IDs, missing `#careers` and misleading `#partners` anchor |
+| `ABOUT-WP-01` | closed | `fast-fix-allowed` + `guard-scope-required` | P0 | PM + Content + QA + Frontend/Backend | `ABOUT-001`, `ABOUT-010` | Remove stale `2025 / Сегодня` contradiction and prevent recurrence |
+| `ABOUT-WP-02` | closed | `fast-fix-allowed` + `guard-scope-required` | P1 | Frontend + QA + SEO + Content | `ABOUT-007`, `ABOUT-010` | Fix duplicate IDs, missing `#careers` and misleading `#partners` anchor |
 | `ABOUT-WP-03` | pending-owner-review | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
 | `ABOUT-WP-04` | pending-owner-review | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
-| `ABOUT-WP-05` | in-progress-local | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
-| `ABOUT-WP-06` | in-progress-local | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
+| `ABOUT-WP-05` | in-progress-production-guarded | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
+| `ABOUT-WP-06` | in-progress-production-guarded | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
 | `ABOUT-WP-07` | pending-owner-review | `content-storage-gate-required` | P1 | Architect + Backend + Content + QA | `ABOUT-009` | Define and sync page-content/PHP partial ownership for `/about/` |
-| `ABOUT-WP-08` | in-progress-local | `guard-scope-required` | P2 | QA + Frontend + Backend + Content | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` | Implement or adopt `/about/` rendered/source guard package |
+| `ABOUT-WP-08` | closed | `guard-scope-required` | P2 | QA + Frontend + Backend + Content | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` | Implement or adopt `/about/` rendered/source guard package |
+
+## Production Evidence
+
+| Command / Evidence | Result |
+|---|---|
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed. Public rendered/menu/component/composite/template caches were cleared after deploy. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:24:11Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=74964`, expected source `bitrix`. |
 
 ## Issue Details
 
@@ -66,9 +74,9 @@ npm run content:public-hygiene:check
 npm run seo:check
 ```
 
-Add rendered `/about/` smoke or future `ABOUT-GUARD-01` check after deploy/cache clear.
+Rendered `/about/` smoke is now covered by `content:public-hygiene:rendered:prod`; refresh it after any future public template/menu/page-content deploy.
 
-Implementation note 07.06.2026: local source timeline now separates `2025` milestone from current focus and rendered hygiene self-test covers stale `2025 + Сегодня`. Production closure still requires deploy/cache clear and rendered `/about/` evidence.
+Implementation note 07.06.2026: source timeline now separates the `2025` milestone from current focus and rendered hygiene covers stale `2025 + Сегодня`. Production closure passed after public cache clear: rendered hygiene JSON reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`.
 
 ### ABOUT-WP-02 — Anchor, ID And Footer Navigation Integrity
 
@@ -100,9 +108,9 @@ git diff --check
 npm run seo:check
 ```
 
-Add rendered ID/anchor check from `ABOUT-GUARD-02` / `ABOUT-GUARD-03` after implementation.
+Rendered ID/anchor checks are now covered by `content:public-hygiene:rendered:prod`; refresh them after any future public template/menu/page-content deploy.
 
-Implementation note 07.06.2026: local source changes set `FIELD_PREFIX=about-cta`, add `#careers`, rename footer `/about/#partners` to `/about/#technology`, and rendered hygiene self-test covers duplicate IDs, missing anchors and misleading `#partners`. Production closure still requires deploy/cache clear and rendered `/about/` evidence.
+Implementation note 07.06.2026: source changes set `FIELD_PREFIX=about-cta`, add `#careers`, rename footer `/about/#partners` to `/about/#technology`, and rendered hygiene covers duplicate IDs, missing anchors and misleading `#partners`. Production closure passed after public cache clear: rendered hygiene JSON reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`.
 
 ### ABOUT-WP-03 — Trust Narrative Rewrite
 
@@ -167,7 +175,7 @@ git diff --check
 npm run seo:check
 ```
 
-Implementation note 07.06.2026: local final CTA no longer uses `достичь новых высот`; `#careers` now exists as a rendered anchor. Career/culture strategy remains owner-review scope.
+Implementation note 07.06.2026: production fast-fix removed `достичь новых высот`; `#careers` now exists as a rendered anchor. Career/culture strategy remains owner-review scope.
 
 Add relevant browser/mobile visual smoke after UI changes.
 
@@ -199,6 +207,8 @@ npm run content:public-hygiene:check
 npm run seo:check
 ```
 
+Implementation note 07.06.2026: production fast-fix removed guarded visible generic stack and internal terminology from `/about/`, but the final capability/risk narrative still requires Architect/Content review.
+
 ### ABOUT-WP-06 — CTA, Career And Culture Cleanup
 
 Workflow lane: Full Feature or Fast Fix depending on scope.
@@ -224,6 +234,8 @@ Verification:
 git diff --check
 npm run seo:check
 ```
+
+Implementation note 07.06.2026: production fast-fix removed generic final CTA phrase and exposes a real `#careers` target. Career/culture role and buyer-trust transition remain owner-review scope.
 
 ### ABOUT-WP-07 — Page-Content / Fallback Ownership And Sync
 
@@ -292,7 +304,7 @@ npm run seo:check
 
 Add specific new script self-test/check commands if introduced.
 
-Implementation note 07.06.2026: existing `content:public-hygiene:check` and `content:public-hygiene:rendered:self-test` were extended instead of adding a separate tool. The rendered guard now covers stale timeline, duplicate IDs, missing `/about/#...` anchors, misleading `#partners` and about-specific visible internal phrases. Production rendered check should run after deploy/cache clear.
+Implementation note 07.06.2026: existing `content:public-hygiene:check` and `content:public-hygiene:rendered:self-test` were extended instead of adding a separate tool. The rendered guard now covers stale timeline, duplicate IDs, missing `/about/#...` anchors, misleading `#partners` and about-specific visible internal phrases. Production rendered check passed after public cache clear at `2026-06-07T08:24:11Z` with `issues_found=0`.
 
 ## Do Not Combine
 

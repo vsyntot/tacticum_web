@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: guard proposal; implemented locally through existing public content hygiene tools on 07.06.2026, pending production rendered evidence.
+Статус: guard proposal; implemented through existing public content hygiene tools on 07.06.2026, production rendered evidence passed.
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 
 ## Purpose
@@ -33,7 +33,15 @@ These defects are easy to reintroduce through Bitrix page-content rows, PHP part
 | `ABOUT-GUARD-06` | rendered/source content hygiene | `/about/` | Public headings/cards expose agreed internal terms after glossary approval | `ABOUT-003`, `ABOUT-006`, `ABOUT-010` |
 | `ABOUT-GUARD-07` | release evidence | safe JSON output | Evidence output includes raw page HTML, form values, cookies or PII-like keys | `REL-002`, `ABOUT-010` |
 
-Implementation note 07.06.2026: Option A was selected. `tools/public-content-hygiene-check.mjs` now checks `/about/` source partials, footer menu and page-content seed for stale or misleading source patterns. `tools/public-content-rendered-hygiene-check.mjs` now checks rendered `/about/` for stale `2025 + Сегодня`, duplicate IDs, missing `/about/#...` targets, misleading `#partners` target and about-specific internal visible phrases. Self-tests pass locally; production JSON evidence must be refreshed after deploy/cache clear.
+Implementation note 07.06.2026: Option A was selected. `tools/public-content-hygiene-check.mjs` now checks `/about/` source partials, footer menu and page-content seed for stale or misleading source patterns. `tools/public-content-rendered-hygiene-check.mjs` now checks rendered `/about/` for stale `2025 + Сегодня`, duplicate IDs, missing `/about/#...` targets, misleading `#partners` target and about-specific internal visible phrases. Self-tests pass locally. Production rendered evidence passed after public cache clear: `content:public-hygiene:rendered:prod:json` reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`.
+
+## Production Evidence
+
+| Command / Evidence | Result |
+|---|---|
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed; cleared public rendered/menu/component/composite/template cache after deploy. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:24:11Z`; 13 pages checked, 0 issues. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=74964`. |
 
 ## Recommended Implementation Options
 

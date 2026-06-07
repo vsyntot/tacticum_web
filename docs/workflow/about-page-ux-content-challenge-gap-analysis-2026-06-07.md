@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: challenge source register, not an approval package; fast-fix/guard implementation is local pending deploy evidence.
+Статус: challenge source register, not an approval package; fast-fix/guard implementation deployed and production-rendered evidence passed; owner approvals pending for broader work.
 Workflow lane: Full Feature discovery / documentation, with Fast Fix candidates.
 Scope: `/about/` product trust page, UX/UI, content, Russian-first language, storyline, rendered anchors/IDs and page-content ownership. No PHP, JS, CSS, Bitrix admin data, REST, CRM, analytics or SEO route changes in this task.
 
@@ -41,6 +41,14 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | `tools/content-storage-page-content-seed.php` | `/about/` seed contains `product-first`, `delivery`, `backend`, `data/RAG` and related internal terms in page-content rows |
 | `.bottom.menu.php` | Footer links to `/about/#careers` and `/about/#partners` |
 | User screenshots, 07.06.2026 | Confirm visual concerns: generic values/culture cards, large team portraits/crops, `2025 / Сегодня` timeline and technology contours positioning |
+
+## Production Evidence After Fast Fix
+
+| Command / Evidence | Result |
+|---|---|
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed. Cleared `bitrix:menu`, `bitrix:news.list`, `bitrix:news.detail`, managed cache, component cache, composite HTML and template CSS/JS public render cache. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:24:11Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=74964`, all wave2 pages rendered from Bitrix source as expected. |
 
 ## Challenge Verdict
 
@@ -89,35 +97,35 @@ Recommended hierarchy:
 
 | ID | Status | Priority | Area | Gap | Required Task | Existing Gap Mapping | Owner Group | Gates / Evidence |
 |---|---|---:|---|---|---|---|---|---|
-| `ABOUT-001` | open | P0 | Timeline / trust | Rendered page shows `2025` badge with `Сегодня` heading on 07.06.2026. | Split `2025` as a past milestone and add a non-stale current-focus block, or use approved dynamic/current wording. | `CLS-002`, `CLS-003`, `REL-002`, `CONTENT-004` | PM + Content + QA | Rendered `/about/` has no stale `year + Сегодня` contradiction; source/rendered guard proposed in `ABOUT-GUARD-01`. |
+| `ABOUT-001` | closed | P0 | Timeline / trust | Rendered page showed `2025` badge with `Сегодня` heading on 07.06.2026. | Split `2025` as a past milestone and add a non-stale current-focus block, or use approved dynamic/current wording. | `CLS-002`, `CLS-003`, `REL-002`, `CONTENT-004` | PM + Content + QA | Production rendered hygiene passed at `2026-06-07T08:24:11Z`; `/about/` has no stale `year + Сегодня` contradiction. |
 | `ABOUT-002` | open | P1 | Storyline | Page narrative is fragmented: company story, trust, tech stack, career/culture and CTA sections compete. | Rewrite `/about/` as one trust storyline with a clear page role and section hierarchy. | `CLS-003`, `CLS-010`, `UX-001`, `CONTENT-005`, `PCJMU-001` | PM + UX + Content + Sales | Approved page role and copy outline; no unsupported claims. |
-| `ABOUT-003` | open | P1 | Language | Public copy exposes internal English/product terms: `product-first`, `delivery`, `backend`, `data/RAG`, `quality gates`, `production rollout`. | Apply Russian-first glossary; explain necessary technical terms on first use. | `CLS-002`, `CLS-011`, `CONTENT-004`, `SEO-009` | Content + PM + SEO + Architect | Editorial review; rendered text no longer exposes internal shorthand as public headings/cards. |
+| `ABOUT-003` | in-progress | P1 | Language | Public copy exposed internal English/product terms: `product-first`, `delivery`, `backend`, `data/RAG`, `quality gates`, `production rollout`. | Apply Russian-first glossary; explain necessary technical terms on first use. | `CLS-002`, `CLS-011`, `CONTENT-004`, `SEO-009` | Content + PM + SEO + Architect | Fast-fix removed guarded visible terms from rendered `/about/`; broader editorial review remains open. |
 | `ABOUT-004` | blocked | P1 | Trust / proof | Page does not provide enough verifiable trust artifacts for enterprise AI: governance, data boundary, delivery responsibility, support model, evidence status. | Build proof-safe trust matrix for `/about/`; decide what can be public, private-by-request or blocked. | `CLS-007`, `CONTENT-001`, `CONTENT-002`, `CONTENT-003`, `ARCH-009`, `UI-005` | PM + Sales + Legal + Content | Legal/Sales/PM approval before new claims, metrics, logos, certifications or named proof. |
 | `ABOUT-005` | open | P1 | Team UX/UI / accessibility | Team section uses large portrait crops and hover/overlay-heavy presentation; critical bio/detail text can be inaccessible or visually noisy. | Redesign team cards for consistent crop, readable role summary and keyboard/mobile accessibility. | `UI-001`, `UI-002`, `UI-005`, `UI-010`, `CMP-008` | Design + Frontend + QA + PM | Design gate; browser/mobile smoke; no personal/team data changes without owner approval. |
-| `ABOUT-006` | open | P1 | Technology stack | Stack block reads generic and partly dated: `BERT`, `NLTK`, `Hadoop`, `Tableau`, `передовые технологии`; weak tie to current product trust. | Replace stack inventory with capability/risk contours tied to enterprise AI launch, or retire stack block. | `CLS-004`, `CLS-002`, `STACK-003`, `CONTENT-004`, `UI-006` | Content + Architect + Sales + PM | Architect/content review; no misleading expertise claims. |
-| `ABOUT-007` | open | P1 | Navigation / HTML integrity | Rendered HTML has duplicate `id="about-company"`; footer links to missing `#careers`; `#partners` points to technology contours. | Fix form/section ID collision; add/remove/rename anchors; align footer labels with actual sections. | `CMP-001`, `CMP-008`, `SEO-009`, `REL-002`, `BPC-CMP-001` | Frontend + QA + SEO | Rendered ID uniqueness and anchor integrity check; SEO review if footer nav labels change. |
-| `ABOUT-008` | open | P2 | CTA / career-culture mismatch | Career/culture and final CTA copy are generic: `достичь новых высот`; page mixes hiring/culture with buyer trust without clear transition. | Decide whether careers remains on `/about/`; rewrite culture/CTA around buyer trust or create explicit careers section. | `CLS-010`, `CLS-009`, `UX-010`, `CONTENT-004` | PM + Content + UX | CTA says what user receives next; careers anchor/content decision recorded. |
+| `ABOUT-006` | in-progress | P1 | Technology stack | Stack block read generic and partly dated: `BERT`, `NLTK`, `Hadoop`, `Tableau`, `передовые технологии`; weak tie to current product trust. | Replace stack inventory with capability/risk contours tied to enterprise AI launch, or retire stack block. | `CLS-004`, `CLS-002`, `STACK-003`, `CONTENT-004`, `UI-006` | Content + Architect + Sales + PM | Fast-fix removed guarded generic stack terms; final technology narrative still needs Architect/Content review. |
+| `ABOUT-007` | closed | P1 | Navigation / HTML integrity | Rendered HTML had duplicate `id="about-company"`; footer linked to missing `#careers`; `#partners` pointed to technology contours. | Fix form/section ID collision; add/remove/rename anchors; align footer labels with actual sections. | `CMP-001`, `CMP-008`, `SEO-009`, `REL-002`, `BPC-CMP-001` | Frontend + QA + SEO | Production rendered hygiene passed at `2026-06-07T08:24:11Z`; rendered IDs are unique and `/about/#...` anchors resolve. |
+| `ABOUT-008` | in-progress | P2 | CTA / career-culture mismatch | Career/culture and final CTA copy were generic: `достичь новых высот`; page mixes hiring/culture with buyer trust without clear transition. | Decide whether careers remains on `/about/`; rewrite culture/CTA around buyer trust or create explicit careers section. | `CLS-010`, `CLS-009`, `UX-010`, `CONTENT-004` | PM + Content + UX | Generic CTA phrase removed and `#careers` target exists; career/culture strategy remains owner-review scope. |
 | `ABOUT-009` | open | P1 | Content storage / runtime ownership | About page mixes hardcoded partials, live page-content rows and fallback-retirement comments. This makes source of truth unclear. | Decide per section whether Bitrix row, PHP partial or component owns public content; sync seed/live rows and comments. | `CSG-007`, `CSG-008`, `CSG-012`, `BPC-CMP-002`, `ARCH-001` | Architect + Backend + Content + QA | Page-content audit/source marker checks; cache clear after Bitrix row changes; no silent fallback resurrection. |
-| `ABOUT-010` | open | P2 | Guard coverage | Existing content hygiene guards passed public label checks, but do not explicitly catch stale timeline, duplicate IDs or missing anchors for `/about/`. | Add source/rendered guard or release checklist for `/about/` trust defects. | `CLS-012`, `STACK-004`, `STACK-005`, `REL-002` | QA + Frontend + Backend | `about-page-ux-content-challenge-guard-proposal-2026-06-07.md` implemented or accepted as manual release checklist. |
+| `ABOUT-010` | closed | P2 | Guard coverage | Existing content hygiene guards passed public label checks, but did not explicitly catch stale timeline, duplicate IDs or missing anchors for `/about/`. | Add source/rendered guard or release checklist for `/about/` trust defects. | `CLS-012`, `STACK-004`, `STACK-005`, `REL-002` | QA + Frontend + Backend | Source/rendered hygiene guards implemented; self-tests pass locally and production rendered hygiene passed at `2026-06-07T08:24:11Z`. |
 
-Implementation note 07.06.2026: local fast-fix implementation updated `/about/` source partials, footer menu, page-content seed, `PublicCopyNormalizer`, source hygiene and rendered hygiene guards. The timeline now separates the 2025 milestone from current focus, `FIELD_PREFIX` for `about-cta` no longer collides with `id="about-company"`, footer navigation uses `/about/#technology` instead of `/about/#partners`, `#careers` has a real rendered anchor, generic CTA copy was removed, visible `quality gates` / `production rollout` / generic stack terms were replaced, and source/rendered hygiene self-tests pass. Keep `ABOUT-001`, `ABOUT-007`, `ABOUT-008`, `ABOUT-010` non-closed until production deploy, cache clear and rendered `/about/` evidence pass.
+Implementation note 07.06.2026: fast-fix implementation updated `/about/` source partials, footer menu, page-content seed, `PublicCopyNormalizer`, source hygiene and rendered hygiene guards. The timeline now separates the 2025 milestone from current focus, `FIELD_PREFIX` for `about-cta` no longer collides with `id="about-company"`, footer navigation uses `/about/#technology` instead of `/about/#partners`, `#careers` has a real rendered anchor, generic CTA copy was removed, visible `quality gates` / `production rollout` / generic stack terms were replaced, and source/rendered hygiene self-tests pass. Production deploy/cache clear evidence passed on 07.06.2026: `content:public-hygiene:rendered:prod:json` reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`; `page-content:source:http:wave2:prod` confirms `/about/ source=bitrix sections=3/3`. This closes `ABOUT-001`, `ABOUT-007` and `ABOUT-010` for fast-fix/guard scope. `ABOUT-003`, `ABOUT-006` and `ABOUT-008` remain partial owner-gated maturity work.
 
 ## Section-Level Findings
 
 | Section / Area | Finding | Priority | Related IDs |
 |---|---|---:|---|
 | Hero | Strong product-first direction, but phrase `AI-продукты` and Platform/Agents/Dev/Forum list do not yet explain trust reason. | P1 | `ABOUT-002`, `ABOUT-003` |
-| `Кто мы?` | Generic company wording plus `delivery` practice; weaker than a trust claim. | P1 | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` |
+| `Кто мы?` | Generic company wording remains weaker than a trust claim, even after internal-term cleanup. | P1 | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` |
 | Stats cards | `AI/IT`, `B2B`, `Team` are not evidence; they feel like labels, not proof. | P1 | `ABOUT-004`, `ABOUT-002` |
-| Timeline | `2025 / Сегодня` is stale on 2026-06-07. | P0 | `ABOUT-001`, `ABOUT-010` |
-| Trust page-content | Useful direction, but copy exposes `product-first`, `delivery`, `backend`, `data/RAG`, `scope`. | P1 | `ABOUT-003`, `ABOUT-004` |
+| Timeline | Original `2025 / Сегодня` stale issue is fixed in production; guard should prevent recurrence. | P0 | `ABOUT-001`, `ABOUT-010` |
+| Trust page-content | Original copy exposed `product-first`, `delivery`, `backend`, `data/RAG`, `scope`; guarded terms are cleaned, but proof-safe trust content still needs owner review. | P1 | `ABOUT-003`, `ABOUT-004` |
 | Values | `Инновационность`, `Прозрачность`, `Гибкость` are expected/generic unless tied to operating behavior. | P2 | `ABOUT-002`, `ABOUT-008` |
 | Team | Portrait grid dominates; detail/role information needs buyer-trust purpose and accessible presentation. | P1 | `ABOUT-005` |
-| `Технологические контуры` | Useful as a concept, but attached to `id="partners"`; visible `quality gates` and `production rollout` remain internal. | P1 | `ABOUT-003`, `ABOUT-006`, `ABOUT-007` |
-| Stack | Tool list creates generic agency impression and may date quickly. | P1 | `ABOUT-006` |
-| Career/culture | If careers are intended, missing `#careers`; if not, content distracts from buyer trust. | P2 | `ABOUT-008`, `ABOUT-007` |
-| CTA | Final gradient CTA uses generic copy and duplicates the lead CTA intent. | P2 | `ABOUT-008`, `ABOUT-010` |
-| Footer anchors | `#careers` missing; `#partners` misleading. | P1 | `ABOUT-007`, `ABOUT-010` |
+| `Технологические контуры` | Anchor semantics and guarded internal terms are fixed; broader capability/risk framing still needs Architect/Content review. | P1 | `ABOUT-003`, `ABOUT-006`, `ABOUT-007` |
+| Stack | Original generic tool list was removed from guarded production output; final technology narrative can still be stronger. | P1 | `ABOUT-006` |
+| Career/culture | `#careers` now exists, but the career/culture section still needs a clear buyer-trust role or owner decision. | P2 | `ABOUT-008`, `ABOUT-007` |
+| CTA | Generic phrase was removed; remaining CTA strategy should be aligned with the future trust storyline. | P2 | `ABOUT-008`, `ABOUT-010` |
+| Footer anchors | Original missing/misleading anchors are fixed in production and covered by rendered hygiene guard. | P1 | `ABOUT-007`, `ABOUT-010` |
 
 ## Minimum Closure Bundles
 
@@ -128,6 +136,8 @@ Must close before broader content/UI work:
 - `ABOUT-001`
 - `ABOUT-007`
 - `ABOUT-010` minimal guard/checklist
+
+Status 07.06.2026: closed for fast-fix/guard scope after production cache clear and rendered hygiene evidence at `2026-06-07T08:24:11Z`.
 
 ### Bundle B — Trust Narrative Rewrite
 
@@ -165,12 +175,12 @@ Must close before large Bitrix/live content edits:
 
 ## Suggested Return Path
 
-1. Approve `ABOUT-WP-01` and `ABOUT-WP-02` as fast-fix bundle if the goal is immediate production hygiene.
+1. Keep `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` closed unless rendered hygiene catches a regression.
 2. PM/Content/Sales approve the `/about/` target role: vendor trust page, not generic company/career page.
 3. Architect/Content decide page-content ownership before editing live Bitrix rows broadly.
 4. Designer scopes team/timeline/trust block UI after narrative approval.
-5. QA implements or runs the guard proposal before deploy/cache refresh.
-6. Use `ABOUT-WP-*` backlog to create tracker issues.
+5. QA keeps `content:public-hygiene:*` in the release path and refreshes production rendered evidence after public template/menu/page-content deploys.
+6. Use remaining `ABOUT-WP-*` backlog items to create tracker issues.
 
 ## Related Documents
 
