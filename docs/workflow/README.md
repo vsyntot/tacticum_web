@@ -171,6 +171,7 @@ QA подключается до разработки, если задача к�
 - `plans/2026-06-07-public-site-e2e-challenge-documentation.md` — docs-only Codex plan for the production public-site E2E challenge package.
 - `plans/2026-06-07-public-site-e2e-implementation.md` — Fast Fix implementation plan for `PUBLIC-E2E-001` - `004` and source/release guard coverage.
 - `plans/2026-06-07-public-site-webmanifest-mime-hygiene.md` — Fast Fix implementation plan for `PUBLIC-E2E-010`: `.webmanifest` MIME mapping plus production `seo:check:prod` guard.
+- `plans/2026-06-07-public-release-precheck-seo-surface.md` — Fast Fix implementation plan for `PUBLIC-E2E-WP-05`: `release:public-precheck:prod` now covers robots, sitemap index, static sitemap, offer sitemap and webmanifest content type.
 - `offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` — safe owner approval draft for `/offer/` taxonomy/preset source-of-truth; validates with `npm run offer:taxonomy:approval:draft-check` and does not approve iblock apply or runtime source switch.
 - `offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` — owner-approved `/offer/` taxonomy/preset model for `OFFER-TAX-WP-04`; validates without `--allow-draft`, but still does not approve iblock apply or runtime source switch. Production deploys may not include `/docs`, so `tools/offer-taxonomy-approved-model.php` carries the deployable embedded approved model for migration dry-run/apply.
 - `plans/2026-06-07-offer-taxonomy-presets-documentation.md` — docs-only Codex plan for the `/offer/` taxonomy/preset challenge package.
