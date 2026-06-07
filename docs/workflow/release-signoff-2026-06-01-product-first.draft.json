@@ -7,28 +7,40 @@
   },
   "gates": {
     "automated-deploy-smoke": {
-      "status": "pending",
+      "status": "passed",
       "owner": "DevOps + QA",
-      "due": "after-product-first-deploy-cache-refresh",
-      "reason": "Product-first public pages, navigation, CTA contexts and FAQ assets require production/staging smoke after deploy and Bitrix cache refresh."
+      "evidence": {
+        "health_config": "npm run release:public-precheck:prod passed on 2026-06-07; health_config status=200 scopes include api, ai, telegram, offer, content, products, page_content, price, rest, security",
+        "visual_smoke_manifest": "/tmp/tacticum-release-product-first-2026-06-07/seo/manifest.json",
+        "browser_smoke_manifest": "/tmp/tacticum-release-product-first-2026-06-07/browser/manifest.json",
+        "note": "production SEO/visual smoke and warning-aware browser action smoke passed after deploy/cache refresh"
+      }
     },
     "seo-rendered-head": {
-      "status": "pending",
+      "status": "passed",
       "owner": "SEO + QA",
-      "due": "after-product-first-deploy-cache-refresh",
-      "reason": "Rendered head, sitemap coverage and product SoftwareApplication/FAQPage schema must be confirmed for /platform/, /agents/, /dev/, /forum/ plus preserved money pages after deploy."
+      "evidence": {
+        "seo_smoke_manifest": "/tmp/tacticum-release-product-first-2026-06-07/seo/manifest.json",
+        "note": "TACTICUM_EXPECT_SEO_HEAD=1 production visual smoke passed for 13 public pages on desktop/mobile; seo:check:prod also passed"
+      }
     },
     "price-team-presets": {
-      "status": "pending",
+      "status": "passed",
       "owner": "QA + Frontend",
-      "due": "after-product-first-deploy-cache-refresh",
-      "reason": "Product-first release preserved /price/ staff flow; desktop/mobile team presets and persistent summary still need post-deploy smoke."
+      "evidence": {
+        "price_smoke_manifest": "/tmp/tacticum-release-product-first-2026-06-07/price/manifest.json",
+        "note": "/price/ team preset action passed on desktop/mobile with workers=5 and monthly budget detail"
+      }
     },
     "css-js-e2e-readiness": {
-      "status": "pending",
+      "status": "passed",
       "owner": "Frontend + QA",
-      "due": "after-product-first-deploy-cache-refresh",
-      "reason": "Product FAQ assets, navigation and public page layout need production visual/browser e2e readiness evidence."
+      "evidence": {
+        "production_visual_manifest": "/tmp/tacticum-release-product-first-2026-06-07/seo/manifest.json",
+        "production_browser_manifest": "/tmp/tacticum-release-product-first-2026-06-07/browser/manifest.json",
+        "production_price_manifest": "/tmp/tacticum-release-product-first-2026-06-07/price/manifest.json",
+        "note": "js:check, css:check, css:syntax, template-styles:check, production visual smoke, warning-aware browser smoke and focused /price/ smoke passed on 2026-06-07"
+      }
     },
     "content-public-hygiene": {
       "status": "passed",
