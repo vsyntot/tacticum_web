@@ -66,11 +66,12 @@ npm run content:public-hygiene:self-test
 npm run content:public-hygiene:check
 npm run content:public-hygiene:rendered:self-test
 npm run content:public-hygiene:rendered:prod
+npm run content:public-hygiene:rendered:prod:json
 npm run product:content:safety:check
 npm run seo:check
 ```
 
-Implementation note 07.06.2026: local fallback/source labels, mapper normalization and exact-phrase runtime normalization for old Bitrix product/page-content rows are implemented; `content:public-hygiene:*` was added to guard recurrence. Current production baseline before deploy/cache refresh reports 26 rendered hygiene issues, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure.
+Implementation note 07.06.2026: local fallback/source labels, mapper normalization and exact-phrase runtime normalization for old Bitrix product/page-content rows are implemented; `content:public-hygiene:*` was added to guard recurrence. Current production baseline before deploy/cache refresh reports 26 rendered hygiene issues, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure. The JSON variant `content:public-hygiene:rendered:prod:json` is the safe evidence shape for the `content-public-hygiene` release sign-off gate after the rendered check passes.
 
 ### CLS-WP-02 — Russian-First Glossary And Voice Rules
 

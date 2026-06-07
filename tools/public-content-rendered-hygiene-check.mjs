@@ -19,6 +19,8 @@ const DEFAULT_PAGES = [
   '/contacts/',
   '/policies/',
 ];
+const DEFAULT_CHECKED_BY = 'automated-public-content-hygiene-check';
+const DEFAULT_COMMAND = 'npm run content:public-hygiene:rendered:prod';
 
 const FORBIDDEN_VISIBLE_PHRASES = [
   'Product fit',
@@ -98,6 +100,18 @@ function runSelfTest() {
       throw new Error(`Unsafe fixture missed forbidden visible text: ${expected}`);
     }
   }
+
+  const evidence = buildEvidence(
+    { command: DEFAULT_COMMAND, baseUrl: 'https://example.com', checkedBy: 'self-test' },
+    [{ page: '/safe/', status: 200, issues: 0, ok: true }],
+    [],
+  );
+  if (evidence.issues_found !== 0 || evidence.pages_checked !== 1 || evidence.result !== 'public rendered content hygiene passed') {
+    throw new Error(`Evidence fixture failed: ${JSON.stringify(evidence)}`);
+  }
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(evidence.checked_at)) {
+    throw new Error(`Evidence checked_at fixture failed: ${evidence.checked_at}`);
+  }
 }
 
 function parseArgs(argv) {
@@ -105,6 +119,9 @@ function parseArgs(argv) {
     baseUrl: process.env.TACTICUM_PUBLIC_CONTENT_BASE_URL
       || process.env.TACTICUM_VISUAL_BASE_URL
       || 'https://tacticum.ru',
+    checkedBy: process.env.TACTICUM_PUBLIC_CONTENT_CHECKED_BY || DEFAULT_CHECKED_BY,
+    command: process.env.TACTICUM_PUBLIC_CONTENT_COMMAND || DEFAULT_COMMAND,
+    json: process.env.TACTICUM_PUBLIC_CONTENT_JSON === '1',
     pages: parseList(process.env.TACTICUM_PUBLIC_CONTENT_PAGES || process.env.TACTICUM_VISUAL_PAGES, DEFAULT_PAGES),
     selfTest: false,
   };
@@ -114,8 +131,20 @@ function parseArgs(argv) {
       options.selfTest = true;
       continue;
     }
+    if (argument === '--json') {
+      options.json = true;
+      continue;
+    }
     if (argument.startsWith('--base-url=')) {
       options.baseUrl = argument.slice('--base-url='.length);
+      continue;
+    }
+    if (argument.startsWith('--checked-by=')) {
+      options.checkedBy = argument.slice('--checked-by='.length);
+      continue;
+    }
+    if (argument.startsWith('--command=')) {
+      options.command = argument.slice('--command='.length);
       continue;
     }
     if (argument.startsWith('--pages=')) {
@@ -146,13 +175,24 @@ async function main() {
     const url = new URL(page, options.baseUrl);
     const response = await requestText(url);
     const pageIssues = scanRenderedHtml(response.body, url.pathname);
-    const ok = response.status >= 200 && response.status < 300 && pageIssues.length === 0;
+    const statusOk = response.status >= 200 && response.status < 300;
+    const ok = statusOk && pageIssues.length === 0;
+    const issueCount = pageIssues.length + (statusOk ? 0 : 1);
 
-    if (response.status < 200 || response.status >= 300) {
+    if (!statusOk) {
       issues.push({ page: url.pathname, line: 0, rule: 'http-status', text: `HTTP ${response.status}` });
     }
     issues.push(...pageIssues);
-    results.push({ page: url.pathname, status: response.status, issues: pageIssues.length, ok });
+    results.push({ page: url.pathname, status: response.status, issues: issueCount, ok });
+  }
+
+  const evidence = buildEvidence(options, results, issues);
+  if (options.json) {
+    console.log(JSON.stringify(evidence, null, 2));
+    if (issues.length > 0) {
+      process.exit(1);
+    }
+    return;
   }
 
   for (const result of results) {
@@ -170,6 +210,30 @@ async function main() {
 
   console.log('');
   console.log(`Public rendered content hygiene check passed: ${results.length} page(s).`);
+}
+
+function buildEvidence(options, results, issues) {
+  return {
+    command: options.command,
+    base_url: options.baseUrl,
+    checked_at: isoDateTimeWithoutMilliseconds(new Date()),
+    checked_by: options.checkedBy,
+    pages_checked: results.length,
+    issues_found: issues.length,
+    result: issues.length === 0
+      ? 'public rendered content hygiene passed'
+      : 'public rendered content hygiene failed',
+    pages: results.map((result) => ({
+      page: result.page,
+      status: result.status,
+      issues: result.issues,
+      ok: result.ok,
+    })),
+  };
+}
+
+function isoDateTimeWithoutMilliseconds(date) {
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 function requestText(url, redirects = 0) {
