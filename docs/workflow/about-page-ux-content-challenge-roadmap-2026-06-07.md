@@ -123,7 +123,7 @@ Exit criteria:
 - Team details are accessible without hover-only dependency.
 - Timeline and trust sections no longer look like generic template cards.
 
-Status 07.06.2026: scoped `ABOUT-WP-04` team card implementation is local. The team card no longer depends on hover-only overlay for detail, but Phase 3 is not closed until browser/mobile smoke and production rendered evidence exist.
+Status 07.06.2026: scoped `ABOUT-WP-04` team card implementation has production rendered/source evidence. The team card no longer depends on hover-only overlay for detail, but Phase 3 is not closed until browser/mobile visual smoke exists.
 
 ## Phase 4 — Page-Content Ownership And Sync
 
@@ -184,7 +184,7 @@ Status 07.06.2026: minimal guard package completed through existing `content:pub
 | `ABOUT-WP-07` | Page-content/fallback ownership and sync | `ABOUT-009` |
 | `ABOUT-WP-08` | Guard/smoke package | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` |
 
-Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a proof-safe copy implementation deployed with production rendered evidence; `ABOUT-WP-03` now also has a proof matrix ready for owner review. `ABOUT-WP-04` has a local team card accessibility implementation and needs browser/production evidence. `ABOUT-WP-07` has an ownership map ready for owner review. Continue `ABOUT-WP-03/05/06/07` only after the relevant owner decisions.
+Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a proof-safe copy implementation deployed with production rendered evidence; `ABOUT-WP-03` now also has a proof matrix ready for owner review. `ABOUT-WP-04` has production rendered/source evidence and needs browser/mobile visual smoke before closure. `ABOUT-WP-07` has an ownership map ready for owner review. Continue `ABOUT-WP-03/05/06/07` only after the relevant owner decisions.
 
 ## Verification Guidance
 
