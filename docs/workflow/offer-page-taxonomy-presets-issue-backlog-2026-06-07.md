@@ -1,12 +1,13 @@
 # Offer Page Taxonomy / Presets Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has owner-review artifacts and accepted ADR-012, but owner-approved durable taxonomy/preset model remains pending.
+Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has accepted ADR-012 and approved owner JSON; `OFFER-TAX-WP-04` is ready to start implementation with migration/source-switch gates still separate.
 
 Source register: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/offer-page-taxonomy-presets-roadmap-2026-06-07.md`
 Decision support: `docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07.md`
 Owner approval draft: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json`
+Owner approval approved: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`
 Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 
 ## Purpose
@@ -30,8 +31,8 @@ Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 |---|---|---|---:|---|---|---|
 | `OFFER-TAX-WP-01` | closed-fast-fix-production-evidence | `fast-fix-allowed` + `guard-scope-required` | P1 | Backend/Frontend + QA + Content | `OFFER-TAX-003`, `OFFER-TAX-004` | Fix visible catalog defects: budget formatting and most obvious mixed-language labels. |
 | `OFFER-TAX-WP-02` | interim-deployed-owner-model-pending | `owner-review-required` or `fast-fix-allowed` depending on implementation | P1 | PM + UX + Content + SEO + Frontend/Backend | `OFFER-TAX-002` | Replace arbitrary first-8 quick entries with curated presets/featured terms. |
-| `OFFER-TAX-WP-03` | owner-review-ready | `owner-review-required` + `adr-gate-required` | P1 | Architect + Backend + PM + Content + SEO + Sales | `OFFER-TAX-001`, `OFFER-TAX-005`, `OFFER-TAX-006`, `OFFER-TAX-011` | Approve taxonomy source-of-truth, labels, aliases, budget bucket governance and Bitrix model. |
-| `OFFER-TAX-WP-04` | blocked | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
+| `OFFER-TAX-WP-03` | closed-owner-approved | `owner-review-required` + `adr-gate-required` | P1 | Architect + Backend + PM + Content + SEO + Sales | `OFFER-TAX-001`, `OFFER-TAX-005`, `OFFER-TAX-006`, `OFFER-TAX-011` | Approve taxonomy source-of-truth, labels, aliases, budget bucket governance and Bitrix model. |
+| `OFFER-TAX-WP-04` | ready-for-implementation | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
 | `OFFER-TAX-WP-05` | production-guard-slice-passed | `guard-scope-required` + `seo-gate-required` | P2 | QA + SEO + Backend + DevOps | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-012` | Add taxonomy/content/SEO/cache guards and production evidence path. |
 | `OFFER-TAX-WP-06` | open | `owner-review-required` + `seo-gate-required` | P2 | PM + Product + SEO + Content + Backend | `OFFER-TAX-008`, `OFFER-TAX-010` | Decide product-family relation and future landing/performance strategy. |
 
@@ -52,8 +53,9 @@ Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 | PHP smoke snippets, local 07.06.2026 | Passed: `50600000` formats as `50 600 000 руб.`, visible labels map to `бьюти и салоны`, `онлайн-торговля`, `Платформа данных и MLOps`, and curated options return only configured active keys. |
 | `npm run offer:taxonomy:approval:self-test`, local 07.06.2026 | Passed; checker rejects stored counts, duplicate aliases, unsafe labels and overlapping Bitrix budget ranges. |
 | `npm run offer:taxonomy:approval:draft-check`, local 07.06.2026 | Passed for the safe owner-review draft; draft does not approve iblock apply or runtime source switch. |
+| `npm run offer:taxonomy:approval:check -- docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, local 07.06.2026 | Passed without `--allow-draft`; approved JSON keeps runtime switch and iblock apply not approved. |
 | `npm run offer:taxonomy:implementation-gate:self-test`, local 07.06.2026 | Passed; gate detects runtime/schema markers and verifies blocked/allowed states. |
-| `npm run offer:taxonomy:implementation-gate`, local 07.06.2026 | Passed; current code has no forbidden offer taxonomy runtime/schema markers while owner approval JSON remains draft. |
+| `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, local 07.06.2026 | Passed; current code has no forbidden offer taxonomy runtime/schema markers and the approved artifact is accepted. |
 
 ## Production Evidence
 
@@ -130,7 +132,7 @@ npm run seo:check
 
 Add rendered smoke for `/offer/` after cache clear.
 
-Implementation note 07.06.2026: fast-fix removes `array_slice(first 8)` quick entries. `quick-filters.php` now renders `CatalogFilters::featuredOptions()`, delegated to `CatalogTaxonomy::featuredOptions()`, using curated stable keys and hiding missing/empty options. Production rendered hygiene passed at `2026-06-07T12:22:16Z`. This is not the final owner-approved Bitrix preset model; it is a safe interim runtime fix that preserves current URLs and SEO posture.
+Implementation note 07.06.2026: fast-fix removes `array_slice(first 8)` quick entries. `quick-filters.php` now renders `CatalogFilters::featuredOptions()`, delegated to `CatalogTaxonomy::featuredOptions()`, using curated stable keys and hiding missing/empty options. Production rendered hygiene passed at `2026-06-07T12:22:16Z`. This is not the final Bitrix/runtime preset source; it is a safe interim runtime fix that preserves current URLs and SEO posture.
 
 ### OFFER-TAX-WP-03 — Taxonomy Source-Of-Truth Decision
 
@@ -161,19 +163,19 @@ Verification:
 - `npm run offer:taxonomy:approval:self-test`
 - `npm run offer:taxonomy:approval:draft-check` while the file remains draft.
 - `npm run offer:taxonomy:implementation-gate:self-test`
-- `npm run offer:taxonomy:implementation-gate`
-- `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft` before runtime implementation.
-- Docs review by PM/Content/SEO/Architect/Backend/QA/Sales.
-- ADR review is complete through accepted `ADR-012`; owner approval JSON remains required before runtime implementation.
+- `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`
+- `npm run offer:taxonomy:approval:check -- docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` without `--allow-draft`.
+- Docs review by PM/Content/SEO/Architect/Backend/QA/Sales is recorded in the approved JSON.
+- ADR review is complete through accepted `ADR-012`; owner approval JSON is present before runtime implementation.
 - No production code change should be merged under this issue unless explicitly scoped.
 
-Implementation note 07.06.2026: accepted `ADR-012` and `offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` make `OFFER-TAX-WP-03` owner-review-ready. `tools/offer-taxonomy-approval-check.mjs` validates owner rows, gates, decisions, Russian-first labels, aliases, featured terms, budget policy, no stored counts, no unsafe raw content, and explicitly forbids runtime source switch or iblock apply approval in this file. `tools/offer-taxonomy-implementation-gate.mjs` guards the blocked implementation boundary by allowing the current `CatalogTaxonomy` shim and blocking future taxonomy iblock keys, source config, migration/cache/finalize scripts and runtime classes until approved owner JSON exists. This does not close `OFFER-TAX-WP-03`; owner approvals are still required.
+Implementation note 07.06.2026: accepted `ADR-012` and `offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` close `OFFER-TAX-WP-03` as owner-approved. `tools/offer-taxonomy-approval-check.mjs` validates owner rows, gates, decisions, Russian-first labels, aliases, featured terms, budget policy, no stored counts, no unsafe raw content, and explicitly forbids runtime source switch or iblock apply approval in this file. `tools/offer-taxonomy-implementation-gate.mjs` guards the implementation boundary by allowing the current `CatalogTaxonomy` shim and requiring approved owner JSON before future taxonomy iblock keys, source config, migration/cache/finalize scripts and runtime classes are introduced. This does not approve iblock apply or runtime source switch.
 
 ### OFFER-TAX-WP-04 — Bitrix Taxonomy Runtime Implementation
 
 Workflow lane: Full Feature.
 Priority: P1.
-Start policy: blocked until `OFFER-TAX-WP-03` owner approval exists, `npm run offer:taxonomy:approval:check -- <approved.json>` passes without `--allow-draft`, and `npm run offer:taxonomy:implementation-gate` passes with the approved artifact.
+Start policy: ready after `OFFER-TAX-WP-03` owner approval. Runtime implementation must reference `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`, pass `npm run offer:taxonomy:approval:check -- docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json` without `--allow-draft`, and pass `npm run offer:taxonomy:implementation-gate -- --approval=docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`.
 
 Affected areas:
 
