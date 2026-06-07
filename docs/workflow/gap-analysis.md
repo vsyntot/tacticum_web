@@ -178,6 +178,50 @@ Do not rewrite `/offer/` filters as a client-only SPA. Preserve server-rendered 
 
 Any future task touching `/offer/` filter interaction, quick-entry active state, applied-filter chips, AJAX result updates, pagination behavior, browser history or mobile filter UX must reference the relevant `OFFER-FILTER-*` IDs. If the task changes labels, taxonomy terms or featured term ownership, it must also reference `OFFER-TAX-*`. If the task changes canonical/noindex/sitemap behavior, it requires SEO approval and must not be hidden inside a UX fast fix.
 
+## Current Public Site E2E Challenge Layer — 07.06.2026
+
+Challenge всей публичной production-части проверил сайт шире, чем отдельные page slices: JS/CSS source health, rendered browser behavior, action smoke, public content hygiene, product/page-content source markers, SEO head, robots/sitemap, dynamic `/offer/` sitemap, canonical/noindex and page-by-page editorial quality.
+
+Документальный пакет:
+
+- source register: `docs/workflow/public-site-e2e-challenge-gap-analysis-2026-06-07.md`;
+- execution roadmap: `docs/workflow/public-site-e2e-challenge-roadmap-2026-06-07.md`;
+- issue backlog: `docs/workflow/public-site-e2e-challenge-issue-backlog-2026-06-07.md`;
+- Codex plan: `docs/workflow/plans/2026-06-07-public-site-e2e-challenge-documentation.md`.
+
+### Challenge Verdict
+
+Production is stable but still has release-hygiene debt. Public pages return 200, browser/action smoke passes without runtime errors, content hygiene is clean, SEO guards pass, robots/sitemaps are reachable, `/offer/sitemap.php` has 1118 live 200 URLs, and page/product content sources are Bitrix. The remaining gaps are mostly semantics, build artifact freshness, sitemap freshness and editorial clarity: missing `lang=ru`, stale generated Tailwind artifact, stale static sitemap `lastmod`, heavy English/internal terminology, `/price/` public label governance and `/offer/` synthetic example disclosure.
+
+### Current Gap Coverage
+
+| Cluster | Gap IDs | Current Risk |
+|---|---|---|
+| Technical release hygiene | `PUBLIC-E2E-001`, `PUBLIC-E2E-002`, `PUBLIC-E2E-003`, `PUBLIC-E2E-014` | Closed locally / partial guard closure: `lang` rendering and guards are implemented, Tailwind artifact is regenerated, static sitemap artifact is regenerated, and local checks pass; production deploy/cache smoke remains pending. |
+| SEO infrastructure | `PUBLIC-E2E-004`, `PUBLIC-E2E-010` | `PUBLIC-E2E-004` closed locally by sitemap index lastmod update; `PUBLIC-E2E-010` remains open/P3 because manifest MIME likely requires server/nginx config. |
+| Editorial Russian-first quality | `PUBLIC-E2E-005`, `PUBLIC-E2E-009`, `PUBLIC-E2E-012`, `PUBLIC-E2E-013` | Open owner/content work: product and technical pages still overuse English/internal terms; supporting pages can improve clarity/navigation. |
+| Public catalog labels/proof framing | `PUBLIC-E2E-006`, `PUBLIC-E2E-007` | Open owner-gated work: `/price/` role labels need public short-label governance; `/offer/` examples need durable synthetic/proof-safe disclosure. |
+| Monitoring / security baseline | `PUBLIC-E2E-008`, `PUBLIC-E2E-011` | Accepted-monitor: `/aiagents/` vs `/agents/` positioning and CSP report-only remain monitored rather than blocking current production health. |
+
+Initial documentation status 07.06.2026:
+
+- Docs-only package created before implementation; it did not by itself approve runtime changes.
+- Existing production evidence is green for public page availability, browser runtime, action smoke, rendered content hygiene, SEO checks, product/page-content source checks, price/offer targeted smoke, release public precheck and known-gaps guard.
+- Failed checks are explicitly tracked rather than hidden: `css:check` and `sitemap:static:check`.
+- Immediate recommended sequence is `PUBLIC-E2E-WP-01` (`lang=ru` + guard), `PUBLIC-E2E-WP-02` (Tailwind artifact sync), `PUBLIC-E2E-WP-03` (static sitemap freshness), then guard consolidation and owner-gated editorial work.
+
+Implementation update 07.06.2026:
+
+- `PUBLIC-E2E-WP-01` is implemented locally: template renders safe `lang` from Bitrix `LANGUAGE_ID`, and `seo:check` / `release:public-precheck` guard public `lang=ru`.
+- `PUBLIC-E2E-WP-02` is implemented locally: `tailwind.generated.css` regenerated and `css:check` passes.
+- `PUBLIC-E2E-WP-03` is implemented locally: ignored static sitemap artifact regenerated with `lastmod=2026-06-07`, repo-owned `sitemap.xml` index lastmods updated to `2026-06-07T00:00:00+03:00`, and `sitemap:static:check` passes.
+- Local verification passed: PHP lint for `header.php`, `css:check`, `css:syntax`, `js:check`, `sitemap:static:check`, `seo:check`, `bitrix:check`, `content:public-hygiene:check`, `component:states:check`, `template-styles:check`, `content:public-hygiene:rendered:self-test`, `product:content:safety:check`, `visual:smoke:css-local`, `browser:console:css-local` and `git diff --check`.
+- Production verification remains pending until deploy/cache refresh; new HTTP assertions are expected to fail on the pre-deploy production template.
+
+### Planning Rule
+
+Any future task touching global template semantics, static CSS generation, public sitemap generation, release public precheck, Russian-first public terminology, `/price/` role labels, `/offer/` example/proof framing, `/aiagents/` vs `/agents/` public positioning or CSP enforcement must reference the relevant `PUBLIC-E2E-*` IDs. Technical hygiene fixes may use Fast Fix Lane when they do not change public routes, SEO policy, form payloads or Bitrix schema. Copy rewrites, proof/disclosure changes, public label model changes or CSP enforce rollout require their listed owner gates and existing `CLS-*`, `OFFER-TAX-*`, `PTC-*`, `SEC-*` or product/content governance references where they overlap.
+
 ## Current Price Team Presets Layer — 06.06.2026
 
 Challenge `/price/` quick team presets выявил отдельный product/config gap: пресеты были функциональной доменной сущностью, но хранились как split PHP/JS hardcode and applied roles by keyword matching visible rate-card copy.

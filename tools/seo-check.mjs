@@ -459,6 +459,16 @@ function assertDefaultSocialPreview() {
   }
 }
 
+function assertTemplateLanguageDeclaration() {
+  const headerSource = read('local/templates/tacticum/header.php');
+  if (!/<html\b[^>]*\blang=/.test(headerSource)) {
+    fail('template header must render an explicit html lang attribute');
+  }
+  if (!headerSource.includes('LANGUAGE_ID') || !headerSource.includes('$htmlLang')) {
+    fail('template header must derive html lang from Bitrix LANGUAGE_ID with a safe fallback');
+  }
+}
+
 function assertOfferCatalogRouting() {
   const rewriteSource = read('urlrewrite.php');
   const offerPageSource = read('offer/index.php');
@@ -1902,6 +1912,18 @@ async function checkHttpSitemapGovernance() {
   validateStaticSitemap(staticSitemap, 'production sitemap-basic-files.xml');
 }
 
+async function checkHttpPublicHtmlLanguage() {
+  for (const publicPath of expectedStaticPages.values()) {
+    const html = await fetchHttpText(publicPath, `production public page ${publicPath}`);
+    if (html === '') {
+      continue;
+    }
+    if (!/<html\b[^>]*\blang=(["'])ru\1/i.test(html)) {
+      fail(`production public page ${publicPath} must render <html lang="ru">`);
+    }
+  }
+}
+
 async function checkHttpOfferSitemap() {
   const url = `${HTTP_BASE_URL}/offer/sitemap.php`;
   const response = await fetch(url);
@@ -2004,6 +2026,7 @@ if (sitemapWorkflow === null) {
 assertCanonicalPaths();
 assertTopMenuProminence();
 assertDefaultSocialPreview();
+assertTemplateLanguageDeclaration();
 assertOfferCatalogRouting();
 assertPublicPageComponentization();
 
@@ -2013,6 +2036,7 @@ if (!robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
 
 if (CHECK_HTTP) {
   await checkHttpSitemapGovernance();
+  await checkHttpPublicHtmlLanguage();
   await checkHttpRobots();
   await checkHttpOfferSitemap();
   await checkHttpOfferCatalogPrettyUrl();
