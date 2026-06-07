@@ -14,7 +14,7 @@ PM не закрывает release issue, пока для затронутых �
 | `seo-rendered-head` | Изменены публичные страницы, template head, SEO helper, sitemap/robots или assets, влияющие на rendered head | SEO + QA | `visual:smoke` manifest: для затронутых URL `seoErrors=[]`, `seoHead` содержит уникальные title/description/canonical/OpenGraph; product URLs содержат rendered `SoftwareApplication` + `FAQPage` and required `data-product-block` inventory |
 | `price-team-presets` | Изменены `/price/`, price component JS/template/style или staff-order flow | QA + Frontend | `browser:smoke` manifest: action `price team presets/summary` = `ok` для desktop/mobile, detail содержит `workers` и budget |
 | `css-js-e2e-readiness` | Изменены CSS/JS, frontend assets, visual-smoke tooling или deploy/cache behavior | Frontend + QA | `e2e:css-js:prod` passed; при CSS PR также `e2e:css-js:local` passed; manifest не содержит browser/runtime/action blockers или `consoleWarnings` |
-| `content-public-hygiene` | Изменены публичная копия, product/page-content source, rendered content tooling или editorial labels | QA + Content | `npm run content:public-hygiene:rendered:prod` после deploy/cache refresh: checked public pages, `issues_found=0`, no visible internal labels |
+| `content-public-hygiene` | Изменены публичная копия, product/page-content source, rendered content tooling или editorial labels | QA + Content | `npm run content:public-hygiene:rendered:prod` после deploy/cache refresh: checked public pages, `issues_found=0`, no visible internal labels; sign-off evidence can be generated with `npm run content:public-hygiene:rendered:prod:json` |
 | `manual-success-flow` | Изменены формы, чат, prefill, sale/staff-order или upstream adapter | QA + Backend/Frontend owner | Staging lead ID или controlled production lead с временем проверки |
 | `metrika-goals` | Изменены `analytics.js`, `metrika.js`, формы, чат или goal taxonomy | PM/Marketing + QA | Названия проверенных goals и время проверки в Yandex.Metrika |
 | `config-sync` | Добавлены/изменены config keys | DevOps | Подтверждение, что production/staging `tacticum_config.php` синхронизирован с `tacticum_config.example.php`; для ignored runtime config приложить `npm run config:runtime:check` без secret values |
@@ -47,7 +47,7 @@ PM не закрывает release issue, пока для затронутых �
 | Product source marker | `npm run product:source:http:prod` on production server; `npm run product:source:smoke:prod` where Chrome/Chromium is available | После deploy/cache refresh `/platform/`, `/agents/`, `/dev/`, `/forum/` имеют rendered `data-product-source=bitrix`; browser smoke additionally checks `seo=ok` and `blocks=ok`, but requires Chrome/Chromium |
 | Public release precheck | `npm run release:public-precheck:prod` | Без создания лидов проверяет `health_config`, product source marker, public Metrika tag, unauth `/bitrix/admin/` surface and legacy alias deprecation headers; это precheck, а не замена manual gates |
 | Product block previews | `npm run product:block-previews:prod` | Для design/QA handoff manifest содержит `productBlockScreenshots[]`, `productBlockErrors=[]`, а `product-blocks/*.png` содержит rendered AS IS screenshots по product blocks |
-| Public content hygiene | `npm run content:public-hygiene:rendered:prod` | После deploy/cache refresh публичные страницы не содержат visible `Product fit`, `fits`, `not_fits`, `start`, `Use cases`, `Security / procurement`, page-content service labels or known mixed internal headings |
+| Public content hygiene | `npm run content:public-hygiene:rendered:prod` | После deploy/cache refresh публичные страницы не содержат visible `Product fit`, `fits`, `not_fits`, `start`, `Use cases`, `Security / procurement`, page-content service labels or known mixed internal headings; JSON для release sign-off: `npm run content:public-hygiene:rendered:prod:json` |
 | `/price/` team presets | `npm run browser:smoke:price` | Для `/price/` desktop/mobile action `price team presets/summary` имеет `status=ok`, а `detail` показывает количество `workers` и рассчитанный monthly budget |
 | CSS/JS e2e readiness | `npm run e2e:css-js:prod`; для CSS PR ещё `npm run e2e:css-js:local` | Manifest не содержит `errors`, `pageErrors`, `consoleErrors`, `consoleWarnings`, first-party `networkErrors`, `actionErrors`, broken images или horizontal overflow; product `lead_scenario` selects and FAQ toggles pass; `/price/` team presets проходят |
 
@@ -118,7 +118,7 @@ All security-sensitive gates reject raw payload/log/request/response keys, conta
 - для `seo-rendered-head` нет `seoErrors`, есть один title/description/canonical/H1, обязательные OpenGraph meta, product schema summary and required product block inventory for product URLs;
 - для `price-team-presets` action `price team presets/summary` прошёл на desktop/mobile и содержит `workers` + `budget` в detail.
 - для `css-js-e2e-readiness` production visual/browser/price manifests проходят общие browser guards, а `/price/` manifest дополнительно проверяет team presets.
-- для `content-public-hygiene` evidence требует `command`, HTTPS `base_url`, `checked_at`, `checked_by`, positive `pages_checked`, `issues_found=0` and rendered hygiene result summary.
+- для `content-public-hygiene` evidence требует `command`, HTTPS `base_url`, `checked_at`, `checked_by`, positive `pages_checked`, `issues_found=0` and rendered hygiene result summary; safe JSON shape генерируется `npm run content:public-hygiene:rendered:prod:json`.
 - release metadata содержит `id`, `date`, `commit`; `date` имеет формат `YYYY-MM-DD`, `base_url` при наличии использует HTTPS, strict mode не принимает `working-tree` commit marker;
 - неизвестные gates запрещены: release JSON должен использовать только список из этого документа;
 - security-sensitive gates `csp-enforce`, `sensitive-endpoint-access`, `endpoint-risk-class`, `legacy-final-mode` имеют обязательные evidence fields, no-PII/raw evidence scan and dedicated negative self-tests;
@@ -131,7 +131,7 @@ All security-sensitive gates reject raw payload/log/request/response keys, conta
 - seo-rendered-head: not applicable / pending / passed, manifest:
 - price-team-presets: not applicable / pending / passed, manifest:
 - css-js-e2e-readiness: not applicable / pending / passed, manifests:
-- content-public-hygiene: not applicable / pending / passed, safe evidence:
+- content-public-hygiene: not applicable / pending / passed, safe evidence from `npm run content:public-hygiene:rendered:prod:json`:
 - manual-success-flow: not applicable / pending / passed, evidence:
 - metrika-goals: not applicable / pending / passed, evidence:
 - config-sync: not applicable / pending / passed, owner:
