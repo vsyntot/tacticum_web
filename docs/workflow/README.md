@@ -148,6 +148,7 @@ QA подключается до разработки, если задача к�
 - `component-state-contract.md` — AS IS component/state contract, guard и правила сохранения/migration behavior-bearing selectors.
 - `design-migration-map.md` — AS IS -> TO BE migration map, migration types and gates для дизайн-системной миграции.
 - `product-content-schema-contract.md` — typed schema baseline для product seed/fallback data and release fail-fast policy.
+- `product-content-target-evidence-refresh-2026-06-07.md` — no-PII evidence refresh for `PTC-WP-01`: local safety guard and HTTP production product-source checks passed; target Bitrix/PHP strict JSON and cache-clear dry-run evidence remain pending.
 - `product-content-source-switch-runbook.md` — порядок проверки, переключения и rollback для `products.source=bitrix`.
 - `product-taxonomy-seo-packaging-decision-2026-06-04.md` — Sprint 18 approval package для product taxonomy, `/agents/` vs `/aiagents/`, `/price/`, packaging, SEO metadata and evidence mapping.
 - `product-cjm-cta-crm-qualification-decision-2026-06-04.md` — Sprint 19 approval package для role CJM, CTA taxonomy, returning-lead path, pilot kits, CRM fallback and no-PII analytics.
