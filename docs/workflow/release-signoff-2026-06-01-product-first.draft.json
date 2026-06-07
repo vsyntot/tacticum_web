@@ -48,9 +48,10 @@
       "evidence": {
         "command": "npm run content:public-hygiene:rendered:prod",
         "base_url": "https://tacticum.ru",
-        "checked_at": "2026-06-07T07:28:34Z",
+        "checked_at": "2026-06-07T08:24:11Z",
         "checked_by": "automated-public-content-hygiene-check",
-        "cache_clear": "npm run product:content:cache-clear completed on production before rendered hygiene recheck; products.source=bitrix, fallback_allowed=no, schema_version=v1",
+        "cache_clear": "npm run content:public-cache-clear completed on production before rendered hygiene recheck; cleared bitrix:menu, bitrix:news.list, bitrix:news.detail, managed cache, component cache, composite HTML and template CSS/JS public render cache",
+        "page_content_source": "npm run page-content:source:http:wave2:prod passed after public cache clear; /about/ source=bitrix sections=3/3 bytes=74964 and all wave2 pages source=bitrix",
         "pages_checked": 13,
         "issues_found": 0,
         "result": "public rendered content hygiene passed",
