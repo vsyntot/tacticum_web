@@ -11,7 +11,7 @@ Roadmap: `public-site-e2e-challenge-roadmap-2026-06-07.md`
 | `PUBLIC-E2E-WP-01` | closed | P1 | Engineering + QA | `PUBLIC-E2E-001`, `PUBLIC-E2E-014` | Add public HTML language declaration and guard |
 | `PUBLIC-E2E-WP-02` | closed with server-Chrome caveat | P1 | Engineering + QA | `PUBLIC-E2E-002` | Sync Tailwind generated artifact and CSS evidence |
 | `PUBLIC-E2E-WP-03` | closed | P1 | Engineering + SEO | `PUBLIC-E2E-003`, `PUBLIC-E2E-004` | Fix static sitemap freshness and index lastmod policy |
-| `PUBLIC-E2E-WP-04` | implemented locally, pending production MIME evidence | P3 | Engineering / DevOps | `PUBLIC-E2E-010` | Fix webmanifest response type hygiene |
+| `PUBLIC-E2E-WP-04` | closed | P3 | Engineering / DevOps | `PUBLIC-E2E-010` | Fix webmanifest response type hygiene |
 | `PUBLIC-E2E-WP-05` | closed for lang guard | P2 | Engineering + QA + SEO | `PUBLIC-E2E-014` | Consolidate release public E2E guard coverage |
 | `PUBLIC-E2E-WP-06` | owner-review | P2 | Content + Architect | `PUBLIC-E2E-005` | Approve Russian-first public glossary rules |
 | `PUBLIC-E2E-WP-07` | blocked-owner | P2 | Content + Architect + SEO | `PUBLIC-E2E-005`, `PUBLIC-E2E-009` | Rewrite jargon-heavy product pages |
@@ -133,7 +133,7 @@ Required checks:
 
 ## PUBLIC-E2E-WP-04: Fix Webmanifest Response Type Hygiene
 
-Status: implemented locally, pending production MIME evidence
+Status: closed
 Priority: P3
 Workflow lane: Fast Fix Lane / DevOps if server MIME config is needed
 Affected areas: static server MIME config or manifest asset location.
@@ -154,10 +154,11 @@ Implementation evidence 2026-06-07:
 - `tools/seo-check.mjs` checks the local MIME hint and validates production manifest `Content-Type` in HTTP mode.
 - Local checks passed: `node --check tools/seo-check.mjs`, `npm run seo:check`.
 
-Remaining gate:
+Closure evidence:
 
-- Deploy/cache refresh and `npm run seo:check:prod`.
-- If production still returns empty/wrong `Content-Type`, close the remaining part through nginx/server MIME config rather than PHP/template code.
+- Closed by production deploy/cache refresh and `npm run seo:check:prod`.
+- Production rendered hygiene JSON also passed at `2026-06-07T20:37:59Z` with `pages_checked=13`, `issues_found=0`.
+- If production later returns empty/wrong `Content-Type`, close the regression through nginx/server MIME config rather than PHP/template code.
 
 Required checks:
 

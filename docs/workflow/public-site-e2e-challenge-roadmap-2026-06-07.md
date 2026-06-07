@@ -64,7 +64,7 @@ Closure targets:
 
 Goal: remove low-risk infrastructure hygiene issues and prevent regression.
 
-Status: `PUBLIC-E2E-WP-04` implemented locally on 2026-06-07; production MIME evidence pending after deploy/cache refresh.
+Status: `PUBLIC-E2E-WP-04` closed on 2026-06-07 by production `seo:check:prod` after deploy/cache refresh.
 
 Work packages:
 
@@ -80,7 +80,7 @@ Expected checks:
 
 Closure targets:
 
-- `PUBLIC-E2E-010`: locally implemented through `.htaccess` MIME hint and `seo-check` guard; closes only after production `seo:check:prod` confirms manifest `Content-Type`.
+- `PUBLIC-E2E-010`: closed through `.htaccess` MIME hint and production `seo:check:prod` manifest `Content-Type` guard.
 - `PUBLIC-E2E-014`.
 - `PUBLIC-E2E-011` remains accepted-monitor unless Security chooses CSP enforce path.
 
@@ -161,7 +161,7 @@ Monitoring evidence:
 1. `PUBLIC-E2E-WP-01`: lang + guard. Status: closed by production `seo:check:prod` and `release:public-precheck:prod`.
 2. `PUBLIC-E2E-WP-02`: Tailwind artifact sync. Status: closed for code/rendered scope; Chrome-based production URL smoke should run from a Chrome-capable runner.
 3. `PUBLIC-E2E-WP-03`: sitemap freshness. Status: closed by local static-sitemap check and production `seo:check:prod`.
-4. `PUBLIC-E2E-WP-04`: webmanifest MIME hygiene. Status: implemented locally; production `seo:check:prod` MIME evidence pending.
+4. `PUBLIC-E2E-WP-04`: webmanifest MIME hygiene. Status: closed by production `seo:check:prod`.
 5. `PUBLIC-E2E-WP-05`: release guard consolidation. Status: closed for public `lang=ru`; optional sitemap consolidation remains backlog.
 6. `PUBLIC-E2E-WP-06`: glossary decision.
 7. `PUBLIC-E2E-WP-07` / `PUBLIC-E2E-WP-08`: editorial pass.
