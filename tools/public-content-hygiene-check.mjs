@@ -191,6 +191,25 @@ function scanAboutSource(source, fileLabel = '<source>', forbiddenLabels = ABOUT
   return issues;
 }
 
+function scanFooterTechnologySource(source, fileLabel = '<source>') {
+  const issues = [];
+  const match = /["']Технологии["'][\s\S]{0,180}?["']([^"']+)["']/.exec(source);
+  const href = match ? match[1].trim() : '';
+
+  if (href !== '/services/#technology') {
+    issues.push({
+      file: fileLabel,
+      line: 0,
+      rule: 'footer-technology-link-target',
+      text: href === ''
+        ? 'footer technology link is missing'
+        : `footer technology link points to ${href}; expected /services/#technology`
+    });
+  }
+
+  return issues;
+}
+
 function verifyRequiredLiterals(relativeFile, requiredLiterals) {
   const sourcePath = path.resolve(ROOT, relativeFile);
   const issues = [];
@@ -247,6 +266,20 @@ function runSelfTest() {
     '<p>Роли, аудит, журналирование, quality gates и production rollout</p>',
     '<p>Свяжитесь с нами, чтобы достичь новых высот.</p>'
   ].join('\n');
+  const safeFooterSource = [
+    'Array(',
+    '  "Технологии",',
+    '  "/services/#technology",',
+    '  Array(),',
+    ')'
+  ].join('\n');
+  const unsafeFooterSource = [
+    'Array(',
+    '  "Технологии",',
+    '  "/about/#technology",',
+    '  Array(),',
+    ')'
+  ].join('\n');
 
   const safeIssues = scanSource(safeSource, 'safe-fixture.php');
   if (safeIssues.length !== 0) {
@@ -267,6 +300,15 @@ function runSelfTest() {
     if (!found) {
       throw new Error(`Unsafe about fixture missed forbidden label: ${expected}`);
     }
+  }
+
+  const safeFooterIssues = scanFooterTechnologySource(safeFooterSource, 'safe-footer.php');
+  if (safeFooterIssues.length !== 0) {
+    throw new Error(`Safe footer fixture failed:\n${formatIssues(safeFooterIssues).join('\n')}`);
+  }
+  const unsafeFooterIssues = scanFooterTechnologySource(unsafeFooterSource, 'unsafe-footer.php');
+  if (!unsafeFooterIssues.some((issue) => issue.rule === 'footer-technology-link-target')) {
+    throw new Error('Unsafe footer fixture missed footer-technology-link-target');
   }
 }
 
@@ -336,6 +378,18 @@ function main() {
     }
 
     issues.push(...scanAboutSource(fs.readFileSync(filePath, 'utf8'), relativeFile));
+  }
+
+  const bottomMenuPath = path.resolve(ROOT, '.bottom.menu.php');
+  if (!fs.existsSync(bottomMenuPath)) {
+    issues.push({
+      file: '.bottom.menu.php',
+      line: 0,
+      rule: 'missing-file',
+      text: 'bottom menu source is missing'
+    });
+  } else {
+    issues.push(...scanFooterTechnologySource(fs.readFileSync(bottomMenuPath, 'utf8'), '.bottom.menu.php'));
   }
 
   const aboutSeedPath = path.resolve(ROOT, ABOUT_SEED_FILE);
