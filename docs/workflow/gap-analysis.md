@@ -137,9 +137,20 @@ Current gap coverage:
 - issue backlog: `docs/workflow/product-tech-challenge-issue-backlog-2026-06-04.md` / `.json`;
 - owner review runbook: `docs/workflow/product-tech-challenge-owner-review-runbook-2026-06-04.md`;
 - sprint roadmap Sprint 17-23: `docs/workflow/sprints/2026-06-04-product-tech-challenge-sprint-roadmap.md`;
-- Codex plan: `docs/workflow/plans/2026-06-04-product-tech-challenge-documentation.md`.
+- Codex plan: `docs/workflow/plans/2026-06-04-product-tech-challenge-documentation.md`;
+- product CJM / Use Cases / UX / UI challenge snapshot: `docs/workflow/product-cjm-usecases-ux-ui-challenge-2026-06-07.md`;
+- Codex plan for the 07.06 snapshot: `docs/workflow/plans/2026-06-07-product-cjm-usecases-ux-ui-challenge-snapshot.md`;
+- content language / storyline source register: `docs/workflow/content-language-storyline-challenge-gap-analysis-2026-06-07.md`;
+- content language / storyline roadmap: `docs/workflow/content-language-storyline-challenge-roadmap-2026-06-07.md`;
+- content language / storyline issue backlog: `docs/workflow/content-language-storyline-challenge-issue-backlog-2026-06-07.md`;
+- public Russian-first glossary and editorial rules: `docs/workflow/content-language-storyline-public-glossary-2026-06-07.md`;
+- Codex plan for the content-language snapshot: `docs/workflow/plans/2026-06-07-content-language-storyline-challenge-documentation.md`.
 
 Этот слой покрывает 100% выявленных на 04.06.2026 gaps/tasks по UX, UI, Architecture, Components, Stack, Security, Content, SEO and Release. Он не заменяет исторические sprint closure sections ниже и не меняет machine-readable product handoff register `docs/new-big-change/product-vision-handoff/16-gap-closure-action-register.json`.
+
+07.06.2026 follow-up challenge snapshot зафиксировал отдельную продуктовую критическую оценку текущего приложения именно по CJM, Use Cases, UX and UI. Snapshot не вводит новые canonical gap IDs and does not close existing gaps; local observation IDs `PCJMU-*` map back to `UX-*`, `UI-*`, `ARCH-*`, `CONTENT-*` and `CMP-*`. Его использовать как memory artifact before future owner review or implementation planning.
+
+07.06.2026 content language / storyline challenge зафиксировал отдельный editorial maturity register. Local IDs `CLS-001` - `CLS-012` cover visible internal labels, Russian-first language debt, homepage storyline, product-page architecture-heavy copy, `/price/` staffing/rates framing, `/aiagents/` vs `/agents/` copy boundary, proof/claims inconsistency, offer-detail fear/generic claims, legacy FAQ tone, CTA language, editorial governance and content hygiene guard. These IDs are not canonical product-tech gap IDs; they map back to existing `CONTENT-*`, `UX-*`, `ARCH-*`, `UI-*`, `CMP-*`, `STACK-*` and `REL-*` gaps. Use `CLS-WP-01` - `CLS-WP-08` for future content implementation planning and keep proof/claims, SEO route/canonical and payload changes behind their existing owner gates.
 
 ### Challenge Verdict
 
@@ -163,6 +174,10 @@ Current gap coverage:
 Any future task that touches product pages, product content, forms/CRM, proof/claims, `/agents/` or `/aiagents/`, `/price/`, design system, CSP, frontend modules or release evidence should reference affected IDs from `product-tech-challenge-gap-register-2026-06-04.md` and follow the phase order in `product-tech-challenge-execution-roadmap-2026-06-04.md`.
 
 Implementation planning should use Sprint 17-23 documents under `docs/workflow/sprints/2026-06-04-sprint-*.md`; each sprint lists in-scope gap IDs, gates, acceptance criteria, QA/smoke and risks.
+
+If future work starts from the 07.06 product challenge snapshot, convert local `PCJMU-*` observations into issues that reference the canonical gap IDs from the 04.06 register. Do not implement role-specific CJM, pilot kits, `/price/` reframing, `/agents/` vs `/aiagents/` route changes, proof/status UI or form/chat state changes without the owner gates listed in the corresponding Sprint 17-23 decision packs.
+
+If future work starts from the 07.06 content language / storyline challenge, convert local `CLS-*` observations into tracker issues using `content-language-storyline-challenge-issue-backlog-2026-06-07.md`. Do not rewrite public claims, metrics, logos, certifications, `/agents/` vs `/aiagents/` canonical behavior, lead payloads, CRM/upstream fields or `/price/` interactions under a copy-only issue. First close or explicitly scope `CLS-WP-01` for visible public label leaks, then apply the Russian-first glossary before broad homepage/product/commercial route rewrite.
 
 Sprint 17 local progress 04.06.2026: `CFG-001`, `CFG-002`, `CFG-003`, `ARCH-001`, `ARCH-003` and `STACK-004` moved to local `in-progress` baseline through `docs/workflow/product-content-schema-contract.md`, `docs/workflow/product-content-schema-v1.json`, `tools/product-content-schema-check.mjs`, local negative fixture `tools/fixtures/product-content-schema-invalid/platform.php`, target evidence validator `tools/product-content-target-evidence-check.mjs`, npm scripts `product:content:schema:self-test` / `product:content:schema:negative-test` / `product:content:target-evidence:self-test` / `product:content:target-evidence:check` / `product:content:schema:check` / `product:content:safety:check`, typed validation and JSON evidence mode inside `tools/product-content-check.php --strict`, and schema/source-aware product cache keys. This validates schema logic, expected invalid fixture failure, saved target strict JSON evidence shape and Git seed/fallback schema, wires local schema safety into PR check, deploy lifecycle guard and `release:product-first:prod-check`, strengthens live assembled Bitrix page checks, documents fail-fast policy and prevents source/schema changes from reusing old product cache entries; target PHP/Bitrix run evidence, cache-clear dry-run evidence and Legal/Sales claim evidence remain separate Sprint 17 gates.
 
