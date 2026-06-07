@@ -29,7 +29,7 @@ Glossary: `docs/workflow/content-language-storyline-public-glossary-2026-06-07.m
 | `CLS-WP-03` | pending-owner-review | `owner-review-required` | P1 | PM + UX + Content + Sales + SEO | `CLS-003`, `CLS-010` | Approve global storyline and homepage narrative rewrite |
 | `CLS-WP-04` | pending-owner-review | `owner-review-required` | P1 | Content + Architect + Sales + PM | `CLS-004`, `CLS-002` | Rewrite product pages into public-readable Russian-first product copy |
 | `CLS-WP-05` | pending-owner-review | `owner-review-required` | P1 | PM + Sales + UX + SEO + Frontend | `CLS-005`, `CLS-010` | Reframe `/price/` as implementation team/budget route while preserving team builder contracts |
-| `CLS-WP-06` | pending-owner-review | `owner-review-required` | P1 | PM + SEO + Content + Sales | `CLS-006`, `CLS-009` | Clarify `/aiagents/` as demo/prototype route for Agents, not competing product |
+| `CLS-WP-06` | in-progress-copy-hotfix | `owner-review-required` | P1 | PM + SEO + Content + Sales | `CLS-006`, `CLS-009` | Clarify `/aiagents/` as demo/prototype route for Agents, not competing product |
 | `CLS-WP-07` | blocked | `blocked-claims-evidence` | P0 | PM + Sales + Legal + Content + SEO | `CLS-007`, `CLS-008` | Build claims/evidence matrix and rewrite offer detail risk/reason copy safely |
 | `CLS-WP-08` | pending-owner-review | `owner-review-required` | P2 | Content + PM + Legal + QA | `CLS-009`, `CLS-010`, `CLS-003` | Inventory and clean legacy FAQ/global copy that conflicts with product-first story |
 
@@ -207,6 +207,14 @@ Verification:
 git diff --check
 npm run seo:check
 ```
+
+Implementation note 07.06.2026:
+
+- Reported `/agents/` comparison-card title `Оставьте /aiagents/ для демо` was challenged and replaced with public-facing copy: `Демо AI-ботов: быстрая проверка идеи`.
+- Old visible phrases `Legacy AI-bot entry`, `product path` and `Agents rollout` are blocked by source/rendered content hygiene guards.
+- `PublicCopyNormalizer` maps the old Bitrix product-content strings to the new public copy, so production `products.source=bitrix` content is protected after cache clear.
+- Production `npm run product:content:cache-clear` completed in `products.source=bitrix`, fallback disabled, schema `v1`; production `npm run content:public-hygiene:rendered:prod` passed on 13 pages with `issues_found=0` at `2026-06-07T07:28:34Z`.
+- This closes the reported `/agents/` card copy defect only. Full `/aiagents/` page rewrite, route intent and canonical/sitemap decisions remain pending owner review.
 
 ### CLS-WP-07 — Proof/Claims And Offer Detail Cleanup
 
