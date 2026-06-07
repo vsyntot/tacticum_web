@@ -47,7 +47,11 @@ const FORBIDDEN_PUBLIC_LABELS = [
   'Deployment-модель',
   'deployment-модели',
   'без assessment',
-  'пилотной evidence'
+  'пилотной evidence',
+  'Оставьте /aiagents/ для демо',
+  'Legacy AI-bot entry',
+  'product path',
+  'Agents rollout'
 ];
 
 const MAPPER_REQUIRED_LITERALS = [
@@ -151,7 +155,10 @@ function runSelfTest() {
     "'eyebrow' => 'Use cases',",
     "'eyebrow' => 'Security / procurement',",
     "$this->block('platform', 'product_card', 'Platform assessment', 'Text')",
-    "$this->block('dev-examples', 'product_card', 'Dev examples', 'Text')"
+    "$this->block('dev-examples', 'product_card', 'Dev examples', 'Text')",
+    "'title' => 'Оставьте /aiagents/ для демо',",
+    "'text' => 'Legacy AI-bot entry полезен как быстрый демонстрационный вход.',",
+    "'text' => 'Не заменяет product path для Agents rollout.',"
   ].join('\n');
 
   const safeIssues = scanSource(safeSource, 'safe-fixture.php');
@@ -160,7 +167,7 @@ function runSelfTest() {
   }
 
   const unsafeIssues = scanSource(unsafeSource, 'unsafe-fixture.php');
-  for (const expected of ['Product fit', 'Use cases', 'Security / procurement', 'Platform assessment', 'Dev examples']) {
+  for (const expected of ['Product fit', 'Use cases', 'Security / procurement', 'Platform assessment', 'Dev examples', 'Оставьте /aiagents/ для демо', 'Legacy AI-bot entry', 'product path']) {
     if (!unsafeIssues.some((issue) => issue.text.includes(expected))) {
       throw new Error(`Unsafe fixture missed forbidden label: ${expected}`);
     }

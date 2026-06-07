@@ -44,6 +44,10 @@ const FORBIDDEN_VISIBLE_PHRASES = [
   'Deployment-модель',
   'deployment-модели',
   'пилотной evidence',
+  'Оставьте /aiagents/ для демо',
+  'Legacy AI-bot entry',
+  'product path',
+  'Agents rollout',
 ];
 
 const FORBIDDEN_EXACT_LINES = ['fits', 'not_fits', 'start'];
@@ -87,6 +91,7 @@ function runSelfTest() {
   const unsafeHtml = `
     <section><p>Product fit</p><h3>fits</h3><h3>not_fits</h3><h3>start</h3></section>
     <section><p>Security / procurement</p><h3>Platform assessment</h3></section>
+    <section><h3>Оставьте /aiagents/ для демо</h3><p>Legacy AI-bot entry</p><p>product path for Agents rollout</p></section>
   `;
 
   const safeIssues = scanRenderedHtml(safeHtml, '/safe/');
@@ -95,7 +100,7 @@ function runSelfTest() {
   }
 
   const unsafeIssues = scanRenderedHtml(unsafeHtml, '/unsafe/');
-  for (const expected of ['Product fit', 'fits', 'not_fits', 'start', 'Security / procurement', 'Platform assessment']) {
+  for (const expected of ['Product fit', 'fits', 'not_fits', 'start', 'Security / procurement', 'Platform assessment', 'Оставьте /aiagents/ для демо', 'Legacy AI-bot entry', 'product path']) {
     if (!unsafeIssues.some((issue) => issue.text.includes(expected))) {
       throw new Error(`Unsafe fixture missed forbidden visible text: ${expected}`);
     }
