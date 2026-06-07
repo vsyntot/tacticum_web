@@ -71,7 +71,7 @@ Exit criteria:
 - Quick entries are intentional and ordered.
 - Production rendered hygiene and `/offer/` smoke pass after cache clear.
 
-Status 07.06.2026: implemented locally for Fast Fix scope. `CatalogTaxonomy` owns temporary public label normalization, budget display formatting, budget buckets and curated featured option keys. `CatalogMapper` adds `budget_display` and preserves legacy raw keys/URLs; `quick-filters.php` no longer uses first-8 aggregation. Local PHP lint, `content:public-hygiene:*` self-tests, `content:public-hygiene:check`, `seo:check`, `bitrix:check` and `git diff --check` passed. Production rendered evidence remains pending after deploy/cache clear.
+Status 07.06.2026: implemented and deployed for Fast Fix scope. `CatalogTaxonomy` owns temporary public label normalization, budget display formatting, budget buckets and curated featured option keys. `CatalogMapper` adds `budget_display` and preserves legacy raw keys/URLs; `quick-filters.php` no longer uses first-8 aggregation. Local PHP lint, `content:public-hygiene:*` self-tests, `content:public-hygiene:check`, `seo:check`, `bitrix:check` and `git diff --check` passed. Production cache clear, rendered hygiene, page-content source and SEO checks passed; rendered hygiene JSON at `2026-06-07T12:22:16Z` reports `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`.
 
 ## Phase 2 — Taxonomy And Preset Model Approval
 
@@ -90,6 +90,8 @@ Exit criteria:
 - Owner-approved model exists.
 - ADR is added if new iblocks/config/runtime source switching are introduced.
 - Do-not-store-counts rule is explicitly accepted.
+
+Status 07.06.2026: owner-review package is prepared but not approved. Proposed `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md` defines the target Bitrix/config/fallback pattern in status `Предложено`; `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` provides a safe draft with current candidate terms and governance decisions; `tools/offer-taxonomy-approval-check.mjs` validates owner approvals, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime switch/iblock apply approval. Runtime implementation remains blocked until the approval JSON passes without `--allow-draft` and ADR-012 is accepted.
 
 ## Phase 3 — Runtime Implementation
 
@@ -127,7 +129,7 @@ Exit criteria:
 - Safe JSON evidence can be attached to release sign-off.
 - Rollback instructions are documented.
 
-Status 07.06.2026: local guard slice implemented. Source hygiene rejects raw budget rendering and arbitrary first-8 quick filters; rendered hygiene self-test rejects visible machine budget on `/offer/`. Full taxonomy integrity guard for duplicate codes, unknown aliases and Bitrix terms remains pending until the owner-approved model exists.
+Status 07.06.2026: guard slice implemented and production-smoked. Source hygiene rejects raw budget rendering and arbitrary first-8 quick filters; rendered hygiene rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; `seo:check:prod` also passed. Full taxonomy integrity guard for duplicate codes, unknown aliases and Bitrix terms remains pending until the owner-approved model exists.
 
 ## Phase 5 — Product/SEO Maturity
 

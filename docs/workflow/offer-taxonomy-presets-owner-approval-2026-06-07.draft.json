@@ -1,0 +1,393 @@
+{
+  "schema": "tacticum.offer.taxonomy_presets_owner_approval.v1",
+  "status": "draft",
+  "date": "2026-06-07",
+  "source": "docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07.md",
+  "runtime_switch_approved": false,
+  "iblock_apply_approved": false,
+  "owners": {
+    "architect": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "backend": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "pm": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "content": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "seo": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "sales": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    },
+    "qa": {
+      "approved": false,
+      "approved_at": "",
+      "evidence_ref": ""
+    }
+  },
+  "gates": {
+    "adr_review": false,
+    "content_storage_boundary": false,
+    "seo_noindex_preserved": true,
+    "counts_runtime_derived": true,
+    "no_synthetic_proof_claims": true,
+    "rollback_plan": false,
+    "cache_strategy": false,
+    "qa_checker_scope": false,
+    "config_source_mode": false
+  },
+  "decisions": {
+    "taxonomy_source": "bitrix_terms",
+    "preset_source": "featured_terms",
+    "budget_buckets": "php_config",
+    "product_family_relation": "defer",
+    "filtered_indexability": "keep_noindex"
+  },
+  "policies": {
+    "counts": "runtime_derived",
+    "membership": "offer_items_runtime",
+    "filtered_urls": "keep_noindex_canonical_offer",
+    "synthetic_examples": "examples_not_proof"
+  },
+  "rules": [
+    "This draft may approve model semantics only, not iblock apply or runtime source switch.",
+    "Do not add raw offer text, raw HTML, contacts, admin links, screenshots or stored result counts.",
+    "Counts and result availability must stay derived from active offer items.",
+    "Filtered catalog URLs remain noindex and canonical to /offer/ unless SEO opens a separate landing-page project."
+  ],
+  "terms": [
+    {
+      "dimension": "sector",
+      "code": "meditsina",
+      "public_label": "медицина",
+      "short_label": "медицина",
+      "aliases": [
+        "медицина",
+        "meditsina"
+      ],
+      "sort": 100,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "riteyl",
+      "public_label": "ритейл",
+      "short_label": "ритейл",
+      "aliases": [
+        "ритейл",
+        "riteyl"
+      ],
+      "sort": 200,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "proizvodstvo",
+      "public_label": "производство",
+      "short_label": "производство",
+      "aliases": [
+        "производство",
+        "proizvodstvo"
+      ],
+      "sort": 300,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "finansy",
+      "public_label": "финансы",
+      "short_label": "финансы",
+      "aliases": [
+        "финансы",
+        "finansy"
+      ],
+      "sort": 400,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "logistika",
+      "public_label": "логистика",
+      "short_label": "логистика",
+      "aliases": [
+        "логистика",
+        "logistika"
+      ],
+      "sort": 500,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "e-commerce",
+      "public_label": "онлайн-торговля",
+      "short_label": "онлайн-торговля",
+      "aliases": [
+        "e-commerce",
+        "онлайн-торговля",
+        "электронная торговля"
+      ],
+      "sort": 600,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "nedvizhimost",
+      "public_label": "недвижимость",
+      "short_label": "недвижимость",
+      "aliases": [
+        "недвижимость",
+        "nedvizhimost"
+      ],
+      "sort": 700,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "obrazovanie",
+      "public_label": "образование",
+      "short_label": "образование",
+      "aliases": [
+        "образование",
+        "obrazovanie"
+      ],
+      "sort": 800,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "sector",
+      "code": "beauty",
+      "public_label": "бьюти и салоны",
+      "short_label": "бьюти",
+      "aliases": [
+        "beauty",
+        "бьюти",
+        "салоны красоты"
+      ],
+      "sort": 900,
+      "active": true,
+      "featured": false,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "ai-assistent-podderzhki",
+      "public_label": "AI-ассистент поддержки",
+      "short_label": "AI-поддержка",
+      "aliases": [
+        "AI-ассистент поддержки",
+        "ai-assistent-podderzhki"
+      ],
+      "sort": 100,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "ai-kopaylot-dlya-sotrudnikov",
+      "public_label": "AI-копайлот для сотрудников",
+      "short_label": "AI-копайлот",
+      "aliases": [
+        "AI-копайлот для сотрудников",
+        "ai-kopaylot-dlya-sotrudnikov"
+      ],
+      "sort": 200,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "ai-poisk-po-korporativnym-znaniyam",
+      "public_label": "AI-поиск по корпоративным знаниям",
+      "short_label": "AI-поиск",
+      "aliases": [
+        "AI-поиск по корпоративным знаниям",
+        "ai-poisk-po-korporativnym-znaniyam"
+      ],
+      "sort": 300,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "rpa-i-dokumentooborot",
+      "public_label": "RPA и документооборот",
+      "short_label": "RPA",
+      "aliases": [
+        "RPA и документооборот",
+        "rpa-i-dokumentooborot"
+      ],
+      "sort": 400,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "bi-i-upravlencheskaya-analitika",
+      "public_label": "BI и управленческая аналитика",
+      "short_label": "BI-аналитика",
+      "aliases": [
+        "BI и управленческая аналитика",
+        "bi-i-upravlencheskaya-analitika"
+      ],
+      "sort": 500,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "prognozirovanie-sprosa",
+      "public_label": "прогнозирование спроса",
+      "short_label": "прогноз спроса",
+      "aliases": [
+        "прогнозирование спроса",
+        "prognozirovanie-sprosa"
+      ],
+      "sort": 600,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "integratsionnaya-shina-i-api",
+      "public_label": "интеграционная шина и API",
+      "short_label": "интеграции",
+      "aliases": [
+        "интеграционная шина и API",
+        "integratsionnaya-shina-i-api"
+      ],
+      "sort": 700,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "prediktivnaya-analitika-oborudovaniya",
+      "public_label": "предиктивная аналитика оборудования",
+      "short_label": "предиктивная аналитика",
+      "aliases": [
+        "предиктивная аналитика оборудования",
+        "prediktivnaya-analitika-oborudovaniya"
+      ],
+      "sort": 800,
+      "active": true,
+      "featured": true,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "data-platform-i-mlops",
+      "public_label": "Платформа данных и MLOps",
+      "short_label": "данные и MLOps",
+      "aliases": [
+        "data platform и MLOps",
+        "Платформа данных и MLOps",
+        "data-platform-i-mlops"
+      ],
+      "sort": 900,
+      "active": true,
+      "featured": false,
+      "product_family": ""
+    },
+    {
+      "dimension": "scenario",
+      "code": "voice-analytics-i-kontrol-kachestva",
+      "public_label": "Голосовая аналитика и контроль качества",
+      "short_label": "голосовая аналитика",
+      "aliases": [
+        "voice analytics и контроль качества",
+        "Голосовая аналитика и контроль качества",
+        "voice-analytics-i-kontrol-kachestva"
+      ],
+      "sort": 1000,
+      "active": true,
+      "featured": false,
+      "product_family": ""
+    },
+    {
+      "dimension": "phase",
+      "code": "discovery",
+      "public_label": "обследование и постановка задачи",
+      "short_label": "обследование",
+      "aliases": [
+        "discovery",
+        "обследование",
+        "постановка задачи"
+      ],
+      "sort": 100,
+      "active": true,
+      "featured": false,
+      "product_family": ""
+    },
+    {
+      "dimension": "phase",
+      "code": "pilot",
+      "public_label": "пилотный запуск",
+      "short_label": "пилот",
+      "aliases": [
+        "pilot",
+        "пилот",
+        "пилотный запуск"
+      ],
+      "sort": 200,
+      "active": true,
+      "featured": false,
+      "product_family": ""
+    },
+    {
+      "dimension": "phase",
+      "code": "production-vnedrenie",
+      "public_label": "внедрение в рабочую эксплуатацию",
+      "short_label": "рабочая эксплуатация",
+      "aliases": [
+        "production-внедрение",
+        "production-vnedrenie",
+        "внедрение в рабочую эксплуатацию"
+      ],
+      "sort": 300,
+      "active": true,
+      "featured": false,
+      "product_family": ""
+    }
+  ],
+  "presets": []
+}
