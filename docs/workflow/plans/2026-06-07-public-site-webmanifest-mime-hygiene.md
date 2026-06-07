@@ -41,7 +41,7 @@ Make the public web manifest return an explicit manifest-compatible content type
 |---|---|
 | `.htaccess` | Add `mod_mime` mapping for `.webmanifest`. |
 | `tools/seo-check.mjs` | Add local `.htaccess` guard and production HTTP HEAD content-type guard. |
-| `docs/workflow/*` | Mark `PUBLIC-E2E-010` as locally implemented, pending production MIME evidence. |
+| `docs/workflow/*` | Mark `PUBLIC-E2E-010` as implemented and then closed by production evidence. |
 
 ## Risks
 
@@ -65,6 +65,14 @@ git diff --check
 ```bash
 npm run seo:check:prod
 ```
+
+Post-deploy evidence 2026-06-07:
+
+- `npm run content:public-cache-clear`: passed.
+- `npm run seo:check:prod`: passed, including the production manifest `Content-Type` guard.
+- `npm run content:public-hygiene:rendered:prod:json`: passed at `2026-06-07T20:37:59Z`, `pages_checked=13`, `issues_found=0`.
+
+`PUBLIC-E2E-010` is closed. If the production manifest content type regresses, `seo:check:prod` should fail and the likely fix is server/nginx MIME configuration.
 
 ## Rollback
 

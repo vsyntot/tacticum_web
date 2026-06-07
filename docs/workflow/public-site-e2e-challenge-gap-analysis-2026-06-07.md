@@ -61,7 +61,7 @@ The challenge initially found release-hygiene and editorial gaps that should not
 ### Failed/Weak Checks
 
 - Production server lacks Chrome/Chromium, so `visual:smoke:prod` and `browser:console:prod` cannot run on that host until Chrome/Chromium is installed or `CHROME_PATH` points to an executable. Use a Chrome-capable local/CI runner for browser evidence.
-- `site.webmanifest` previously responded 200 without explicit `content-type`; repo now has an Apache-compatible `.webmanifest` MIME hint and `seo:check` guards it. Production MIME evidence remains pending until deploy.
+- `site.webmanifest` previously responded 200 without explicit `content-type`; repo now has an Apache-compatible `.webmanifest` MIME hint, `seo:check` guards it, and production `seo:check:prod` passed after deploy.
 - CSP is still `Content-Security-Policy-Report-Only`, not enforce; this is an accepted security hardening track, not a current browser error.
 
 ## Gap Register
@@ -77,7 +77,7 @@ The challenge initially found release-hygiene and editorial gaps that should not
 | `PUBLIC-E2E-007` | open | P1 | `/offer/` proof/synthetic framing | Offer examples may still be read as real confirmed cases unless disclosure/governance remains explicit. | `/offer/` has 1118 live example URLs, dynamic sitemap all 200, and synthetic-offer risk already intersects `OFFER-TAX-005`. | PM/Content/Sales/Legal approve disclosure language and public proof policy; offer list/detail keep proof-safe framing; SEO/canonical/noindex policy remains explicit. |
 | `PUBLIC-E2E-008` | accepted-monitor | P2 | `/aiagents/` vs `/agents/` positioning | `/aiagents/` remains a Telegram demo/prototype route and can compete semantically with product `/agents/`. | `/aiagents/` smoke and SEO pass; bridge copy exists; boundary is currently guarded. | Monitor search/query behavior and lead quality; reopen if users confuse `/aiagents/` with product `Agents` or SEO cannibalization appears. |
 | `PUBLIC-E2E-009` | open | P2 | `/dev/` editorial clarity | `/dev/` is the most jargon-heavy product page. | Text crawl found repeated `AI-assisted`, `AI-coding`, `governance`, `workflow`, `knowledge backbone` terms. | Rewrite high-friction headings/intro into Russian-first executive language while preserving technical accuracy and product positioning. |
-| `PUBLIC-E2E-010` | implemented locally, pending production MIME evidence | P3 | Web manifest headers | `site.webmanifest` returns 200 but no explicit content type in HEAD audit. | `.htaccess` now maps `.webmanifest` to `application/manifest+json`; `seo:check` now guards the repo MIME hint and production HTTP `Content-Type`. Local `node --check tools/seo-check.mjs` and `npm run seo:check` passed. | Deploy/cache refresh, then `npm run seo:check:prod` must confirm `application/manifest+json` or `application/json`. If it still fails, static serving bypasses `.htaccess` and requires nginx/server MIME config. |
+| `PUBLIC-E2E-010` | closed | P3 | Web manifest headers | `site.webmanifest` returned 200 but no explicit content type in HEAD audit. | `.htaccess` now maps `.webmanifest` to `application/manifest+json`; `seo:check` guards the repo MIME hint and production HTTP `Content-Type`. Local `node --check tools/seo-check.mjs` and `npm run seo:check` passed; production `content:public-cache-clear`, `seo:check:prod` and rendered hygiene JSON passed after deploy on 2026-06-07. | Closed by production `seo:check:prod`; this command now fails if manifest `Content-Type` is empty or not an accepted manifest/json type. |
 | `PUBLIC-E2E-011` | accepted-monitor | P2 | CSP hardening | CSP is still `Content-Security-Policy-Report-Only`. | Home response header shows report-only CSP with Yandex/inline allowances. | Keep as monitor until report-only baseline is triaged; enforce only after Security/QA review and production smoke. |
 | `PUBLIC-E2E-012` | open | P3 | `/contacts/` conversion clarity | Contact page is technically clean but could better set response expectations and required input. | `/contacts/` smoke/SEO pass; content review notes weak expectation-setting. | Add concise response-time/channel/preparation copy if PM approves; no form payload contract change unless Security/Integration lane is opened. |
 | `PUBLIC-E2E-013` | open | P3 | `/policies/` document navigation | Policy page has one main legal H1 and only CTA-level H2, making long legal text less navigable. | `/policies/` smoke/SEO pass; H2 count is 1 and it is `Связаться с нами`. | Add legal section anchors/headings if Content/Legal approve; keep canonical and policy source intact. |
@@ -154,14 +154,15 @@ This is not classified as a site regression. The production server has no Chrome
 
 ## Webmanifest MIME Implementation Update 2026-06-07
 
-Local Fast Fix implementation started closing `PUBLIC-E2E-010`:
+Fast Fix implementation closed `PUBLIC-E2E-010`:
 
 - `robots.txt` was checked and left unchanged: it already allows public crawl and points to `https://tacticum.ru/sitemap.xml`.
 - `.htaccess` now maps `.webmanifest` to `application/manifest+json` through `mod_mime`.
 - `tools/seo-check.mjs` now checks the repo MIME hint locally and validates production manifest `Content-Type` in HTTP mode.
 - Local checks passed: `node --check tools/seo-check.mjs`, `npm run seo:check`.
+- Production evidence passed after deploy/cache refresh: `npm run content:public-cache-clear`, `npm run seo:check:prod`, and `npm run content:public-hygiene:rendered:prod:json` at `2026-06-07T20:37:59Z` with `pages_checked=13`, `issues_found=0`.
 
-Production closure is intentionally pending. If `npm run seo:check:prod` still reports an empty or wrong manifest type after deploy, the remaining fix is server/nginx MIME configuration, not a PHP/template change.
+If a future `seo:check:prod` reports an empty or wrong manifest type, the likely fix is server/nginx MIME configuration, not PHP/template code.
 
 ## Reopen Triggers
 
