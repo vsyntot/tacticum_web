@@ -1,6 +1,7 @@
 <?php
 
 use Tacticum\Offer\CatalogCache;
+use Tacticum\Offer\OfferTaxonomyService;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     return;
@@ -43,6 +44,11 @@ if (!class_exists('TacticumOfferCatalogCache')) {
         {
             CatalogCache::clear($iblockId);
         }
+
+        public static function relatedIblockIds(): array
+        {
+            return CatalogCache::relatedIblockIds();
+        }
     }
 }
 
@@ -52,6 +58,16 @@ if (!function_exists('tacticum_offer_catalog_clear_cache')) {
         if (class_exists('TacticumOfferCatalogCache')) {
             TacticumOfferCatalogCache::clear($iblockId);
         }
+        if (class_exists(OfferTaxonomyService::class)) {
+            OfferTaxonomyService::clearCache($iblockId);
+        }
+    }
+}
+
+if (!function_exists('tacticum_offer_catalog_related_cache_iblock_ids')) {
+    function tacticum_offer_catalog_related_cache_iblock_ids(): array
+    {
+        return class_exists('TacticumOfferCatalogCache') ? TacticumOfferCatalogCache::relatedIblockIds() : [];
     }
 }
 
@@ -59,9 +75,8 @@ if (!function_exists('tacticum_offer_catalog_clear_cache_on_iblock_change')) {
     function tacticum_offer_catalog_clear_cache_on_iblock_change(array &$fields): void
     {
         $iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
-        $offerIblockId = function_exists('tacticum_iblock_id') ? tacticum_iblock_id('offer') : 0;
-        if ($offerIblockId > 0 && $iblockId === $offerIblockId) {
-            tacticum_offer_catalog_clear_cache($offerIblockId);
+        if ($iblockId > 0 && in_array($iblockId, tacticum_offer_catalog_related_cache_iblock_ids(), true)) {
+            tacticum_offer_catalog_clear_cache($iblockId);
         }
     }
 }
@@ -70,9 +85,8 @@ if (!function_exists('tacticum_offer_catalog_clear_cache_on_element_delete')) {
     function tacticum_offer_catalog_clear_cache_on_element_delete(array $fields): void
     {
         $iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
-        $offerIblockId = function_exists('tacticum_iblock_id') ? tacticum_iblock_id('offer') : 0;
-        if ($offerIblockId > 0 && $iblockId === $offerIblockId) {
-            tacticum_offer_catalog_clear_cache($offerIblockId);
+        if ($iblockId > 0 && in_array($iblockId, tacticum_offer_catalog_related_cache_iblock_ids(), true)) {
+            tacticum_offer_catalog_clear_cache($iblockId);
         }
     }
 }
@@ -81,9 +95,8 @@ if (!function_exists('tacticum_offer_catalog_clear_cache_on_property_change')) {
     function tacticum_offer_catalog_clear_cache_on_property_change(mixed $elementId, mixed $iblockId = 0): void
     {
         $iblockId = (int)$iblockId;
-        $offerIblockId = function_exists('tacticum_iblock_id') ? tacticum_iblock_id('offer') : 0;
-        if ($offerIblockId > 0 && $iblockId === $offerIblockId) {
-            tacticum_offer_catalog_clear_cache($offerIblockId);
+        if ($iblockId > 0 && in_array($iblockId, tacticum_offer_catalog_related_cache_iblock_ids(), true)) {
+            tacticum_offer_catalog_clear_cache($iblockId);
         }
     }
 }

@@ -115,7 +115,8 @@ Challenge `/offer/` quick filters and presets выявил отдельный pr
 - owner approval draft: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json`;
 - owner approval: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.approved.json`;
 - accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`;
-- Codex plan: `docs/workflow/plans/2026-06-07-offer-taxonomy-presets-documentation.md`.
+- Codex plan: `docs/workflow/plans/2026-06-07-offer-taxonomy-presets-documentation.md`;
+- runtime implementation plan: `docs/workflow/plans/2026-06-07-offer-taxonomy-runtime-implementation.md`.
 
 ### Challenge Verdict
 
@@ -125,11 +126,11 @@ Do not move current filter heuristics into Bitrix one-to-one. Move governed taxo
 
 | Cluster | Gap IDs | Current Risk |
 |---|---|---|
-| Public taxonomy ownership | `OFFER-TAX-001`, `OFFER-TAX-003`, `OFFER-TAX-005`, `OFFER-TAX-011` | Partial: visible label shim is deployed, and owner-approved taxonomy JSON now exists; runtime still uses the interim PHP service until WP-04 reads the governed source. |
-| Quick entries / presets | `OFFER-TAX-002` | Partial: interim curated stable-key quick entries are deployed; durable owner-approved featured-term model exists, but Bitrix/runtime read path remains open. |
-| Bitrix content model | `OFFER-TAX-006` | Ready for implementation: `ADR-012` and approved owner JSON exist; runtime/schema work must still add config registry, migration dry-run/apply, cache plan, rollback and strict checker evidence. |
+| Public taxonomy ownership | `OFFER-TAX-001`, `OFFER-TAX-003`, `OFFER-TAX-005`, `OFFER-TAX-011` | Partial: visible label shim is deployed, owner-approved taxonomy JSON exists, and WP-04 local runtime can read approved fallback/Bitrix terms; production source still remains fallback until target gates pass. |
+| Quick entries / presets | `OFFER-TAX-002` | Partial: interim curated stable-key quick entries are deployed; durable featured-term model is implemented locally, but production Bitrix source evidence remains pending. |
+| Bitrix content model | `OFFER-TAX-006` | In progress: `ADR-012`, approved owner JSON, config registry, fallback/Bitrix runtime, migration/check/cache tooling exist locally; target dry-run/apply, config sync, cache clear, strict checker evidence and source switch remain pending. |
 | Visible catalog UX | `OFFER-TAX-004` | Closed for fast-fix scope: production rendered hygiene passed after budget display moved to formatted `budget_display`. |
-| SEO / guards / scaling | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-010`, `OFFER-TAX-012` | Filtered URL SEO is currently safe and accepted-monitor; raw-budget/first-8 guards are deployed; full taxonomy integrity checker remains pending Bitrix model; PHP cached-array filtering is acceptable for current volume but monitored. |
+| SEO / guards / scaling | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-010`, `OFFER-TAX-012` | Filtered URL SEO is currently safe and accepted-monitor; raw-budget/first-8 guards are deployed; taxonomy checker/cache-clear tooling exists, but target Bitrix evidence is pending; PHP cached-array filtering is acceptable for current volume but monitored. |
 | Product bridge | `OFFER-TAX-008` | Open: taxonomy is not yet connected to `Platform / Agents / Dev / Forum` relation decisions. |
 
 Implementation update 07.06.2026:
@@ -138,13 +139,13 @@ Implementation update 07.06.2026:
 - Interim `OFFER-TAX-WP-02` is deployed without Bitrix schema: quick entries render curated active keys via `CatalogTaxonomy::featuredOptions()` instead of first sorted aggregated options. Durable owner-approved featured-term model now exists; Bitrix/runtime source remains open.
 - `OFFER-TAX-WP-05` guard slice is deployed: source hygiene checks reject raw budget rendering and arbitrary first-8 quick filters; rendered hygiene rejects visible machine budget on `/offer/`.
 - `OFFER-TAX-WP-03` is owner-approved: accepted `ADR-012`, approved JSON and `offer:taxonomy:approval:*` scripts validate owners, gates, labels, aliases, featured terms, budget policy, no stored counts and no runtime source switch/iblock apply approval.
-- `OFFER-TAX-WP-04` can start implementation from the approved JSON: `offer:taxonomy:implementation-gate` allows the current `CatalogTaxonomy` fast-fix shim and requires an approved artifact before future `offer_taxonomy_terms`, `offer_filter_presets`, offer-taxonomy source config, migration/cache/finalize scripts or runtime classes are introduced.
-- Local verification passed: PHP lint for changed offer PHP files, JS syntax for hygiene tools, `content:public-hygiene:self-test`, `content:public-hygiene:rendered:self-test`, `content:public-hygiene:check`, `seo:check`, `bitrix:check`, PHP output smoke snippets and `git diff --check`.
-- Production cache clear and rendered evidence passed: `content:public-hygiene:rendered:prod:json` at `2026-06-07T12:22:16Z` reports `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`; `page-content:source:http:prod` reports `/offer/ source=bitrix sections=2/2 bytes=162309`; `seo:check:prod` passed. `OFFER-TAX-WP-04` remains implementation/cache/migration/source-switch gated; `OFFER-TAX-WP-06` remains product/SEO gated.
+- `OFFER-TAX-WP-04` local runtime/tooling slice is implemented from the approved JSON: `OfferTaxonomyService` owns fallback/auto/Bitrix source selection, alias canonicalization, public labels and featured terms; `offer_taxonomy_terms` is in config with `0` fallback default; migration/check/cache-clear scripts exist; `offer_filter_presets` is not created because approved preset source is `featured_terms`.
+- Local verification passed for static gates: PHP lint for changed offer PHP files, JS syntax for hygiene tools, `content:public-hygiene:self-test`, `content:public-hygiene:rendered:self-test`, `content:public-hygiene:check`, `seo:check`, `bitrix:check`, `config:check`, `offer:taxonomy:implementation-gate`, PHP output smoke snippets and `git diff --check`. Local `offer:taxonomy:check` and `offer:taxonomy:migrate` are Bitrix DB-blocked by missing local MySQL socket and must run on target/prod.
+- Production cache clear and rendered evidence passed for the deployed fast-fix baseline: `content:public-hygiene:rendered:prod:json` at `2026-06-07T12:22:16Z` reports `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`; `page-content:source:http:prod` reports `/offer/ source=bitrix sections=2/2 bytes=162309`; `seo:check:prod` passed. WP-04 deploy still needs target migration dry-run/apply, config sync, cache clear, rendered hygiene and strict taxonomy evidence before source switch; `OFFER-TAX-WP-06` remains product/SEO gated.
 
 ### Planning Rule
 
-Any future task touching `/offer/` public filters, quick entries, taxonomy labels, budget buckets, offer seed dictionaries, filtered URL SEO behavior or offer catalog cache must reference the relevant `OFFER-TAX-*` IDs. Fast fixes may address budget display or temporary curated quick entries without ADR if no schema/source-switch pattern changes. Bitrix taxonomy implementation must start from `OFFER-TAX-WP-03` owner decision, require `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft`, accepted `ADR-012`, passing `npm run offer:taxonomy:implementation-gate`, and must not store counts as editor-maintained data.
+Any future task touching `/offer/` public filters, quick entries, taxonomy labels, budget buckets, offer seed dictionaries, filtered URL SEO behavior or offer catalog cache must reference the relevant `OFFER-TAX-*` IDs. Fast fixes may address budget display or temporary curated quick entries without ADR if no schema/source-switch pattern changes. Bitrix taxonomy rollout must start from `OFFER-TAX-WP-03` owner decision and the local WP-04 runtime/tooling baseline, require `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft`, accepted `ADR-012`, passing `npm run offer:taxonomy:implementation-gate`, target migration/check/cache evidence and must not store counts as editor-maintained data.
 
 ## Current Price Team Presets Layer — 06.06.2026
 

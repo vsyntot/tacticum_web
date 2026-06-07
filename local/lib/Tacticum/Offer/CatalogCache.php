@@ -3,6 +3,7 @@
 namespace Tacticum\Offer;
 
 use Bitrix\Main\Data\Cache;
+use Tacticum\Rest\Config;
 
 final class CatalogCache
 {
@@ -11,7 +12,12 @@ final class CatalogCache
 
     public static function cacheId(int $iblockId): string
     {
-        return 'offer_catalog_items_v2_' . $iblockId;
+        $offerConfig = Config::section('offer');
+        return 'offer_catalog_items_v3_' . md5(implode('|', [
+            $iblockId,
+            Config::iblockId('offer_taxonomy_terms'),
+            (string)($offerConfig['taxonomy_source'] ?? 'fallback'),
+        ]));
     }
 
     public static function tag(int $iblockId): string
@@ -30,8 +36,23 @@ final class CatalogCache
             && method_exists($CACHE_MANAGER, 'RegisterTag')
         ) {
             $CACHE_MANAGER->StartTagCache(self::CACHE_DIR);
-            $CACHE_MANAGER->RegisterTag(self::tag($iblockId));
+            foreach (self::relatedIblockIds($iblockId) as $relatedIblockId) {
+                $CACHE_MANAGER->RegisterTag(self::tag($relatedIblockId));
+            }
         }
+    }
+
+    public static function relatedIblockIds(int $offerIblockId = 0): array
+    {
+        $ids = [];
+        foreach ([$offerIblockId, Config::iblockId('offer'), Config::iblockId('offer_taxonomy_terms')] as $id) {
+            $id = (int)$id;
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
     public static function endTagCache(): void
@@ -53,12 +74,14 @@ final class CatalogCache
 
         global $CACHE_MANAGER;
         if (
-            $iblockId > 0
-            && defined('BX_COMP_MANAGED_CACHE')
+            defined('BX_COMP_MANAGED_CACHE')
             && is_object($CACHE_MANAGER)
             && method_exists($CACHE_MANAGER, 'ClearByTag')
         ) {
-            $CACHE_MANAGER->ClearByTag(self::tag($iblockId));
+            $tagIblockIds = $iblockId > 0 ? [$iblockId] : self::relatedIblockIds();
+            foreach ($tagIblockIds as $tagIblockId) {
+                $CACHE_MANAGER->ClearByTag(self::tag($tagIblockId));
+            }
         }
     }
 }

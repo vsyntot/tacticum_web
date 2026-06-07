@@ -139,8 +139,7 @@ final class CatalogFilters
             }
         }
         foreach (['sectors', 'scenarios', 'phases'] as $group) {
-            uasort($options[$group], static fn(array $a, array $b): int => strcasecmp($a['label'], $b['label']));
-            $options[$group] = array_values($options[$group]);
+            $options[$group] = CatalogTaxonomy::normalizeOptions($options[$group], $group);
         }
         $options['budgets'] = array_values(array_filter($options['budgets'], static fn(array $option): bool => (int)$option['count'] > 0));
 
