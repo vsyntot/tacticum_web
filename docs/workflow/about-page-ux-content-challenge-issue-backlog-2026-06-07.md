@@ -1,7 +1,7 @@
 # About Page UX / Content Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / fast-fix, guard, trust-storyline and team slices deployed with production evidence / timeline marker UI follow-up implemented locally and pending deploy evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
+Статус: issue backlog draft / fast-fix, guard, trust-storyline, team and timeline marker UI slices deployed with production evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
 
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
@@ -106,7 +106,7 @@ Rendered `/about/` smoke is now covered by `content:public-hygiene:rendered:prod
 
 Implementation note 07.06.2026: source timeline now separates the `2025` milestone from current focus and rendered hygiene covers stale `2025 + Сегодня`. Production closure passed after public cache clear: rendered hygiene JSON reports `checked_at=2026-06-07T08:24:11Z`, `pages_checked=13`, `issues_found=0`.
 
-Timeline UI follow-up 07.06.2026: local fast-fix changes marker semantics so past years are quiet, `2025` is a bordered key milestone and `Текущий фокус` carries the primary current marker plus visible `Сейчас` badge. This is a UI clarification only: no copy claims, Bitrix rows, routes, forms, SEO metadata or team data changed. Production deploy/cache/browser evidence is still pending.
+Timeline UI follow-up 07.06.2026: fast-fix changes marker semantics so past years are quiet, `2025` is a bordered key milestone and `Текущий фокус` carries the primary current marker plus visible `Сейчас` badge. This is a UI clarification only: no copy claims, Bitrix rows, routes, forms, SEO metadata or team data changed. Production cache clear, rendered hygiene JSON and wave2 source checks passed at `2026-06-07T10:33:14Z`; `/about/ source=bitrix sections=3/3 bytes=77870`. Chrome-capable visual smoke passed at `2026-06-07T10:34:10Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok, manifest `/tmp/tacticum-about-timeline-marker-2026-06-07-visual/manifest.json`.
 
 ### ABOUT-WP-02 — Anchor, ID And Footer Navigation Integrity
 
@@ -212,6 +212,8 @@ Implementation note 07.06.2026: production fast-fix removed `достичь но
 Add relevant browser/mobile visual smoke after UI changes.
 
 Implementation note 07.06.2026: scoped slice replaces hover-only team overlay with readable cards. `news.list/team` renders existing approved team data as article cards with visible role, preview, non-duplicate detail and labelled contact links; `values-team.php` explicitly requests `PHOTO`; legacy `.member-overlay` CSS/JS was removed. No personal/team data or Bitrix rows changed. Production cache clear, rendered hygiene and wave2 source checks passed at `2026-06-07T10:01:10Z`; `/about/ source=bitrix sections=3/3 bytes=77945`. Chrome-capable visual smoke passed at `2026-06-07T10:05:26Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok, manifest `/tmp/tacticum-about-team-ui-2026-06-07-visual/manifest.json`. Full closure still requires PM/Design visual acceptance.
+
+Work-model feature-grid follow-up 07.06.2026: local renderer and copy fix for the `values-team` block restores section heading/intro, removes the 5-column layout gap for 3 cards, replaces centered generic value cards with static process cards and reframes copy as pre-launch operating model: scenario, responsibility and constraints. `PublicCopyNormalizer` protects old and current Bitrix block keys without manual row edits. Local PHP lint, render fixture, CSS checks, content hygiene, SEO, Bitrix architecture and component state checks passed. Production cache/rendered/source/browser evidence is pending.
 
 ### ABOUT-WP-05 — Technology Stack And Terminology Cleanup
 

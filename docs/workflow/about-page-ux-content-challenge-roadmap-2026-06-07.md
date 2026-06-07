@@ -123,7 +123,7 @@ Exit criteria:
 - Team details are accessible without hover-only dependency.
 - Timeline and trust sections no longer look like generic template cards.
 
-Status 07.06.2026: scoped `ABOUT-WP-04` team card implementation has production rendered/source/browser evidence. The team card no longer depends on hover-only overlay for detail. A follow-up local timeline marker fast-fix now separates quiet past years, the `2025` product-line milestone and the current focus with explicit visible badges instead of color-only meaning. Phase 3 is not fully closed until this follow-up is deployed, cache-cleared, browser-smoked and PM/Design visual acceptance is recorded.
+Status 07.06.2026: scoped `ABOUT-WP-04` team card implementation has production rendered/source/browser evidence. The team card no longer depends on hover-only overlay for detail. The timeline marker follow-up also has production rendered/source/browser evidence: quiet past years, bordered `2025` milestone and primary current focus with explicit `Сейчас` badge instead of color-only meaning. A local work-model feature-grid follow-up now restores section heading/intro, count-aware 3-card layout and process-card copy for `values-team`; production evidence is pending. Phase 3 is not fully closed until this follow-up is deployed/smoked and PM/Design visual acceptance is recorded.
 
 ## Phase 4 — Page-Content Ownership And Sync
 

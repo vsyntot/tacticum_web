@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: challenge source register, not an approval package; fast-fix/guard implementation and proof-safe trust-storyline implementation are deployed with production-rendered evidence; proof/ownership owner-review package is prepared; timeline marker UI follow-up is implemented locally and pending deploy evidence; owner approvals pending for broader work.
+Статус: challenge source register, not an approval package; fast-fix/guard implementation, proof-safe trust-storyline implementation and timeline marker UI follow-up are deployed with production-rendered/browser evidence; proof/ownership owner-review package is prepared; owner approvals pending for broader work.
 Workflow lane: Full Feature discovery / documentation, with Fast Fix candidates.
 Scope: `/about/` product trust page, UX/UI, content, Russian-first language, storyline, rendered anchors/IDs and page-content ownership. Original challenge was docs-only; implementation notes below record later scoped PHP/CSS fast-fixes. No Bitrix admin data, REST, CRM, analytics or SEO route changes are implied by this document.
 
@@ -42,6 +42,7 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | `.bottom.menu.php` | Footer links to `/about/#careers` and `/about/#partners` |
 | User screenshots, 07.06.2026 | Confirm visual concerns: generic values/culture cards, large team portraits/crops, `2025 / Сегодня` timeline and technology contours positioning |
 | User screenshot follow-up, 07.06.2026 | Timeline marker color states were ambiguous: filled blue `2025` read as active/current, dark `Сейчас` read as a separate special case, and older years read as quiet history |
+| User screenshot follow-up, 07.06.2026 | `values-team` feature cards rendered without section heading/intro, used a 5-column grid for 3 cards, looked like generic value cards and weakened the bridge from operating model to team |
 
 ## Production Evidence After Fast Fix
 
@@ -80,7 +81,23 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | PHP lint, local 07.06.2026 | Passed for `local/components/tacticum/about.page/templates/.default/parts/company-trust.php`. |
 | `npm run css:syntax`, local 07.06.2026 | Passed after adding timeline marker/badge CSS. |
 | `npm run content:public-hygiene:check` / `npm run seo:check`, local 07.06.2026 | Passed. |
-| Production evidence | Pending deploy, public cache clear, rendered hygiene and desktop/mobile browser smoke. |
+| Rendered HTML check, production 07.06.2026 | Passed; `/about/` contains `timeline-marker--milestone`, `timeline-marker--current`, `Ключевой этап` and `timeline-badge--current`. |
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed after timeline marker deploy. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T10:33:14Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=77870`. |
+| Chrome-capable visual smoke, production 07.06.2026 | Passed at `2026-06-07T10:34:10Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok; manifest `/tmp/tacticum-about-timeline-marker-2026-06-07-visual/manifest.json`. |
+
+## Work Model Feature Grid Follow-Up
+
+| Command / Evidence | Result |
+|---|---|
+| Local implementation, 07.06.2026 | `feature-card-grid` renderer now outputs existing section heading/intro, uses count-aware grid density and renders static process cards without hover-only affordance. `/about/` `values-team` copy now frames the block as pre-launch operating model: scenario, responsibility and constraints. |
+| Compatibility | `PublicCopyNormalizer::normalizePageContentSection()` maps both old `innovation/transparency/flexibility` and current `hypothesis/responsibility/constraints` block keys to the revised public copy, so old live Bitrix rows are protected without manual row edits. |
+| Local PHP fixture, 07.06.2026 | Passed: renderer output contains `h2`, `Как мы работаем до запуска`, `tacticum-feature-grid--count-3` and `tacticum-feature-card__title`. |
+| PHP lint, local 07.06.2026 | Passed for `Renderer.php`, `PublicCopyNormalizer.php` and `content-storage-page-content-seed.php`. |
+| `npm run css:check` / `css:syntax` / `template-styles:check`, local 07.06.2026 | Passed after adding component-level feature-grid CSS without Tailwind artifact changes. |
+| `npm run content:public-hygiene:check` / `content:public-hygiene:rendered:self-test` / `seo:check` / `bitrix:check` / `component:states:check`, local 07.06.2026 | Passed. |
+| Production evidence | Pending deploy, public cache clear, rendered hygiene, wave2 source check and desktop/mobile browser smoke. |
 
 ## Challenge Verdict
 

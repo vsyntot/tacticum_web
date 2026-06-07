@@ -121,13 +121,19 @@ final class Renderer
             return false;
         }
 
+        $count = count($items);
+        $countClass = in_array($count, [3, 4, 5], true)
+            ? ' tacticum-feature-grid--count-' . $count
+            : '';
+
         echo RenderSupport::sectionOpen($section, 'py-16 bg-gray-50') . PHP_EOL;
         echo '    <div class="container mx-auto px-4">' . PHP_EOL;
-        echo '        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">' . PHP_EOL;
+        RenderSupport::renderHeading($section, 'mx-auto mb-10 max-w-3xl text-center', true);
+        echo '        <div class="tacticum-feature-grid' . $countClass . '">' . PHP_EOL;
         foreach ($items as $item) {
-            echo '            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center">' . PHP_EOL;
-            RenderSupport::renderIcon((string)($item['icon'] ?? ''), 'w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4', 'text-3xl text-primary');
-            RenderSupport::renderTitleText($item, 'h3', 'text-lg font-bold text-secondary mb-2', 'text-gray-600');
+            echo '            <div class="tacticum-feature-card">' . PHP_EOL;
+            RenderSupport::renderIcon((string)($item['icon'] ?? ''), 'tacticum-feature-card__icon', 'text-2xl');
+            RenderSupport::renderTitleText($item, 'h3', 'tacticum-feature-card__title', 'tacticum-feature-card__text');
             echo '            </div>' . PHP_EOL;
         }
         echo '        </div>' . PHP_EOL;
