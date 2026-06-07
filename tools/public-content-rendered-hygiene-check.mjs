@@ -96,6 +96,9 @@ function scanRenderedHtml(html, page = '<html>') {
   if (normalizePagePath(page) === '/services/') {
     issues.push(...scanServicesRenderedHtml(html, page));
   }
+  if (normalizePagePath(page) === '/offer/') {
+    issues.push(...scanOfferRenderedHtml(lines, page));
+  }
 
   return issues;
 }
@@ -200,6 +203,23 @@ function scanServicesRenderedHtml(html, page) {
   return issues;
 }
 
+function scanOfferRenderedHtml(lines, page) {
+  const issues = [];
+
+  lines.forEach((line, index) => {
+    if (/\b\d{7,}\s*RUB\b/i.test(line)) {
+      issues.push({
+        page,
+        line: index + 1,
+        rule: 'offer-machine-budget-visible',
+        text: line
+      });
+    }
+  });
+
+  return issues;
+}
+
 function visibleTextLines(html) {
   return html
     .replace(/<!--[\s\S]*?-->/g, '\n')
@@ -262,6 +282,18 @@ function runSelfTest() {
     </section>
     <footer><a href="/about/#technology">Технологии</a></footer>
   `;
+  const safeOfferHtml = `
+    <article>
+      <dt>Бюджет</dt>
+      <dd>50 600 000 руб.</dd>
+    </article>
+  `;
+  const unsafeOfferHtml = `
+    <article>
+      <dt>Бюджет</dt>
+      <dd>50600000 RUB</dd>
+    </article>
+  `;
 
   const safeIssues = scanRenderedHtml(safeHtml, '/safe/');
   if (safeIssues.length !== 0) {
@@ -274,6 +306,10 @@ function runSelfTest() {
   const safeServicesIssues = scanRenderedHtml(safeServicesHtml, '/services/');
   if (safeServicesIssues.length !== 0) {
     throw new Error(`Safe services fixture failed:\n${formatIssues(safeServicesIssues).join('\n')}`);
+  }
+  const safeOfferIssues = scanRenderedHtml(safeOfferHtml, '/offer/');
+  if (safeOfferIssues.length !== 0) {
+    throw new Error(`Safe offer fixture failed:\n${formatIssues(safeOfferIssues).join('\n')}`);
   }
 
   const unsafeIssues = scanRenderedHtml(unsafeHtml, '/unsafe/');
@@ -293,6 +329,10 @@ function runSelfTest() {
     if (!unsafeServicesIssues.some((issue) => issue.rule === expectedRule)) {
       throw new Error(`Unsafe services fixture missed rule: ${expectedRule}`);
     }
+  }
+  const unsafeOfferIssues = scanRenderedHtml(unsafeOfferHtml, '/offer/');
+  if (!unsafeOfferIssues.some((issue) => issue.rule === 'offer-machine-budget-visible')) {
+    throw new Error('Unsafe offer fixture missed rule: offer-machine-budget-visible');
   }
 
   const evidence = buildEvidence(
@@ -433,6 +473,9 @@ function normalizePagePath(page) {
   }
   if (normalized === '/services' || normalized === '/services/') {
     return '/services/';
+  }
+  if (normalized === '/offer' || normalized === '/offer/') {
+    return '/offer/';
   }
 
   return normalized;

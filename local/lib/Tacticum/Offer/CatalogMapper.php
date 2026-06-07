@@ -114,25 +114,6 @@ final class CatalogMapper
         return $digits !== '' ? (int)$digits : 0;
     }
 
-    public static function budgetBuckets(): array
-    {
-        return [
-            'up-to-1m' => ['label' => 'до 1 млн руб.', 'min' => 0, 'max' => 1000000], '1-3m' => ['label' => '1-3 млн руб.', 'min' => 1000000, 'max' => 3000000], '3-7m' => ['label' => '3-7 млн руб.', 'min' => 3000000, 'max' => 7000000],
-            '7-15m' => ['label' => '7-15 млн руб.', 'min' => 7000000, 'max' => 15000000], '15-30m' => ['label' => '15-30 млн руб.', 'min' => 15000000, 'max' => 30000000], '30-75m' => ['label' => '30-75 млн руб.', 'min' => 30000000, 'max' => 75000000], '75m-plus' => ['label' => '75+ млн руб.', 'min' => 75000000, 'max' => PHP_INT_MAX],
-        ];
-    }
-
-    public static function budgetBucket(int $amount): array
-    {
-        foreach (self::budgetBuckets() as $key => $bucket) {
-            if ($amount >= $bucket['min'] && $amount <= $bucket['max']) {
-                return ['key' => $key, 'label' => $bucket['label']];
-            }
-        }
-
-        return ['key' => '', 'label' => ''];
-    }
-
     public static function response(array $properties): array
     {
         $responseRaw = self::propertyText($properties, 'RESPONSE');
@@ -163,14 +144,17 @@ final class CatalogMapper
         $summary = self::propertyText($properties, 'SUMMARY') ?: self::propertyText($properties, 'BUSINESS_CONTEXT');
         $budgetRaw = self::propertyText($properties, 'BUDGET');
         $budgetAmount = self::budgetAmount($budgetRaw, $response);
-        $budgetBucket = self::budgetBucket($budgetAmount);
+        $budgetBucket = CatalogTaxonomy::budgetBucket($budgetAmount);
         $goals = self::propertyList($properties, 'GOALS');
         $team = self::propertyList($properties, 'TEAM');
         $stack = self::propertyList($properties, 'STACK');
-        $sector = self::trim((string)($response['sector'] ?? 'Другие отрасли'));
+        $sectorRaw = self::trim((string)($response['sector'] ?? 'Другие отрасли'));
         $region = self::trim((string)($response['region'] ?? ''));
-        $phase = self::trim((string)($response['phase'] ?? ''));
-        $scenario = self::trim((string)($response['scenario'] ?? '')) ?: self::scenarioFromH1($title);
+        $phaseRaw = self::trim((string)($response['phase'] ?? ''));
+        $scenarioRaw = self::trim((string)($response['scenario'] ?? '')) ?: self::scenarioFromH1($title);
+        $sector = CatalogTaxonomy::publicLabel('sector', $sectorRaw);
+        $phase = CatalogTaxonomy::publicLabel('phase', $phaseRaw);
+        $scenario = CatalogTaxonomy::publicLabel('scenario', $scenarioRaw);
         $dateSortRaw = (string)(($fields['DATE_ACTIVE_FROM'] ?? '') ?: ($fields['DATE_CREATE'] ?? '') ?: ($fields['TIMESTAMP_X'] ?? ''));
         $dateSort = function_exists('MakeTimeStamp') ? (int)MakeTimeStamp($dateSortRaw) : (int)strtotime($dateSortRaw);
 
@@ -190,23 +174,27 @@ final class CatalogMapper
             'stack' => array_slice($stack, 0, 3),
             'budget' => $budgetRaw,
             'budget_amount' => $budgetAmount,
+            'budget_display' => CatalogTaxonomy::formatBudgetAmount($budgetAmount),
             'budget_bucket' => $budgetBucket['key'],
             'budget_bucket_label' => $budgetBucket['label'],
             'timeline' => self::propertyText($properties, 'TIMELINE'),
             'sector' => $sector,
-            'sector_key' => self::slug($sector),
+            'sector_key' => self::slug($sectorRaw),
             'scenario' => $scenario,
-            'scenario_key' => self::slug($scenario),
+            'scenario_key' => self::slug($scenarioRaw),
             'region' => $region,
             'phase' => $phase,
-            'phase_key' => self::slug($phase),
+            'phase_key' => self::slug($phaseRaw),
             'is_synthetic' => str_starts_with(self::propertyText($properties, 'GROUP_ID'), 'offer-seed-'),
             'haystack' => mb_strtolower(implode(' ', array_filter([
                 $title,
                 $summary,
+                $sectorRaw,
                 $sector,
                 $region,
+                $phaseRaw,
                 $phase,
+                $scenarioRaw,
                 $scenario,
                 $budgetRaw,
                 implode(' ', $goals),

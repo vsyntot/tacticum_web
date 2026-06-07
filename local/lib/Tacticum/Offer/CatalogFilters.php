@@ -11,14 +11,12 @@ final class CatalogFilters
         }
 
         $value = trim((string)$value);
-
         return preg_match('/^[a-z0-9_-]{1,80}$/', $value) ? $value : '';
     }
 
     public static function isCatalogPath(string $path): bool
     {
         $path = parse_url($path, PHP_URL_PATH) ?: $path;
-
         return preg_match('#^/offer/catalog(?:/|$)#', $path) === 1;
     }
 
@@ -46,7 +44,6 @@ final class CatalogFilters
                 $filters['page'] = max(1, (int)$value);
             }
         }
-
         return $filters;
     }
 
@@ -57,7 +54,6 @@ final class CatalogFilters
                 return true;
             }
         }
-
         return (int)($filters['page'] ?? 1) > 1;
     }
 
@@ -133,7 +129,7 @@ final class CatalogFilters
             self::addOption($options, 'scenarios', (string)$item['scenario_key'], (string)$item['scenario']);
             self::addOption($options, 'phases', (string)$item['phase_key'], (string)$item['phase']);
         }
-        foreach (CatalogMapper::budgetBuckets() as $key => $bucket) {
+        foreach (CatalogTaxonomy::budgetBuckets() as $key => $bucket) {
             $options['budgets'][$key] = ['key' => $key, 'label' => $bucket['label'], 'count' => 0];
         }
         foreach ($items as $item) {
@@ -149,6 +145,11 @@ final class CatalogFilters
         $options['budgets'] = array_values(array_filter($options['budgets'], static fn(array $option): bool => (int)$option['count'] > 0));
 
         return $options;
+    }
+
+    public static function featuredOptions(array $options, string $group): array
+    {
+        return CatalogTaxonomy::featuredOptions($options, $group);
     }
 
     public static function addOption(array &$options, string $group, string $key, string $label): void

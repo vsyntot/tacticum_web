@@ -4,6 +4,7 @@ use Tacticum\Offer\CatalogFilters;
 use Tacticum\Offer\CatalogMapper;
 use Tacticum\Offer\CatalogRepository;
 use Tacticum\Offer\CatalogService;
+use Tacticum\Offer\CatalogTaxonomy;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     return;
@@ -41,14 +42,20 @@ if (!function_exists('tacticum_offer_catalog_property_list')) {
 if (!function_exists('tacticum_offer_catalog_excerpt')) {
     function tacticum_offer_catalog_excerpt(string $text, int $limit = 170): string { return CatalogMapper::excerpt($text, $limit); }
 }
+if (!function_exists('tacticum_offer_catalog_public_taxonomy_label')) {
+    function tacticum_offer_catalog_public_taxonomy_label(string $dimension, string $label): string { return CatalogTaxonomy::publicLabel($dimension, $label); }
+}
 if (!function_exists('tacticum_offer_catalog_budget_amount')) {
     function tacticum_offer_catalog_budget_amount(string $budgetRaw, array $response): int { return CatalogMapper::budgetAmount($budgetRaw, $response); }
 }
+if (!function_exists('tacticum_offer_catalog_format_budget_amount')) {
+    function tacticum_offer_catalog_format_budget_amount(int $amount): string { return CatalogTaxonomy::formatBudgetAmount($amount); }
+}
 if (!function_exists('tacticum_offer_catalog_budget_buckets')) {
-    function tacticum_offer_catalog_budget_buckets(): array { return CatalogMapper::budgetBuckets(); }
+    function tacticum_offer_catalog_budget_buckets(): array { return CatalogTaxonomy::budgetBuckets(); }
 }
 if (!function_exists('tacticum_offer_catalog_budget_bucket')) {
-    function tacticum_offer_catalog_budget_bucket(int $amount): array { return CatalogMapper::budgetBucket($amount); }
+    function tacticum_offer_catalog_budget_bucket(int $amount): array { return CatalogTaxonomy::budgetBucket($amount); }
 }
 if (!function_exists('tacticum_offer_catalog_response')) {
     function tacticum_offer_catalog_response(array $properties): array { return CatalogMapper::response($properties); }
@@ -117,6 +124,9 @@ if (!function_exists('tacticum_offer_catalog_add_option')) {
 }
 if (!function_exists('tacticum_offer_catalog_options')) {
     function tacticum_offer_catalog_options(array $items): array { return CatalogFilters::options($items); }
+}
+if (!function_exists('tacticum_offer_catalog_featured_options')) {
+    function tacticum_offer_catalog_featured_options(array $options, string $group): array { return CatalogFilters::featuredOptions($options, $group); }
 }
 if (!function_exists('tacticum_offer_catalog_url')) {
     function tacticum_offer_catalog_url(array $filters, array $overrides = []): string { return CatalogFilters::url($filters, $overrides); }
