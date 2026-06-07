@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes and Phase 5 minimal guard are completed in production for the scoped issues; Phase 2 proof-safe copy slice is implemented locally pending deploy evidence.
+Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes, Phase 5 minimal guard and Phase 2 proof-safe copy slice are completed in production for the scoped issues; owner-gated proof/team/content-ownership work remains open.
 Scope: `/about/` UX/UI/content planning only. No further runtime implementation is approved by this roadmap without the gates below.
 
 ## Purpose
@@ -94,7 +94,7 @@ Exit criteria:
 - Each section has a clear buyer purpose.
 - Copy does not make unsupported claims or expose internal process labels as public headings.
 
-Status 07.06.2026: local proof-safe copy slice implemented for hardcoded partials, wave2 seed and runtime `/about/` page-content normalization. This does not close Phase 2: owner approval, proof matrix decisions and production rendered evidence are still pending.
+Status 07.06.2026: proof-safe copy slice implemented for hardcoded partials, wave2 seed and runtime `/about/` page-content normalization; production rendered hygiene passed at `2026-06-07T08:49:12Z`. This does not close Phase 2: owner approval and proof matrix decisions are still pending.
 
 ## Phase 3 — Team, Timeline And UI Treatment
 
@@ -139,7 +139,7 @@ Exit criteria:
 - Future editor/developer can tell where each public section comes from.
 - Production rendered source matches intended owner model after cache clear.
 
-Status 07.06.2026: wave2 seed was aligned with the local trust-storyline copy and old live `/about/` rows are protected at runtime by `PublicCopyNormalizer::normalizePageContentSection()`. Formal section ownership and fallback retirement remain open under `ABOUT-WP-07`.
+Status 07.06.2026: wave2 seed was aligned with the trust-storyline copy, old live `/about/` rows are protected at runtime by `PublicCopyNormalizer::normalizePageContentSection()`, and production source check passed with `/about/ source=bitrix sections=3/3 bytes=76054`. Formal section ownership and fallback retirement remain open under `ABOUT-WP-07`.
 
 ## Phase 5 — Guarding And Release Evidence
 
@@ -162,7 +162,7 @@ Exit criteria:
 - `ABOUT-001`, `ABOUT-007` and key internal-term recurrences are caught before release.
 - Guard produces safe, no-PII JSON evidence if used in release sign-off.
 
-Status 07.06.2026: minimal guard package completed through existing `content:public-hygiene:*` tools. Production `content:public-hygiene:rendered:prod:json` passed for 13 pages with `issues_found=0` at `2026-06-07T08:24:11Z`; `page-content:source:http:wave2:prod` confirmed `/about/ source=bitrix sections=3/3`.
+Status 07.06.2026: minimal guard package completed through existing `content:public-hygiene:*` tools. Latest production `content:public-hygiene:rendered:prod:json` passed for 13 pages with `issues_found=0` at `2026-06-07T08:49:12Z`; `page-content:source:http:wave2:prod` confirmed `/about/ source=bitrix sections=3/3 bytes=76054`.
 
 ## Suggested Issue Packaging
 
@@ -177,7 +177,7 @@ Status 07.06.2026: minimal guard package completed through existing `content:pub
 | `ABOUT-WP-07` | Page-content/fallback ownership and sync | `ABOUT-009` |
 | `ABOUT-WP-08` | Guard/smoke package | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` |
 
-Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a local proof-safe copy implementation pending deploy evidence and owner review. Start new non-regression work from `ABOUT-WP-04` or `ABOUT-WP-07`, or continue `ABOUT-WP-03/05/06` with owner approval and production smoke.
+Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a proof-safe copy implementation deployed with production rendered evidence, but still need owner review for full closure. Start new non-regression work from `ABOUT-WP-04` or `ABOUT-WP-07`, or continue `ABOUT-WP-03/05/06` with owner approval.
 
 ## Verification Guidance
 

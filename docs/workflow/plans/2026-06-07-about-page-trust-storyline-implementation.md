@@ -109,4 +109,13 @@ Revert the local commit or restore changed files. If deployed, run `npm run cont
 - [x] `docs/workflow/current-state.md`
 - [x] `docs/workflow/gap-analysis.md`
 - [x] `/about/` challenge source/backlog/roadmap docs
-- [ ] Production evidence after deploy/cache clear
+- [x] Production evidence after deploy/cache clear
+
+## Production Evidence
+
+07.06.2026 после deploy/cache clear:
+
+- `npm run content:public-cache-clear` passed.
+- `npm run content:public-hygiene:rendered:prod:json` passed at `2026-06-07T08:49:12Z`.
+- `pages_checked=13`, `issues_found=0`, `/about/ ok=true`.
+- `npm run page-content:source:http:wave2:prod` passed; `/about/ source=bitrix sections=3/3 bytes=76054`.
