@@ -31,7 +31,7 @@ Ownership map: `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
 | `ABOUT-WP-01` | closed | `fast-fix-allowed` + `guard-scope-required` | P0 | PM + Content + QA + Frontend/Backend | `ABOUT-001`, `ABOUT-010` | Remove stale `2025 / Сегодня` contradiction and prevent recurrence |
 | `ABOUT-WP-02` | closed | `fast-fix-allowed` + `guard-scope-required` | P1 | Frontend + QA + SEO + Content | `ABOUT-007`, `ABOUT-010` | Fix duplicate IDs, missing `#careers` and misleading `#partners` anchor |
 | `ABOUT-WP-03` | owner-review-ready-production-guarded | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
-| `ABOUT-WP-04` | pending-owner-review | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
+| `ABOUT-WP-04` | local-implemented-prod-pending | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
 | `ABOUT-WP-05` | in-progress-production-guarded | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
 | `ABOUT-WP-06` | in-progress-production-guarded | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
 | `ABOUT-WP-07` | owner-review-ready | `content-storage-gate-required` | P1 | Architect + Backend + Content + QA | `ABOUT-009` | Define and sync page-content/PHP partial ownership for `/about/` |
@@ -209,6 +209,8 @@ Implementation note 07.06.2026: production fast-fix removed `достичь но
 
 Add relevant browser/mobile visual smoke after UI changes.
 
+Implementation note 07.06.2026: local scoped slice replaces hover-only team overlay with readable cards. `news.list/team` renders existing approved team data as article cards with visible role, preview, non-duplicate detail and labelled contact links; `values-team.php` explicitly requests `PHOTO`; legacy `.member-overlay` CSS/JS was removed. No personal/team data or Bitrix rows changed. Production closure still requires browser/mobile smoke, cache clear after deploy and rendered evidence.
+
 ### ABOUT-WP-05 — Technology Stack And Terminology Cleanup
 
 Workflow lane: Full Feature.
@@ -357,3 +359,4 @@ Implementation note 07.06.2026: existing `content:public-hygiene:check` and `con
 - `docs/workflow/about-page-proof-matrix-owner-review-2026-06-07.md`
 - `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
 - `docs/workflow/plans/2026-06-07-about-owner-review-proof-ownership.md`
+- `docs/workflow/plans/2026-06-07-about-team-ui-accessibility-slice.md`

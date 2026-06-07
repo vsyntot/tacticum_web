@@ -37,7 +37,7 @@ if (function_exists('tacticum_page_content_render_if_live')) {
                 "SORT_BY1" => "SORT",
                 "SORT_ORDER1" => "ASC",
                 "FIELD_CODE" => ["ID", "CODE", "NAME", "SORT", "PREVIEW_TEXT", "DETAIL_TEXT", "IBLOCK_TYPE_ID", "IBLOCK_ID"],
-                "PROPERTY_CODE" => ["POSITION", "EMAIL", "LINKEDIN"],
+                "PROPERTY_CODE" => ["PHOTO", "POSITION", "EMAIL", "LINKEDIN"],
                 "DISPLAY_BOTTOM_PAGER" => "N",
             ],
             false

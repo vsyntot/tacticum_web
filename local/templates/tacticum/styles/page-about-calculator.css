@@ -7,10 +7,6 @@
     background-position: center;
 }
 
-.team-member:hover .member-overlay {
-    opacity: 1;
-}
-
 .timeline-item:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -286,4 +282,3 @@ textarea:not(:placeholder-shown)+label {
         transform: translateY(-6px);
     }
 }
-
