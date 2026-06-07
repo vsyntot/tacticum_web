@@ -1,7 +1,7 @@
 # About Page Content Ownership Map — 2026-06-07
 
 Дата: 07.06.2026
-Статус: owner-review package / no runtime change / fallback retirement not approved
+Статус: owner-review package / runtime evidence refreshed / fallback retirement not approved
 Workflow lane: Full Feature discovery / content-storage gate
 Related gaps: `ABOUT-009`, `ABOUT-002`, `ABOUT-003`, `ABOUT-006`, `ABOUT-008`, canonical `CSG-007`, `CSG-008`, `CSG-012`, `BPC-CMP-002`, `ARCH-001`
 
@@ -18,6 +18,10 @@ Related gaps: `ABOUT-009`, `ABOUT-002`, `ABOUT-003`, `ABOUT-006`, `ABOUT-008`, c
 | `npm run content:public-cache-clear`, production 07.06.2026 | Passed after trust-storyline deploy. |
 | `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:49:12Z`; `pages_checked=13`, `issues_found=0`. |
 | `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=76054`. |
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed after team/readiness de-dup deploy. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T11:17:39Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=76925`. |
+| Chrome-capable visual smoke, production 07.06.2026 | Passed at `2026-06-07T11:18:17Z`; manifest `/tmp/tacticum-about-team-readiness-dedup-2026-06-07-visual/manifest.json`. |
 
 ## Actual Render Ownership
 
