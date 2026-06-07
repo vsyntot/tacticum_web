@@ -31,7 +31,7 @@ Covered gaps:
 
 Goal: close objective release-hygiene defects found by the challenge.
 
-Status: implemented locally on 2026-06-07; production smoke pending after deploy/cache refresh.
+Status: closed for production HTTP/SEO/content scope on 2026-06-07; production-server browser automation is blocked by missing Chrome/Chromium and must run from a Chrome-capable local/CI runner or after setting `CHROME_PATH`.
 
 Work packages:
 
@@ -48,21 +48,23 @@ Expected checks:
 - `npm run seo:check`
 - `npm run sitemap:static:check` or explicit approved deploy-lastmod command
 - `npm run content:public-hygiene:check`
-- `npm run visual:smoke:prod` after deploy
-- `npm run browser:console:prod` after deploy
+- `npm run visual:smoke:prod` after deploy from a Chrome-capable runner
+- `npm run browser:console:prod` after deploy from a Chrome-capable runner
 - `npm run seo:check:prod` after deploy
 
 Closure targets:
 
-- `PUBLIC-E2E-001`: closed locally by template `lang` rendering and source/HTTP guards.
-- `PUBLIC-E2E-002`: closed locally by Tailwind artifact regeneration and passing `css:check`.
-- `PUBLIC-E2E-003`: closed locally by regenerating static sitemap artifact with `2026-06-07`.
-- `PUBLIC-E2E-004`: closed locally by updating repo-owned `sitemap.xml` index lastmods to `2026-06-07`.
-- `PUBLIC-E2E-014`: partially closed locally by `seo:check` and `release:public-precheck` lang assertions; sitemap freshness remains covered by `sitemap:static:check` and deploy workflow.
+- `PUBLIC-E2E-001`: closed by template `lang` rendering, source/HTTP guards and production `release:public-precheck:prod` evidence for 13/13 pages.
+- `PUBLIC-E2E-002`: closed for code/rendered scope by Tailwind artifact regeneration, local CSS checks, CSS-local browser evidence and post-deploy HTTP/content/SEO checks; production-server Chrome remains an environment caveat.
+- `PUBLIC-E2E-003`: closed by regenerating static sitemap artifact with `2026-06-07`, local `sitemap:static:check` and production `seo:check:prod`.
+- `PUBLIC-E2E-004`: closed by updating repo-owned `sitemap.xml` index lastmods to `2026-06-07` and production `seo:check:prod`.
+- `PUBLIC-E2E-014`: closed for immediate lang/release guard scope by production `seo:check:prod` and `release:public-precheck:prod`; optional sitemap consolidation remains future hardening.
 
 ## Phase 2: SEO/HTTP Hardening
 
 Goal: remove low-risk infrastructure hygiene issues and prevent regression.
+
+Status: `PUBLIC-E2E-WP-04` implemented locally on 2026-06-07; production MIME evidence pending after deploy/cache refresh.
 
 Work packages:
 
@@ -73,12 +75,13 @@ Expected checks:
 
 - `npm run release:public-precheck:prod`
 - `npm run seo:check:prod`
-- Asset HEAD audit or updated release precheck.
+- Asset HEAD audit is now covered by `seo:check:prod` for `site.webmanifest`.
 - `npm run browser:console:prod`
 
 Closure targets:
 
-- `PUBLIC-E2E-010`, `PUBLIC-E2E-014`.
+- `PUBLIC-E2E-010`: locally implemented through `.htaccess` MIME hint and `seo-check` guard; closes only after production `seo:check:prod` confirms manifest `Content-Type`.
+- `PUBLIC-E2E-014`.
 - `PUBLIC-E2E-011` remains accepted-monitor unless Security chooses CSP enforce path.
 
 ## Phase 3: Russian-First Editorial Pass
@@ -155,11 +158,12 @@ Monitoring evidence:
 
 ## Recommended Sequence
 
-1. `PUBLIC-E2E-WP-01`: lang + guard. Status: implemented locally, pending production smoke.
-2. `PUBLIC-E2E-WP-02`: Tailwind artifact sync. Status: implemented locally, pending production smoke.
-3. `PUBLIC-E2E-WP-03`: sitemap freshness. Status: implemented locally, pending production smoke.
-4. `PUBLIC-E2E-WP-05`: release guard consolidation. Status: partially implemented locally for lang assertions; optional sitemap consolidation remains backlog.
-5. `PUBLIC-E2E-WP-06`: glossary decision.
-6. `PUBLIC-E2E-WP-07` / `PUBLIC-E2E-WP-08`: editorial pass.
-7. `PUBLIC-E2E-WP-09` / `PUBLIC-E2E-WP-10`: public label/proof governance.
-8. Monitoring items continue without blocking implementation.
+1. `PUBLIC-E2E-WP-01`: lang + guard. Status: closed by production `seo:check:prod` and `release:public-precheck:prod`.
+2. `PUBLIC-E2E-WP-02`: Tailwind artifact sync. Status: closed for code/rendered scope; Chrome-based production URL smoke should run from a Chrome-capable runner.
+3. `PUBLIC-E2E-WP-03`: sitemap freshness. Status: closed by local static-sitemap check and production `seo:check:prod`.
+4. `PUBLIC-E2E-WP-04`: webmanifest MIME hygiene. Status: implemented locally; production `seo:check:prod` MIME evidence pending.
+5. `PUBLIC-E2E-WP-05`: release guard consolidation. Status: closed for public `lang=ru`; optional sitemap consolidation remains backlog.
+6. `PUBLIC-E2E-WP-06`: glossary decision.
+7. `PUBLIC-E2E-WP-07` / `PUBLIC-E2E-WP-08`: editorial pass.
+8. `PUBLIC-E2E-WP-09` / `PUBLIC-E2E-WP-10`: public label/proof governance.
+9. Monitoring items continue without blocking implementation.

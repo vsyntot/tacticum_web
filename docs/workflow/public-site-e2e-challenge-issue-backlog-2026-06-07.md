@@ -8,11 +8,11 @@ Roadmap: `public-site-e2e-challenge-roadmap-2026-06-07.md`
 
 | ID | Status | Priority | Owner Gate | Gap IDs | Title |
 |---|---|---:|---|---|---|
-| `PUBLIC-E2E-WP-01` | closed locally, pending deploy smoke | P1 | Engineering + QA | `PUBLIC-E2E-001`, `PUBLIC-E2E-014` | Add public HTML language declaration and guard |
-| `PUBLIC-E2E-WP-02` | closed locally, pending deploy smoke | P1 | Engineering + QA | `PUBLIC-E2E-002` | Sync Tailwind generated artifact and CSS evidence |
-| `PUBLIC-E2E-WP-03` | closed locally, pending deploy smoke | P1 | Engineering + SEO | `PUBLIC-E2E-003`, `PUBLIC-E2E-004` | Fix static sitemap freshness and index lastmod policy |
-| `PUBLIC-E2E-WP-04` | backlog | P3 | Engineering / DevOps | `PUBLIC-E2E-010` | Fix webmanifest response type hygiene |
-| `PUBLIC-E2E-WP-05` | partial local closure | P2 | Engineering + QA + SEO | `PUBLIC-E2E-014` | Consolidate release public E2E guard coverage |
+| `PUBLIC-E2E-WP-01` | closed | P1 | Engineering + QA | `PUBLIC-E2E-001`, `PUBLIC-E2E-014` | Add public HTML language declaration and guard |
+| `PUBLIC-E2E-WP-02` | closed with server-Chrome caveat | P1 | Engineering + QA | `PUBLIC-E2E-002` | Sync Tailwind generated artifact and CSS evidence |
+| `PUBLIC-E2E-WP-03` | closed | P1 | Engineering + SEO | `PUBLIC-E2E-003`, `PUBLIC-E2E-004` | Fix static sitemap freshness and index lastmod policy |
+| `PUBLIC-E2E-WP-04` | implemented locally, pending production MIME evidence | P3 | Engineering / DevOps | `PUBLIC-E2E-010` | Fix webmanifest response type hygiene |
+| `PUBLIC-E2E-WP-05` | closed for lang guard | P2 | Engineering + QA + SEO | `PUBLIC-E2E-014` | Consolidate release public E2E guard coverage |
 | `PUBLIC-E2E-WP-06` | owner-review | P2 | Content + Architect | `PUBLIC-E2E-005` | Approve Russian-first public glossary rules |
 | `PUBLIC-E2E-WP-07` | blocked-owner | P2 | Content + Architect + SEO | `PUBLIC-E2E-005`, `PUBLIC-E2E-009` | Rewrite jargon-heavy product pages |
 | `PUBLIC-E2E-WP-08` | blocked-owner | P3 | Content + Legal where needed | `PUBLIC-E2E-012`, `PUBLIC-E2E-013` | Polish supporting page content |
@@ -23,7 +23,7 @@ Roadmap: `public-site-e2e-challenge-roadmap-2026-06-07.md`
 
 ## PUBLIC-E2E-WP-01: Add Public HTML Language Declaration And Guard
 
-Status: closed locally, pending deploy smoke
+Status: closed
 Priority: P1
 Workflow lane: Fast Fix Lane
 Affected areas: `local/templates/tacticum/header.php`, SEO/release guard tooling.
@@ -46,9 +46,10 @@ Implementation evidence 2026-06-07:
 - `tools/release-public-precheck.mjs` checks `lang=ru` on all 13 public pages.
 - Local checks passed: `php -l local/templates/tacticum/header.php`, `npm run seo:check`, `npm run bitrix:check`, `npm run content:public-hygiene:check`.
 
-Remaining gate:
+Closure evidence:
 
-- Production deploy/cache refresh and `npm run seo:check:prod` / `npm run release:public-precheck:prod`.
+- Closed by production deploy/cache refresh, `npm run seo:check:prod` and `npm run release:public-precheck:prod`.
+- Production `release:public-precheck:prod` on 2026-06-07 confirmed `lang=ru` for 13/13 public pages.
 
 Required checks:
 
@@ -61,7 +62,7 @@ Required checks:
 
 ## PUBLIC-E2E-WP-02: Sync Tailwind Generated Artifact And CSS Evidence
 
-Status: closed locally, pending deploy smoke
+Status: closed with server-Chrome caveat
 Priority: P1
 Workflow lane: Fast Fix Lane
 Affected areas: `local/templates/tacticum/assets/src/tailwind.css`, `local/templates/tacticum/tailwind.generated.css`, CSS build/check workflow.
@@ -82,9 +83,10 @@ Implementation evidence 2026-06-07:
 - `npm run css:build` regenerated `local/templates/tacticum/tailwind.generated.css`.
 - `npm run css:check` and `npm run css:syntax` pass locally.
 
-Remaining gate:
+Closure evidence:
 
-- Production visual/browser smoke after deploy/cache refresh.
+- Production HTTP/SEO/content checks passed after deploy/cache refresh.
+- Production-server visual/browser smoke is environment-blocked by missing Chrome/Chromium. Use a Chrome-capable local/CI runner or install Chrome/Chromium and set `CHROME_PATH` before treating this as a browser runtime gate.
 
 Required checks:
 
@@ -96,7 +98,7 @@ Required checks:
 
 ## PUBLIC-E2E-WP-03: Fix Static Sitemap Freshness And Index Lastmod Policy
 
-Status: closed locally, pending deploy smoke
+Status: closed
 Priority: P1
 Workflow lane: Fast Fix Lane with SEO owner review for index policy
 Affected areas: `sitemap.xml`, deploy-generated `sitemap-basic-files.xml`, `tools/static-sitemap-generate.mjs`, SEO runbook/CI if needed.
@@ -118,9 +120,9 @@ Implementation evidence 2026-06-07:
 - Repo-owned `sitemap.xml` index lastmods updated to `2026-06-07T00:00:00+03:00`.
 - `npm run sitemap:static:check` and `npm run seo:check` pass locally.
 
-Remaining gate:
+Closure evidence:
 
-- Production deploy must publish regenerated static sitemap and updated sitemap index, then `npm run seo:check:prod` must pass.
+- Closed by production deploy/cache refresh and `npm run seo:check:prod`.
 
 Required checks:
 
@@ -131,7 +133,7 @@ Required checks:
 
 ## PUBLIC-E2E-WP-04: Fix Webmanifest Response Type Hygiene
 
-Status: partial local closure
+Status: implemented locally, pending production MIME evidence
 Priority: P3
 Workflow lane: Fast Fix Lane / DevOps if server MIME config is needed
 Affected areas: static server MIME config or manifest asset location.
@@ -145,14 +147,27 @@ Acceptance criteria:
 - Manifest returns `application/manifest+json` or an accepted equivalent content type.
 - Browser smoke remains clean.
 
+Implementation evidence 2026-06-07:
+
+- `robots.txt` was checked and left unchanged: current crawl/sitemap policy is already correct.
+- `.htaccess` maps `.webmanifest` to `application/manifest+json` through `mod_mime`.
+- `tools/seo-check.mjs` checks the local MIME hint and validates production manifest `Content-Type` in HTTP mode.
+- Local checks passed: `node --check tools/seo-check.mjs`, `npm run seo:check`.
+
+Remaining gate:
+
+- Deploy/cache refresh and `npm run seo:check:prod`.
+- If production still returns empty/wrong `Content-Type`, close the remaining part through nginx/server MIME config rather than PHP/template code.
+
 Required checks:
 
-- Asset HEAD audit.
+- `npm run seo:check`
+- `npm run seo:check:prod`
 - `npm run browser:console:prod`.
 
 ## PUBLIC-E2E-WP-05: Consolidate Release Public E2E Guard Coverage
 
-Status: backlog
+Status: closed for lang guard; backlog for optional sitemap consolidation
 Priority: P2
 Workflow lane: Fast Fix Lane
 Affected areas: `tools/seo-check.mjs`, `tools/release-public-precheck.mjs`, package scripts if needed.
@@ -172,6 +187,7 @@ Implementation evidence 2026-06-07:
 
 - `tools/seo-check.mjs` now checks source template language declaration and HTTP-mode public page `lang=ru`.
 - `tools/release-public-precheck.mjs` now checks `lang=ru` on all 13 public pages.
+- Production `npm run seo:check:prod` and `npm run release:public-precheck:prod` passed after deploy/cache refresh.
 - Static sitemap artifact freshness remains covered by `npm run sitemap:static:check` and deploy workflow generation/check; optional consolidation into `release-public-precheck` remains a future hardening task.
 
 Required checks:

@@ -13,6 +13,11 @@ const OFFER_SITEMAP_URL = `${SITE}/offer/sitemap.php`;
 const MIN_LASTMOD_DATE = process.env.TACTICUM_SEO_MIN_LASTMOD || '2026-05-24';
 const CHECK_HTTP = process.argv.includes('--http') || process.env.TACTICUM_SEO_CHECK_HTTP === '1';
 const HTTP_BASE_URL = (process.env.TACTICUM_SEO_CHECK_BASE_URL || SITE).replace(/\/+$/, '');
+const WEBMANIFEST_PATH = '/local/templates/tacticum/images/site.webmanifest';
+const ACCEPTED_WEBMANIFEST_CONTENT_TYPES = new Set([
+  'application/manifest+json',
+  'application/json',
+]);
 
 const expectedStaticPages = new Map([
   ['index.php', '/'],
@@ -466,6 +471,18 @@ function assertTemplateLanguageDeclaration() {
   }
   if (!headerSource.includes('LANGUAGE_ID') || !headerSource.includes('$htmlLang')) {
     fail('template header must derive html lang from Bitrix LANGUAGE_ID with a safe fallback');
+  }
+}
+
+function isAcceptedWebmanifestContentType(value) {
+  const type = String(value || '').split(';', 1)[0].trim().toLowerCase();
+  return ACCEPTED_WEBMANIFEST_CONTENT_TYPES.has(type);
+}
+
+function assertWebmanifestMimeHint() {
+  const htaccessSource = readOptional('.htaccess') || '';
+  if (!/AddType\s+application\/manifest\+json\s+\.webmanifest\b/i.test(htaccessSource)) {
+    fail('.htaccess must map .webmanifest to application/manifest+json');
   }
 }
 
@@ -1924,6 +1941,20 @@ async function checkHttpPublicHtmlLanguage() {
   }
 }
 
+async function checkHttpWebmanifestContentType() {
+  const response = await fetch(`${HTTP_BASE_URL}${WEBMANIFEST_PATH}`, {
+    method: 'HEAD',
+  });
+  const contentType = response.headers.get('content-type') || '';
+  if (!response.ok) {
+    fail(`production webmanifest returned HTTP ${response.status}`);
+    return;
+  }
+  if (!isAcceptedWebmanifestContentType(contentType)) {
+    fail(`production webmanifest must return application/manifest+json or application/json; got ${contentType || '(empty)'}`);
+  }
+}
+
 async function checkHttpOfferSitemap() {
   const url = `${HTTP_BASE_URL}/offer/sitemap.php`;
   const response = await fetch(url);
@@ -2027,6 +2058,7 @@ assertCanonicalPaths();
 assertTopMenuProminence();
 assertDefaultSocialPreview();
 assertTemplateLanguageDeclaration();
+assertWebmanifestMimeHint();
 assertOfferCatalogRouting();
 assertPublicPageComponentization();
 
@@ -2037,6 +2069,7 @@ if (!robots.includes(`Sitemap: ${ROOT_SITEMAP_URL}`)) {
 if (CHECK_HTTP) {
   await checkHttpSitemapGovernance();
   await checkHttpPublicHtmlLanguage();
+  await checkHttpWebmanifestContentType();
   await checkHttpRobots();
   await checkHttpOfferSitemap();
   await checkHttpOfferCatalogPrettyUrl();
