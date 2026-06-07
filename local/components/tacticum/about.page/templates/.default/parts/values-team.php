@@ -44,7 +44,7 @@ if (function_exists('tacticum_page_content_render_if_live')) {
         );
         ?>
 
-        <div id="partners" class="tacticum-anchor-target bg-gray-50 rounded-2xl p-8 md:p-12">
+        <div id="technology" class="tacticum-anchor-target bg-gray-50 rounded-2xl p-8 md:p-12">
             <h3 class="text-2xl font-bold text-secondary mb-8 text-center">Технологические контуры</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white rounded-xl p-6 text-center">
@@ -66,14 +66,14 @@ if (function_exists('tacticum_page_content_render_if_live')) {
                         <i class="ri-shield-check-line text-2xl"></i>
                     </div>
                     <h4 class="font-bold text-secondary mb-2">Контроль</h4>
-                    <p class="text-sm text-gray-600">Роли, аудит, журналирование, quality gates и наблюдаемость</p>
+                    <p class="text-sm text-gray-600">Роли, аудит, журналирование, проверки качества и наблюдаемость</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 text-center">
                     <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
                         <i class="ri-rocket-line text-2xl"></i>
                     </div>
                     <h4 class="font-bold text-secondary mb-2">Запуск</h4>
-                    <p class="text-sm text-gray-600">Пилот, production rollout, поддержка и развитие продукта</p>
+                    <p class="text-sm text-gray-600">Пилот, запуск в рабочую эксплуатацию, поддержка и развитие продукта</p>
                 </div>
             </div>
         </div>

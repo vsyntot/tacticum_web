@@ -107,8 +107,8 @@ $aMenuLinks = Array(
         ""
     ),
 	Array(
-        "Партнеры",
-        "/about/#partners",
+        "Технологии",
+        "/about/#technology",
         Array(),
         Array(),
         ""

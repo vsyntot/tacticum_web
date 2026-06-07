@@ -11,7 +11,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-secondary">Команда Tacticum развивает корпоративные AI-продукты</h1>
             <p class="text-lg md:text-xl mb-8 text-gray-700">
                 Мы соединяем продуктовую разработку, AI-инженерию и внедрение в бизнес-процессы: от Platform и
-                Agents до Dev, Forum, интеграций, оценки проекта и команды под delivery.
+                Agents до Dev, Forum, интеграций, оценки проекта и команды под запуск.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
                 <a href="/platform/" class="inline-block bg-primary text-white px-8 py-3 rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap text-center">Смотреть продукты</a>
@@ -30,8 +30,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
             </div>
             <p class="text-lg text-gray-600">
                 Tacticum — это команда в области разработки программного обеспечения, искусственного интеллекта и
-                автоматизации бизнес-процессов. Мы развиваем собственную продуктовую линейку и сохраняем delivery
-                практику, чтобы помогать компаниям переходить от гипотезы к проверяемому результату.
+                автоматизации бизнес-процессов. Мы развиваем собственную продуктовую линейку и сохраняем практику
+                внедрения, чтобы помогать компаниям переходить от гипотезы к проверяемому результату.
             </p>
         </div>
 
@@ -93,16 +93,24 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                         повторяемых подходов к оценке, пилотированию и внедрению AI-решений.
                     </p>
                 </div>
-                <div class="relative pl-14">
+                <div class="relative pl-14 timeline-item">
                     <div class="absolute left-0 top-0 w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                         <span class="text-white font-bold">2025</span>
                     </div>
-                    <h4 class="text-xl font-bold text-secondary mb-2">Сегодня</h4>
+                    <h4 class="text-xl font-bold text-secondary mb-2">Переход к продуктовой линейке</h4>
                     <p class="text-gray-600">
-                        Сегодня Tacticum — это команда аналитиков, инженеров и разработчиков, которая помогает
-                        компаниям оценивать, проектировать и внедрять AI- и IT-решения под реальные бизнес-задачи.
-                        Мы продолжаем развивать экспертизу в автоматизации, интеграциях и прикладном искусственном
-                        интеллекте.
+                        Tacticum сфокусировался на повторяемой продуктовой модели: Platform, Agents, Dev и Forum,
+                        связанных с оценкой, пилотом, интеграциями и запуском в рабочие процессы.
+                    </p>
+                </div>
+                <div class="relative pl-14">
+                    <div class="absolute left-0 top-0 w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-xs">Сейчас</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-secondary mb-2">Текущий фокус</h4>
+                    <p class="text-gray-600">
+                        Команда помогает компаниям безопасно выбирать AI-сценарии, проверять пилоты, собирать состав
+                        внедрения и доводить решения до эксплуатации с понятными границами ответственности.
                     </p>
                 </div>
             </div>
