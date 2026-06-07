@@ -1,6 +1,9 @@
 <?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();?>
 
-<form method="get" action="/offer/" class="bg-white rounded-xl border border-gray-200 p-5 md:p-7 mb-10 shadow-sm">
+<form method="get"
+      action="/offer/#offer-catalog"
+      class="bg-white rounded-xl border border-gray-200 p-5 md:p-7 mb-10 shadow-sm"
+      data-offer-catalog-form>
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-4">
         <div class="xl:col-span-2">
             <label for="offer-q" class="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
@@ -51,8 +54,39 @@
             </select>
         </div>
     </div>
+    <?php if (!empty($offerAppliedFilters)):?>
+        <div class="mt-5 rounded-lg border border-primary/20 bg-primary/5 p-4" aria-label="Примененные фильтры">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-sm font-medium text-secondary">Выбрано:</span>
+                    <?php foreach ($offerAppliedFilters as $appliedFilter):?>
+                        <?php
+                        $appliedText = trim((string)$appliedFilter['label']) . ': ' . trim((string)$appliedFilter['value']);
+                        ?>
+                        <a href="<?=htmlspecialcharsbx((string)$appliedFilter['href'])?>"
+                           class="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-sm font-medium text-secondary hover:border-primary hover:text-primary transition-colors"
+                           data-offer-catalog-link>
+                            <span><?=htmlspecialcharsbx($appliedText)?></span>
+                            <i class="ri-close-line" aria-hidden="true"></i>
+                            <span class="sr-only">Убрать фильтр <?=htmlspecialcharsbx($appliedText)?></span>
+                        </a>
+                    <?php endforeach;?>
+                </div>
+                <a href="/offer/#offer-catalog"
+                   class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                   data-offer-catalog-link>
+                    <i class="ri-refresh-line" aria-hidden="true"></i>
+                    Сбросить всё
+                </a>
+            </div>
+        </div>
+    <?php endif;?>
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
-        <div class="text-sm text-gray-600">
+        <div class="text-sm text-gray-600"
+             tabindex="-1"
+             aria-live="polite"
+             aria-atomic="true"
+             data-offer-catalog-status>
             <?php if ($offerCatalog['total'] > 0):?>
                 Показано <?=number_format($offerResultFrom, 0, '', ' ')?>-<?=number_format($offerResultTo, 0, '', ' ')?> из <?=number_format((int)$offerCatalog['total'], 0, '', ' ')?>
             <?php else:?>
@@ -61,7 +95,9 @@
         </div>
         <div class="flex flex-col sm:flex-row gap-3">
             <?php if ($offerCatalog['has_filters']):?>
-                <a href="/offer/" class="inline-flex items-center justify-center gap-2 rounded-button border border-gray-300 px-5 py-3 text-sm font-medium text-secondary hover:border-primary hover:text-primary transition-colors">
+                <a href="/offer/#offer-catalog"
+                   class="inline-flex items-center justify-center gap-2 rounded-button border border-gray-300 px-5 py-3 text-sm font-medium text-secondary hover:border-primary hover:text-primary transition-colors"
+                   data-offer-catalog-link>
                     <i class="ri-close-line"></i>
                     Сбросить
                 </a>

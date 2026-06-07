@@ -30,7 +30,12 @@ const OFFER_SOURCE_FILES = [
   'local/lib/Tacticum/Offer/OfferTaxonomyService.php',
   'local/lib/Tacticum/Offer/CatalogMapper.php',
   'local/lib/Tacticum/Offer/CatalogFilters.php',
+  'local/components/tacticum/offer.catalog/templates/.default/template.php',
   'local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php',
+  'local/components/tacticum/offer.catalog/templates/.default/parts/filter-form.php',
+  'local/components/tacticum/offer.catalog/templates/.default/parts/pagination.php',
+  'local/components/tacticum/offer.catalog/templates/.default/script.js',
+  'local/components/tacticum/offer.catalog/templates/.default/style.css',
   'local/components/tacticum/offer.catalog/templates/.default/parts/results.php'
 ];
 const ABOUT_STATIC_SOURCE_FILES = [
@@ -320,6 +325,29 @@ function scanOfferSource(source, fileLabel = '<source>') {
     }
   }
 
+  if (fileLabel.endsWith('offer.catalog/templates/.default/template.php')) {
+    const requiredLiterals = [
+      '$this->addExternalCss',
+      '$this->addExternalJs',
+      '$offerCatalogHref',
+      '#offer-catalog',
+      '$offerAppliedFilters',
+      "'label' => 'Отрасль'",
+      "'label' => 'Тип задачи'",
+      "'label' => 'Сортировка'"
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-filter-state-template-contract',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
   if (fileLabel.endsWith('quick-filters.php')) {
     if (source.includes('array_slice($offerOptions')) {
       issues.push({
@@ -336,6 +364,114 @@ function scanOfferSource(source, fileLabel = '<source>') {
         rule: 'offer-missing-featured-options-rendering',
         text: 'quick filter template must use featuredOptions'
       });
+    }
+    const requiredLiterals = [
+      '$offerCatalogHref',
+      'data-offer-catalog-root',
+      'data-offer-catalog-live',
+      'data-offer-catalog-link',
+      'aria-current="true"',
+      'ri-check-line',
+      'сбросит остальные фильтры'
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-active-quick-filter-contract',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('filter-form.php')) {
+    const requiredLiterals = [
+      'action="/offer/#offer-catalog"',
+      'data-offer-catalog-form',
+      '$offerAppliedFilters',
+      'aria-label="Примененные фильтры"',
+      'Сбросить всё',
+      'data-offer-catalog-status',
+      'aria-live="polite"',
+      'data-offer-catalog-link'
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-applied-filter-summary-contract',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('pagination.php')) {
+    const requiredLiterals = [
+      '$offerCatalogHref',
+      'data-offer-catalog-link',
+      'aria-label="Навигация по страницам расчетов"'
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-pagination-enhancement-contract',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('offer.catalog/templates/.default/script.js')) {
+    const requiredLiterals = [
+      "'[data-offer-catalog-root]'",
+      "'a[data-offer-catalog-link]'",
+      "'form[data-offer-catalog-form]'",
+      'fetch(',
+      'DOMParser',
+      'window.history.pushState',
+      "window.addEventListener('popstate'",
+      'aria-busy',
+      'data-offer-catalog-live',
+      'updateHead',
+      'sameOfferUrl',
+      'targetFromForm',
+      "credentials: 'same-origin'"
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-progressive-filter-enhancement-contract',
+          text: `missing literal: ${literal}`
+        });
+      }
+    }
+  }
+
+  if (fileLabel.endsWith('offer.catalog/templates/.default/style.css')) {
+    const requiredLiterals = [
+      'offer-catalog-shell',
+      'scroll-margin-top',
+      'data-offer-catalog-loading',
+      'Обновляем подборку',
+      '@media (max-width: 640px)'
+    ];
+    for (const literal of requiredLiterals) {
+      if (!source.includes(literal)) {
+        issues.push({
+          file: fileLabel,
+          line: 0,
+          rule: 'offer-missing-filter-loading-style-contract',
+          text: `missing literal: ${literal}`
+        });
+      }
     }
   }
 
@@ -500,7 +636,63 @@ function runSelfTest() {
       'CatalogTaxonomy::budgetBuckets',
       'CatalogTaxonomy::featuredOptions'
     ].join('\n')],
-    ['local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php', 'featuredOptions($offerOptions, \'sectors\')'],
+    ['local/components/tacticum/offer.catalog/templates/.default/template.php', [
+      '$this->addExternalCss',
+      '$this->addExternalJs',
+      '$offerCatalogHref',
+      '#offer-catalog',
+      '$offerAppliedFilters',
+      "'label' => 'Отрасль'",
+      "'label' => 'Тип задачи'",
+      "'label' => 'Сортировка'"
+    ].join('\n')],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php', [
+      'featuredOptions($offerOptions, \'sectors\')',
+      '$offerCatalogHref',
+      'data-offer-catalog-root',
+      'data-offer-catalog-live',
+      'data-offer-catalog-link',
+      'aria-current="true"',
+      'ri-check-line',
+      'сбросит остальные фильтры'
+    ].join('\n')],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/filter-form.php', [
+      'action="/offer/#offer-catalog"',
+      'data-offer-catalog-form',
+      '$offerAppliedFilters',
+      'aria-label="Примененные фильтры"',
+      'Сбросить всё',
+      'data-offer-catalog-status',
+      'aria-live="polite"',
+      'data-offer-catalog-link'
+    ].join('\n')],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/pagination.php', [
+      '$offerCatalogHref',
+      'data-offer-catalog-link',
+      'aria-label="Навигация по страницам расчетов"'
+    ].join('\n')],
+    ['local/components/tacticum/offer.catalog/templates/.default/script.js', [
+      "'[data-offer-catalog-root]'",
+      "'a[data-offer-catalog-link]'",
+      "'form[data-offer-catalog-form]'",
+      'fetch(',
+      'DOMParser',
+      'window.history.pushState',
+      "window.addEventListener('popstate'",
+      'aria-busy',
+      'data-offer-catalog-live',
+      'updateHead',
+      'sameOfferUrl',
+      'targetFromForm',
+      "credentials: 'same-origin'"
+    ].join('\n')],
+    ['local/components/tacticum/offer.catalog/templates/.default/style.css', [
+      'offer-catalog-shell',
+      'scroll-margin-top',
+      'data-offer-catalog-loading',
+      'Обновляем подборку',
+      '@media (max-width: 640px)'
+    ].join('\n')],
     ['local/components/tacticum/offer.catalog/templates/.default/parts/results.php', "$offerItem['budget_display'] ?: 'по запросу'"]
   ];
   for (const [fileLabel, source] of safeOfferSources) {
@@ -511,7 +703,12 @@ function runSelfTest() {
   }
 
   const unsafeOfferSources = [
+    ['local/components/tacticum/offer.catalog/templates/.default/template.php', '$offerUrl'],
     ['local/components/tacticum/offer.catalog/templates/.default/parts/quick-filters.php', 'array_slice($offerOptions[\'sectors\'], 0, 8)'],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/filter-form.php', '<form method="get" action="/offer/">'],
+    ['local/components/tacticum/offer.catalog/templates/.default/parts/pagination.php', '$offerUrl($offerFilters, [\'page\' => 2])'],
+    ['local/components/tacticum/offer.catalog/templates/.default/script.js', 'document.addEventListener("submit", () => window.location.reload())'],
+    ['local/components/tacticum/offer.catalog/templates/.default/style.css', '.offer-catalog-shell { color: inherit; }'],
     ['local/components/tacticum/offer.catalog/templates/.default/parts/results.php', "$offerItem['budget'] ?: 'по запросу'"]
   ];
   for (const [fileLabel, source] of unsafeOfferSources) {

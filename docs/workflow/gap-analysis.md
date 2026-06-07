@@ -147,6 +147,37 @@ Implementation update 07.06.2026:
 
 Any future task touching `/offer/` public filters, quick entries, taxonomy labels, budget buckets, offer seed dictionaries, filtered URL SEO behavior or offer catalog cache must reference the relevant `OFFER-TAX-*` IDs. Fast fixes may address budget display or temporary curated quick entries without ADR if no schema/source-switch pattern changes. New Bitrix taxonomy changes must start from `OFFER-TAX-WP-03` owner decision and current strict WP-04 runtime baseline, require `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft`, accepted `ADR-012`, passing `npm run offer:taxonomy:implementation-gate`, target migration/check/cache evidence and must not store counts as editor-maintained data.
 
+## Current Offer Filter Interaction Layer — 07.06.2026
+
+Challenge `/offer/` filter and preset interaction выявил отдельный UX/UI gap после taxonomy-source closure: state ownership is now governed, but state expression was weak. Local implementation on 07.06.2026 adds visible selected state, applied-filter summary, `#offer-catalog` fallback, same-URL progressive enhancement, browser history handling, accessible update state and source hygiene guard coverage. Production deploy/cache/rendered/browser evidence is still required before final `closed` status.
+
+Документальный пакет:
+
+- source register: `docs/workflow/offer-page-filter-interaction-challenge-gap-analysis-2026-06-07.md`;
+- execution roadmap: `docs/workflow/offer-page-filter-interaction-roadmap-2026-06-07.md`;
+- issue backlog: `docs/workflow/offer-page-filter-interaction-issue-backlog-2026-06-07.md`;
+- Codex documentation plan: `docs/workflow/plans/2026-06-07-offer-filter-interaction-documentation.md`;
+- Codex implementation plan: `docs/workflow/plans/2026-06-07-offer-filter-interaction-implementation.md`.
+
+### Challenge Verdict
+
+Do not rewrite `/offer/` filters as a client-only SPA. Preserve server-rendered pretty URLs, no-JS fallback, canonical `/offer/` and `noindex,follow` for filtered states. The target is progressive enhancement: visible selected state first, then same-URL AJAX replacement with history/back-forward support if implemented.
+
+### Current Gap Coverage
+
+| Cluster | Gap IDs | Current Risk |
+|---|---|---|
+| Context retention | `OFFER-FILTER-001` | Implemented locally: links/form/pagination target `#offer-catalog`; production rendered/browser evidence pending. |
+| Active selected state | `OFFER-FILTER-002`, `OFFER-FILTER-003` | Implemented locally: active quick chips and removable applied-filter summary exist; production rendered/browser evidence pending. |
+| Quick-entry behavior | `OFFER-FILTER-004` | Implemented locally for V1: quick entries remain replacement controls and copy says they reset other filters; additive behavior remains future owner decision. |
+| Progressive filtering | `OFFER-FILTER-005`, `OFFER-FILTER-006`, `OFFER-FILTER-010`, `OFFER-FILTER-012` | Implemented locally/monitor: same-URL AJAX, history and pagination selectors exist; performance/partial endpoint remains accepted-monitor. |
+| Accessibility and mobile | `OFFER-FILTER-007`, `OFFER-FILTER-008` | Implemented locally: `aria-live`, `aria-busy`, deterministic focus and mobile loading feedback exist; a11y/mobile browser smoke pending. |
+| SEO and guard coverage | `OFFER-FILTER-009`, `OFFER-FILTER-011` | Implemented locally: JS keeps server URLs/head metadata and source hygiene guard covers the interaction contract; production `seo:check:prod` and browser smoke pending. |
+
+### Planning Rule
+
+Any future task touching `/offer/` filter interaction, quick-entry active state, applied-filter chips, AJAX result updates, pagination behavior, browser history or mobile filter UX must reference the relevant `OFFER-FILTER-*` IDs. If the task changes labels, taxonomy terms or featured term ownership, it must also reference `OFFER-TAX-*`. If the task changes canonical/noindex/sitemap behavior, it requires SEO approval and must not be hidden inside a UX fast fix.
+
 ## Current Price Team Presets Layer — 06.06.2026
 
 Challenge `/price/` quick team presets выявил отдельный product/config gap: пресеты были функциональной доменной сущностью, но хранились как split PHP/JS hardcode and applied roles by keyword matching visible rate-card copy.
