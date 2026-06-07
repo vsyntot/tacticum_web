@@ -43,6 +43,19 @@
         "note": "e2e:css-js:prod and e2e:css-js:local passed"
       }
     },
+    "content-public-hygiene": {
+      "status": "passed",
+      "owner": "QA + Content",
+      "evidence": {
+        "command": "npm run content:public-hygiene:rendered:prod",
+        "base_url": "https://tacticum.ru",
+        "checked_at": "2026-06-07T00:00:00+03:00",
+        "checked_by": "QA Owner",
+        "pages_checked": 13,
+        "issues_found": 0,
+        "result": "public rendered content hygiene passed"
+      }
+    },
     "manual-success-flow": {
       "status": "passed",
       "owner": "QA + Backend/Frontend",

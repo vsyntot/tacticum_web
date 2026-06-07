@@ -258,6 +258,11 @@
         "result": "upstream/CRM received team summary, team_preset, monthly_budget_estimate and end_date"
       }
     },
+    "content-public-hygiene": {
+      "status": "not_applicable",
+      "owner": "QA + Content",
+      "reason": "Rendered public content hygiene gate was introduced after this release closure scope."
+    },
     "csp-enforce": {
       "status": "not_applicable",
       "owner": "Security + Frontend + QA",
