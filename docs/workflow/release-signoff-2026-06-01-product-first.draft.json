@@ -30,6 +30,12 @@
       "due": "after-product-first-deploy-cache-refresh",
       "reason": "Product FAQ assets, navigation and public page layout need production visual/browser e2e readiness evidence."
     },
+    "content-public-hygiene": {
+      "status": "pending",
+      "owner": "QA + Content",
+      "due": "after-cls-wp-01-deploy-cache-refresh",
+      "reason": "CLS-WP-01 changes remove visible internal labels; rendered public pages must pass content:public-hygiene:rendered:prod after deploy and cache refresh."
+    },
     "manual-success-flow": {
       "status": "pending",
       "owner": "QA + Backend/Frontend",

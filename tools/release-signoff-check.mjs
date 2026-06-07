@@ -13,6 +13,7 @@ const requiredGates = [
   'seo-rendered-head',
   'price-team-presets',
   'css-js-e2e-readiness',
+  'content-public-hygiene',
   'manual-success-flow',
   'metrika-goals',
   'config-sync',
@@ -33,6 +34,7 @@ const manualEvidenceGates = new Set([
 ]);
 const safetyScannedEvidenceGates = new Set([
   ...manualEvidenceGates,
+  'content-public-hygiene',
   'csp-enforce',
   'sensitive-endpoint-access',
   'endpoint-risk-class',
@@ -337,6 +339,10 @@ async function validateGateEvidence(gateName, evidence) {
     }
   }
 
+  if (gateName === 'content-public-hygiene') {
+    validateContentPublicHygiene(evidence);
+  }
+
   if (safetyScannedEvidenceGates.has(gateName)) {
     validateEvidenceSafety(gateName, evidence);
   }
@@ -587,6 +593,39 @@ function validateStaffSaleUpstream(evidence) {
   const teamPreset = String(evidence.team_preset || '').trim();
   if (!['mvp', 'discovery', 'support', 'qa-burst'].includes(teamPreset)) {
     fail('staff-sale-upstream: team_preset must be one of mvp, discovery, support, qa-burst');
+  }
+}
+
+function validateContentPublicHygiene(evidence) {
+  requireFields('content-public-hygiene', evidence, [
+    'command',
+    'base_url',
+    'checked_at',
+    'checked_by',
+    'pages_checked',
+    'result',
+  ]);
+  validateIsoDateTime('content-public-hygiene', evidence.checked_at);
+
+  if (!/^https:\/\//i.test(String(evidence.base_url || '').trim())) {
+    fail('content-public-hygiene: base_url must use HTTPS');
+  }
+
+  const pagesChecked = Number(evidence.pages_checked);
+  if (!Number.isFinite(pagesChecked) || pagesChecked < 1) {
+    fail('content-public-hygiene: pages_checked must be a positive number');
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(evidence, 'issues_found')) {
+    fail('content-public-hygiene: missing issues_found');
+  }
+
+  if (Number(evidence.issues_found) !== 0) {
+    fail('content-public-hygiene: issues_found must be 0');
+  }
+
+  if (!String(evidence.command || '').includes('content:public-hygiene:rendered')) {
+    fail('content-public-hygiene: command must reference content:public-hygiene:rendered');
   }
 }
 

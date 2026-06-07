@@ -407,6 +407,13 @@ const cases = [
     },
   },
   {
+    name: 'content public hygiene issues found',
+    expected: /content-public-hygiene: issues_found must be 0/,
+    mutate(payload) {
+      payload.gates['content-public-hygiene'].evidence.issues_found = 2;
+    },
+  },
+  {
     name: 'unknown gate',
     expected: /unknown gate/,
     mutate(payload) {
