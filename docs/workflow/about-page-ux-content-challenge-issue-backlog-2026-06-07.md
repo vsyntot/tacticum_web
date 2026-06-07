@@ -1,11 +1,13 @@
 # About Page UX / Content Challenge Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft / fast-fix, guard and trust-storyline slices deployed with production evidence / owner approvals pending for broader work
+Статус: issue backlog draft / fast-fix, guard and trust-storyline slices deployed with production evidence / proof and ownership owner-review package prepared / owner approvals pending for broader work
 
 Source register: `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
 Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-2026-06-07.md`
+Proof matrix: `docs/workflow/about-page-proof-matrix-owner-review-2026-06-07.md`
+Ownership map: `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
 
 ## Purpose
 
@@ -28,11 +30,11 @@ Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-20
 |---|---|---|---:|---|---|---|
 | `ABOUT-WP-01` | closed | `fast-fix-allowed` + `guard-scope-required` | P0 | PM + Content + QA + Frontend/Backend | `ABOUT-001`, `ABOUT-010` | Remove stale `2025 / Сегодня` contradiction and prevent recurrence |
 | `ABOUT-WP-02` | closed | `fast-fix-allowed` + `guard-scope-required` | P1 | Frontend + QA + SEO + Content | `ABOUT-007`, `ABOUT-010` | Fix duplicate IDs, missing `#careers` and misleading `#partners` anchor |
-| `ABOUT-WP-03` | in-progress-production-guarded | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
+| `ABOUT-WP-03` | owner-review-ready-production-guarded | `owner-review-required` + `blocked-claims-evidence` | P1 | PM + Content + Sales + Legal + UX | `ABOUT-002`, `ABOUT-003`, `ABOUT-004` | Rewrite `/about/` as coherent vendor trust page |
 | `ABOUT-WP-04` | pending-owner-review | `design-gate-required` | P1 | Design + Frontend + QA + PM | `ABOUT-005` | Redesign team section for trust, readability and accessibility |
 | `ABOUT-WP-05` | in-progress-production-guarded | `owner-review-required` | P1 | Content + Architect + Sales + PM | `ABOUT-003`, `ABOUT-006` | Replace generic stack/internal terminology with buyer-relevant capability contours |
 | `ABOUT-WP-06` | in-progress-production-guarded | `owner-review-required` | P2 | PM + Content + UX + SEO | `ABOUT-008`, `ABOUT-007` | Decide career/culture role and rewrite final CTA/anchors |
-| `ABOUT-WP-07` | pending-owner-review | `content-storage-gate-required` | P1 | Architect + Backend + Content + QA | `ABOUT-009` | Define and sync page-content/PHP partial ownership for `/about/` |
+| `ABOUT-WP-07` | owner-review-ready | `content-storage-gate-required` | P1 | Architect + Backend + Content + QA | `ABOUT-009` | Define and sync page-content/PHP partial ownership for `/about/` |
 | `ABOUT-WP-08` | closed | `guard-scope-required` | P2 | QA + Frontend + Backend + Content | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` | Implement or adopt `/about/` rendered/source guard package |
 
 ## Production Evidence
@@ -60,6 +62,14 @@ Guard proposal: `docs/workflow/about-page-ux-content-challenge-guard-proposal-20
 | `npm run content:public-cache-clear`, production 07.06.2026 | Passed after trust-storyline deploy. |
 | `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T08:49:12Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
 | `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=76054`, expected source `bitrix`. |
+
+## Owner Review Package Evidence
+
+| Document / Evidence | Result |
+|---|---|
+| `about-page-proof-matrix-owner-review-2026-06-07.md` | Prepared no-raw-copy matrix for `ABOUT-WP-03` / `ABOUT-004`; stronger public claims remain blocked until owner approval. |
+| `about-page-content-ownership-map-2026-06-07.md` | Prepared actual source ownership map for `ABOUT-WP-07` / `ABOUT-009`; Bitrix row sync and fallback retirement remain blocked until content-storage approval. |
+| `plans/2026-06-07-about-owner-review-proof-ownership.md` | Confirms docs-only scope; no runtime, Bitrix, route, form, analytics or SEO behavior changed. |
 
 ## Issue Details
 
@@ -165,7 +175,7 @@ Implementation note 07.06.2026: local source and page-content seed replace the m
 
 If Bitrix rows are changed, add page-content audit/source checks and production cache clear.
 
-Implementation note 07.06.2026: proof-safe slice reframes hardcoded `/about/` copy and wave2 seed around corporate AI launch responsibility without adding claims, metrics, logos or customer proof. Runtime `PublicCopyNormalizer::normalizePageContentSection()` protects old live `/about/` Bitrix rows by section/block key. Production rendered hygiene passed at `2026-06-07T08:49:12Z`. This advances `ABOUT-WP-03`, but does not close the full trust narrative rewrite until owner review and proof matrix decisions exist.
+Implementation note 07.06.2026: proof-safe slice reframes hardcoded `/about/` copy and wave2 seed around corporate AI launch responsibility without adding claims, metrics, logos or customer proof. Runtime `PublicCopyNormalizer::normalizePageContentSection()` protects old live `/about/` Bitrix rows by section/block key. Production rendered hygiene passed at `2026-06-07T08:49:12Z`. A no-raw-copy proof matrix is prepared for owner review. This advances `ABOUT-WP-03`, but does not close the full trust narrative rewrite until owners approve public/private/blocked trust statements.
 
 ### ABOUT-WP-04 — Team Section UX / Accessibility
 
@@ -295,6 +305,8 @@ npm run seo:check
 
 Add production page-content source/audit/cache-clear commands when implementation touches Bitrix rows.
 
+Implementation note 07.06.2026: actual mixed-source ownership map is prepared for owner review. It separates hardcoded PHP partials, Bitrix live page-content sections, team iblock output, lead CTA component, footer menu and `PublicCopyNormalizer` compatibility. No Bitrix row sync, source-of-truth transfer, fallback comment cleanup or fallback retirement is approved by this note.
+
 ### ABOUT-WP-08 — Guard / Smoke Package
 
 Workflow lane: Full Feature / QA guard.
@@ -342,3 +354,6 @@ Implementation note 07.06.2026: existing `content:public-hygiene:check` and `con
 - `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 - `docs/workflow/about-page-ux-content-challenge-roadmap-2026-06-07.md`
 - `docs/workflow/about-page-ux-content-challenge-guard-proposal-2026-06-07.md`
+- `docs/workflow/about-page-proof-matrix-owner-review-2026-06-07.md`
+- `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
+- `docs/workflow/plans/2026-06-07-about-owner-review-proof-ownership.md`

@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes, Phase 5 minimal guard and Phase 2 proof-safe copy slice are completed in production for the scoped issues; owner-gated proof/team/content-ownership work remains open.
+Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes, Phase 5 minimal guard and Phase 2 proof-safe copy slice are completed in production for the scoped issues; proof and content-ownership owner-review package is prepared; owner-gated proof/team/content-ownership work remains open.
 Scope: `/about/` UX/UI/content planning only. No further runtime implementation is approved by this roadmap without the gates below.
 
 ## Purpose
@@ -14,6 +14,11 @@ Scope: `/about/` UX/UI/content planning only. No further runtime implementation 
 All local IDs below come from:
 
 - `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
+
+Owner-review support documents:
+
+- `docs/workflow/about-page-proof-matrix-owner-review-2026-06-07.md`
+- `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
 
 If a task references an `ABOUT-*` ID not present in the source register, update both documents before implementation planning.
 
@@ -94,7 +99,7 @@ Exit criteria:
 - Each section has a clear buyer purpose.
 - Copy does not make unsupported claims or expose internal process labels as public headings.
 
-Status 07.06.2026: proof-safe copy slice implemented for hardcoded partials, wave2 seed and runtime `/about/` page-content normalization; production rendered hygiene passed at `2026-06-07T08:49:12Z`. This does not close Phase 2: owner approval and proof matrix decisions are still pending.
+Status 07.06.2026: proof-safe copy slice implemented for hardcoded partials, wave2 seed and runtime `/about/` page-content normalization; production rendered hygiene passed at `2026-06-07T08:49:12Z`. No-raw-copy proof matrix is prepared for owner review. This does not close Phase 2: PM/Sales/Legal/Content approval and owner decisions on public/private/blocked trust statements are still pending before any stronger public claims.
 
 ## Phase 3 — Team, Timeline And UI Treatment
 
@@ -139,7 +144,7 @@ Exit criteria:
 - Future editor/developer can tell where each public section comes from.
 - Production rendered source matches intended owner model after cache clear.
 
-Status 07.06.2026: wave2 seed was aligned with the trust-storyline copy, old live `/about/` rows are protected at runtime by `PublicCopyNormalizer::normalizePageContentSection()`, and production source check passed with `/about/ source=bitrix sections=3/3 bytes=76054`. Formal section ownership and fallback retirement remain open under `ABOUT-WP-07`.
+Status 07.06.2026: wave2 seed was aligned with the trust-storyline copy, old live `/about/` rows are protected at runtime by `PublicCopyNormalizer::normalizePageContentSection()`, and production source check passed with `/about/ source=bitrix sections=3/3 bytes=76054`. Actual mixed-source ownership map is prepared for owner review. Formal source-of-truth transfer, Bitrix row sync and fallback retirement remain open under `ABOUT-WP-07`.
 
 ## Phase 5 — Guarding And Release Evidence
 
@@ -177,7 +182,7 @@ Status 07.06.2026: minimal guard package completed through existing `content:pub
 | `ABOUT-WP-07` | Page-content/fallback ownership and sync | `ABOUT-009` |
 | `ABOUT-WP-08` | Guard/smoke package | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` |
 
-Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a proof-safe copy implementation deployed with production rendered evidence, but still need owner review for full closure. Start new non-regression work from `ABOUT-WP-04` or `ABOUT-WP-07`, or continue `ABOUT-WP-03/05/06` with owner approval.
+Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a proof-safe copy implementation deployed with production rendered evidence; `ABOUT-WP-03` now also has a proof matrix ready for owner review. `ABOUT-WP-07` has an ownership map ready for owner review. Start new non-regression implementation from `ABOUT-WP-04`, or continue `ABOUT-WP-03/05/06/07` only after the relevant owner decisions.
 
 ## Verification Guidance
 
@@ -202,5 +207,8 @@ Additional verification depends on scope:
 - `docs/workflow/about-page-ux-content-challenge-gap-analysis-2026-06-07.md`
 - `docs/workflow/about-page-ux-content-challenge-issue-backlog-2026-06-07.md`
 - `docs/workflow/about-page-ux-content-challenge-guard-proposal-2026-06-07.md`
+- `docs/workflow/about-page-proof-matrix-owner-review-2026-06-07.md`
+- `docs/workflow/about-page-content-ownership-map-2026-06-07.md`
+- `docs/workflow/plans/2026-06-07-about-owner-review-proof-ownership.md`
 - `docs/workflow/content-language-storyline-public-glossary-2026-06-07.md`
 - `docs/workflow/content-storage-target-roadmap-2026-06-05.md`
