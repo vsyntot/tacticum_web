@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes and Phase 5 minimal guard are completed in production for the scoped issues.
+Статус: execution roadmap for `about-page-ux-content-challenge-gap-analysis-2026-06-07.md`; Phase 1 objective fast fixes and Phase 5 minimal guard are completed in production for the scoped issues; Phase 2 proof-safe copy slice is implemented locally pending deploy evidence.
 Scope: `/about/` UX/UI/content planning only. No further runtime implementation is approved by this roadmap without the gates below.
 
 ## Purpose
@@ -94,6 +94,8 @@ Exit criteria:
 - Each section has a clear buyer purpose.
 - Copy does not make unsupported claims or expose internal process labels as public headings.
 
+Status 07.06.2026: local proof-safe copy slice implemented for hardcoded partials, wave2 seed and runtime `/about/` page-content normalization. This does not close Phase 2: owner approval, proof matrix decisions and production rendered evidence are still pending.
+
 ## Phase 3 — Team, Timeline And UI Treatment
 
 Goal: align visual hierarchy and accessibility with the approved trust storyline.
@@ -137,6 +139,8 @@ Exit criteria:
 - Future editor/developer can tell where each public section comes from.
 - Production rendered source matches intended owner model after cache clear.
 
+Status 07.06.2026: wave2 seed was aligned with the local trust-storyline copy and old live `/about/` rows are protected at runtime by `PublicCopyNormalizer::normalizePageContentSection()`. Formal section ownership and fallback retirement remain open under `ABOUT-WP-07`.
+
 ## Phase 5 — Guarding And Release Evidence
 
 Goal: prevent recurrence of the exact defects found in the challenge.
@@ -173,7 +177,7 @@ Status 07.06.2026: minimal guard package completed through existing `content:pub
 | `ABOUT-WP-07` | Page-content/fallback ownership and sync | `ABOUT-009` |
 | `ABOUT-WP-08` | Guard/smoke package | `ABOUT-010`, `ABOUT-007`, `ABOUT-001` |
 
-Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. Start new non-regression work from `ABOUT-WP-03`, `ABOUT-WP-04`, `ABOUT-WP-05`, `ABOUT-WP-06` or `ABOUT-WP-07`.
+Status 07.06.2026: `ABOUT-WP-01`, `ABOUT-WP-02` and `ABOUT-WP-08` are closed for fast-fix/guard scope. `ABOUT-WP-03`, `ABOUT-WP-05` and `ABOUT-WP-06` have a local proof-safe copy implementation pending deploy evidence and owner review. Start new non-regression work from `ABOUT-WP-04` or `ABOUT-WP-07`, or continue `ABOUT-WP-03/05/06` with owner approval and production smoke.
 
 ## Verification Guidance
 

@@ -98,10 +98,10 @@ $aMenuLinks = Array(
         Array(),
         Array(),
         ""
-    ),
+	),
 	Array(
-        "Карьера",
-        "/about/#careers",
+        "Начать работу",
+        "/about/#start-work",
         Array(),
         Array(),
         ""

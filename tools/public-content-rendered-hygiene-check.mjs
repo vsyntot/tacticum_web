@@ -61,6 +61,13 @@ const ABOUT_FORBIDDEN_VISIBLE_PHRASES = [
   'production rollout',
   'runtime-сервисы',
   'достичь новых высот',
+  'Технологии, с которыми мы работаем',
+  'Карьера в Tacticum',
+  'Мы не просто консультируем',
+  'Инновационность',
+  'AI/IT',
+  'B2B',
+  'Team',
   'BERT, GPT, NLTK',
   'Hadoop, Spark, Kafka',
   'Tableau, Power BI',
@@ -176,13 +183,14 @@ function runSelfTest() {
     <nav>
       <a href="/about/#about-company">Кто мы</a>
       <a href="/about/#team">Команда</a>
-      <a href="/about/#careers">Карьера</a>
+      <a href="/about/#start-work">Начать работу</a>
       <a href="/about/#technology">Технологии</a>
     </nav>
     <section id="about-company"><h2>Кто мы?</h2></section>
     <section><span id="team"></span><h2>Наша команда</h2></section>
+    <span id="start-work"></span>
     <span id="careers"></span>
-    <section><h2>Карьера в Tacticum</h2></section>
+    <section><h2>Начать работу с Tacticum</h2></section>
     <section id="technology"><h2>Технологические контуры</h2></section>
     <section><span>2025</span><h3>Переход к продуктовой линейке</h3></section>
     <section><span>Сейчас</span><h3>Текущий фокус</h3></section>

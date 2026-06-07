@@ -18,10 +18,10 @@ if (function_exists('tacticum_page_content_render_if_live')) {
     <span id="team" class="tacticum-anchor-alias" aria-hidden="true"></span>
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Наша команда</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-6">Команда, которая ведёт запуск</h2>
             <p class="text-lg text-gray-600">
-                Познакомьтесь с командой, которая развивает продукты Tacticum и помогает компаниям запускать
-                AI-решения в реальных процессах.
+                На странице показаны люди, которые развивают продукты Tacticum и ведут проекты от оценки сценария
+                до внедрения в рабочий процесс. Детали ролей и состава команды уточняются под конкретную задачу.
             </p>
         </div>
 
@@ -45,35 +45,35 @@ if (function_exists('tacticum_page_content_render_if_live')) {
         ?>
 
         <div id="technology" class="tacticum-anchor-target bg-gray-50 rounded-2xl p-8 md:p-12">
-            <h3 class="text-2xl font-bold text-secondary mb-8 text-center">Технологические контуры</h3>
+            <h3 class="text-2xl font-bold text-secondary mb-8 text-center">Контуры надёжного AI-запуска</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white rounded-xl p-6 text-center">
                     <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
                         <i class="ri-brain-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary mb-2">LLM и RAG</h4>
-                    <p class="text-sm text-gray-600">Модели, поиск по знаниям, память и контроль источников</p>
+                    <h4 class="font-bold text-secondary mb-2">Модели и знания</h4>
+                    <p class="text-sm text-gray-600">LLM, поиск по базе знаний, память и проверка источников ответа</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 text-center">
                     <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
                         <i class="ri-plug-line text-2xl"></i>
                     </div>
                     <h4 class="font-bold text-secondary mb-2">Интеграции</h4>
-                    <p class="text-sm text-gray-600">CRM, ERP, wiki, helpdesk, документы и внутренние API</p>
+                    <p class="text-sm text-gray-600">CRM, ERP, базы знаний, helpdesk, документы и внутренние API</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 text-center">
                     <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
                         <i class="ri-shield-check-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary mb-2">Контроль</h4>
-                    <p class="text-sm text-gray-600">Роли, аудит, журналирование, проверки качества и наблюдаемость</p>
+                    <h4 class="font-bold text-secondary mb-2">Управление рисками</h4>
+                    <p class="text-sm text-gray-600">Роли, аудит, журналирование, контроль качества и наблюдаемость</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 text-center">
                     <div class="w-14 h-14 flex items-center justify-center mx-auto mb-4 rounded-lg bg-primary/10 text-primary">
                         <i class="ri-rocket-line text-2xl"></i>
                     </div>
-                    <h4 class="font-bold text-secondary mb-2">Запуск</h4>
-                    <p class="text-sm text-gray-600">Пилот, запуск в рабочую эксплуатацию, поддержка и развитие продукта</p>
+                    <h4 class="font-bold text-secondary mb-2">Рабочий запуск</h4>
+                    <p class="text-sm text-gray-600">Пилот, ввод в процесс, поддержка команды и развитие продукта</p>
                 </div>
             </div>
         </div>

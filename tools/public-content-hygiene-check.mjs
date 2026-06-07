@@ -72,6 +72,12 @@ const ABOUT_STATIC_FORBIDDEN_LABELS = [
   'production rollout',
   'runtime-сервисы',
   'достичь новых высот',
+  'Технологии, с которыми мы работаем',
+  'Карьера в Tacticum',
+  'Мы не просто консультируем',
+  'Инновационность',
+  'AI/IT',
+  'Team</div>',
   'BERT, GPT, NLTK',
   'Hadoop, Spark, Kafka',
   'Tableau, Power BI',
@@ -80,6 +86,11 @@ const ABOUT_STATIC_FORBIDDEN_LABELS = [
 
 const ABOUT_SEED_FORBIDDEN_LABELS = [
   'Почему product-first модель требует сильной delivery-команды',
+  'Почему продуктовая модель требует сильной команды внедрения',
+  'Ценности и подход',
+  'Карьера в Tacticum',
+  'Мы не просто консультируем',
+  'Инновационность',
   'до production.',
   'backend, data/RAG',
   'scope, риски',
@@ -99,7 +110,7 @@ const MAPPER_REQUIRED_LITERALS = [
 
 const PAGE_CONTENT_REQUIRED_LITERALS = [
   'use Tacticum\\Content\\PublicCopyNormalizer;',
-  'PublicCopyNormalizer::normalizeArray'
+  'PublicCopyNormalizer::normalizePageContentSection'
 ];
 
 const PRODUCT_SERVICE_REQUIRED_LITERALS = [

@@ -47,7 +47,7 @@ final class Repository
         $sectionId = (int)($element['ID'] ?? 0);
         $properties = self::elementProperties($sectionsIblockId, $sectionId);
 
-        return PublicCopyNormalizer::normalizeArray([
+        return PublicCopyNormalizer::normalizePageContentSection([
             'id' => $sectionId,
             'code' => trim((string)($element['CODE'] ?? '')),
             'sort' => (int)($element['SORT'] ?? 500),
