@@ -2,7 +2,7 @@
 
 Дата: 07.06.2026
 
-Статус: challenge source register, not an approval package; fast-fix/guard implementation, proof-safe trust-storyline implementation and timeline marker UI follow-up are deployed with production-rendered/browser evidence; proof/ownership owner-review package is prepared; owner approvals pending for broader work.
+Статус: challenge source register, not an approval package; fast-fix/guard implementation, proof-safe trust-storyline implementation, timeline marker UI follow-up and work-model feature-grid follow-up are deployed with production-rendered/browser evidence; team/readiness de-dup follow-up is implemented locally and pending deploy evidence; proof/ownership owner-review package is prepared; owner approvals pending for broader work.
 Workflow lane: Full Feature discovery / documentation, with Fast Fix candidates.
 Scope: `/about/` product trust page, UX/UI, content, Russian-first language, storyline, rendered anchors/IDs and page-content ownership. Original challenge was docs-only; implementation notes below record later scoped PHP/CSS fast-fixes. No Bitrix admin data, REST, CRM, analytics or SEO route changes are implied by this document.
 
@@ -43,6 +43,7 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | User screenshots, 07.06.2026 | Confirm visual concerns: generic values/culture cards, large team portraits/crops, `2025 / Сегодня` timeline and technology contours positioning |
 | User screenshot follow-up, 07.06.2026 | Timeline marker color states were ambiguous: filled blue `2025` read as active/current, dark `Сейчас` read as a separate special case, and older years read as quiet history |
 | User screenshot follow-up, 07.06.2026 | `values-team` feature cards rendered without section heading/intro, used a 5-column grid for 3 cards, looked like generic value cards and weakened the bridge from operating model to team |
+| User screenshot follow-up, 07.06.2026 | Team section still read as founder gallery more than launch responsibility; `Что проверяем перед запуском` and `Контуры надёжного AI-запуска` repeated the same technology/risk story in adjacent card grids |
 
 ## Production Evidence After Fast Fix
 
@@ -97,6 +98,19 @@ Scope: `/about/` product trust page, UX/UI, content, Russian-first language, sto
 | PHP lint, local 07.06.2026 | Passed for `Renderer.php`, `PublicCopyNormalizer.php` and `content-storage-page-content-seed.php`. |
 | `npm run css:check` / `css:syntax` / `template-styles:check`, local 07.06.2026 | Passed after adding component-level feature-grid CSS without Tailwind artifact changes. |
 | `npm run content:public-hygiene:check` / `content:public-hygiene:rendered:self-test` / `seo:check` / `bitrix:check` / `component:states:check`, local 07.06.2026 | Passed. |
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed after work-model feature-grid deploy. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T10:52:28Z`; `pages_checked=13`, `issues_found=0`, `/about/ ok=true`. |
+| `npm run page-content:source:http:wave2:prod`, production 07.06.2026 | Passed; `/about/ source=bitrix sections=3/3 bytes=77902`. |
+| Chrome-capable visual smoke, production 07.06.2026 | Passed at `2026-06-07T10:53:28Z`: desktop/mobile status `200`, runtime errors `0`, warnings `0`, broken images `0`, action errors `0`, SEO ok; manifest `/tmp/tacticum-about-work-model-feature-grid-2026-06-07-visual/manifest.json`. |
+
+## Team And Readiness De-Dup Follow-Up
+
+| Command / Evidence | Result |
+|---|---|
+| Local implementation, 07.06.2026 | Team heading becomes `Кто отвечает за запуск`; `news.list/team` uses compact count-aware semantic cards with existing Bitrix preview/detail exposed as focus/experience; `values-team.php` adds a role-composition matrix without changing team data. |
+| Local implementation, 07.06.2026 | Duplicate hardcoded `Контуры надёжного AI-запуска` card row is removed from `values-team.php`; `#technology` moves to the single `stack-cta.php` readiness section and `#stack` remains as compatibility alias. |
+| Local implementation, 07.06.2026 | `stack-cta.php` collapses eight equal checklist cards into four readiness groups with explicit client outcomes: scenario/effect, data/knowledge, integrations/contour, risks/operations. |
+| Constraints | No Bitrix rows, team names/photos/roles/bios, form params, lead payload, routes, SEO metadata or proof claims changed. |
 | Production evidence | Pending deploy, public cache clear, rendered hygiene, wave2 source check and desktop/mobile browser smoke. |
 
 ## Challenge Verdict

@@ -7,7 +7,7 @@ Related gaps: `ABOUT-009`, `ABOUT-002`, `ABOUT-003`, `ABOUT-006`, `ABOUT-008`, c
 
 ## Purpose
 
-Этот документ фиксирует фактическую ownership map страницы `/about/` после production evidence `2026-06-07T08:49:12Z`. Он нужен, чтобы будущие изменения не путали hardcoded PHP partials, Bitrix live page-content rows, team iblock, lead CTA component and footer menu.
+Этот документ фиксирует фактическую ownership map страницы `/about/` после production evidence `2026-06-07T08:49:12Z` and local team/readiness de-dup slice `07.06.2026`. Он нужен, чтобы будущие изменения не путали hardcoded PHP partials, Bitrix live page-content rows, team iblock, lead CTA component and footer menu.
 
 Документ не меняет runtime, не разрешает Bitrix row edits and does not approve fallback retirement.
 
@@ -42,8 +42,8 @@ The page currently renders mixed sources. `page_content.source=bitrix` means liv
 | `values-team` operating values | Bitrix `page_sections/page_blocks`, section key `values-team`; seeded by `tools/content-storage-page-content-seed.php` | Content + PM | Bitrix live rows after owner-approved edit; Git seed as source baseline | Live row renders before hardcoded team section. Do not retire comments/files without content-storage approval. | Page-content source check + public cache clear + rendered hygiene. |
 | Team section wrapper | `values-team.php` hardcoded wrapper + `tacticum:content.list` | PM + Team owner + Frontend | Git wrapper and `team` iblock content | Team data is not page-content owned. Personal/team data changes require owner approval. | Browser/mobile smoke if layout/data changes; rendered hygiene for anchors. |
 | Team cards data | Bitrix `team` iblock through `tacticum:content.list` and `news.list` template | Team owner + PM + Content | Bitrix `team` rows and template | No page-content fallback. Do not alter names/photos/roles without approval. | Team UI/accessibility smoke if changed. |
-| Technology contours | `values-team.php` hardcoded PHP, anchor `#technology` | Content + Architect + Frontend | Git PHP partial | Not page-content owned. | `content:public-hygiene:check`, `seo:check`, rendered hygiene. |
-| Stack/readiness checks | `stack-cta.php` hardcoded PHP | Content + Architect + Frontend | Git PHP partial | No Bitrix page-content section currently owns this block. | Source/rendered hygiene and architect review for technical wording. |
+| Launch role matrix | `values-team.php` hardcoded PHP below team cards | Content + PM + Frontend | Git PHP partial | Not page-content owned; does not change `team` iblock data. | Browser/mobile smoke if layout changes. |
+| Technology/readiness checks | `stack-cta.php` hardcoded PHP, anchor `#technology`, compatibility alias `#stack` | Content + Architect + Frontend | Git PHP partial | No Bitrix page-content section currently owns this block. `#technology` must remain rendered while footer points to it. | Source/rendered hygiene and architect review for technical wording. |
 | Lead CTA form | `tacticum:lead.cta` included from `stack-cta.php` | Frontend + Backend + QA + PM | Shared component params in Git | Do not change form IDs, payload, hidden fields or analytics taxonomy in copy tasks. | Lead form smoke if component params/form markup change. |
 | `career-final` cards | Bitrix `page_sections/page_blocks`, section key `career-final`; seeded by `tools/content-storage-page-content-seed.php` | Content + PM + UX | Bitrix live rows after owner-approved edit; Git seed as source baseline | Live row renders before hardcoded final CTA. | Page-content source check + public cache clear + rendered hygiene. |
 | `#start-work` / `#careers` anchors | `career-final.php` hardcoded aliases | SEO + Frontend + Content | Git PHP partial | `#careers` kept as backward-compatible alias; footer uses `#start-work`. | Rendered anchor guard. |
@@ -87,7 +87,7 @@ Reasons:
 
 - `/about/` is mixed-source by design today: hardcoded sections and live page-content rows both render.
 - `page_content.source=bitrix` confirms three live sections, not full page ownership.
-- Static hero, timeline, team wrapper, technology contours, stack/readiness checks, lead CTA and final CTA are still Git-owned.
+- Static hero, timeline, team wrapper, launch role matrix, readiness checks, lead CTA and final CTA are still Git-owned.
 - Formal section ownership and fallback retirement need Architect/Content/QA/SEO approval.
 
 ## Open Decisions
