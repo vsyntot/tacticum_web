@@ -14,10 +14,13 @@ const DEFAULT_FILES = [
   'local/php_interface/include/product_data/agents.php',
   'local/php_interface/include/product_data/dev.php',
   'local/php_interface/include/product_data/forum.php',
+  'local/lib/Tacticum/PageContent/CalculatorRenderer.php',
   'tools/content-storage-page-content-seed.php'
 ];
 
 const MAPPER_FILE = 'local/lib/Tacticum/Product/ContentBlockMapper.php';
+const PRODUCT_SERVICE_FILE = 'local/lib/Tacticum/Product/ContentService.php';
+const PAGE_CONTENT_REPOSITORY_FILE = 'local/lib/Tacticum/PageContent/Repository.php';
 
 const FORBIDDEN_PUBLIC_LABELS = [
   'Product fit',
@@ -45,6 +48,7 @@ const FORBIDDEN_PUBLIC_LABELS = [
 ];
 
 const MAPPER_REQUIRED_LITERALS = [
+  'PublicCopyNormalizer::normalizeArray',
   'normalizeFitGuideColumn',
   'normalizePublicBlockLabels',
   "'fits' => 'fits'",
@@ -53,6 +57,16 @@ const MAPPER_REQUIRED_LITERALS = [
   "['eyebrow', 'Product fit', 'Когда подходит продукт']",
   "['eyebrow', 'Use cases', 'Сценарии применения']",
   "['eyebrow', 'Security / procurement', 'Безопасность и закупка']"
+];
+
+const PAGE_CONTENT_REQUIRED_LITERALS = [
+  'use Tacticum\\Content\\PublicCopyNormalizer;',
+  'PublicCopyNormalizer::normalizeArray'
+];
+
+const PRODUCT_SERVICE_REQUIRED_LITERALS = [
+  'use Tacticum\\Content\\PublicCopyNormalizer;',
+  'PublicCopyNormalizer::normalizeArray'
 ];
 
 function visibleLineText(line) {
@@ -86,29 +100,29 @@ function scanSource(source, fileLabel = '<source>') {
   return issues;
 }
 
-function verifyMapperNormalizers() {
-  const mapperPath = path.resolve(ROOT, MAPPER_FILE);
+function verifyRequiredLiterals(relativeFile, requiredLiterals) {
+  const sourcePath = path.resolve(ROOT, relativeFile);
   const issues = [];
 
-  if (!fs.existsSync(mapperPath)) {
+  if (!fs.existsSync(sourcePath)) {
     return [{
-      file: MAPPER_FILE,
+      file: relativeFile,
       line: 0,
-      rule: 'missing-mapper',
-      text: 'mapper file does not exist'
+      rule: 'missing-file',
+      text: 'required guard source file does not exist'
     }];
   }
 
-  const source = fs.readFileSync(mapperPath, 'utf8');
-  for (const literal of MAPPER_REQUIRED_LITERALS) {
+  const source = fs.readFileSync(sourcePath, 'utf8');
+  for (const literal of requiredLiterals) {
     if (source.includes(literal)) {
       continue;
     }
 
     issues.push({
-      file: MAPPER_FILE,
+      file: relativeFile,
       line: 0,
-      rule: 'missing-mapper-normalizer',
+      rule: 'missing-public-copy-normalizer',
       text: `missing literal: ${literal}`
     });
   }
@@ -198,7 +212,9 @@ function main() {
     issues.push(...scanSource(source, relativeFile));
   }
 
-  issues.push(...verifyMapperNormalizers());
+  issues.push(...verifyRequiredLiterals(MAPPER_FILE, MAPPER_REQUIRED_LITERALS));
+  issues.push(...verifyRequiredLiterals(PRODUCT_SERVICE_FILE, PRODUCT_SERVICE_REQUIRED_LITERALS));
+  issues.push(...verifyRequiredLiterals(PAGE_CONTENT_REPOSITORY_FILE, PAGE_CONTENT_REQUIRED_LITERALS));
 
   if (issues.length > 0) {
     console.error('Public content hygiene check failed:');

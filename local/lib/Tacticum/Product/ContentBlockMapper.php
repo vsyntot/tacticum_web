@@ -2,6 +2,8 @@
 
 namespace Tacticum\Product;
 
+use Tacticum\Content\PublicCopyNormalizer;
+
 final class ContentBlockMapper
 {
     public static function payload(string $type, array $element, array $properties, array $children): array
@@ -23,7 +25,7 @@ final class ContentBlockMapper
             default => $payload,
         };
 
-        $payload = self::normalizePublicBlockLabels($type, $payload);
+        $payload = PublicCopyNormalizer::normalizeArray(self::normalizePublicBlockLabels($type, $payload));
         $payload = self::withoutEmpty($payload);
 
         return empty($payload) ? $legacy : array_merge($legacy, $payload);

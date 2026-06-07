@@ -59,7 +59,7 @@ final class CalculatorRenderer
                 'QUICK_REPLIES' => [
                     'Platform для RAG и доступа к данным',
                     'Agents для HR или поддержки',
-                    'Dev workflow для инженерной команды',
+                    'Процесс Dev для инженерной команды',
                     'Forum для клиентских диалогов',
                 ],
             ],

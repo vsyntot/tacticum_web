@@ -70,7 +70,7 @@ npm run product:content:safety:check
 npm run seo:check
 ```
 
-Implementation note 07.06.2026: local fallback/source labels and mapper normalization are implemented; `content:public-hygiene:*` was added to guard recurrence. Current production baseline before deploy/cache refresh reports 26 rendered hygiene issues, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure.
+Implementation note 07.06.2026: local fallback/source labels, mapper normalization and exact-phrase runtime normalization for old Bitrix product/page-content rows are implemented; `content:public-hygiene:*` was added to guard recurrence. Current production baseline before deploy/cache refresh reports 26 rendered hygiene issues, so `content:public-hygiene:rendered:prod` remains the post-deploy/cache-refresh evidence gate for closure.
 
 ### CLS-WP-02 — Russian-First Glossary And Voice Rules
 

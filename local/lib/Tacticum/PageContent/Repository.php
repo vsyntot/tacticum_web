@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tacticum\PageContent;
 
 use Bitrix\Main\Loader;
+use Tacticum\Content\PublicCopyNormalizer;
 use Tacticum\Rest\Config;
 
 final class Repository
@@ -46,7 +47,7 @@ final class Repository
         $sectionId = (int)($element['ID'] ?? 0);
         $properties = self::elementProperties($sectionsIblockId, $sectionId);
 
-        return [
+        return PublicCopyNormalizer::normalizeArray([
             'id' => $sectionId,
             'code' => trim((string)($element['CODE'] ?? '')),
             'sort' => (int)($element['SORT'] ?? 500),
@@ -64,7 +65,7 @@ final class Repository
             'fallback_partial' => self::propertyScalar($properties, 'FALLBACK_PARTIAL'),
             'owner_scope' => self::propertyScalar($properties, 'OWNER_SCOPE'),
             'blocks' => self::fetchBlocks($blocksIblockId, $sectionId),
-        ];
+        ]);
     }
 
     private static function fetchBlocks(int $blocksIblockId, int $sectionId): array
