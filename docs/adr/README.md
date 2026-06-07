@@ -22,6 +22,7 @@
 | [ADR-009](ADR-009-bitrix-framework-hardening.md) | Bitrix framework hardening pattern | ✅ Принято | 2026 |
 | [ADR-010](ADR-010-product-content-bitrix-model.md) | Bitrix product content model | ✅ Принято | 2026 |
 | [ADR-011](ADR-011-price-team-presets-bitrix-model.md) | Bitrix team presets model for `/price/` | ✅ Принято | 2026 |
+| [ADR-012](ADR-012-offer-taxonomy-presets-bitrix-model.md) | Offer taxonomy and presets Bitrix model | ⏳ Предложено | 2026 |
 
 ## Статусы
 

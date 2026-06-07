@@ -1,8 +1,14 @@
 # Offer Page Taxonomy / Presets Decision — 2026-06-07
 
 Дата: 07.06.2026
-Статус: architecture/product decision proposal, not owner approval and not an ADR.
+Статус: architecture/product decision proposal, not owner approval and not an accepted ADR.
 Scope: `/offer/` public filters, quick entries/presets and future taxonomy governance.
+
+Follow-up artifacts:
+
+- proposed ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`;
+- safe owner approval draft: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json`;
+- checker: `npm run offer:taxonomy:approval:draft-check` and `npm run offer:taxonomy:approval:check -- <approved.json>`.
 
 ## Decision Question
 
@@ -115,6 +121,8 @@ ADR is required if implementation adds:
 
 ADR is not required for the limited Fast Fix path: budget formatting, temporary approved quick list, or a small label normalization shim without new schema/source switch.
 
+As of 07.06.2026, `ADR-012` is proposed, not accepted. The owner approval JSON may approve model semantics only; it must not approve iblock apply or runtime source switch. Those require a separate implementation issue with migration, cache and production evidence.
+
 ## Non-Goals
 
 - Do not rewrite offer detail sales copy here.
@@ -127,6 +135,8 @@ ADR is not required for the limited Fast Fix path: budget formatting, temporary 
 ## Acceptance Criteria For Future Implementation
 
 - Public filters use approved Russian-first labels and stable canonical codes.
+- Owner approval JSON passes `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft`.
+- `ADR-012` status is accepted before any Bitrix schema/source-switch implementation.
 - Counts are derived from active offer items.
 - Featured quick entries are owner-approved and ordered.
 - Unknown raw labels are caught before release.

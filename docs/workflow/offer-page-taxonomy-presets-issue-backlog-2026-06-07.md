@@ -1,11 +1,13 @@
 # Offer Page Taxonomy / Presets Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are implemented locally with source/architecture evidence; production evidence and owner-approved durable taxonomy/preset model remain pending.
+Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has owner-review artifacts and a proposed ADR, but owner-approved durable taxonomy/preset model remains pending.
 
 Source register: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/offer-page-taxonomy-presets-roadmap-2026-06-07.md`
 Decision support: `docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07.md`
+Owner approval draft: `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json`
+Proposed ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 
 ## Purpose
 
@@ -26,11 +28,11 @@ Decision support: `docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07
 
 | Issue | Status | Start policy | Priority | Owners | Gap IDs | Objective |
 |---|---|---|---:|---|---|---|
-| `OFFER-TAX-WP-01` | local-implemented-pending-production | `fast-fix-allowed` + `guard-scope-required` | P1 | Backend/Frontend + QA + Content | `OFFER-TAX-003`, `OFFER-TAX-004` | Fix visible catalog defects: budget formatting and most obvious mixed-language labels. |
-| `OFFER-TAX-WP-02` | local-fast-fix-implemented-owner-model-pending | `owner-review-required` or `fast-fix-allowed` depending on implementation | P1 | PM + UX + Content + SEO + Frontend/Backend | `OFFER-TAX-002` | Replace arbitrary first-8 quick entries with curated presets/featured terms. |
-| `OFFER-TAX-WP-03` | open | `owner-review-required` + `adr-gate-required` | P1 | Architect + Backend + PM + Content + SEO + Sales | `OFFER-TAX-001`, `OFFER-TAX-005`, `OFFER-TAX-006`, `OFFER-TAX-011` | Approve taxonomy source-of-truth, labels, aliases, budget bucket governance and Bitrix model. |
+| `OFFER-TAX-WP-01` | closed-fast-fix-production-evidence | `fast-fix-allowed` + `guard-scope-required` | P1 | Backend/Frontend + QA + Content | `OFFER-TAX-003`, `OFFER-TAX-004` | Fix visible catalog defects: budget formatting and most obvious mixed-language labels. |
+| `OFFER-TAX-WP-02` | interim-deployed-owner-model-pending | `owner-review-required` or `fast-fix-allowed` depending on implementation | P1 | PM + UX + Content + SEO + Frontend/Backend | `OFFER-TAX-002` | Replace arbitrary first-8 quick entries with curated presets/featured terms. |
+| `OFFER-TAX-WP-03` | owner-review-ready | `owner-review-required` + `adr-gate-required` | P1 | Architect + Backend + PM + Content + SEO + Sales | `OFFER-TAX-001`, `OFFER-TAX-005`, `OFFER-TAX-006`, `OFFER-TAX-011` | Approve taxonomy source-of-truth, labels, aliases, budget bucket governance and Bitrix model. |
 | `OFFER-TAX-WP-04` | blocked | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
-| `OFFER-TAX-WP-05` | local-guard-slice-implemented | `guard-scope-required` + `seo-gate-required` | P2 | QA + SEO + Backend + DevOps | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-012` | Add taxonomy/content/SEO/cache guards and production evidence path. |
+| `OFFER-TAX-WP-05` | production-guard-slice-passed | `guard-scope-required` + `seo-gate-required` | P2 | QA + SEO + Backend + DevOps | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-012` | Add taxonomy/content/SEO/cache guards and production evidence path. |
 | `OFFER-TAX-WP-06` | open | `owner-review-required` + `seo-gate-required` | P2 | PM + Product + SEO + Content + Backend | `OFFER-TAX-008`, `OFFER-TAX-010` | Decide product-family relation and future landing/performance strategy. |
 
 ## Issue Details
@@ -48,8 +50,18 @@ Decision support: `docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07
 | `npm run bitrix:check`, local 07.06.2026 | Passed after splitting taxonomy/preset presentation into `CatalogTaxonomy`; `CatalogMapper` and `CatalogFilters` remain under file-size budget. |
 | `git diff --check`, local 07.06.2026 | Passed. |
 | PHP smoke snippets, local 07.06.2026 | Passed: `50600000` formats as `50 600 000 руб.`, visible labels map to `бьюти и салоны`, `онлайн-торговля`, `Платформа данных и MLOps`, and curated options return only configured active keys. |
+| `npm run offer:taxonomy:approval:self-test`, local 07.06.2026 | Passed; checker rejects stored counts, duplicate aliases, unsafe labels and overlapping Bitrix budget ranges. |
+| `npm run offer:taxonomy:approval:draft-check`, local 07.06.2026 | Passed for the safe owner-review draft; draft does not approve iblock apply or runtime source switch. |
 
-Production rendered evidence is pending until deploy and public cache clear.
+## Production Evidence
+
+| Command / Evidence | Result |
+|---|---|
+| `npm run content:public-cache-clear`, production 07.06.2026 | Passed; cleared managed cache, component caches, composite HTML and template CSS/JS cache. |
+| `npm run content:public-hygiene:rendered:prod`, production 07.06.2026 | Passed for 13 pages; `/offer/ status=200 issues=0`. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T12:22:16Z`; `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`. |
+| `npm run page-content:source:http:prod`, production 07.06.2026 | Passed; `/offer/ source=bitrix sections=2/2 bytes=162309`. |
+| `npm run seo:check:prod`, production 07.06.2026 | Passed; SEO/canonical/sitemap checks stayed clean. |
 
 ### OFFER-TAX-WP-01 — Budget And Visible Label Fast Fixes
 
@@ -84,7 +96,7 @@ npm run seo:check
 
 After deploy/cache clear, run rendered `/offer/` or public hygiene smoke.
 
-Implementation note 07.06.2026: local fast-fix adds `CatalogTaxonomy`, `budget_display` and card rendering from normalized amount. The raw `budget` field remains in the item array for compatibility and search context, but catalog card output uses `budget_display`. The same service provides limited Russian-first label normalization for the most visible taxonomy labels without changing existing filter keys/URLs. Source and rendered hygiene self-tests cover regression; production rendered evidence remains pending.
+Implementation note 07.06.2026: fast-fix adds `CatalogTaxonomy`, `budget_display` and card rendering from normalized amount. The raw `budget` field remains in the item array for compatibility and search context, but catalog card output uses `budget_display`. The same service provides limited Russian-first label normalization for the most visible taxonomy labels without changing existing filter keys/URLs. Source and rendered hygiene self-tests cover regression. Production rendered hygiene passed at `2026-06-07T12:22:16Z` with `/offer/ ok=true`, so this work package is closed for fast-fix scope.
 
 ### OFFER-TAX-WP-02 — Quick Entries As Curated Presets
 
@@ -116,7 +128,7 @@ npm run seo:check
 
 Add rendered smoke for `/offer/` after cache clear.
 
-Implementation note 07.06.2026: local fast-fix removes `array_slice(first 8)` quick entries. `quick-filters.php` now renders `CatalogFilters::featuredOptions()`, delegated to `CatalogTaxonomy::featuredOptions()`, using curated stable keys and hiding missing/empty options. This is not the final owner-approved Bitrix preset model; it is a safe interim runtime fix that preserves current URLs and SEO posture.
+Implementation note 07.06.2026: fast-fix removes `array_slice(first 8)` quick entries. `quick-filters.php` now renders `CatalogFilters::featuredOptions()`, delegated to `CatalogTaxonomy::featuredOptions()`, using curated stable keys and hiding missing/empty options. Production rendered hygiene passed at `2026-06-07T12:22:16Z`. This is not the final owner-approved Bitrix preset model; it is a safe interim runtime fix that preserves current URLs and SEO posture.
 
 ### OFFER-TAX-WP-03 — Taxonomy Source-Of-Truth Decision
 
@@ -139,18 +151,25 @@ Acceptance criteria:
 - Budget buckets have explicit decision: PHP/config remains acceptable or Bitrix min/max rows are approved.
 - Synthetic examples are explicitly classified as examples/orientation, not real proof.
 - ADR is created if new iblocks/source switch/cache pattern is introduced.
+- Approval artifact explicitly does not approve iblock apply or runtime source switch.
+- Approved artifact rejects stored counts, item membership, raw offer copy, admin links and PII.
 
 Verification:
 
-- Docs review by PM/Content/SEO/Architect/Backend/QA.
-- ADR review if schema/runtime source changes.
+- `npm run offer:taxonomy:approval:self-test`
+- `npm run offer:taxonomy:approval:draft-check` while the file remains draft.
+- `npm run offer:taxonomy:approval:check -- <approved.json>` without `--allow-draft` before runtime implementation.
+- Docs review by PM/Content/SEO/Architect/Backend/QA/Sales.
+- ADR review and status change from `Предложено` to `Принято` if schema/runtime source changes.
 - No production code change should be merged under this issue unless explicitly scoped.
+
+Implementation note 07.06.2026: proposed `ADR-012` and `offer-taxonomy-presets-owner-approval-2026-06-07.draft.json` make `OFFER-TAX-WP-03` owner-review-ready. `tools/offer-taxonomy-approval-check.mjs` validates owner rows, gates, decisions, Russian-first labels, aliases, featured terms, budget policy, no stored counts, no unsafe raw content, and explicitly forbids runtime source switch or iblock apply approval in this file. This does not close `OFFER-TAX-WP-03`; owner approvals and ADR acceptance are still required.
 
 ### OFFER-TAX-WP-04 — Bitrix Taxonomy Runtime Implementation
 
 Workflow lane: Full Feature.
 Priority: P1.
-Start policy: blocked until `OFFER-TAX-WP-03` approval exists.
+Start policy: blocked until `OFFER-TAX-WP-03` approval exists, `npm run offer:taxonomy:approval:check -- <approved.json>` passes without `--allow-draft`, and `ADR-012` is accepted.
 
 Affected areas:
 
@@ -213,7 +232,7 @@ npm run seo:check
 
 Add taxonomy-specific self-test/check commands when implemented.
 
-Implementation note 07.06.2026: local guard slice extends existing source/rendered public hygiene checks. Source guard rejects raw budget card rendering and arbitrary first-8 quick filters; rendered self-test rejects visible machine budget on `/offer/`. Full duplicate-code/unknown-alias/Bitrix taxonomy checker remains pending until `OFFER-TAX-WP-03/04` define the target taxonomy model.
+Implementation note 07.06.2026: guard slice extends existing source/rendered public hygiene checks. Source guard rejects raw budget card rendering and arbitrary first-8 quick filters; rendered self-test rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; SEO check also passed. Full duplicate-code/unknown-alias/Bitrix taxonomy checker remains pending until `OFFER-TAX-WP-03/04` define the target taxonomy model.
 
 ### OFFER-TAX-WP-06 — Product Bridge And Future Landing Strategy
 
@@ -244,5 +263,7 @@ Verification:
 - `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`
 - `docs/workflow/offer-page-taxonomy-presets-roadmap-2026-06-07.md`
 - `docs/workflow/offer-page-taxonomy-presets-decision-2026-06-07.md`
+- `docs/workflow/offer-taxonomy-presets-owner-approval-2026-06-07.draft.json`
+- `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 - `docs/workflow/content-language-storyline-challenge-issue-backlog-2026-06-07.md`
 - `docs/workflow/content-storage-target-issue-backlog-2026-06-05.md`
