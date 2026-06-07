@@ -1,7 +1,7 @@
 # Offer Page Taxonomy / Presets Issue Backlog — 2026-06-07
 
 Дата: 07.06.2026
-Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has accepted ADR-012 and approved owner JSON; `OFFER-TAX-WP-04` local runtime/tooling slice is implemented with fallback source by default, while Bitrix apply and runtime source switch remain separate production gates.
+Статус: issue backlog draft; `OFFER-TAX-WP-01` and fast-fix scope of `OFFER-TAX-WP-02` are deployed with production rendered evidence; `OFFER-TAX-WP-03` has accepted ADR-012 and approved owner JSON; `OFFER-TAX-WP-04` is closed for runtime/source-switch scope after production strict Bitrix source evidence.
 
 Source register: `docs/workflow/offer-page-taxonomy-presets-challenge-gap-analysis-2026-06-07.md`
 Roadmap: `docs/workflow/offer-page-taxonomy-presets-roadmap-2026-06-07.md`
@@ -30,9 +30,9 @@ Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 | Issue | Status | Start policy | Priority | Owners | Gap IDs | Objective |
 |---|---|---|---:|---|---|---|
 | `OFFER-TAX-WP-01` | closed-fast-fix-production-evidence | `fast-fix-allowed` + `guard-scope-required` | P1 | Backend/Frontend + QA + Content | `OFFER-TAX-003`, `OFFER-TAX-004` | Fix visible catalog defects: budget formatting and most obvious mixed-language labels. |
-| `OFFER-TAX-WP-02` | interim-deployed-owner-model-pending | `owner-review-required` or `fast-fix-allowed` depending on implementation | P1 | PM + UX + Content + SEO + Frontend/Backend | `OFFER-TAX-002` | Replace arbitrary first-8 quick entries with curated presets/featured terms. |
+| `OFFER-TAX-WP-02` | closed-featured-terms-runtime | `owner-review-required` or `fast-fix-allowed` depending on implementation | P1 | PM + UX + Content + SEO + Frontend/Backend | `OFFER-TAX-002` | Replace arbitrary first-8 quick entries with curated presets/featured terms. |
 | `OFFER-TAX-WP-03` | closed-owner-approved | `owner-review-required` + `adr-gate-required` | P1 | Architect + Backend + PM + Content + SEO + Sales | `OFFER-TAX-001`, `OFFER-TAX-005`, `OFFER-TAX-006`, `OFFER-TAX-011` | Approve taxonomy source-of-truth, labels, aliases, budget bucket governance and Bitrix model. |
-| `OFFER-TAX-WP-04` | local-runtime-tooling-implemented-prod-gated | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
+| `OFFER-TAX-WP-04` | closed-production-strict-source | `adr-gate-required` + `content-storage-gate-required` | P1 | Backend + Architect + QA + DevOps + Content | `OFFER-TAX-001`, `OFFER-TAX-006`, `OFFER-TAX-009` | Implement governed taxonomy runtime with Bitrix source, fallback and derived counts. |
 | `OFFER-TAX-WP-05` | production-guard-slice-passed | `guard-scope-required` + `seo-gate-required` | P2 | QA + SEO + Backend + DevOps | `OFFER-TAX-007`, `OFFER-TAX-009`, `OFFER-TAX-012` | Add taxonomy/content/SEO/cache guards and production evidence path. |
 | `OFFER-TAX-WP-06` | open | `owner-review-required` + `seo-gate-required` | P2 | PM + Product + SEO + Content + Backend | `OFFER-TAX-008`, `OFFER-TAX-010` | Decide product-family relation and future landing/performance strategy. |
 
@@ -73,6 +73,13 @@ Accepted ADR: `docs/adr/ADR-012-offer-taxonomy-presets-bitrix-model.md`
 | `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T12:22:16Z`; `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`. |
 | `npm run page-content:source:http:prod`, production 07.06.2026 | Passed; `/offer/ source=bitrix sections=2/2 bytes=162309`. |
 | `npm run seo:check:prod`, production 07.06.2026 | Passed; SEO/canonical/sitemap checks stayed clean. |
+| `npm run offer:taxonomy:migrate`, production 07.06.2026 | Passed dry-run with `Approval source: embedded:tools/offer-taxonomy-approved-model.php`; planned creation of `tacticum_offer_taxonomy_terms`. |
+| `npm run offer:taxonomy:migrate:apply`, production 07.06.2026 | Passed; created `tacticum_offer_taxonomy_terms #28`, required properties and 22 approved active terms. |
+| `npm run offer:taxonomy:check`, production 07.06.2026 | Passed after config sync to `offer_taxonomy_terms #28`: `source=fallback`, `active=22`, `featured=16`, `seen=22`, `unknown_dimension=0`, runtime fallback terms `sector=9`, `scenario=10`, `phase=3`. |
+| `npm run offer:taxonomy:cache-clear` + `npm run offer:taxonomy:check`, production 07.06.2026 | Passed after soft switch to `offer.taxonomy_source=auto`, fallback still enabled: managed tags `iblock_id_5`, `iblock_id_28`; runtime `source=bitrix`, terms `sector=9`, `scenario=10`, `phase=3`, rows `active=22`, `featured=16`, `unknown_dimension=0`. |
+| `npm run content:public-hygiene:rendered:prod:json`, production 07.06.2026 | Passed at `2026-06-07T14:16:57Z` after `auto` runtime smoke; `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`. |
+| `npm run offer:taxonomy:cache-clear` + `npm run offer:taxonomy:check:strict`, production 07.06.2026 | Passed after strict switch to `offer.taxonomy_source=bitrix`, `allow_taxonomy_fallback=false`: runtime `source=bitrix`, rows `active=22`, `featured=16`, `seen=22`, `unknown_dimension=0`. |
+| `npm run content:public-hygiene:rendered:prod:json` + `npm run seo:check:prod`, production 07.06.2026 | Passed after strict source switch; rendered hygiene at `2026-06-07T14:19:19Z` reports `pages_checked=13`, `issues_found=0`, `/offer/ ok=true`; SEO check passed. |
 
 ### OFFER-TAX-WP-01 — Budget And Visible Label Fast Fixes
 
@@ -139,7 +146,7 @@ npm run seo:check
 
 Add rendered smoke for `/offer/` after cache clear.
 
-Implementation note 07.06.2026: fast-fix removes `array_slice(first 8)` quick entries. `quick-filters.php` now renders `CatalogFilters::featuredOptions()`, delegated to `CatalogTaxonomy::featuredOptions()`, using curated stable keys and hiding missing/empty options. Production rendered hygiene passed at `2026-06-07T12:22:16Z`. This is not the final Bitrix/runtime preset source; it is a safe interim runtime fix that preserves current URLs and SEO posture.
+Implementation note 07.06.2026: fast-fix removes `array_slice(first 8)` quick entries. `quick-filters.php` now renders `CatalogFilters::featuredOptions()`, delegated to `CatalogTaxonomy::featuredOptions()`, using curated stable keys and hiding missing/empty options. Production rendered hygiene passed at `2026-06-07T12:22:16Z`. WP-04 later moved featured term ownership into `offer_taxonomy_terms #28` and strict production runtime now reads Bitrix featured flags, so this work package is closed for the approved `featured_terms` model. A richer `offer_filter_presets` iblock remains out of scope unless a future owner decision changes the preset model.
 
 ### OFFER-TAX-WP-03 — Taxonomy Source-Of-Truth Decision
 
@@ -213,7 +220,7 @@ npm run seo:check
 
 Plus target-specific migration dry-run/apply/check/cache-clear commands once implemented.
 
-Implementation note 07.06.2026: local runtime/tooling slice is implemented, but production source remains fallback-gated. Added `offer_taxonomy_terms` config key with `0` default, `offer.taxonomy_source=fallback`, `offer.taxonomy_cache_ttl=300` and `offer.allow_taxonomy_fallback=true`; no new hardcoded iblock ID was introduced. `Tacticum\Offer\OfferTaxonomyService` now owns taxonomy source selection (`fallback`, `auto`, `bitrix`), alias normalization, approved public labels, featured options and cache; `CatalogTaxonomy`, `CatalogMapper`, `CatalogFilters` and `CatalogCache` delegate sector/scenario/phase presentation to that service while keeping budget buckets in PHP. Added dry-run/apply migration, runtime checker and cache-clear tooling through `offer:taxonomy:migrate`, `offer:taxonomy:check` and `offer:taxonomy:cache-clear`. The migration creates/seeds only `offer_taxonomy_terms` from the approved JSON, or from deployable embedded approved model `tools/offer-taxonomy-approved-model.php` when `/docs` is not present on production; `offer_filter_presets` is intentionally not created because ADR-012/owner JSON approved `preset_source=featured_terms`. Local `config:check` and `offer:taxonomy:implementation-gate` pass. Local Bitrix-dependent dry-run/check cannot run on this workstation because MySQL socket is unavailable; target/prod dry-run, apply, config sync, cache clear, public hygiene and strict check remain required before any `offer.taxonomy_source=bitrix` switch.
+Implementation note 07.06.2026: local runtime/tooling slice is implemented and production strict-source evidence is clean. Added `offer_taxonomy_terms` config key with fallback default, `offer.taxonomy_source=fallback|auto|bitrix`, `offer.taxonomy_cache_ttl=300` and `offer.allow_taxonomy_fallback`; no new hardcoded iblock ID was introduced. `Tacticum\Offer\OfferTaxonomyService` now owns taxonomy source selection, alias normalization, approved public labels, featured options and cache; `CatalogTaxonomy`, `CatalogMapper`, `CatalogFilters` and `CatalogCache` delegate sector/scenario/phase presentation to that service while keeping budget buckets in PHP. Added dry-run/apply migration, runtime checker and cache-clear tooling through `offer:taxonomy:migrate`, `offer:taxonomy:check` and `offer:taxonomy:cache-clear`. The migration creates/seeds only `offer_taxonomy_terms` from the approved JSON, or from deployable embedded approved model `tools/offer-taxonomy-approved-model.php` when `/docs` is not present on production; `offer_filter_presets` is intentionally not created because ADR-012/owner JSON approved `preset_source=featured_terms`. Production apply created `offer_taxonomy_terms #28`; production check after config sync passed with `active=22`, `featured=16`, `unknown_dimension=0`. Production `auto` smoke passed with runtime `source=bitrix` while fallback remained enabled, then strict source switch passed with `source=bitrix`, `fallback=false`, rendered public hygiene passed at `2026-06-07T14:19:19Z`, and `seo:check:prod` passed. `OFFER-TAX-WP-04` is closed for runtime/source-switch scope.
 
 ### OFFER-TAX-WP-05 — SEO / Cache / Guard Package
 
@@ -247,7 +254,7 @@ npm run seo:check
 
 Add taxonomy-specific self-test/check commands when implemented.
 
-Implementation note 07.06.2026: guard slice extends existing source/rendered public hygiene checks. Source guard rejects raw budget card rendering and arbitrary first-8 quick filters; rendered self-test rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; SEO check also passed. WP-04 now adds target runtime checker and cache-clear tooling; duplicate-code/unknown-alias/Bitrix taxonomy evidence still must be collected on target after the `offer_taxonomy_terms` iblock exists.
+Implementation note 07.06.2026: guard slice extends existing source/rendered public hygiene checks. Source guard rejects raw budget card rendering and arbitrary first-8 quick filters; rendered self-test rejects visible machine budget on `/offer/`. Production rendered hygiene passed at `2026-06-07T12:22:16Z`; SEO check also passed. WP-04 added target runtime checker and cache-clear tooling; strict production checker passed with `source=bitrix`, `fallback=false`, 22 active terms and no unreadable dimensions. Future taxonomy admin edits must still run cache clear, strict check and rendered hygiene.
 
 ### OFFER-TAX-WP-06 — Product Bridge And Future Landing Strategy
 
