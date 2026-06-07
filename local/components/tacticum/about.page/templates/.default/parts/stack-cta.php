@@ -5,73 +5,66 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 ?>
 
-<div id="stack">
-    <section class="py-16">
+<div id="technology" class="tacticum-anchor-target">
+    <span id="stack" class="tacticum-anchor-alias" aria-hidden="true"></span>
+    <section class="tacticum-readiness-section py-16">
         <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
+            <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4">Что проверяем перед запуском</h2>
                 <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    Для корпоративного AI важен не перечень библиотек, а готовность решения к данным, пользователям,
-                    интеграциям, рискам и сопровождению после пилота.
+                    Это не список библиотек. Перед пилотом мы собираем карту готовности: сценарий, данные,
+                    интеграции, риски, экономику и ответственность после первого запуска.
                 </p>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-compass-3-line text-3xl text-primary"></i>
+            <div class="tacticum-readiness-grid">
+                <article class="tacticum-readiness-card">
+                    <div class="tacticum-readiness-card__icon">
+                        <i class="ri-compass-3-line" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Сценарий</h3>
-                    <p class="text-gray-600 text-sm">Цель, пользователь, границы пилота и критерии результата</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-database-2-line text-3xl text-primary"></i>
+                    <h3 class="tacticum-readiness-card__title">Сценарий и эффект</h3>
+                    <p class="tacticum-readiness-card__text">
+                        Проверяем цель, пользователя, границы пилота, критерий результата и экономику первого шага.
+                    </p>
+                    <p class="tacticum-readiness-card__result">
+                        Итог: понятный сценарий и критерии, по которым можно принять решение о пилоте.
+                    </p>
+                </article>
+                <article class="tacticum-readiness-card">
+                    <div class="tacticum-readiness-card__icon">
+                        <i class="ri-database-2-line" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Данные</h3>
-                    <p class="text-gray-600 text-sm">Источники, качество, доступы и правила использования</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-chat-3-line text-3xl text-primary"></i>
+                    <h3 class="tacticum-readiness-card__title">Данные и знания</h3>
+                    <p class="tacticum-readiness-card__text">
+                        Смотрим источники, качество, доступы, правила использования, проверку источников и ограничения ответов AI.
+                    </p>
+                    <p class="tacticum-readiness-card__result">
+                        Итог: список источников, ограничений и вопросов, которые нельзя игнорировать на запуске.
+                    </p>
+                </article>
+                <article class="tacticum-readiness-card">
+                    <div class="tacticum-readiness-card__icon">
+                        <i class="ri-plug-line" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Ответы AI</h3>
-                    <p class="text-gray-600 text-sm">Модели, знания, память, ограничения и проверка источников</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-plug-line text-3xl text-primary"></i>
+                    <h3 class="tacticum-readiness-card__title">Интеграции и контур</h3>
+                    <p class="tacticum-readiness-card__text">
+                        Уточняем рабочие системы, документы, внутренние API, среду запуска и границы ответственности.
+                    </p>
+                    <p class="tacticum-readiness-card__result">
+                        Итог: предварительная схема контура и список интеграций для оценки работ.
+                    </p>
+                </article>
+                <article class="tacticum-readiness-card">
+                    <div class="tacticum-readiness-card__icon">
+                        <i class="ri-shield-check-line" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Интеграции</h3>
-                    <p class="text-gray-600 text-sm">CRM, ERP, базы знаний, документы и рабочие системы</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-shield-check-line text-3xl text-primary"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Контроль</h3>
-                    <p class="text-gray-600 text-sm">Роли, аудит, журналирование и управляемые проверки качества</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-dashboard-line text-3xl text-primary"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Наблюдаемость</h3>
-                    <p class="text-gray-600 text-sm">События, ошибки, стоимость запросов и поведение пользователей</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-cloud-line text-3xl text-primary"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Эксплуатация</h3>
-                    <p class="text-gray-600 text-sm">Среда запуска, обновления, поддержка и зона ответственности</p>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="ri-calculator-line text-3xl text-primary"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-secondary mb-2">Экономика</h3>
-                    <p class="text-gray-600 text-sm">Состав работ, команда, бюджетный диапазон и следующий шаг</p>
-                </div>
+                    <h3 class="tacticum-readiness-card__title">Риски и эксплуатация</h3>
+                    <p class="tacticum-readiness-card__text">
+                        Фиксируем роли, аудит, журналирование, контроль качества, поддержку, обновления и стоимость запросов.
+                    </p>
+                    <p class="tacticum-readiness-card__result">
+                        Итог: карта рисков, состав команды и безопасный следующий шаг.
+                    </p>
+                </article>
             </div>
         </div>
     </section>
