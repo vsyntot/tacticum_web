@@ -17,6 +17,33 @@ import './css/style.css';
  */
 export class Menu extends Event.EventEmitter
 {
+	static prefetchLandingsPromise = null;
+
+	/**
+	 * Prefetches all site landings into Backend cache before menu forms are built.
+	 * Deduplicates concurrent calls within the same editor session.
+	 * block.js calls this statically before getEditForms() for blocks with menu nodes,
+	 * so this method must ship together with block.js (see ticket 247221/250505).
+	 */
+	static prefetchLandings(): Promise<void>
+	{
+		if (Menu.prefetchLandingsPromise !== null)
+		{
+			return Menu.prefetchLandingsPromise;
+		}
+
+		Menu.prefetchLandingsPromise = Backend
+			.getInstance()
+			.getLandings({siteId: Env.getInstance().getSiteId()})
+			.then(() => {})
+			.catch((error) => {
+				Menu.prefetchLandingsPromise = null;
+				throw error;
+			});
+
+		return Menu.prefetchLandingsPromise;
+	}
+
 	constructor(options = {})
 	{
 		super(options);

@@ -1,6 +1,9 @@
 <?php
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "1С-да Қойма есебі жұмыс режимі қосылған, сондықтан Дүкен құру мүмкін емес";
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT"] = "Толығырақ";
+$MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_AI_SITE"] = "AI сайты";
+$MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_IN_BUILDER"] = "Құрастырушыда";
+$MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_WITH_TEMPLATE"] = "Үлгіні қолдану";
 $MESS["LANDING_TPL_CREATE_FOLDER"] = "Бума құру";
 $MESS["LANDING_TPL_CREATE_FOLDER_ACTION"] = "Құру";
 $MESS["LANDING_TPL_FLT_CREATED_BY_ID"] = "Кім жасады";

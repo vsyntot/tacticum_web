@@ -1,5 +1,5 @@
 <?php
-$MESS["SEC_STATACT_503_TEMPLATE"] = "Бұғатталған пайдаланушыға көрсетілетін парақша қалпы";
+$MESS["SEC_STATACT_503_TEMPLATE"] = "Бұғатталған пайдаланушыға көрсетілетін парақша үлгісі";
 $MESS["SEC_STATACT_BUTTON_OFF"] = "Белсенділікті бақылауды қосу";
 $MESS["SEC_STATACT_BUTTON_ON"] = "Белсенділікті бақылауды өшіру";
 $MESS["SEC_STATACT_DEFENCE_DELAY"] = "Уақытқа бұғаттау";
@@ -9,7 +9,7 @@ $MESS["SEC_STATACT_DEFENCE_MAX_HITS"] = "ішінде мынадан артық 
 $MESS["SEC_STATACT_DEFENCE_MAX_HITS_MEAS"] = "хит";
 $MESS["SEC_STATACT_DEFENCE_STACK_TIME"] = "егер";
 $MESS["SEC_STATACT_DEFENCE_STACK_TIME_MEAS"] = "(сек.)";
-$MESS["SEC_STATACT_GRABBER_EDIT_503_TEMPLATE_LINK"] = "қалыпты редакциялау";
+$MESS["SEC_STATACT_GRABBER_EDIT_503_TEMPLATE_LINK"] = "Үлгіні редакциялау";
 $MESS["SEC_STATACT_MAIN_TAB"] = "Белсенділікті бақылау";
 $MESS["SEC_STATACT_MAIN_TAB_TITLE"] = "Белсенділікті бақылауды қосу.";
 $MESS["SEC_STATACT_NOTE"] = "<p>Белсенділікті басқару шамадан тыс белсенді пайдаланушылардан, бағдарламалық роботтардан, DDoS шабуылдарының кейбір санаттарынан қорғауды орнатуға, сондай-ақ құпиясөздерді таңдау әрекеттерінің шектен тыс санын қысқартуға мүмкіндік береді.</p>

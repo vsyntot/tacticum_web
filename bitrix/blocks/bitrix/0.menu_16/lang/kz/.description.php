@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_BLOCK_0.MENU_1_NAME_NEW"] = " Логотип пен байланыстар жоғарғы жағында, төменгі жағында түрлі-түсті фондағы мәзір тармақтары бар «Жылжымайтын мүлік» қалыбындағы мәзір.";
+$MESS["LANDING_BLOCK_0.MENU_1_NAME_NEW"] = "Логотип пен байланыстар жоғарғы жағында, төменгі жағында түрлі-түсті фондағы мәзір тармақтары бар «Жылжымайтын мүлік» үлгісіндеғы мәзір.";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENUCONTACT"] = "Байланыс";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULIST"] = "Мәзір";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULISTITEMLINK"] = "Мәзір тармағы";

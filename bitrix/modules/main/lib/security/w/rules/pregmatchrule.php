@@ -1,1 +1,41 @@
-<? namespace Bitrix\Main\Security\W\Rules;$GLOBALS['____1077339057']= array(base64_decode('cHJlZ19tYXRjaA='.'=')); use Bitrix\Main\Text\StringHelper; use Bitrix\Main\Security\W\Rules\Results\CheckResult; class PregMatchRule extends PregRule{ protected $_451357410; public function __construct($_544989235, $_876102598, $_2027803754, $_1626400265, $_1273605130, $_1759149509, $_451357410){ parent::__construct($_544989235, $_876102598, $_2027803754, $_1626400265, $_1273605130, $_1759149509); $this->_451357410= $_451357410;} public function evaluate($_746727642){ $_1800291219=!StringHelper::isStringable($_746727642) || $GLOBALS['____1077339057'][0]($this->_1759149509, $_746727642); if($_1800291219){ return new CheckResult( false, $this->_451357410);} return true;}  public function getAction(){ return $this->_451357410;}}?>
+<?php
+
+namespace Bitrix\Main\Security\W\Rules;
+
+use Bitrix\Main\Text\StringHelper;
+use Bitrix\Main\Security\W\Rules\Results\CheckResult;
+
+class PregMatchRule extends PregRule
+{
+	protected $action;
+
+	public function __construct($path, $context, $keys, $process, $encoding, $pattern, $action)
+	{
+		parent::__construct($path, $context, $keys, $process, $encoding, $pattern);
+
+		$this->action = $action;
+	}
+
+	public function evaluate($value)
+	{
+		$failure = !StringHelper::isStringable($value) || preg_match($this->pattern, $value);
+
+		if ($failure)
+		{
+			return new CheckResult(
+				false,
+				$this->action
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getAction()
+	{
+		return $this->action;
+	}
+}

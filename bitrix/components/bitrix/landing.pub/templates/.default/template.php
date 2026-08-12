@@ -266,6 +266,44 @@ $publicModeInit = '
 $assets->addString(
 	"<script>{$publicModeInit}</script>",
 );
+
+// Device-preview postMessage responder (MARKER-01 present): connected ONLY for the editor
+// device preview, never for a normal public render. Implements the preview (consumer) side
+// of PROTO-01. The responder is a framework-independent vanilla asset (registered in
+// landing/include.php as landing_device_preview_responder, no main.core dependency) because
+// it runs inside the sandboxed opaque-origin preview frame. The per-request parent origin it
+// validates commands against cannot be embedded in that cacheable asset, so it is handed over
+// here via a global.
+$devicePreviewParentOrigin = $arResult['DEVICE_PREVIEW_PARENT_ORIGIN'] ?? '';
+if ($devicePreviewParentOrigin !== '')
+{
+	// The sandboxed frame has an opaque origin, where document.cookie and Window.localStorage
+	// throw on every access, and an uncaught DOMException aborts the whole surrounding script
+	// block. Neutralise them with in-memory stand-ins before anything else runs: BEFORE_CSS is
+	// the earliest head location, ahead of the kernel and of main's own timezone-cookie script
+	// (which sits at the default AFTER_JS_KERNEL). Assets\Manager is unusable here: it flushes
+	// the whole landing bundle into main's pipeline at AssetLocation::AFTER_JS (see
+	// Assets\Builder::setStrings), so even LOCATION_BEFORE_ALL would land after that script —
+	// its own LOCATION_* values only order assets inside the bundle.
+	$APPLICATION->AddHeadString(
+		'<script src="/bitrix/js/landing/device_preview/sandbox_shim.js"></script>',
+		true,
+		\Bitrix\Main\Page\AssetLocation::BEFORE_CSS
+	);
+	$expectedOriginJs = json_encode(
+		$devicePreviewParentOrigin,
+		JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+	);
+	$assets->addString(
+		'<script data-role="landing-device-preview-responder-origin">'
+		. 'window.landingDevicePreviewExpectedOrigin=' . $expectedOriginJs . ';'
+		. '</script>'
+	);
+	$assets->addAsset(
+		'landing_device_preview_responder',
+		Assets\Location::LOCATION_AFTER_TEMPLATE
+	);
+}
 $assets->addAsset(
 	Config::get('js_core_public'),
 	Assets\Location::LOCATION_KERNEL
@@ -312,6 +350,14 @@ if (!$masterFrame && !$formEditor && isset($hooksSite['COPYRIGHT']))
 	$lang = $landing->getMeta()['SITE_LANG'];
 	$hooksSite['COPYRIGHT']->setLang($lang);
 	$hooksSite['COPYRIGHT']->setSiteId($landing->getSiteId());
-	Manager::setPageView('BeforeBodyClose', $hooksSite['COPYRIGHT']->view());
+	$copyrightFooter = $hooksSite['COPYRIGHT']->view();
+	if ($copyrightFooter !== '')
+	{
+		$assets->addAsset(
+			$templateFolder . '/copyright.css',
+			Assets\Location::LOCATION_AFTER_TEMPLATE
+		);
+		Manager::setPageView('BeforeBodyClose', $copyrightFooter);
+	}
 }
 ?>

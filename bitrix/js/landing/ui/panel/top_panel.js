@@ -206,13 +206,23 @@
 		{
 			if (this.loader === null)
 			{
-				this.loader = new BX.Loader({size: 23, offset: {top: "3px", left: "1px"}});
-				void style(this.loader.layout.querySelector(".main-ui-loader-svg-circle"), {
-					"stroke-width": "4px"
-				});
-				void style(this.loader.layout.querySelector(".main-ui-loader-svg"), {
-					"margin-top": "-3px"
-				});
+				if (this.layout && this.layout.classList.contains("landing-ui-panel-top-ai"))
+				{
+					this.loader = new BX.Loader({size: 20});
+					void style(this.loader.layout.querySelector(".main-ui-loader-svg-circle"), {
+						"stroke-width": "4px"
+					});
+				}
+				else
+				{
+					this.loader = new BX.Loader({size: 23, offset: {top: "3px", left: "1px"}});
+					void style(this.loader.layout.querySelector(".main-ui-loader-svg-circle"), {
+						"stroke-width": "4px"
+					});
+					void style(this.loader.layout.querySelector(".main-ui-loader-svg"), {
+						"margin-top": "-3px"
+					});
+				}
 			}
 
 			return this.loader;
@@ -229,20 +239,40 @@
 			{
 				this.undoButton.classList.remove("landing-ui-disabled");
 				this.undoButton.removeAttribute('data-disabled');
+				if (this.undoButton.tagName === 'BUTTON')
+				{
+					this.undoButton.disabled = false;
+					this.undoButton.setAttribute('tabindex', '0');
+				}
 			}
 			else
 			{
 				this.undoButton.classList.add("landing-ui-disabled");
+				if (this.undoButton.tagName === 'BUTTON')
+				{
+					this.undoButton.disabled = true;
+					this.undoButton.setAttribute('tabindex', '-1');
+				}
 			}
 
 			if (history.canRedo())
 			{
 				this.redoButton.classList.remove("landing-ui-disabled");
 				this.redoButton.removeAttribute('data-disabled');
+				if (this.redoButton.tagName === 'BUTTON')
+				{
+					this.redoButton.disabled = false;
+					this.redoButton.setAttribute('tabindex', '0');
+				}
 			}
 			else
 			{
 				this.redoButton.classList.add("landing-ui-disabled");
+				if (this.redoButton.tagName === 'BUTTON')
+				{
+					this.redoButton.disabled = true;
+					this.redoButton.setAttribute('tabindex', '-1');
+				}
 			}
 		},
 
@@ -250,8 +280,18 @@
 		{
 			this.undoButton.classList.add("landing-ui-disabled");
 			this.undoButton.setAttribute('data-disabled', '');
+			if (this.undoButton.tagName === 'BUTTON')
+			{
+				this.undoButton.disabled = true;
+				this.undoButton.setAttribute('tabindex', '-1');
+			}
 			this.redoButton.classList.add("landing-ui-disabled");
 			this.redoButton.setAttribute('data-disabled', '');
+			if (this.redoButton.tagName === 'BUTTON')
+			{
+				this.redoButton.disabled = true;
+				this.redoButton.setAttribute('tabindex', '-1');
+			}
 		},
 
 		enableHistory: function()

@@ -578,23 +578,36 @@
 																	},
 																	dataType: 'json',
 																	onsuccess: data => {
-																		BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-error");
+																		const publicationButton = BX('landing-popup-publication-btn');
+																		const publicationIcon = publicationButton ? publicationButton.querySelector('.ui-icon-set') : null;
+
+																		BX.removeClass(publicationButton, "landing-ui-panel-top-pub-btn-error");
 																		if (this.checked)
 																		{
-																			BX.addClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-auto");
-																			BX.addClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-loader");
+																			BX.addClass(publicationButton, "landing-ui-panel-top-pub-btn-auto");
+																			BX.addClass(publicationButton, "landing-ui-panel-top-pub-btn-loader");
+																			if (publicationIcon)
+																			{
+																				BX.removeClass(publicationIcon, "--o-cloud");
+																				BX.addClass(publicationIcon, "--s-cloud");
+																			}
 																			BX.addClass(document.body.querySelector(".landing-popup-publication-content-autopub-icon"), "landing-ui-panel-top-pub-btn-auto");
 																			BX.Landing.Backend.getInstance()
 																				.action('Landing::publication', {
 																					lid: landingId
 																				})
 																				.then(() => {
-																					BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-loader");
+																					BX.removeClass(publicationButton, "landing-ui-panel-top-pub-btn-loader");
 																				})
 																		}
 																		else
 																		{
-																			BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-auto");
+																			BX.removeClass(publicationButton, "landing-ui-panel-top-pub-btn-auto");
+																			if (publicationIcon)
+																			{
+																				BX.removeClass(publicationIcon, "--s-cloud");
+																				BX.addClass(publicationIcon, "--o-cloud");
+																			}
 																			BX.removeClass(document.body.querySelector(".landing-popup-publication-content-autopub-icon"), "landing-ui-panel-top-pub-btn-auto");
 																		}
 																	}
@@ -607,11 +620,9 @@
 														children: [
 															BX.create('span', {
 																props: { className: 'landing-popup-publication-content-autopub-switcher-on' },
-																text: BX.message('LANDING_PUBLICATION_AUTO_TOGGLE_ON')
 															}),
 															BX.create('span', {
 																props: { className: 'landing-popup-publication-content-autopub-switcher-off' },
-																text: BX.message('LANDING_PUBLICATION_AUTO_TOGGLE_OFF')
 															}),
 														]
 													}),

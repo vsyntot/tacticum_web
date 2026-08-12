@@ -1,7 +1,7 @@
 <?php
 $MESS["LANDING_BLOCK_ACCESS_DENIED"] = "Операцияны орындауға тыйым салынады";
 $MESS["LANDING_BLOCK_NOT_FOUND"] = "Лендингте блок табылмады";
-$MESS["LANDING_BLOCK_UNABLE_DEL_INC"] = "Сайт қалыбының аймағын жою мүмкін емес";
+$MESS["LANDING_BLOCK_UNABLE_DEL_INC"] = "Сайт үлгісінің аймағын жою мүмкін емес";
 $MESS["LANDING_BLOCK_WRONG_SORT"] = "Сұрыптау шегінен шығу немесе блок табылмады";
 $MESS["LANDING_COPY_SUFFIX"] = "көшірме";
 $MESS["LANDING_DELETE_ACCESS_DENIED"] = "Ағымдағы парақшаны жою құқығы жоқ";

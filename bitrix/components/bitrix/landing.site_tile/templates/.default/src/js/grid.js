@@ -4,8 +4,13 @@ import Item from './item';
 import ItemMarketing from './itemMarketing';
 import Scroller from './scroller';
 import PopupCopilot from './popupCopilot';
+import { LandingSitesAiInput } from './input';
+import { LandingSitesAiSlider } from './slider';
+import { LandingSitesAiFirstVisitTooltip } from './ai-first-visit-tooltip';
 import '../css/landing.site.tile.css';
 import { Metrika } from 'landing.metrika';
+
+export { LandingSitesAiInput, LandingSitesAiSlider, LandingSitesAiFirstVisitTooltip };
 
 export class SiteTile
 {
@@ -102,6 +107,7 @@ export class SiteTile
 				articles: item.articles || null,
 				grid: this,
 				copilotProcess: item.copilotProcess,
+				isCreatedByAiScenario: item.isCreatedByAiScenario === true,
 				createByCopilotText: this.createByCopilotText,
 				copilotGeneratedText: this.copilotGeneratedText,
 			});
@@ -114,7 +120,9 @@ export class SiteTile
 	{
 		if (!this.$container)
 		{
-			this.$container = Tag.render`<div class="landing-sites__grid landing-sites__scope"></div>`;
+			this.$container = Tag.render`
+				<div class="landing-sites__grid landing-sites__scope" role="list"></div>
+			`;
 
 			for (let i = 0; i < this.siteTileItems.length; i++)
 			{

@@ -1,6 +1,11 @@
 import { Base } from 'landing.node.base';
 import { Env } from 'landing.env';
 import { Image as ImageField } from 'landing.ui.field.image';
+import 'landing.utils';
+import { buildAcceptValue } from './accept';
+// inlined single icon for the AI-mode floating panel upload button
+// (instead of pulling the whole ui.icon-set.outline into every editor session)
+import './css/style.css';
 
 const attr = BX.Landing.Utils.attr;
 const data = BX.Landing.Utils.data;
@@ -14,6 +19,7 @@ export class Img extends Base
 		super(options);
 		this.type = 'img';
 		this.editPanel = null;
+		this.floatingPanel = null;
 		this.lastValue = null;
 		this.field = null;
 		this.uploadParams = options.uploadParams;
@@ -21,6 +27,11 @@ export class Img extends Base
 		if (!this.isGrouped())
 		{
 			this.node.addEventListener('click', this.onClick.bind(this));
+
+			if (!Env.getInstance().isBlockControlsEnabled())
+			{
+				this.initFloatingPanel();
+			}
 		}
 
 		if (this.isAllowInlineEdit())
@@ -30,19 +41,148 @@ export class Img extends Base
 	}
 
 	/**
+	 * Creates floating panel with upload button for AI mode
+	 * (compact replacement of the Content panel).
+	 * The panel is destroyed when its block is removed or reloaded
+	 * (undo/redo), otherwise detached panels would accumulate in body
+	 * and retain removed block subtrees.
+	 */
+	initFloatingPanel()
+	{
+		this.floatingPanel = new BX.Landing.UI.Panel.FloatingNodePanel({
+			buttons: [
+				{
+					id: 'upload',
+					iconClass: 'landing-ui-node-img-upload-icon',
+					title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_IMAGE_NODE_UPLOAD'),
+					onClick: this.onUploadButtonClick.bind(this),
+				},
+			],
+		});
+		this.floatingPanel.attach(this.node);
+
+		this.onBlockRemove = (event) => {
+			if (event && event.block && event.block.contains(this.node))
+			{
+				this.destroyFloatingPanel();
+			}
+		};
+		BX.addCustomEvent('BX.Landing.Block:remove', this.onBlockRemove);
+	}
+
+	/**
+	 * Detaches floating panel and releases the block remove subscription.
+	 */
+	destroyFloatingPanel()
+	{
+		if (this.floatingPanel)
+		{
+			this.floatingPanel.detach();
+			this.floatingPanel = null;
+		}
+
+		if (this.onBlockRemove)
+		{
+			BX.removeCustomEvent('BX.Landing.Block:remove', this.onBlockRemove);
+			this.onBlockRemove = null;
+		}
+	}
+
+	/**
+	 * Handles click on the floating panel upload button:
+	 * opens system file picker and uploads the chosen image.
+	 */
+	onUploadButtonClick()
+	{
+		const allowSvg = Boolean(Env.getInstance().getOptions()['allow_svg']);
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = buildAcceptValue(allowSvg);
+		input.style.display = 'none';
+		input.dataset.testid = 'landing-node-img-upload-input';
+		input.addEventListener('change', (event) => {
+			const [file] = event.target.files;
+			input.remove();
+			if (file)
+			{
+				this.uploadAndSave(file).catch((error) => {
+					// The user-facing message is shown centrally by Backend.upload()
+					// via ErrorManager (single Alert panel, no duplicate toast).
+					console.error('BX.Landing.Node.Img: image upload failed', error);
+				});
+			}
+		});
+		// system dialog dismissed without a file: do not leave the input in body
+		input.addEventListener('cancel', () => input.remove());
+		document.body.appendChild(input);
+		input.click();
+	}
+
+	/**
+	 * Uploads file via Block::uploadFile and immediately saves it into the node.
+	 * @param {File} file
+	 * @return {Promise} resolves when the new file is saved into the node,
+	 * rejects with the upload error
+	 */
+	uploadAndSave(file)
+	{
+		return BX.Landing.Backend.getInstance()
+			.upload(file, this.uploadParams)
+			.then((result) => {
+				// url/src2x/id2x are intentionally omitted: setValue() touches
+				// data-pseudo-url only when value.url is set, so the existing
+				// link stays on the node as is; the freshly uploaded image has
+				// no retina version, and setImageValue/setBackgroundValue reset
+				// the old 2x when src2x/id2x are absent (no stale retina leak).
+				// alt is explicitly reset: the previous alt described the previous
+				// file and must not carry over to the freshly uploaded one.
+				this.setValue({
+					src: result.src,
+					id: result.id,
+					alt: '',
+				});
+			});
+	}
+
+	/**
+	 * Checks that click on the node can activate the edit flow
+	 * (shared guard for the AI and the classic branches of onClick).
+	 * @return {boolean}
+	 */
+	canActivateOnClick(): boolean
+	{
+		return (
+			this.manifest.allowInlineEdit !== false
+			&& BX.Landing.Main.getInstance().isControlsEnabled()
+			&& (!BX.Landing.Node.Text.currentNode
+			|| !BX.Landing.Node.Text.currentNode.isEditable())
+			&& !BX.Landing.UI.Panel.StylePanel.getInstance().isShown()
+		);
+	}
+
+	/**
 	 * Click on field - edit mode.
 	 * @param {MouseEvent} event
 	 */
 	onClick(event)
 	{
 		BX.Event.EventEmitter.emit('BX.Landing.Node.Img:onClick');
-		if (
-			this.manifest.allowInlineEdit !== false
-			&& BX.Landing.Main.getInstance().isControlsEnabled()
-			&& (!BX.Landing.Node.Text.currentNode
-			|| !BX.Landing.Node.Text.currentNode.isEditable())
-			&& !BX.Landing.UI.Panel.StylePanel.getInstance().isShown()
-		)
+		if (!Env.getInstance().isBlockControlsEnabled())
+		{
+			// AI mode: Content panel is disabled, click opens the same file
+			// picker as the FloatingNodePanel upload button (activation parity
+			// with the legacy click-to-edit flow, the panel itself is hover-only)
+			if (this.floatingPanel && this.canActivateOnClick())
+			{
+				event.preventDefault();
+				event.stopPropagation();
+				this.onUploadButtonClick();
+			}
+
+			return;
+		}
+
+		if (this.canActivateOnClick())
 		{
 			event.preventDefault();
 			event.stopPropagation();
@@ -59,6 +199,7 @@ export class Img extends Base
 						text: BX.Landing.Loc.getMessage('BLOCK_SAVE'),
 						onClick: this.save.bind(this),
 						className: 'landing-ui-button-content-save',
+						attrs: { 'data-testid': 'landing-node-img-save-btn' },
 					}),
 				);
 				this.editPanel.appendFooterButton(
@@ -66,6 +207,7 @@ export class Img extends Base
 						text: BX.Landing.Loc.getMessage('BLOCK_CANCEL'),
 						onClick: this.editPanel.hide.bind(this.editPanel),
 						className: 'landing-ui-button-content-cancel',
+						attrs: { 'data-testid': 'landing-node-img-cancel-btn' },
 					}),
 				);
 

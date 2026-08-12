@@ -2,6 +2,7 @@
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_ACTION"] = "Exportieren";
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_DESCRIPTION_MSGVER_1"] = "Exportieren Sie Ihr CRM und die Einstellungen<br/>in ein anderes Bitrix24.";
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_SMART_ROBOTS_DESCRIPTION"] = "In ein anderes Bitrix24 exportieren";
+$MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_SMART_ROBOTS_TITLE"] = "Geben Sie Ihre smarten Skripts frei";
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_TITLE_MSGVER_1"] = "Geben Sie Ihre smarten Skripts frei";
 $MESS["REST_CONFIGURATION_ACTION_IMPORT_CRM_ACTION"] = "Import";
 $MESS["REST_CONFIGURATION_ACTION_IMPORT_CRM_DESCRIPTION_MSGVER_1"] = "Importieren Sie Ihre Daten und Einstellungen </br>aus einem anderen Bitrix24.";

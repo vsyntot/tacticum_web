@@ -1,0 +1,91 @@
+.landing-ui-panel-simple-link {
+	position: absolute;
+	z-index: 320;
+	box-sizing: border-box;
+	width: 340px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+	background: var(--ui-color-bg-content-primary);
+	border-radius: var(--ui-border-radius-sm);
+	box-shadow: 0 8px 17px 0 #00000036;
+}
+
+/* Save button keeps its natural width and neither shrinks nor grows,
+   so it always stays inside the panel background. */
+.landing-ui-panel-simple-link > .ui-btn {
+	flex: 0 0 auto;
+}
+
+.landing-ui-panel-simple-link.landing-ui-hide {
+	display: none;
+}
+
+/* Elastic slot: fills the space between the panel edge and the Save button,
+   identical in text and chip modes, so removing the chip does not resize the
+   panel. min-width:0 lets it shrink and enables ellipsis inside. */
+.landing-ui-panel-simple-link__field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.landing-ui-panel-simple-link__input {
+	width: 100%;
+}
+
+.landing-ui-panel-simple-link__input.landing-ui-hide {
+	display: none;
+}
+
+.landing-ui-panel-simple-link__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	max-width: 66%;
+	min-width: 0;
+	box-sizing: border-box;
+	height: 28px;
+	padding: 0 8px;
+	background: var(--ui-color-accent-soft-blue-2, #E6F4FF);
+	color: var(--ui-color-accent-main-primary, #0075FF);
+	border-radius: var(--ui-border-radius-sm, 6px);
+	font-size: 13px;
+	line-height: 1;
+	cursor: default;
+	outline: none;
+}
+
+.landing-ui-panel-simple-link__chip.landing-ui-hide {
+	display: none;
+}
+
+.landing-ui-panel-simple-link__chip:focus-visible {
+	box-shadow: 0 0 0 2px var(--ui-color-accent-main-primary, #0075FF);
+}
+
+.landing-ui-panel-simple-link__chip-text {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.landing-ui-panel-simple-link__chip-remove {
+	flex: 0 0 auto;
+	flex-shrink: 0;
+	width: 14px;
+	height: 14px;
+	cursor: pointer;
+	background-color: currentColor;
+	-webkit-mask: center / 14px 14px no-repeat
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 5.94 10.47 2.47a.75.75 0 0 1 1.06 1.06L8.06 7l3.47 3.47a.75.75 0 1 1-1.06 1.06L7 8.06l-3.47 3.47a.75.75 0 0 1-1.06-1.06L5.94 7 2.47 3.53a.75.75 0 0 1 1.06-1.06L7 5.94Z'/%3E%3C/svg%3E");
+	mask: center / 14px 14px no-repeat
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 5.94 10.47 2.47a.75.75 0 0 1 1.06 1.06L8.06 7l3.47 3.47a.75.75 0 1 1-1.06 1.06L7 8.06l-3.47 3.47a.75.75 0 0 1-1.06-1.06L5.94 7 2.47 3.53a.75.75 0 0 1 1.06-1.06L7 5.94Z'/%3E%3C/svg%3E");
+	opacity: 0.7;
+}
+
+.landing-ui-panel-simple-link__chip-remove:hover {
+	opacity: 1;
+}

@@ -18,5 +18,4 @@ $MESS["SECURITY_FILTER_IP_RULE"] = "#IP# -ді проактивті сүзгі �
 $MESS["SECURITY_FILTER_PHP"] = "PHP енгізу әрекеті";
 $MESS["SECURITY_FILTER_SQL"] = "SQL енгізу әрекеті";
 $MESS["SECURITY_FILTER_XSS"] = "XSS арқылы шабуыл жасау";
-$MESS["SECURITY_OTP"] = "OTP кодын сұрау";
 $MESS["SECURITY_REDIRECT"] = "Редирект арқылы фишинг әрекеті";

@@ -7,3 +7,5 @@ $MESS ['SECURITY_OTP_ERROR_SYNC_ERROR'] = "Не удалось синхрони�
 $MESS['SECURITY_HOTP_TITLE'] = 'По счетчику (HOTP)';
 $MESS['SECURITY_TOTP_TITLE'] = 'По времени (TOTP)';
 $MESS['SECURITY_PUSH_TITLE'] = 'Мобильный push';
+$MESS['SECURITY_OTP_AUDIT_OTP'] = 'Запрос одноразового пароля';
+$MESS['SECURITY_OTP_AUDIT_OTP_SENDING'] = 'Отправка одноразового пароля';

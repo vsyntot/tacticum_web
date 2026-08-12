@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_BLOCK_0.MENU_1_NAME"] = "Сол жақта логотипі және ортасында мәзір тармақтары бар «Курстар» қалыбындағы мәзір";
+$MESS["LANDING_BLOCK_0.MENU_1_NAME"] = "Сол жақта логотипі және ортасында мәзір тармақтары бар «Курстар» үлгісіндеғы мәзір";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULIST"] = "Мәзір";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULISTITEMLINK"] = "Мәзір тармағы";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULIST_SOCIAL_ITEM"] = "Әлеуметтік батырма";

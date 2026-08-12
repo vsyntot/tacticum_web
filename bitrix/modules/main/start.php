@@ -4,8 +4,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2026 Bitrix
  */
+
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\HttpApplication;
 
 error_reporting(E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE);
 
@@ -24,12 +27,15 @@ require_once __DIR__ . '/classes/general/version.php';
 // global functions
 require_once __DIR__ . '/tools.php';
 
-/**
- * @todo Get rid of
- */
-FormDecode();
+if (!class_exists('\Dev\Main\Migrator\ModuleUpdater') || (Configuration::getValue('dev')['formDecode'] ?? false))
+{
+	/**
+	 * @todo Get rid of
+	 */
+	FormDecode();
+}
 
-$application = \Bitrix\Main\HttpApplication::getInstance();
+$application = HttpApplication::getInstance();
 
 // Defined in dbconn.php
 global $DBType, $DBDebug, $DBDebugToFile, $DBHost, $DBName, $DBLogin, $DBPassword;

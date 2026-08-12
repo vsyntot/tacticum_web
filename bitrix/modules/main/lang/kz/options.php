@@ -33,7 +33,7 @@ $MESS["MAIN_OPTIMIZE_CSS"] = "CSS файлдарын біріктіру:";
 $MESS["MAIN_OPTIMIZE_CSS_SETTINGS"] = "CSS оңтайландыру";
 $MESS["MAIN_OPTIMIZE_JS"] = "JS файлдарын біріктіру:";
 $MESS["MAIN_OPTIMIZE_TRANSLATE_SETTINGS"] = "Сыртқы аударма сервистері";
-$MESS["MAIN_OPTIONS_AUTH_TEMPLATE"] = "Авторланудың жүйелік компоненттерінің қалыбы (system.auth.*):";
+$MESS["MAIN_OPTIONS_AUTH_TEMPLATE"] = "Авторланудың жүйелік компоненттерінің үлгісі (system.auth.*):";
 $MESS["MAIN_OPTIONS_AUTOCHECK"] = "Жаңартуларды автоматты түрде тексеру:";
 $MESS["MAIN_OPTIONS_AUTOCHECK_1"] = "Күн сайын";
 $MESS["MAIN_OPTIONS_AUTOCHECK_7"] = "Аптасына бір рет";
@@ -188,7 +188,7 @@ $MESS["MAIN_REGISTER_AGREEMENT_DEFAUTL_VALUE"] = "(Келісімді таңда
 $MESS["MAIN_REGISTER_AGREEMENT_TITLE"] = "Келісімдерді баптау. <a href=\"#AGGREMENT_CREATE_URL#\" target=\"_blank\">Жаңа келісім жасау.</a>";
 $MESS["MAIN_REGISTER_AGREEMENT_TITLE_1"] = "Келісімдерді баптау. <a href=\"#AGGREMENT_CREATE_URL#\" target=\"_blank\">Жаңа келісім жасау.</a>";
 $MESS["MAIN_REGISTER_CLEANUP_DAYS"] = "Тіркелмеген пайдаланушыларды қанша күн сақтау керек:";
-$MESS["MAIN_REGISTER_EMAIL_CONFIRMATION"] = "email арқылы тіркеуді растауды сұрау (<a href=\"#EMAIL_TEMPLATES_URL#\">пошта қалыптары</a>):";
+$MESS["MAIN_REGISTER_EMAIL_CONFIRMATION"] = "email арқылы тіркеуді растауды сұрау (<a href=\"#EMAIL_TEMPLATES_URL#\">пошта үлгілері</a>):";
 $MESS["MAIN_REGISTER_EMAIL_UNIQ_CHECK"] = "Тіркелу кезінде email-дің бірегейлігін тексеру:";
 $MESS["MAIN_REGISTER_GROUP"] = "Тіркеу кезінде топқа қосу:";
 $MESS["MAIN_REGISTER_URL"] = "Тіркеуді растау компоненті бар парақша:";
@@ -197,7 +197,7 @@ $MESS["MAIN_REMEMBER"] = "Авторлануды есте сақтауға рұ�
 $MESS["MAIN_RESET"] = "Қалпына келтіру";
 $MESS["MAIN_RESTORE_DEFAULTS"] = "Әдепкі бойынша";
 $MESS["MAIN_SAVE"] = "Сақтау";
-$MESS["MAIN_SEND_MID"] = "Пошта оқиғасы мен қалып идентификаторларын хатта жіберу:";
+$MESS["MAIN_SEND_MID"] = "Пошта оқиғасы мен үлгі идентификаторларын хатта жіберу:";
 $MESS["MAIN_SITE_SPEED_SETTINGS"] = "Сайттың жылдамдығы";
 $MESS["MAIN_STABLEVERSIONS"] = "Тек тұрақты жаңартуларды жүктеу:";
 $MESS["MAIN_STRONGUPDATECHECK"] = "Жаңартуларды орнатудың дұрыстығын күшейтілген тексеру:";
@@ -241,7 +241,7 @@ $MESS["main_options_device_geoip"] = "Кіру тарихы үшін IP-геод
 $MESS["main_options_device_history"] = "Пайдаланушы құрылғыларынан кіру тарихын сақтау:";
 $MESS["main_options_device_history_days"] = "Кіру тарихын қанша күн сақтау керек:";
 $MESS["main_options_device_history_note"] = "Құрылғыларды жақсы анықтау үшін PHP-де <a href=\"https://www.php.net/manual/en/function.get-browser.php\" target = \"_blank\">browscap</a> баптаңыз. <a href=\"http://browscap.org\" target=\"_blank\">Browser Capabilities Project</a> соңғы нұсқадағы  ini-файлды пайдаланыңыз.";
-$MESS["main_options_device_history_notify"] = "Пайдаланушыларға жаңа құрылғыдан кіру туралы хабарлау (<a href=\"#EMAIL_TEMPLATES_URL#\">пошта қалыптары</a>):";
+$MESS["main_options_device_history_notify"] = "Пайдаланушыларға жаңа құрылғыдан кіру туралы хабарлау (<a href=\"#EMAIL_TEMPLATES_URL#\">пошта үлгілері</a>):";
 $MESS["main_options_device_history_notify_im"] = "Пайдаланушыларға чатқа хабарлау (im, imbot модульдері қажет):";
 $MESS["main_options_device_history_notify_only"] = "Тек көрсетілген пайдаланушыларға хабарлау:";
 $MESS["main_options_device_history_title"] = "Кірістер мен құрылғылардың тарихы";

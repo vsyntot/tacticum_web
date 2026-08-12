@@ -248,7 +248,12 @@ class CMain
 		}
 
 		/** @global CMain $APPLICATION */
-		global $APPLICATION, $forgot_password, $change_password, $register, $confirm_registration;
+		global $APPLICATION;
+
+		$forgot_password = $_REQUEST["forgot_password"] ?? null;
+		$change_password = $_REQUEST["change_password"] ?? null;
+		$register = $_REQUEST["register"] ?? null;
+		$confirm_registration = $_REQUEST["confirm_registration"] ?? null;
 
 		//page title
 		$APPLICATION->SetTitle(GetMessage("AUTH_TITLE"));
@@ -3555,11 +3560,6 @@ class CMain
 
 			if ($arPos['width'])
 			{
-				if (!is_array($arUrl['PARAMS']))
-				{
-					$arUrl['PARAMS'] = [];
-				}
-
 				$arUrl['PARAMS']['width'] = $arPos['width'];
 				$arUrl['PARAMS']['height'] = $arPos['height'];
 			}

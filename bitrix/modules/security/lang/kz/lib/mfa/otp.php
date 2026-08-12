@@ -1,5 +1,8 @@
 <?php
 $MESS["SECURITY_HOTP_TITLE"] = "Санауыш бойынша (HOTP)";
+$MESS["SECURITY_OTP"] = "OTP кодын сұрау";
+$MESS["SECURITY_OTP_AUDIT_OTP"] = "Бір реттік құпиясөзді сұрау";
+$MESS["SECURITY_OTP_AUDIT_OTP_SENDING"] = "Бір реттік құпиясөзді жіберу";
 $MESS["SECURITY_OTP_ERROR_PASS1_EMPTY"] = "Бірінші құпиясөз мәні енгізілмеген.";
 $MESS["SECURITY_OTP_ERROR_PASS1_INVALID"] = "Құпиясөздің бірінші мәні 6 символдан және тек сандардан тұруы керек.";
 $MESS["SECURITY_OTP_ERROR_PASS2_EMPTY"] = "Екінші құпиясөз мәні енгізілмеген.";

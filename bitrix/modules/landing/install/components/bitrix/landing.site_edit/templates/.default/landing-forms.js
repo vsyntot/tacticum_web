@@ -246,8 +246,8 @@
 				this.context = ' ';
 			}
 			const copilotButton = BX.Tag.render`
-				<div class="ui-title-input-btn">
-					<div class="ui-icon-set --copilot-ai"></div>
+				<div class="ui-title-input-btn --icon-gradient">
+					<div class="ui-icon-set --bitrix-gpt"></div>
 				</div>
 			`;
 			const Copilot = (top.BX.AI && top.BX.AI.Copilot) ? top.BX.AI.Copilot : BX.AI.Copilot;

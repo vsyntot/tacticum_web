@@ -1,17 +1,17 @@
 <?php
-$MESS["LANDING_404_ERROR"] = "Қалып табылмады";
+$MESS["LANDING_404_ERROR"] = "Үлгі табылмады";
 $MESS["LANDING_LOADER_WAIT_MSGVER_1"] = "Күте тұрыңыз, дүкен құрылып жатыр...";
 $MESS["LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT"] = "Болдырмау";
 $MESS["LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT"] = "Иә, импорттау";
-$MESS["LANDING_PREVIEW_MAINPAGE_MESSAGE"] = "Сізде Басты бет қалыбы бар. Жаңа қалыпты импорттау, ағымдағыны барлық өзгерістермен бірге жою. Оны қалпына келтіру жұмыс істемейді";
-$MESS["LANDING_PREVIEW_MAINPAGE_TITLE"] = "Ағымдағы қалыпты жойып, жаңасын орнатыңыз?";
+$MESS["LANDING_PREVIEW_MAINPAGE_MESSAGE"] = "Сізде басты бет үлгісі бар. Жаңа үлгіні импорттау, ағымдағыны барлық өзгерістермен бірге жою. Оны қалпына келтіру жұмыс істемейді";
+$MESS["LANDING_PREVIEW_MAINPAGE_TITLE"] = "Ағымдағы үлгіні жойып, жаңасын орнатыңыз?";
 $MESS["LANDING_TPL_BUTTON_CANCEL"] = "Болдырмау";
 $MESS["LANDING_TPL_BUTTON_CREATE"] = "Құру";
 $MESS["LANDING_TPL_BUTTON_CREATE_KB"] = "Білім қорын құру";
 $MESS["LANDING_TPL_BUTTON_CREATE_PAGE"] = "Парақшаны құру";
 $MESS["LANDING_TPL_BUTTON_CREATE_SITE"] = "Сайтты құру";
 $MESS["LANDING_TPL_BUTTON_CREATE_STORE"] = "Дүкенді құру";
-$MESS["LANDING_TPL_BUTTON_REPLACE_PAGE"] = "Қалыпты қолдану";
+$MESS["LANDING_TPL_BUTTON_REPLACE_PAGE"] = "Үлгіні қолдану";
 $MESS["LANDING_TPL_BUTTON_SHOW_IN_MOBILE"] = "Мобильді құрылғыда ашу";
 $MESS["LANDING_TPL_DEMO_PREVIEW_LOGO_WELCOME_PAGE"] = "Басты бет";
 $MESS["LANDING_TPL_HEADER_LOGO_BITRIX"] = "Битрикс";
@@ -23,4 +23,4 @@ $MESS["LANDING_TPL_POPUP_REPEAT_TEXT"] = "Бірдеңе дұрыс болмад
 $MESS["LANDING_TPL_POPUP_TEXT"] = "Сайтты ашу үшін телефон камерасын QR кодына бағыттаңыз";
 $MESS["LANDING_TPL_POPUP_TEXT_KB"] = "Білім қорын ашу үшін телефон камерасын QR кодына бағыттаңыз";
 $MESS["LANDING_TPL_POPUP_TEXT_STORE"] = "Дүкенді ашу үшін телефон камерасын QR кодына бағыттаңыз";
-$MESS["LANDING_TPL_TITLE"] = "Қалыпты алдын ала қарау";
+$MESS["LANDING_TPL_TITLE"] = "Үлгіні алдын ала қарау";

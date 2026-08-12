@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_BLOCK_0.MENU_1_NAME_NEW"] = "Байланыстар жоғарғы жағында, төменгі жағында сол жақта логотипі бар және оң жақта мәзір тармақтары бар «Фотосурет» қалыбындағы мәзір";
+$MESS["LANDING_BLOCK_0.MENU_1_NAME_NEW"] = "Байланыстар жоғарғы жағында, төменгі жағында сол жақта логотипі бар және оң жақта мәзір тармақтары бар «Фотосурет» үлгісіндеғы мәзір";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENUCONTACTTITLE_NEW"] = "Тақырыпаты";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENUCONTACT_TEXT"] = "Мәтін";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULIST"] = "Мәзір";

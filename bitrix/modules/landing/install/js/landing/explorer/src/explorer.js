@@ -70,15 +70,17 @@ export class Explorer
 
 	errorAlert(errors: Array<ErrorType>)
 	{
-		MessageBox.alert(
-			errors[0].error_description,
-			Loc.getMessage('LANDING_EXT_EXPLORER_ALERT_TITLE'),
-			(messageBox, button) => {
+		MessageBox.show({
+			message: errors[0].error_description,
+			title: Loc.getMessage('LANDING_EXT_EXPLORER_ALERT_TITLE'),
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
+			useAirDesign: true,
+			onOk: (messageBox, button) => {
 				button.setWaiting(false);
 				messageBox.close();
 				this.popupWindow.close();
-			}
-		);
+			},
+		});
 	}
 
 	setTitle(type: string, title: string)

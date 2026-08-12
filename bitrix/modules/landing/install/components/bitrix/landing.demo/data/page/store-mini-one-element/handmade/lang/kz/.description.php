@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_DEMO_STORE_MINI_ONE_ELEMENT_HANDMADE_DESC"] = "Науқан бойынша тауарды көрсету және клиенттерді тарту үшін қарапайым және әдемі қалып!";
+$MESS["LANDING_DEMO_STORE_MINI_ONE_ELEMENT_HANDMADE_DESC"] = "Науқан бойынша тауарды көрсету және клиенттерді тарту үшін қарапайым және әдемі үлгі!";
 $MESS["LANDING_DEMO_STORE_MINI_ONE_ELEMENT_HANDMADE_TXT_1"] = "Хэндмейд дүкені науқаны";
 $MESS["LANDING_DEMO_STORE_MINI_ONE_ELEMENT_HANDMADE_TXT_2"] = "Табиғи тастардан жасалған білезіктер бар болғаны 250 рубльден!";
 $MESS["LANDING_DEMO_STORE_MINI_ONE_ELEMENT_HANDMADE_TXT_3"] = "&quot;Мечта&quot; <br />Handmade-дүкенінен науқан";

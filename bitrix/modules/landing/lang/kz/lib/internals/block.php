@@ -19,5 +19,5 @@ $MESS["LANDING_TABLE_FIELD_PUBLIC"] = "Жариялылық";
 $MESS["LANDING_TABLE_FIELD_SEARCH_CONTENT"] = "Іздеуге арналған блоктың мазмұны";
 $MESS["LANDING_TABLE_FIELD_SORT"] = "Сұрыптау";
 $MESS["LANDING_TABLE_FIELD_SOURCE_PARAMS"] = "Динамикалық дереккөз параметрлері";
-$MESS["LANDING_TABLE_FIELD_TPL_CODE"] = "Қалып коды";
+$MESS["LANDING_TABLE_FIELD_TPL_CODE"] = "Үлгі коды";
 $MESS["LANDING_TABLE_FIELD_XML_ID"] = "Сыртқы код";

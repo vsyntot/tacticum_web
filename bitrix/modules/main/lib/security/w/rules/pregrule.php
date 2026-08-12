@@ -1,1 +1,15 @@
-<? namespace Bitrix\Main\Security\W\Rules; abstract class PregRule extends Rule{ protected $_1674546533; public function __construct($_1772405329, $_1448198780, $_192228981, $_591114450, $_441952297, $_1674546533){ parent::__construct($_1772405329, $_1448198780, $_192228981, $_591114450, $_441952297); $this->_1674546533= $_1674546533;}}?>
+<?php
+
+namespace Bitrix\Main\Security\W\Rules;
+
+abstract class PregRule extends Rule
+{
+	protected $pattern;
+
+	public function __construct($path, $context, $keys, $process, $encoding, $pattern)
+	{
+		parent::__construct($path, $context, $keys, $process, $encoding);
+
+		$this->pattern = $pattern;
+	}
+}

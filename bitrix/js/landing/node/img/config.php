@@ -9,9 +9,10 @@ return [
 	'js' => 'dist/img.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
-		'landing.node.base',
 		'landing.env',
+		'landing.node.base',
 		'landing.ui.field.image',
+		'landing.utils',
 	],
 	'skip_core' => true,
 ];

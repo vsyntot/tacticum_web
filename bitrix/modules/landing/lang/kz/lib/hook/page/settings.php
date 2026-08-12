@@ -1,4 +1,5 @@
 <?php
+$MESS["LANDING_HOOK_SETTINGS_ADD_TO_BASKET_ACTION_AUTO"] = "әдепкі бойынша";
 $MESS["LANDING_HOOK_SETTINGS_CART_POSITION"] = "Себеттің орналасуы";
 $MESS["LANDING_HOOK_SETTINGS_CART_POSITION_BC"] = "Астында ортасында";
 $MESS["LANDING_HOOK_SETTINGS_CART_POSITION_BL"] = "Төменгі сол жақта";

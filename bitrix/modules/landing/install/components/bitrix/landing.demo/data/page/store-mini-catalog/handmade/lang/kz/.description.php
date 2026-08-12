@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_DEMO_STORE_MINI_CATALOG_HANDMADE_DESC"] = "Шағын қолөнер дүкеніне арналған шағын қалып.";
+$MESS["LANDING_DEMO_STORE_MINI_CATALOG_HANDMADE_DESC"] = "Шағын қолөнер дүкеніне арналған шағын үлгі.";
 $MESS["LANDING_DEMO_STORE_MINI_CATALOG_HANDMADE_TITLE"] = "Классикалық дүкен. Хэндмейд";
 $MESS["LANDING_DEMO_STORE_MINI_CATALOG_HANDMADE_TXT_2"] = " &quot;Мечта&quot; Handmade-дүкені";
 $MESS["LANDING_DEMO_STORE_MINI_CATALOG_HANDMADE_TXT_3"] = "Әшекейлерді сүйіспеншілікпен жасаймыз!";

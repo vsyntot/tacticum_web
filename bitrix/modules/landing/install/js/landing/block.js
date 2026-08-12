@@ -703,6 +703,11 @@
 		 */
 		initPanels: function()
 		{
+			if (!this.isBlockControlsEnabled())
+			{
+				return;
+			}
+
 			// Make "add block after this block" button
 			if (!this.panels.get("create_action"))
 			{
@@ -1126,6 +1131,11 @@
 		 */
 		lazyInitPanels: function()
 		{
+			if (!this.isBlockControlsEnabled())
+			{
+				return;
+			}
+
 			if (this.isInSidebar())
 			{
 				this.initSidebarActionPanel();
@@ -2093,6 +2103,11 @@
 			return BX.Landing.Env.getInstance().getSpecialType() === 'crm_forms';
 		},
 
+		isBlockControlsEnabled: function()
+		{
+			return BX.Landing.Env.getInstance().isBlockControlsEnabled();
+		},
+
 		/**
 		 * Check is page are vibe page
 		 * @return {boolean}
@@ -2963,25 +2978,39 @@
 			this.initEntities();
 			this.initCardsLabels();
 
-			var forms = this.getEditForms({
+			var editFormsOptions = {
 				nodes: nodes,
 				formName: formName,
 				nodesOnly: nodesOnly,
 				showAll: showAll,
 				hideCheckbox: hideCheckbox
-			});
+			};
 
-			forms.forEach(function(form) {
-				contentPanel.appendForm(form);
-			});
+			var appendFormsAndShow = function(forms) {
+				forms.forEach(function(form) {
+					contentPanel.appendForm(form);
+				});
 
-			this.tmpContent.innerHTML = "";
-			contentPanel.show();
-			BX.Event.bind(contentPanel.layout, 'click', this.onContentPanelClick.bind(this));
+				this.tmpContent.innerHTML = "";
+				contentPanel.show();
+				BX.Event.bind(contentPanel.layout, 'click', this.onContentPanelClick.bind(this));
 
-			setTimeout(function() {
-				this.lastBlockState = this.fetchRequestData(contentPanel, true);
-			}.bind(this), 300);
+				setTimeout(function() {
+					this.lastBlockState = this.fetchRequestData(contentPanel, true);
+				}.bind(this), 300);
+			}.bind(this);
+
+			if (this.menu.length > 0)
+			{
+				BX.Landing.Menu.Menu.prefetchLandings()
+					.then(function() {
+						appendFormsAndShow(this.getEditForms(editFormsOptions));
+					}.bind(this));
+			}
+			else
+			{
+				appendFormsAndShow(this.getEditForms(editFormsOptions));
+			}
 		},
 
 		onContentPanelClick: function(event)

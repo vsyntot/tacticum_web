@@ -1,9 +1,12 @@
 <?php
+$MESS["SEC_OTP_ALLOW_EMAIL"] = "Бір реттік құпиясөзді email арқылы жіберуге рұқсат ету:";
 $MESS["SEC_OTP_ALLOW_RECOVERY_CODES"] = "Резервтік кодтарды пайдалануға рұқсат ету";
 $MESS["SEC_OTP_ALLOW_REMEMBER"] = "Бір реттік құпиясөзді есте сақтауға рұқсат ету";
+$MESS["SEC_OTP_ALLOW_SMS"] = "Бір реттік құпиясөзді СМС арқылы жіберуге рұқсат ету:";
 $MESS["SEC_OTP_DEFAULT_YPE"] = "Әдепкі құпиясөзді құру алгоритмі";
 $MESS["SEC_OTP_LOG"] = "Журналдау";
 $MESS["SEC_OTP_LOG_ENABLE"] = "OTP кодын сұрау әрекетін журналға енгізу:";
+$MESS["SEC_OTP_LOG_SENDING"] = "Бір реттік құпиясөзді (СМС, email арқылы) журналға жіберу:";
 $MESS["SEC_OTP_MANDATORY_RIGHTS_SELECT"] = "Пайдаланушыларды қосу";
 $MESS["SEC_OTP_MANDATORY_SKIP_DAYS"] = "Қосылу үшін күндер саны";
 $MESS["SEC_OTP_NEW_BUTTON_OFF"] = "Екі сатылы авторландыруды өшіру";
