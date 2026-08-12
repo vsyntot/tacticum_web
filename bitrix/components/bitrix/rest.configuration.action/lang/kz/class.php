@@ -2,6 +2,7 @@
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_ACTION"] = "Экспорттау";
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_DESCRIPTION_MSGVER_1"] = "CRM-ді барлық баптауларымен <br/> басқа Битрикс24-ке экспорттаңыз";
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_SMART_ROBOTS_DESCRIPTION"] = "Сценарийлеріңізді <br/> басқа Битрикс24-ке экспорттаңыз";
+$MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_SMART_ROBOTS_TITLE"] = "Дайын шешіммен бөлісіңіз";
 $MESS["REST_CONFIGURATION_ACTION_EXPORT_CRM_TITLE_MSGVER_1"] = "Дайын шешіммен бөлісіңіз";
 $MESS["REST_CONFIGURATION_ACTION_IMPORT_CRM_ACTION"] = "Импорттау";
 $MESS["REST_CONFIGURATION_ACTION_IMPORT_CRM_DESCRIPTION_MSGVER_1"] = "CRM-ді барлық баптаулармен <br/> басқа Битрикс24-тен тасымалдаңыз";

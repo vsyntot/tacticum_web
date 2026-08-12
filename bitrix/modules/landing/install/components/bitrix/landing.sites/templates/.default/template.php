@@ -75,6 +75,7 @@ Extension::load([
 	'ui.fonts.opensans',
 	'sidepanel',
 	'landing_master',
+	'landing.site-list.realtime',
 	'action_dialog',
 	'ui.buttons',
 ]);
@@ -120,13 +121,13 @@ if (
 	}
 	?>
 	<div style="display: none">
-		<?$APPLICATION->includeComponent(
+		<?php $APPLICATION->includeComponent(
 			'bitrix:ui.feedback.form',
 			'',
 			$params
 		);?>
 	</div>
-	<?
+	<?php
 }
 
 // slider's script
@@ -166,7 +167,7 @@ $featureCode = $request->getQuery('feature_promoter');
 	</script>
 <?php endif; ?>
 
-<?if ($request->get('IS_AJAX') != 'Y'):?>
+<?php if ($request->get('IS_AJAX') != 'Y'):?>
 <script>
 	top.BX.addCustomEvent(
 		'BX.Rest.Configuration.Install:onFinish',
@@ -237,9 +238,9 @@ $featureCode = $request->getQuery('feature_promoter');
 		</script>
 	<?php endif; ?>
 
-<?endif?>
+<?php endif?>
 
-<?
+<?php
 if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm && (($arParams['OLD_TILE'] ?? 'N') !== 'Y'))
 {
 	echo '<script>function openSettings(tool, id){
@@ -279,15 +280,17 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				'delimiter' => true
 			],
 			$arResult['EXPORT_DISABLED'] === 'Y'
-			? [
-				  'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
-				  'onclick' => 'landingExportDisabled();'
-			]
-			: [
-				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
-				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
-				'sidepanel' => true
-			],
+				? [
+					  'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+					  'access' => 'export',
+					  'onclick' => 'landingExportDisabled();'
+				]
+				: [
+					'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+					'access' => 'export',
+					'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
+					'sidepanel' => true
+				],
 			[
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_PS'),
 				'href' => SITE_DIR . 'shop/settings/sale_pay_system/?lang=' . LANGUAGE_ID,
@@ -345,7 +348,8 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_ADDPAGE2'),
 				'href' => $urlCreatePage,
 				'access' => 'edit',
-				'sidepanel' => true
+				'sidepanel' => true,
+				'code' => 'add-page',
 			],
 			[
 				'delimiter' => true
@@ -363,11 +367,12 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				'access' => 'export',
 				'onclick' => 'landingExportDisabled();'
 			]
-			: [
-				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
-				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
-				'sidepanel' => true
-			],
+				: [
+					'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+					'access' => 'export',
+					'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
+					'sidepanel' => true
+				],
 			[
 				'delimiter' => true
 			],
@@ -415,6 +420,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 		$urlAdd = $metrikaMarket->parametrizeUri($component->getUrlAdd(true, $urlAddParams));
 	}
 
+	$aiUrl = $arParams['SEF']['ai'] ?? '';
 	$APPLICATION->includeComponent(
 		'bitrix:landing.site_tile',
 		'.default',
@@ -429,6 +435,8 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 			'PAGE_URL_CONTACTS' => $arParams['~PAGE_URL_SITE_CONTACTS'],
 			'PAGE_URL_SITE_DOMAIN_SWITCH' => $arParams['~PAGE_URL_SITE_DOMAIN_SWITCH'],
 			'PAGE_URL_CRM_ORDERS' => $ordersLink ?? '',
+			'AI_URL' => $aiUrl,
+			'AI_SITE_CHAT_AVAILABLE' => $arParams['AI_SITE_CHAT_AVAILABLE'] ?? true,
 			'MENU_ITEMS' => $menuItems,
 			'AGREEMENT' => $arResult['AGREEMENT'],
 			'DELETE_LOCKED' => $arResult['DELETE_LOCKED'],
@@ -439,7 +447,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 	{
 		?>
 		<div class="landing-navigation --themes">
-			<?$APPLICATION->IncludeComponent(
+			<?php $APPLICATION->IncludeComponent(
 				'bitrix:main.pagenavigation',
 				'',
 				array(
@@ -450,7 +458,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				false
 			);?>
 		</div>
-		<?
+		<?php
 	}
 	return;
 }
@@ -529,6 +537,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 									publicPage: '#',
 								 	isActive: <?= ($item['ACTIVE'] === 'Y') ? 'true' : 'false' ?>,
 								 	isDeleted: <?= ($item['DELETED'] === 'Y') ? 'true' : 'false' ?>,
+								 	isCreatedByAiScenario: <?= ($item['IS_CREATED_BY_AI_SCENARIO'] ?? false) ? 'true' : 'false' ?>,
 								 	isEditDisabled: <?= ($item['ACCESS_EDIT'] !== 'Y') ? 'true' : 'false' ?>,
 								 	isSettingsDisabled: <?= ($item['ACCESS_SETTINGS'] !== 'Y') ? 'true' : 'false' ?>,
 								 	isPublicationDisabled: <?= ($item['ACCESS_PUBLICATION'] !== 'Y') ? 'true' : 'false' ?>,
@@ -542,7 +551,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 						</div>
 					</div>
 					<span class="landing-item-cover"
-						<?php if ($item['PREVIEW']) {?> style="background-image: url(<?= htmlspecialcharsbx($item['PREVIEW'])?>);"<?}?>>
+						<?php if ($item['PREVIEW']) {?> style="background-image: url(<?= htmlspecialcharsbx($item['PREVIEW'])?>);"<?php }?>>
 					</span>
 				</div>
 				<?php if ($item['DELETED'] === 'Y'):?>
@@ -626,24 +635,24 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 						<span class="landing-item-cover" style="background-image: url('/bitrix/images/landing/dev_site.png');">
 					</span>
 					</div>
-					<?if ($item['PUBLIC_URL']):?>
+					<?php if ($item['PUBLIC_URL']):?>
 					<a href="<?= htmlspecialcharsbx($item['PUBLIC_URL']);?>" target="_blank" class="landing-item-link"></a>
-					<?else:?>
+					<?php else:?>
 					<span class="landing-item-link"></span>
-					<?endif;?>
+					<?php endif;?>
 					<div class="landing-item-status-block">
 						<div class="landing-item-status-inner">
-							<?if ($item['ACTIVE'] != 'Y'):?>
+							<?php if ($item['ACTIVE'] != 'Y'):?>
 								<span class="landing-item-status landing-item-status-unpublished"><?= Loc::getMessage('LANDING_TPL_UNPUBLIC');?></span>
-							<?else:?>
+							<?php else:?>
 								<span class="landing-item-status landing-item-status-published">
 									<?= Loc::getMessage('LANDING_TPL_PUBLIC_URL', ['#LINK#' => '<a href="' . $item['PUBLIC_URL'] . '" target="_blank">' . $item['DOMAIN_NAME'] . '</a>']);?>
 								</span>
-							<?endif;?>
+							<?php endif;?>
 						</div>
 					</div>
 				</div>
-				<?
+				<?php
 			}
 		}
 		if (
@@ -669,16 +678,16 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 					<button class="ui-btn ui-btn-primary"><?= $component->getMessageType('LANDING_TPL_DEV_BTN');?></button>
 				</span>
 			</div>
-			<?
+			<?php
 		}
 		?>
 
 	</div>
 </div>
 
-<?if ($navigation->getPageCount() > 1):?>
+<?php if ($navigation->getPageCount() > 1):?>
 	<div class="<?= (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '' : 'landing-navigation';?>">
-			<?$APPLICATION->IncludeComponent(
+			<?php $APPLICATION->IncludeComponent(
 				'bitrix:main.pagenavigation',
 				'',//grid
 				array(
@@ -689,7 +698,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				false
 			);?>
 	</div>
-<?endif;?>
+<?php endif;?>
 
 <script>
 	if (
@@ -740,7 +749,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 		}
 	}
 
-	<?if ($arResult['ACCESS_SITE_NEW'] == 'Y' && $arParams['SHOW_MASTER_BUTTON'] == 'Y'):?>
+	<?php if ($arResult['ACCESS_SITE_NEW'] == 'Y' && $arParams['SHOW_MASTER_BUTTON'] == 'Y'):?>
 	BX.bind(document.querySelector('.landing-item-add-new-super span.landing-item-inner'), 'click', function(event) {
 		BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
 			allowChangeHistory: false,
@@ -781,7 +790,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 		var createFolderEl = BX('landing-create-folder');
 		var createElement = BX('landing-create-element');
 
-		<?if ($arResult['IS_DELETED']):?>
+		<?php if ($arResult['IS_DELETED']):?>
 		if (createFolderEl)
 		{
 			BX.addClass(createFolderEl, 'ui-btn-disabled');
@@ -850,6 +859,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 					disabled: !params.publicUrl || params.isDeleted || !params.isActive,
 				},
 				{
+					code: 'add-page',
 					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_ADDPAGE'));?>',
 					href: params.createPage,
 					disabled: params.isDeleted || params.isEditDisabled,
@@ -920,7 +930,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 					? {
 						text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EXPORT'));?>',
 						disabled: params.isExportSiteDisabled,
-						<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
+						<?php if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
 						onclick: function(event)
 						{
 							landingExportDisabled();
@@ -1000,6 +1010,13 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 					}
 				}
 			];
+			if (params.isCreatedByAiScenario)
+			{
+				menuItems = menuItems.filter(function(item)
+				{
+					return item.code !== 'add-page';
+				});
+			}
 
 			if (!isMenuShown) {
 				menu = new BX.PopupMenuWindow(

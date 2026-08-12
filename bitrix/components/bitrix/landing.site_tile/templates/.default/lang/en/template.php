@@ -1,10 +1,16 @@
 <?php
+$MESS["LANDING_SITE_TILE_AI_BUILDER_BUTTON"] = "Site builder";
+$MESS["LANDING_SITE_TILE_AI_FIRST_VISIT_POPUP_TEXT"] = "Create a website the AI way: just start chatting with AI and tell it what kind of site you want.";
+$MESS["LANDING_SITE_TILE_AI_FIRST_VISIT_POPUP_TITLE"] = "Create your new site today";
+$MESS["LANDING_SITE_TILE_AI_INPUT_NOTICE"] = "Describe your desired site in the chat";
+$MESS["LANDING_SITE_TILE_AI_INPUT_PLACEHOLDER"] = "Describe your site here. #COPILOT_NAME# will follow your instructions and create a site for you.";
+$MESS["LANDING_SITE_TILE_AI_TEMPLATES_BUTTON"] = "Stock templates";
 $MESS["LANDING_SITE_TILE_COPILOT_GENERATED_TEXT_MSGVER_1"] = "#COPILOT_NAME# is creating your site now";
 $MESS["LANDING_SITE_TILE_COPILOT_LABEL_MSGVER_1"] = "Created with #COPILOT_NAME#";
 $MESS["LANDING_SITE_TILE_CREATE_DOMAIN_NAME"] = "Come up with a catchy site address";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_MESSAGE"] = "Do you really want to delete it?";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_TITLE"] = "Attention!";
-$MESS["LANDING_SITE_TILE_DEV_BTN"] = "Order now";
+$MESS["LANDING_SITE_TILE_DEV_BTN"] = "Submit request";
 $MESS["LANDING_SITE_TILE_DEV_HELP"] = "Need help with your website?";
 $MESS["LANDING_SITE_TILE_DEV_ORDER_MSGVER_1"] = "Submit implementation request to our partners";
 $MESS["LANDING_SITE_TILE_DEV_STORE_BTN"] = "Submit request";
@@ -13,21 +19,16 @@ $MESS["LANDING_SITE_TILE_DEV_STORE_ORDER"] = "Ask our partners for assistance!";
 $MESS["LANDING_SITE_TILE_EMPTY_ADD_2"] = "Create";
 $MESS["LANDING_SITE_TILE_EMPTY_ADD_NO_RIGHT"] = "Insufficient permissions to create a site";
 $MESS["LANDING_SITE_TILE_EMPTY_BALLOON_TEXT_MSGVER_1"] = "Now with #COPILOT_NAME#";
-$MESS["LANDING_SITE_TILE_EMPTY_FEAT1_PAGE"] = "Create your own site with an easy to use and handy website builder";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT1_STORE"] = "Fast launch, no special knowledge required";
-$MESS["LANDING_SITE_TILE_EMPTY_FEAT2_PAGE"] = "Your site will be equipped a built-in callback form, a feedback form and an online chat";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT2_STORE"] = "Ideal for sales on Instagram and other social media";
-$MESS["LANDING_SITE_TILE_EMPTY_FEAT3_PAGE"] = "All customer contacts are saved directly to the CRM";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT3_STORE"] = "Hassle-free sales in WhatsApp and other messengers";
-$MESS["LANDING_SITE_TILE_EMPTY_FEAT4_PAGE"] = "Your site is always mobile friendly";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT4_STORE"] = "Accept payments via ApplePay, Google Pay and other payment systems";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT5_STORE"] = "All customers and orders are saved directly to your CRM";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT6_STORE"] = "Created for mobile devices and social media";
 $MESS["LANDING_SITE_TILE_EMPTY_FEAT7_STORE"] = "Payment via credit/debit cards, SBP, and other popular online services";
-$MESS["LANDING_SITE_TILE_EMPTY_HEADER1_PAGE"] = "<span>Bitrix24</span> Sites";
 $MESS["LANDING_SITE_TILE_EMPTY_HEADER1_STORE"] = "Boost your sales";
-$MESS["LANDING_SITE_TILE_EMPTY_HEADER2_PAGE"] = "It will take only two minutes!";
 $MESS["LANDING_SITE_TILE_EMPTY_HEADER2_STORE"] = "CRM and Online Store";
+$MESS["LANDING_SITE_TILE_GO_TO_COMBO_MODE"] = "Edit";
 $MESS["LANDING_SITE_TILE_HIDE"] = "Hide";
 $MESS["LANDING_SITE_TILE_INSTRUCTION"] = "Instructions";
 $MESS["LANDING_SITE_TILE_LEADERSHIP_TITLE"] = "Management";
@@ -66,3 +67,29 @@ $MESS["LANDING_SITE_TILE_STATUS_NOT_PUBLISHED"] = "Not published";
 $MESS["LANDING_SITE_TILE_STATUS_PUBLISHED"] = "Published";
 $MESS["LANDING_SITE_TILE_TO_READ"] = "Read";
 $MESS["LANDING_SITE_TILE_UNPUBLISH"] = "Unpublish";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_MORE_ACTIONS"] = "Site actions";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_OPEN_SITE_LINK"] = "Open site link";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_PUBLICATION_PUBLISHED"] = "Site published";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_PUBLICATION_UNPUBLISHED"] = "Site unpublished";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_PUBLICATION_ERROR"] = "Failed to change site publication status";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_DOMAIN_STATUS_UPDATED"] = "Domain status updated: #STATUS#";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_DOMAIN_STATUS_UPDATED_FALLBACK"] = "updating";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_REMOVE_ANNOUNCE"] = "Site card removed from the list";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_POPUP_COPY_LINK_ERROR"] = "Failed to copy link";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_POPUP_CLOSE"] = "Close";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_POPUP_BACK"] = "Back";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_AI_INPUT_LABEL"] = "Site description for #COPILOT_NAME#";
+// TODO: please double-check this translation
+$MESS["LANDING_SITE_TILE_AI_SUBMIT_BUTTON"] = "Create site from description";

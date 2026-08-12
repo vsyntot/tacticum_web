@@ -1,2 +1,2 @@
 <?php
-$MESS["LANDING_TPL_BINDING_TITLE"] = "Қалыпты таңдау";
+$MESS["LANDING_TPL_BINDING_TITLE"] = "Үлгіні таңдау";

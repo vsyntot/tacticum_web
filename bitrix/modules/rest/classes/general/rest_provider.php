@@ -113,6 +113,15 @@ class CRestProvider extends IRestService
 								"category" => \Bitrix\Rest\Sqs::CATEGORY_IMPORTANT,
 							)
 						),
+						'OnAppUserReady' => array(
+							'rest',
+							'OnRestAppUserReady',
+							array(__CLASS__, 'OnAppEvent'),
+							array(
+								"sendRefreshToken" => true,
+								"category" => \Bitrix\Rest\Sqs::CATEGORY_IMPORTANT,
+							)
+						),
 						'OnAppUpdate' => array(
 							'rest',
 							'OnRestAppUpdate',
@@ -865,6 +874,11 @@ class CRestProvider extends IRestService
 	public static function OnAppEvent($arParams, $arHandler)
 	{
 		$arEventFields = $arParams[0];
+		if ($arEventFields instanceof \Bitrix\Main\Event)
+		{
+			$arEventFields = $arEventFields->getParameters();
+		}
+
 		if($arEventFields['APP_ID'] == $arHandler['APP_ID'] || $arEventFields['APP_ID'] == $arHandler['APP_CODE'])
 		{
 			$arEventFields["LANGUAGE_ID"] = CRestUtil::getLanguage();

@@ -262,7 +262,7 @@ class Option
 
 			unset(self::$loading[$moduleId]);
 		}
-		
+		/*patchvalidationoptions4*/
 	}
 
 	/**

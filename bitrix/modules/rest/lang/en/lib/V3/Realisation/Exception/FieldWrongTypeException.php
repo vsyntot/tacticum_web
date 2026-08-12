@@ -1,3 +1,2 @@
 <?php
-
-$MESS['REST_V3_REALISATION_EXCEPTION_FIELDWRONGTYPEEXCEPTION'] = 'Wrong field type: #FIELD_NAME#, #REQUESTED_TYPE# required, #ACTUAL_TYPE# received.';
+$MESS["REST_V3_REALISATION_EXCEPTION_FIELDWRONGTYPEEXCEPTION"] = 'Incorrect field type: \"#FIELD_NAME#\". \"#REQUESTED_TYPE#\" requested, \"#ACTUAL_TYPE#\" received instead.';

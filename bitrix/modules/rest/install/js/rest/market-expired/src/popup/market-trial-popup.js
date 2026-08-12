@@ -19,7 +19,10 @@ export class MarketTrialPopup extends MarketExpiredPopup
 				<p class="rest-market-expired-popup__description-text">
 					${
 						this.isRenamedMarket
-							? Loc.getMessage('REST_MARKET_EXPIRED_POPUP_DESCRIPTION_TRIAL_BITRIX_GPT')
+							? Loc.getMessage('REST_MARKET_EXPIRED_POPUP_DESCRIPTION_TRIAL_BITRIX_GPT_MSGVER_1', {
+								...this.getCopilotReplacements(),
+								'[br]': '<br>',
+							})
 							: Loc.getMessage('REST_MARKET_EXPIRED_POPUP_DESCRIPTION_TRIAL_MARKET_PLUS')
 					}
 				</p>
@@ -29,7 +32,7 @@ export class MarketTrialPopup extends MarketExpiredPopup
 
 	getTitle(): string
 	{
-		const replacements = { '#DAYS#': this.expireDays };
+		const replacements = { ...this.getCopilotReplacements(), '#DAYS#': this.expireDays };
 
 		if (this.type === PopupType.FINAL)
 		{
@@ -39,7 +42,7 @@ export class MarketTrialPopup extends MarketExpiredPopup
 		}
 
 		return this.isRenamedMarket
-			? Loc.getMessage('REST_MARKET_EXPIRED_POPUP_TITLE_TRIAL_WARNING_BITRIX_GPT', replacements)
+			? Loc.getMessage('REST_MARKET_EXPIRED_POPUP_TITLE_TRIAL_WARNING_BITRIX_GPT_MSGVER_1', replacements)
 			: Loc.getMessage('REST_MARKET_EXPIRED_POPUP_TITLE_TRIAL_WARNING_MARKET_PLUS', replacements);
 	}
 
@@ -109,3 +112,4 @@ export class MarketTrialPopup extends MarketExpiredPopup
 		});
 	}
 }
+

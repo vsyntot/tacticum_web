@@ -23,6 +23,7 @@ class Copyright
 	const LICENCE_W3C = "W3C License";
 	const LICENCE_OFL = "SIL Open Font License, Version 1.1";
 	const LICENCE_LGPL2 = "GNU Lesser General Public License, Version 2.1";
+	const LICENCE_ISC = "ISC License";
 	const LICENCE_CUSTOM = "License";
 
 	protected
@@ -900,6 +901,31 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl('https://github.com/mourner/rbush')
 				->setLicence(Copyright::LICENCE_MIT)
 				->setLicenceUrl('https://github.com/mourner/rbush/blob/main/LICENSE.md'),
+
+			// main/lib/phonenumber/metadata.php
+			(new static("libphonenumber"))
+				->setCopyright("Copyright (C) 2009 Google Inc., Vonage Holdings Corp., Ian Galpin, Ben Gertzfield")
+				->setProductUrl('https://github.com/google/libphonenumber/')
+				->setLicence(Copyright::LICENCE_APACHE2)
+				->setLicenceUrl('https://github.com/google/libphonenumber/blob/master/LICENSE'),
+
+			// ai/vendor/erusev/parsedown
+			(new static("Better Markdown Parser in PHP"))
+				->setCopyright("Copyright (c) 2013-2018 Emanuil Rusev, erusev.com")
+				->setProductUrl('https://github.com/erusev/parsedown')
+				->setLicence(static::LICENCE_MIT),
+
+			(new static('symfony/yaml'))
+				->setCopyright('Copyright (c) 2004 Fabien Potencier')
+				->setProductUrl('https://github.com/symfony/symfony/tree/8.1/src/Symfony/Component/Yaml')
+				->setLicence(Copyright::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/symfony/symfony/blob/8.1/src/Symfony/Component/Yaml/LICENSE'),
+
+			(new static('symfony/polyfill-ctype'))
+				->setCopyright('Copyright (c) 2018 Fabien Potencier')
+				->setProductUrl('https://github.com/symfony/polyfill/tree/1.x/src/Ctype')
+				->setLicence(Copyright::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/symfony/polyfill/blob/1.x/src/Ctype/LICENSE'),
 		];
 	}
 }

@@ -23,9 +23,12 @@
 		var content = data.content;
 		data.content = content.source || content.src;
 		data.placeholder = BX.Landing.Loc.getMessage('LANDING_EMBED_ERROR_TEXT');
+		var descriptionMessageId = BX.Landing.Env.getInstance().isVkVideoAvailable()
+			? 'LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION_MSGVER_1'
+			: 'LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION_NO_VK_MSGVER_1';
 		data.description =
 			data.description
-			|| "<span class='landing-ui-anchor-preview'>"+BX.Landing.Loc.getMessage('LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION_MSGVER_1')+"</span>";
+			|| "<span class='landing-ui-anchor-preview'>"+BX.Landing.Loc.getMessage(descriptionMessageId)+"</span>";
 
 		BX.Landing.UI.Field.Text.apply(this, arguments);
 
@@ -73,12 +76,11 @@
 
 		isEmbedUrl: function(value)
 		{
-			return BX.Landing.Utils.Matchers.youtube.test(value)
-				|| BX.Landing.Utils.Matchers.vimeo.test(value)
-				|| BX.Landing.Utils.Matchers.rutube.test(value)
-				|| BX.Landing.Utils.Matchers.vk.test(value)
-				|| BX.Landing.Utils.Matchers.vine.test(value)
-				|| BX.Landing.Utils.Matchers.facebookVideos.test(value);
+			return BX.Landing.isSupportedVideoUrl(
+				value,
+				['youtube', 'vimeo', 'rutube', 'vk', 'vine', 'facebookVideos'],
+				BX.Landing.Env.getInstance().isVkVideoAvailable()
+			);
 		},
 
 		getValue: function()

@@ -153,6 +153,7 @@
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
+	justify-content: space-between;
 	-webkit-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
@@ -171,4 +172,16 @@
 	        user-select: none;
 	width: 100%;
 	margin-top: 15px;
+}
+
+.landing-site-copilot-ai-placeholder {
+	border: 2px dashed #d7dde6;
+	border-radius: 12px;
+	margin: 32px;
+	padding: 20px;
+	color: #67707a;
+	font-size: 16px;
+	background: #fafbfc;
+	height: 600px;
+	text-align: center;
 }

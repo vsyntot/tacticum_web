@@ -17,6 +17,16 @@ $landing = $arResult['LANDING'];
 /** @var \LandingPubComponent $component */
 /** @var \Bitrix\Landing\Landing $landing */
 
+$landingId = $landing->getId();
+$bodyTag = Manager::getPageView('BodyTag');
+if (mb_stripos($bodyTag, 'data-landing-id=') === false)
+{
+	Manager::setPageView(
+		'BodyTag',
+		'data-landing-id="' . $landingId . '"'
+	);
+}
+
 // set meta og:image
 $metaOG = Manager::getPageView('MetaOG');
 if (mb_strpos($metaOG, '"og:image"') === false)
@@ -42,11 +52,6 @@ Manager::setPageView(
 if (\Bitrix\Landing\Connector\Mobile::isMobileHit())
 {
 	$scope = \Bitrix\Landing\Site\Type::getCurrentScopeId();
-	$landingId = $arResult['LANDING']->getId();
-	Manager::setPageView(
-		'BodyTag',
-		'data-landing-id="' . $landingId . '"'
-	);
 	Manager::setPageView(
 		'BodyTag',
 		'data-scope="'. $scope .'"'

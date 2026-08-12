@@ -24,7 +24,7 @@ $MESS["REST_MP_SUBSCRIPTION_TEXT_3_LI_2"] = "сатылымдар скрипті
 $MESS["REST_MP_SUBSCRIPTION_TEXT_3_LI_3"] = "аналитикалық есептер;";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_3_LI_4"] = "сыртқы серверлермен лидогенерациялау және интеграциялау құралдары;";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_3_LI_5"] = "қосымша роботтар мен бизнес-үдерістер";
-$MESS["REST_MP_SUBSCRIPTION_TEXT_3_LI_6"] = "сайттардың тақырыптық қалыптары;";
+$MESS["REST_MP_SUBSCRIPTION_TEXT_3_LI_6"] = "сайттардың тақырыптық үлгілері;";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_3_MSGVER_1"] = "<a href=\"javascript:void(0)\" onclick=\"#ONCLICK#\" >Маркетплейске жазылу</a> - бұл:";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_3_MSGVER_2"] = "<a href=\ \" javascript: void(0)\" onclick=\"#ONCLICK#\" >Bitrix Жазылымы24 Маркет</a> - Бұл:";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_4"] = "<a href=\"javascript:void(0)\" onclick=\"#ONCLICK#\">Жазылымның</a> белгіленген бағасына қосымшалар мен виджеттерді шексіз санын қосыңыз.";

@@ -89,6 +89,8 @@ interface EnvOptions
 	version: string,
 	xml_id: string,
 	default_section: string,
+	blockControlsEnabled: boolean,
+	vkVideoAvailable: boolean,
 	specialType: string,
 	design_block: string,
 	design_block_allowed: boolean,

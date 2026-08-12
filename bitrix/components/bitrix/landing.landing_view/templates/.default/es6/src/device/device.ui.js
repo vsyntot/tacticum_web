@@ -53,7 +53,7 @@ class DeviceUI
 		const layout = {
 			wrapper: null,
 			rotate: Tag.render`<div class="landing-device-rotate" onclick="${rotateClick}" data-role="landing-device-rotate"></div>`,
-			frame: Tag.render`<iframe data-role="landing-device-preview-iframe" src="${options.frameUrl}"></iframe>`,
+			frame: Tag.render`<iframe data-role="landing-device-preview-iframe" sandbox="allow-scripts" src="${options.frameUrl}"></iframe>`,
 		};
 
 		layout.wrapper = Tag.render`

@@ -9,9 +9,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var \CMain $APPLICATION */
 /** @var \LandingLandingsComponent $component */
 
+use Bitrix\Landing\Copilot\Services\NameService;
 use Bitrix\Landing\Metrika;
-use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Web\Uri;
 
 Loc::loadMessages(__FILE__);
@@ -40,7 +41,11 @@ $folderId = $arResult['FOLDER_ID'];
 	'landing.explorer',
 	'action_dialog',
 	'clipboard',
+	'main.popup',
 	'sidepanel',
+	'ui.buttons',
+	'ui.icon-set.api.core',
+	'ui.icon-set.outline',
 ]);
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty(
@@ -114,7 +119,251 @@ if (!$component->isToolAvailable())
 {
 	echo $component->getToolUnavailableInfoScript();
 }
+
+$showSitePagesOnboardingPopup = ($arResult['SHOW_SITE_PAGES_ONBOARDING_POPUP'] ?? false) === true;
+$onboardingItem1Title = '';
+$onboardingItem2Desc = '';
+
+if ($showSitePagesOnboardingPopup)
+{
+	$onboardingItem1Title = \CUtil::jsEscape(
+		NameService::replaceCopilotName(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_ITEM_1_TITLE_MSGVER_1'))
+	);
+	$onboardingItem2Desc = \CUtil::jsEscape(
+		NameService::replaceCopilotName(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_ITEM_2_DESC_MSGVER_1'))
+	);
+}
 ?>
+
+<?php if ($showSitePagesOnboardingPopup): ?>
+	<script>
+		BX.ready(() => {
+			const tplFolder = '<?= \CUtil::jsEscape($templateFolder) ?>';
+
+			const createOnboardingItem = (iconCode, title, desc) => {
+				return BX.create('div', {
+					props: { className: 'landing-site-pages-onboarding-item' },
+					children: [
+						BX.create('div', {
+							props: { className: 'landing-site-pages-onboarding-item-icon' },
+							children: [
+								new BX.UI.IconSet.Icon({ icon: iconCode, size: 24 }).render(),
+							],
+						}),
+						BX.create('div', {
+							props: { className: 'landing-site-pages-onboarding-item-body' },
+							children: [
+								BX.create('div', {
+									props: { className: 'landing-site-pages-onboarding-item-title' },
+									text: title,
+								}),
+								BX.create('div', {
+									props: { className: 'landing-site-pages-onboarding-item-desc' },
+									text: desc,
+								}),
+							],
+						}),
+					],
+				});
+			};
+
+			const createOnboardingButton = () => {
+				const button = new BX.UI.Button({
+					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_BUTTON')) ?>',
+					useAirDesign: true,
+					size: BX.UI.Button.Size.EXTRA_LARGE,
+					className: 'landing-site-pages-onboarding-btn',
+					onclick: () => {
+						window.location.href = '/sites/ai/';
+					},
+				});
+
+				return button.render();
+			};
+
+			const createOnboardingVideo = (folder) => {
+				const video = BX.create('video', {
+					props: { className: 'landing-site-pages-onboarding-video' },
+					attrs: {
+						loop: 'loop',
+						playsinline: 'playsinline',
+						preload: 'auto',
+						poster: folder + '/images/landing-site-pages-onboarding-bg.jpg',
+					},
+					children: [
+						BX.create('source', {
+							attrs: {
+								src: folder + '/video/landing-site-pages-onboarding-video-800.mp4',
+								type: 'video/mp4',
+							},
+						}),
+					],
+				});
+				video.muted = true;
+
+				return video;
+			};
+
+			const createOnboardingRight = (folder) => {
+				const children = [createOnboardingVideo(folder)];
+
+				for (let i = 1; i <= 7; i++)
+				{
+					children.push(BX.create('img', {
+						props: { className: 'landing-site-pages-onboarding-star landing-site-pages-onboarding-star-' + i },
+						attrs: { src: folder + '/images/landing-site-pages-onboarding-star-' + i + '.png', alt: '' },
+					}));
+				}
+
+				children.push(BX.create('img', {
+					props: { className: 'landing-site-pages-onboarding-glow' },
+					attrs: { src: folder + '/images/landing-site-pages-onboarding-icon-glow.png', alt: '' },
+				}));
+				children.push(BX.create('img', {
+					props: { className: 'landing-site-pages-onboarding-marshmallow' },
+					attrs: { src: folder + '/images/landing-site-pages-onboarding-marshmallow.png', alt: '' },
+				}));
+
+				return BX.create('div', {
+					props: { className: 'landing-site-pages-onboarding-right' },
+					children,
+				});
+			};
+
+			const getOnboardingPopupContent = (folder) => {
+				const left = BX.create('div', {
+					props: { className: 'landing-site-pages-onboarding-left' },
+					children: [
+						BX.create('div', {
+							props: { className: 'landing-site-pages-onboarding-header' },
+							children: [
+								BX.create('div', {
+									props: { className: 'landing-site-pages-onboarding-title' },
+									text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_TITLE_MSGVER_1')) ?>',
+								}),
+								BX.create('div', {
+									props: { className: 'landing-site-pages-onboarding-subtitle' },
+									text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_SUBTITLE_MSGVER_1')) ?>',
+								}),
+							],
+						}),
+						BX.create('div', {
+							props: { className: 'landing-site-pages-onboarding-list' },
+							children: [
+								createOnboardingItem(
+									'o-idea-lamp',
+									'<?= $onboardingItem1Title ?>',
+									'<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_ITEM_1_DESC_MSGVER_1')) ?>',
+								),
+								createOnboardingItem(
+									'o-chats',
+									'<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_ITEM_2_TITLE_MSGVER_1')) ?>',
+									'<?= $onboardingItem2Desc ?>',
+								),
+								createOnboardingItem(
+									'o-like',
+									'<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_ITEM_3_TITLE_MSGVER_1')) ?>',
+									'<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ONBOARDING_AI_ITEM_3_DESC_MSGVER_1')) ?>',
+								),
+							],
+						}),
+						createOnboardingButton(),
+					],
+				});
+
+				return BX.create('div', {
+					props: { className: 'landing-site-pages-onboarding-popup-content --ui-context-content-dark' },
+					children: [left, createOnboardingRight(folder)],
+				});
+			};
+
+			const playOnboardingVideo = (video) => {
+				if (!video)
+				{
+					return;
+				}
+
+				const playPromise = video.play();
+				if (playPromise && typeof playPromise.catch === 'function')
+				{
+					playPromise.catch(() => {});
+				}
+			};
+
+			const pauseOnboardingVideo = (video) => {
+				if (video)
+				{
+					video.pause();
+				}
+			};
+
+			// one-time 360° spin of the glow icon, restartable on each open
+			const spinGlowOnce = (glow) => {
+				if (!glow)
+				{
+					return;
+				}
+
+				glow.classList.remove('--spin');
+				void glow.offsetWidth; // force reflow so the animation can replay
+				glow.classList.add('--spin');
+			};
+
+			const content = getOnboardingPopupContent(tplFolder);
+			const videoEl = content.querySelector('.landing-site-pages-onboarding-video');
+			const glowEl = content.querySelector('.landing-site-pages-onboarding-glow');
+
+			// responsive: ≤1000 → stacked layout, fit to screen, no side protrusion
+			const RESPONSIVE_MAX = 1000;
+			const getPopupWidth = () => (
+				window.innerWidth <= RESPONSIVE_MAX ? Math.min(500, window.innerWidth - 32) : 905
+			);
+			const getPopupOffsetLeft = () => (window.innerWidth <= RESPONSIVE_MAX ? 0 : -43);
+
+			const popup = new BX.Main.Popup({
+				id: 'landing-site-pages-onboarding-popup',
+				bindElement: window,
+				width: getPopupWidth(),
+				content: content,
+				closeIcon: {top: '12px', right: '13px'},
+				padding: 0,
+					className: 'landing-site-pages-onboarding-popup',
+				borderRadius: '24px',
+				overlay: true,
+				cacheable: false,
+				offsetLeft: getPopupOffsetLeft(),
+				events: {
+					onShow: () => {
+						applyResponsiveLayout();
+						if (videoEl)
+						{
+							// spin the glow once when the video actually starts
+							videoEl.addEventListener('playing', () => spinGlowOnce(glowEl), { once: true });
+						}
+						playOnboardingVideo(videoEl);
+					},
+					onClose: () => {
+						pauseOnboardingVideo(videoEl);
+						BX.unbind(window, 'resize', applyResponsiveLayout);
+					},
+				},
+			});
+
+			// keep the popup in sync when the viewport crosses the breakpoint (resize, not only reload)
+			const applyResponsiveLayout = () => {
+				popup.setWidth(getPopupWidth());
+				popup.setOffset({ offsetLeft: getPopupOffsetLeft(), offsetTop: 0 });
+				// setWidth re-adds inline overflow-x: auto — keep the protruding video visible
+				popup.getContentContainer().style.setProperty('overflow-x', 'visible');
+				popup.adjustPosition();
+			};
+
+			BX.bind(window, 'resize', applyResponsiveLayout);
+
+			popup.show();
+		});
+	</script>
+<?php endif; ?>
 
 <div class="grid-tile-wrap landing-pages-wrap" id="grid-tile-wrap">
 	<div class="grid-tile-inner" id="grid-tile-inner">

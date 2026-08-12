@@ -5,3 +5,4 @@ $MESS["qrcodeauth_error_option"] = "QR бойынша аутентификаци
 $MESS["qrcodeauth_error_pull"] = "Push and Pull модулі орнатылмаған.";
 $MESS["qrcodeauth_error_request"] = "Қате сұрау.";
 $MESS["qrcodeauth_error_unique_id"] = "Аутентификация үшін дұрыс емес профиль көрсетілген.";
+$MESS["qrcodeauth_error_unique_id_msgver_v1"] = "Кіру мүмкін болмады. Қосымшада #HOST# компьютерінде ашылған аккаунт ашылғанына көз жеткізіңіз";

@@ -9,4 +9,4 @@ $MESS["LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW"] = "Лендингті қарау 
 $MESS["LANDING_CMP_PAR_PAGE_URL_SITES"] = "Сайттар тізімі бар парақшаға сілтеме";
 $MESS["LANDING_CMP_PAR_SITE_ID"] = "Сайт идентификаторы";
 $MESS["LANDING_CMP_PAR_SITE_WORK_MODE"] = "Сайт режимінде мәжбүрлеп жұмыс істеу";
-$MESS["LANDING_CMP_PAR_SKIP_REMOTE_MSGVER_1"] = "Битрикс24.Маркетплейс-тен қалыптарды жүктемеу";
+$MESS["LANDING_CMP_PAR_SKIP_REMOTE_MSGVER_1"] = "Битрикс24.Маркетплейс-тен үлгілерді жүктемеу";

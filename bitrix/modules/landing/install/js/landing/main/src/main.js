@@ -4,6 +4,7 @@ import { Env } from 'landing.env';
 import { Loc } from 'landing.loc';
 import { Content } from 'landing.ui.panel.content';
 import { SaveBlock } from 'landing.ui.panel.saveblock';
+import 'landing.ui.panel.floatingnodepanel';
 import { SliderHacks } from 'landing.sliderhacks';
 import { PageObject } from 'landing.pageobject';
 import { Backend } from 'landing.backend';

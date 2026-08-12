@@ -6,4 +6,4 @@ $MESS["LANDING_CMP_PAR_PAGE_URL_SITES"] = "Сайттар тізімі бар б
 $MESS["LANDING_CMP_PAR_PAGE_URL_SITE_COOKIES"] = "Cookies өңдеу бетіне сілтеме";
 $MESS["LANDING_CMP_PAR_PAGE_URL_SITE_DOMAIN"] = "Доменді өңдеу бетіне сілтеме";
 $MESS["LANDING_CMP_PAR_SITE_ID"] = "Сайт ID-і";
-$MESS["LANDING_CMP_PAR_TEMPLATE"] = "Көрініс қалыбы";
+$MESS["LANDING_CMP_PAR_TEMPLATE"] = "Көрініс үлгісі";

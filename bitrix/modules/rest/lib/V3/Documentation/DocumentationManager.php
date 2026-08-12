@@ -22,6 +22,7 @@ use Bitrix\Rest\V3\Interaction\Response\BooleanResponse;
 use Bitrix\Rest\V3\Interaction\Response\DeleteResponse;
 use Bitrix\Rest\V3\Interaction\Response\GetResponse;
 use Bitrix\Rest\V3\Interaction\Response\ListResponse;
+use Bitrix\Rest\V3\Interaction\Response\TailResponse;
 use Bitrix\Rest\V3\Interaction\Response\UpdateResponse;
 use Bitrix\Rest\V3\Schema\MethodDescription;
 use Bitrix\Rest\V3\Schema\TypeAliasRegistry;
@@ -63,6 +64,16 @@ class DocumentationManager
 		DeleteResponse::class,
 		UpdateResponse::class,
 		AggregateResponse::class,
+	];
+
+	private array $formatTypes = [
+		'float' => ['type' => 'float'],
+		'array' => ['type' => 'array'],
+		'bool' => ['type' => 'boolean'],
+		'int' => ['type' => 'integer', 'format' => 'int64'],
+		'string' => ['type' => 'string'],
+		DateTime::class => ['type' => 'string', 'format' => 'date-time'],
+		Date::class => ['type' => 'string', 'format' => 'date'],
 	];
 
 	public function __construct(private readonly string $language)
@@ -148,6 +159,20 @@ class DocumentationManager
 
 						$reflectionMethod = $controller->getMethod($controllerMethodDescription->method . 'Action');
 						$returnType = $reflectionMethod->getReturnType()->getName();
+						if (!in_array($returnType, self::AVAILABLE_DEFAULT_RESPONSES, true))
+						{
+							foreach ($this->getExtraResponseProperties($returnType) as $extraResponseProperty)
+							{
+								if (is_subclass_of($extraResponseProperty, Dto::class))
+								{
+									$extraDto = $this->getDtoByClass($extraResponseProperty);
+									if ($extraDto !== null)
+									{
+										$this->collectDtoSchemas($extraDto, $customModuleSchemas[$moduleId] ?? [], $dtoSchemas);
+									}
+								}
+							}
+						}
 						$methodData = $this->getMethodData($reflectionMethod, $returnType, $controllerMethodDescription);
 						if ($methodData === null)
 						{
@@ -213,6 +238,10 @@ class DocumentationManager
 			if (is_subclass_of($type, Dto::class))
 			{
 				$dto = $this->getDtoByClass($type);
+				if ($dto === null)
+				{
+					continue;
+				}
 				$this->collectDtoSchemas($dto, $customSchemas, $dtoSchemas);
 			}
 			elseif ($type === DtoCollection::class && $field->getElementType() && is_subclass_of($field->getElementType(), Dto::class))
@@ -294,6 +323,25 @@ class DocumentationManager
 
 					return $result;
 				}),
+				TailResponse::class => [
+					'type' => 'object',
+					'properties' => [
+						'items' => [
+							'type' => 'array',
+							'items' => $dto ? [
+								'$ref' => '#/components/schemas/' . TypeAliasRegistry::toPublicType($dto),
+							] : [],
+						],
+						'hasMore' => [
+							'type' => 'boolean',
+						],
+						'cursor' => [
+							'$ref' => '#/components/schemas/' . TypeAliasRegistry::toPublicType(
+								$this->getDtoByClass(\Bitrix\Rest\V3\Interaction\Response\CursorResponseDto::class)
+							),
+						],
+					],
+				],
 				AddResponse::class => [
 					'type' => 'object',
 					'properties' => [
@@ -338,15 +386,72 @@ class DocumentationManager
 			return $baseResponse($getResponseByClass($returnTypeClass));
 		}
 
+		if ($returnTypeClass === TailResponse::class)
+		{
+			return $baseResponse($getResponseByClass($returnTypeClass));
+		}
+
 		foreach (self::AVAILABLE_DEFAULT_RESPONSES as $responseClass)
 		{
 			if (is_subclass_of($returnTypeClass, $responseClass))
 			{
-				return $baseResponse($getResponseByClass($responseClass));
+				$base = $getResponseByClass($responseClass);
+
+				$extraProperties = $this->getExtraResponseProperties($returnTypeClass);
+
+				if (empty($extraProperties))
+				{
+					return $base;
+				}
+
+				foreach ($extraProperties as $extraPropertyName => $extraPropertyType)
+				{
+					if (is_subclass_of($extraPropertyType, Dto::class))
+					{
+						$extraProperty = $this->getDtoByClass($extraPropertyType);
+						if ($extraProperty === null)
+						{
+							continue;
+						}
+						$base['properties'][$extraPropertyName] = [
+							'$ref' => '#/components/schemas/' . TypeAliasRegistry::toPublicType($extraProperty),
+						];
+					}
+					elseif (isset($this->formatTypes[$extraPropertyType]))
+					{
+						$base['properties'][$extraPropertyName] = $this->formatTypes[$extraPropertyType];
+					}
+				}
+
+				return $baseResponse($base);
 			}
 		}
 
 		return $baseResponse();
+	}
+
+	private function getExtraResponseProperties(string $returnTypeClass): array
+	{
+		if (!class_exists($returnTypeClass))
+		{
+			return [];
+		}
+
+		$extras = [];
+		$reflection = new ReflectionClass($returnTypeClass);
+		foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $property)
+		{
+			$type = $property->getType();
+
+			if (!($type instanceof ReflectionNamedType))
+			{
+				continue;
+			}
+
+			$extras[$property->getName()] = $type->getName();
+		}
+
+		return $extras;
 	}
 
 	private function aggregateProperties(): array
@@ -383,7 +488,8 @@ class DocumentationManager
 
 		if ($field->getDescription() !== null)
 		{
-			$result['description'] = $field->getDescription() instanceof LocalizableMessage ? $field->getDescription()->localize($this->language) : $field->getDescription();
+			$description = $field->getDescription() instanceof LocalizableMessage ? $field->getDescription()->localize($this->language) : $field->getDescription();
+			$result['description'] = trim($description);
 		}
 
 		return $result;
@@ -391,19 +497,9 @@ class DocumentationManager
 
 	private function getFormatByType(DtoField $field): array
 	{
-		$types = [
-			'float' => ['type' => 'float'],
-			'array' => ['type' => 'array'],
-			'bool' => ['type' => 'boolean'],
-			'int' => ['type' => 'integer', 'format' => 'int64'],
-			'string' => ['type' => 'string'],
-			DateTime::class => ['type' => 'string', 'format' => 'date-time'],
-			Date::class => ['type' => 'string', 'format' => 'date'],
-		];
-
-		if (isset($types[$field->getPropertyType()]))
+		if (isset($this->formatTypes[$field->getPropertyType()]))
 		{
-			return $types[$field->getPropertyType()];
+			return $this->formatTypes[$field->getPropertyType()];
 		}
 
 		if ($field->getPropertyType() === DtoCollection::class)
@@ -418,7 +514,29 @@ class DocumentationManager
 			return ['$ref' => '#/components/schemas/' . TypeAliasRegistry::toPublicType($dto)];
 		}
 
+		if (is_subclass_of($field->getPropertyType(), \BackedEnum::class))
+		{
+			return $this->getBackedEnumFormat($field->getPropertyType());
+		}
+
 		return [];
+	}
+
+	private function getBackedEnumFormat(string $enumClass): array
+	{
+		$reflection = new \ReflectionEnum($enumClass);
+		$backingType = $reflection->getBackingType()?->getName() === 'int' ? 'integer' : 'string';
+
+		$values = [];
+		foreach ($enumClass::cases() as $case)
+		{
+			$values[] = $case->value;
+		}
+
+		return [
+			'type' => $backingType,
+			'enum' => $values,
+		];
 	}
 
 	private function getDtoCollectionProperty(DtoField $field): array
@@ -472,7 +590,7 @@ class DocumentationManager
 
 	private function getPropertyTypeProperties(string $typeName): ?array
 	{
-		return match ($typeName)
+		$primitive = match ($typeName)
 		{
 			'int' => [
 				'type' => 'integer',
@@ -495,6 +613,18 @@ class DocumentationManager
 			],
 			default => null,
 		};
+
+		if ($primitive !== null)
+		{
+			return $primitive;
+		}
+
+		if (is_subclass_of($typeName, \BackedEnum::class))
+		{
+			return $this->getBackedEnumFormat($typeName);
+		}
+
+		return null;
 	}
 
 	private function getExamplesByDtoClass(\ReflectionProperty $property, ?DtoExample $dtoExample, MethodDescription $methodDescription): array
@@ -628,7 +758,7 @@ class DocumentationManager
 			return $this->language ? $value->localize($this->language) : (string)$value;
 		}
 
-		return $value !== null ? (string)$value : null;
+		return $value !== null ? trim((string)$value) : null;
 	}
 
 	/**

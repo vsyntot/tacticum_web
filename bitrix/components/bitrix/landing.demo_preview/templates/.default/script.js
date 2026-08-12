@@ -479,6 +479,7 @@
 							buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
 							okCaption: this.messages.LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT,
 							cancelCaption: this.messages.LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT,
+							useAirDesign: true,
 							onOk: () => {
 								isClickOnButtonOk = true;
 								this.finalRedirectAjax(this.getCreateUrl());

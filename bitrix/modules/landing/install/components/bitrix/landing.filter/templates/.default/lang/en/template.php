@@ -1,6 +1,9 @@
 <?php
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "Cannot create a store because inventory management is enabled in 1C";
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT"] = "Learn more";
+$MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_AI_SITE"] = "AI-assisted site";
+$MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_IN_BUILDER"] = "Create using the site builder";
+$MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_WITH_TEMPLATE"] = "Create from template";
 $MESS["LANDING_TPL_CREATE_FOLDER"] = "Create folder";
 $MESS["LANDING_TPL_CREATE_FOLDER_ACTION"] = "Create";
 $MESS["LANDING_TPL_FLT_CREATED_BY_ID"] = "Created by";
@@ -18,3 +21,7 @@ $MESS["LANDING_TPL_FLT_Y"] = "Yes";
 $MESS["LANDING_TPL_PRS_ACTIVE"] = "Active";
 $MESS["LANDING_TPL_PRS_MY"] = "My";
 $MESS["LANDING_TPL_RECYCLE_BIN"] = "Recycle bin";
+// TODO: please double-check this translation
+$MESS["LANDING_FILTER_LIST_UPDATED"] = "List updated";
+// TODO: please double-check this translation
+$MESS["LANDING_FILTER_LIST_UPDATE_ERROR"] = "Failed to update the list";

@@ -69,6 +69,11 @@ class Sanitizer
 			}, $text);
 		}
 
+		if (self::containsUnneutralizedPhpOpenTag($text))
+		{
+			$bad = true;
+		}
+
 		$needReverse = $this->checkFilter(self::AVAILABLE_TEXT_FILTERS['reverseSanitize']);
 		if ($needReverse)
 		{
@@ -104,9 +109,25 @@ class Sanitizer
 	}
 
 	/**
+	 * Raw PHP open tag (<? …), not landing-neutralized form (< ? …).
+	 */
+	public static function containsUnneutralizedPhpOpenTag(string $content): bool
+	{
+		return str_contains($content, '<?');
+	}
+
+	/**
+	 * Validates a physical block CODE (format "namespace:code" or just "code") before it is
+	 * used to build an include path. Not for theme TPL_CODE — those go through the closed
+	 * LocalTemplates whitelist instead.
+	 */
+	public static function isValidBlockCode(string $code): bool
+	{
+		return (bool)preg_match('/^[A-Za-z0-9_.:-]+$/', $code);
+	}
+
+	/**
 	 * Replaces some specific for landing substitutions back after sanitize
-	 * @param string $text
-	 * @return string
 	 */
 	private function reverseSanitizeText(string $text): string
 	{

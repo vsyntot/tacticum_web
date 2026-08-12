@@ -1,4 +1,4 @@
-import { Tag, Dom } from 'main.core';
+import { Tag, Dom, Extension } from 'main.core';
 import { PopupWindowManager } from 'main.popup';
 import { MarketList } from '../component/market-list';
 import { EventEmitter } from 'main.core.events';
@@ -167,6 +167,13 @@ export class MarketExpiredPopup extends EventEmitter
 		return this.#analytic;
 	}
 
+	getCopilotReplacements(): Object
+	{
+		return {
+			'#COPILOT_NAME#': Extension.getSettings('rest.market-expired')?.copilotName ?? '',
+		};
+	}
+
 	#getContent(): HTMLElement
 	{
 		return Tag.render`
@@ -219,3 +226,4 @@ export class MarketExpiredPopup extends EventEmitter
 		`;
 	}
 }
+

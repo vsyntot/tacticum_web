@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--DESC"] = "Киім дүкенінің қалыбы, оны өз бизнесіңізге айналдырып, сатуды бастаңыз!";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--DESC"] = "Киім дүкенінің үлгісі, оны өз бизнесіңізге айналдырып, сатуды бастаңыз!";
 $MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--NAME"] = "Басты парақша";
 $MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_1"] = "Баға құлдырауы! Осы аптада сатып алуға уақыт бөліңіз!";
 $MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_2"] = "Жаңа аяқ киім топтамасы";

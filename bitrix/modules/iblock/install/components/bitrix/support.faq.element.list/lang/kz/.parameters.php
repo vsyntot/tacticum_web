@@ -1,6 +1,6 @@
 <?php
 $MESS["CP_BSFEL_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
-$MESS["PATH_TO_USER"] = "Пайдаланушы парақшасына жол қалыбы";
+$MESS["PATH_TO_USER"] = "Пайдаланушы парақшасына жол үлгісі";
 $MESS["RATING_TYPE"] = "Рейтинг батырмаларының түрі";
 $MESS["RATING_TYPE_CONFIG"] = "әдепкі бойынша";
 $MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Маған ұнайды (графикалық)";

@@ -1,7 +1,7 @@
 <?
 $MESS["EPILOG_ADMIN_SM_1c_bitrix"] = "1С-Битрикс: Управление сайтом";
 $MESS["EPILOG_ADMIN_SM_bitrix"] = " ";
-$MESS["EPILOG_ADMIN_SM_1c_bitrix_portal"] = "1С-Битрикс: Корпоративный портал";
+$MESS["EPILOG_ADMIN_SM_1c_bitrix_portal"] = "1С-Битрикс24";
 $MESS["EPILOG_ADMIN_SM_bitrix_portal"] = " ";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix_eduportal"] = "1С-Битрикс: Внутренний портал учебного заведения";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix_gosportal"] = "1С-Битрикс: Внутренний портал органа власти";

@@ -120,7 +120,8 @@ Extension::load([
 	'ui.dialogs.messagebox',
 	'ui.forms',
 	'ui.hint',
-	'ui.icon-set.actions'
+	'ui.icon-set.actions',
+	'ui.icon-set.outline',
 ]);
 
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
@@ -161,17 +162,17 @@ $uriCookies->addParams([
 <script>
 	BX.ready(function(){
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
-		<?if ($arParams['SUCCESS_SAVE']): ?>
-			top.window['landingSettingsSaved'] = true;
-			top.BX.onCustomEvent('BX.Landing.Filter:apply');
-			editComponent.actionClose();
-			if (typeof top.BX.Landing.UI !== 'undefined' && typeof top.BX.Landing.UI.Tool !== 'undefined')
-			{
-				top.BX.Landing.UI.Tool.ActionDialog.getInstance().close();
-			}
+		<?php if ($arParams['SUCCESS_SAVE']): ?>
+		top.window['landingSettingsSaved'] = true;
+		top.BX.onCustomEvent('BX.Landing.Filter:apply');
+		editComponent.actionClose();
+		if (typeof top.BX.Landing.UI !== 'undefined' && typeof top.BX.Landing.UI.Tool !== 'undefined')
+		{
+			top.BX.Landing.UI.Tool.ActionDialog.getInstance().close();
+		}
 		<?php else: ?>
-			top.window['landingSettingsSaved'] = false;
-		<?endif;?>
+		top.window['landingSettingsSaved'] = false;
+		<?php endif;?>
 		BX.Landing.Env.createInstance({
 			site_id: '<?= $row['ID']['CURRENT'] ?>',
 			params: {
@@ -311,10 +312,10 @@ if ($arParams['SUCCESS_SAVE'])
 								<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w100">
 									<div class="ui-ctl-after ui-ctl-icon-angle "></div>
 									<select name="fields[DOMAIN_ID]" class="ui-ctl-element">
-										<?foreach ($arResult['DOMAINS'] as $item):?>
+										<?php foreach ($arResult['DOMAINS'] as $item):?>
 											<option
 												value="<?= $item['ID']?>"
-												<?if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?}?>
+												<?php if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?php }?>
 											>
 												<?= htmlspecialcharsbx($item['DOMAIN']) ?>
 											</option>
@@ -706,7 +707,7 @@ if ($arParams['SUCCESS_SAVE'])
 												?>name="fields[ADDITIONAL_FIELDS][VIEW_TYPE]" <?php
 												?>class="ui-radio" <?php
 												?>id="<?= $template->getFieldId('VIEW_TYPE_' . $key) ?>" <?php
-												?><?php if ($value === $key){?> checked="checked"<?}?> <?php
+												?><?php if ($value === $key){?> checked="checked"<?php }?> <?php
 												?>value="<?= $key ?>" />
 												<label for="<?= $template->getFieldId('VIEW_TYPE_' . $key) ?>">
 													<span class="landing-form-type-page-img"></span>
@@ -788,8 +789,8 @@ if ($arParams['SUCCESS_SAVE'])
 										<div class="landing-form-list-inner">
 											<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl):?>
 												<div class="landing-form-layout-item-img-container">
-													<label class="landing-form-layout-item <?
-														?><?= (!$row['TPL_ID']['CURRENT'] && $tpl['XML_ID'] == 'empty') ? 'landing-form-layout-item-selected ' : ''?><?
+													<label class="landing-form-layout-item <?php
+														?><?= (!$row['TPL_ID']['CURRENT'] && $tpl['XML_ID'] == 'empty') ? 'landing-form-layout-item-selected ' : ''?><?php
 														?>landing-form-layout-item-<?= $tpl['XML_ID'] ?>" <?php
 														?>data-block="<?= $tpl['AREA_COUNT'] ?>" <?php
 														?>data-layout="<?= $tpl['XML_ID'] ?>" <?php
@@ -888,7 +889,7 @@ if ($arParams['SUCCESS_SAVE'])
 								type="checkbox"
 								id="<?= $template->getFieldId('404-USE') ?>"
 								class="ui-ctl-element"
-								<?php if ($row['LANDING_ID_404']['CURRENT']){?> checked="checked"<?}?>
+								<?php if ($row['LANDING_ID_404']['CURRENT']){?> checked="checked"<?php }?>
 							>
 							<div class="ui-ctl-label-text"><?= Loc::getMessage('LANDING_TPL_PAGE_404_USE')?></div>
 						</label>
@@ -1034,7 +1035,7 @@ if ($arParams['SUCCESS_SAVE'])
 									type="checkbox"
 									id="<?= $template->getFieldId('503-USE') ?>"
 									class="ui-ctl-element"
-									<?php if ($row['LANDING_ID_503']['CURRENT']){?> checked="checked"<?}?>
+									<?php if ($row['LANDING_ID_503']['CURRENT']){?> checked="checked"<?php }?>
 								>
 								<div class="ui-ctl-label-text" for="<?= $template->getFieldId('503-USE') ?>">
 									<?= Loc::getMessage('LANDING_TPL_PAGE_503_USE') ?>
@@ -1137,7 +1138,7 @@ if ($arParams['SUCCESS_SAVE'])
 											<?= Loc::getMessage('LANDING_TPL_HOOK_COOKIES_SCRIPT_WARN') ?>
 										</div>
 									<?php endif;?>
-									<?$APPLICATION->IncludeComponent(
+									<?php $APPLICATION->IncludeComponent(
 										'bitrix:landing.userconsent.selector',
 										'',
 										array(
@@ -1170,7 +1171,7 @@ if ($arParams['SUCCESS_SAVE'])
 												<?php if (isset($pageFields['COOKIES_COLOR_BG'])):?>
 													<div class="landing-form-cookies-settings-color-bg">
 														<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_BG']->getLabel() ?></span>
-														<?$pageFields['COOKIES_COLOR_BG']->viewForm([
+														<?php $pageFields['COOKIES_COLOR_BG']->viewForm([
 															'class' => 'landing-form-cookies-color landing-form-cookies-color-bg',
 															'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 														]);?>
@@ -1179,7 +1180,7 @@ if ($arParams['SUCCESS_SAVE'])
 												<?php if (isset($pageFields['COOKIES_COLOR_TEXT'])):?>
 													<div class="landing-form-cookies-settings-color-text">
 														<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_TEXT']->getLabel() ?></span>
-														<?$pageFields['COOKIES_COLOR_TEXT']->viewForm([
+														<?php $pageFields['COOKIES_COLOR_TEXT']->viewForm([
 															'class' => 'landing-form-cookies-color landing-form-cookies-color-text',
 															'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 														]);?>
@@ -1300,7 +1301,7 @@ if ($arParams['SUCCESS_SAVE'])
 													class="ui-ctl-element"
 												>
 													<?php foreach ($arResult['ACCESS_TASKS'] as $accessTask):?>
-														<option value="<?= $accessTask['ID'] ?>"<?if (in_array($accessTask['ID'], $right['TASK_ID'])){?> selected="selected"<?}?>>
+														<option value="<?= $accessTask['ID'] ?>"<?php if (in_array($accessTask['ID'], $right['TASK_ID'])){?> selected="selected"<?php }?>>
 															<?= htmlspecialcharsbx('[' . $accessTask['ID']. ']' . $accessTask['TITLE']) ?>
 														</option>
 													<?php endforeach;?>

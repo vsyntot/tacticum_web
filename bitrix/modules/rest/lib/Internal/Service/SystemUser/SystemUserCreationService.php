@@ -3,7 +3,6 @@
 namespace Bitrix\Rest\Internal\Service\SystemUser;
 
 use Bitrix\Main\DB\DuplicateEntryException;
-use Bitrix\Main\Event;
 use Bitrix\Rest\Internal\Entity\SystemUser;
 use Bitrix\Rest\Internal\Entity\User;
 use Bitrix\Rest\Internal\Exceptions\Service\SystemUser\UserNotFoundException;
@@ -12,6 +11,10 @@ use Bitrix\Rest\Internal\Entity\SystemUser\ResourceType;
 use Bitrix\Rest\Internal\Integration\HumanResources\MemberService;
 use Bitrix\Rest\Internal\Repository\SystemUser\SystemUserRepository;
 use Bitrix\Rest\Internal\Repository\User\UserRepository;
+use Bitrix\Rest\Internal\Service\Security\SecurityAuditLogger;
+use Bitrix\Rest\Public\Event\SystemUser\SystemUserActivatedEvent;
+use Bitrix\Rest\Public\Event\SystemUser\SystemUserCreatedEvent;
+use Bitrix\Rest\Public\Event\SystemUser\SystemUserDeactivatedEvent;
 
 final class SystemUserCreationService
 {
@@ -20,16 +23,21 @@ final class SystemUserCreationService
 		private readonly UserRepository $userRepository,
 		private readonly UserCredentialsGenerator $userCredentialsGenerator,
 		private readonly MemberService $memberService,
+		private readonly SecurityAuditLogger $securityAuditLogger = new SecurityAuditLogger(),
 	)
 	{
 	}
 
-	public function createForApplication(int $originalUserId, string $applicationName): SystemUser
+	public function createForApplication(int $originalUserId, int $applicationId, string $applicationName): SystemUser
 	{
+		$applicationName = htmlspecialcharsbx($applicationName);
+
 		return $this->createSystemUser(
 			originalUserId: $originalUserId,
 			resourceType: ResourceType::APPLICATION,
-			applicationName: $applicationName
+			resourceId: $applicationId,
+			name: $applicationName,
+			lastName: '',
 		);
 	}
 
@@ -38,34 +46,28 @@ final class SystemUserCreationService
 		return $this->createSystemUser(
 			originalUserId: $originalUserId,
 			resourceType: ResourceType::WEBHOOK,
-			applicationName: null
+			resourceId: $originalUserId,
 		);
 	}
 
 	private function createSystemUser(
 		int $originalUserId,
 		ResourceType $resourceType,
-		?string $applicationName,
+		int $resourceId,
 		AccountType $accountType = AccountType::AUTO,
+		?string $name = null,
+		?string $lastName = null,
+		?string $notes = null,
 	): SystemUser
 	{
 		/** @var SystemUser|null $systemUser */
-		$systemUser = $this->systemUserRepository->getByResourceIdAndResourceType($originalUserId, $resourceType);
+		$systemUser = $this->systemUserRepository->getByResourceIdAndResourceType($resourceId, $resourceType);
+		$originalUser = $this->getOriginalUser($originalUserId);
 		if ($systemUser !== null)
 		{
+			$this->activateSystemUser($systemUser, $originalUser);
+
 			return $systemUser;
-		}
-
-		if ($applicationName !== null)
-		{
-			$applicationName = htmlspecialcharsbx($applicationName);
-		}
-
-		/** @var User|null $originalUser */
-		$originalUser = $this->userRepository->getById($originalUserId);
-		if ($originalUser === null)
-		{
-			throw new UserNotFoundException();
 		}
 
 		$groupIds = $originalUser->getGroupIds() ?: [];
@@ -74,40 +76,30 @@ final class SystemUserCreationService
 			active: true,
 			login: $this->userCredentialsGenerator->generateLogin(),
 			email: $this->userCredentialsGenerator->generateEmail(),
-			name: $resourceType === ResourceType::APPLICATION ? $applicationName : $originalUser->getName(),
-			lastName: $resourceType === ResourceType::APPLICATION ? '' : $originalUser->getLastName(),
+			name: is_null($name) ? $originalUser->getName() : $name,
+			lastName: is_null($lastName) ? $originalUser->getLastName() : $lastName,
 			password: $this->userCredentialsGenerator->generatePasswordByGroupsIds($groupIds),
 			timeZone: $originalUser->getTimeZone(),
 			languageId: $originalUser->getLanguageId(),
 			groupIds: $groupIds,
-			adminNotes: 'Created as copy of user with ID ' . $originalUserId .
-				($resourceType === ResourceType::APPLICATION ? ' for "' . $applicationName .'" application' : ' for webhooks'),
+			adminNotes: $notes,
 			externalAuthId: 'rest_system',
 		);
 
 		$this->userRepository->save($newUser);
 
-		\CEventLog::Log(
-			\CEventLog::SEVERITY_SECURITY,
-			'USER_REGISTER',
-			'rest',
-			$newUser->getId(),
-			json_encode([
-				'originalUserId' => $originalUserId,
-				'newUserId' => $newUser->getId(),
-			])
+		$this->securityAuditLogger->logSystemUserRegistered(
+			newUserId: (int)$newUser->getId(),
+			originalUserId: $originalUserId,
+			resourceId: $resourceId,
+			resourceType: $resourceType->value,
 		);
 
 		try {
-			$systemUser = new SystemUser(null, $newUser->getId(), $accountType, $resourceType, $originalUserId);
+			$systemUser = new SystemUser(null, $newUser->getId(), $accountType, $resourceType, $resourceId);
 			$this->systemUserRepository->save($systemUser);
 
-			$event = new \Bitrix\Main\Event('rest', 'onSystemUserCreated', [
-				'originalUserId' => $originalUserId,
-				'newUserId' => $newUser->getId(),
-				'resourceType' => $resourceType->value,
-				'applicationName' => $applicationName,
-			]);
+			$event = new SystemUserCreatedEvent($systemUser, $originalUser);
 			$event->send();
 
 			$this->memberService->clone($originalUserId, $newUser->getId());
@@ -118,5 +110,70 @@ final class SystemUserCreationService
 		}
 
 		return $systemUser;
+	}
+
+	private function deactivateSystemUser(SystemUser $systemUser): void
+	{
+		$user = new User(
+			id: $systemUser->getUserId(),
+			active: false,
+		);
+
+		$this->userRepository->save($user);
+
+		$this->securityAuditLogger->logSystemUserDeactivated(
+			systemUserId: (int)$systemUser->getUserId(),
+			resourceId: (int)$systemUser->getResourceId(),
+			resourceType: $systemUser->getResourceType()?->value ?? '',
+		);
+	}
+
+	public function deactivateForApplication(int $applicationId): void
+	{
+		$systemUser = $this->systemUserRepository->getByResourceIdAndResourceType($applicationId, ResourceType::APPLICATION);
+		if (!$systemUser)
+		{
+			return;
+		}
+
+		$this->deactivateSystemUser($systemUser);
+
+		$event = new SystemUserDeactivatedEvent($systemUser);
+		$event->send();
+	}
+
+	private function activateSystemUser(SystemUser $systemUser, ?User $originalUser = null): void
+	{
+		$user = new User(
+			id: $systemUser->getUserId(),
+			active: true,
+			timeZone: $originalUser?->getTimeZone(),
+			languageId: $originalUser?->getLanguageId(),
+			groupIds: $originalUser?->getGroupIds(),
+		);
+
+		$this->userRepository->save($user);
+
+		$this->securityAuditLogger->logSystemUserActivated(
+			systemUserId: (int)$systemUser->getUserId(),
+			resourceId: (int)$systemUser->getResourceId(),
+			resourceType: $systemUser->getResourceType()?->value ?? '',
+			originalUserId: $originalUser?->getId(),
+		);
+
+		$event = new SystemUserActivatedEvent($systemUser, $originalUser);
+		$event->send();
+	}
+
+	private function getOriginalUser(int $originalUserId): User
+	{
+		/** @var User|null $originalUser */
+		$originalUser = $this->userRepository->getById($originalUserId);
+		if ($originalUser === null)
+		{
+			throw new UserNotFoundException();
+		}
+
+		return $originalUser;
 	}
 }

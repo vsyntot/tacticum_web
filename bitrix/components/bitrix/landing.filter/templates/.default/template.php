@@ -27,8 +27,8 @@ Loc::loadMessages(__FILE__);
 \CJSCore::init(array('sidepanel', 'action_dialog', 'loader'));
 Extension::load([
 	'ui.hint',
+	'ui.icon-set.outline',
 	'ui.toolbar',
-	'ai.copilot-promo-popup',
 ]);
 
 if ($arResult['FATAL'])
@@ -78,10 +78,28 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 	$button = array_shift($arParams['BUTTONS']);
 	if (isset($button['LINK'], $button['TITLE']))
 	{
-		$createButton = new UI\Buttons\CreateButton([
-			'id' => 'landing-create-element',
-			'text' => HtmlFilter::encode($button['TITLE']),
-		]);
+		$isPageDropdown = $arParams['TYPE'] === 'PAGE';
+		if ($isPageDropdown)
+		{
+			$button['TYPE'] = 'dropdown';
+		}
+		if ($isPageDropdown)
+		{
+			$createButton = new UI\Buttons\Button([
+				'id' => 'landing-create-element',
+				'text' => HtmlFilter::encode($button['TITLE']),
+				'color' => UI\Buttons\Color::SUCCESS,
+				'style' => UI\Buttons\AirButtonStyle::FILLED_SUCCESS,
+				'collapsedIcon' => UI\Buttons\Icon::ADD_M,
+			]);
+		}
+		else
+		{
+			$createButton = new UI\Buttons\CreateButton([
+				'id' => 'landing-create-element',
+				'text' => HtmlFilter::encode($button['TITLE']),
+			]);
+		}
 		$toolbarParams['landingCreateButtonId'] = $createButton->getUniqId();
 
 		$isButtonDisabled = isset($button['DISABLED']) && $button['DISABLED'] === true;
@@ -106,12 +124,69 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 		{
 			$createButton->setDisabled();
 		}
-		else
+		elseif (!$isPageDropdown)
 		{
 			$createButton->setLink($button['LINK']);
 		}
 
-		if (!empty($arParams['BUTTONS']))
+		if ($isPageDropdown)
+		{
+			$generateGptLink = '/sites/ai/';
+			$selectTemplateLink = $button['LINK'];
+			$generateGptTitle = Loc::getMessage('LANDING_TPL_CREATE_DROPDOWN_ITEM_AI_SITE');
+			$generateGptTitleHtml = HtmlFilter::encode($generateGptTitle);
+			$isAiSiteChatAvailable =
+				($arParams['AI_SITE_CHAT_AVAILABLE'] ?? true) !== false
+				&& ($arParams['AI_SITE_CHAT_AVAILABLE'] ?? true) !== 'N'
+			;
+			$createMenuItems = [
+				[
+					'text' => Loc::getMessage('LANDING_TPL_CREATE_DROPDOWN_ITEM_WITH_TEMPLATE'),
+					'onclick' => [
+						'code' => "BX.Landing.Component.Filter.onCreateDropdownItemClick('select_template', " . Json::encode($selectTemplateLink) . ");",
+					],
+				],
+				[
+					'text' => Loc::getMessage('LANDING_TPL_CREATE_DROPDOWN_ITEM_IN_BUILDER'),
+					'onclick' => [
+						'code' => "BX.Landing.Component.Filter.onCreateDropdownItemClick('build_yourself');",
+					],
+				],
+			];
+			if ($isAiSiteChatAvailable)
+			{
+				array_unshift(
+					$createMenuItems,
+					[
+						'html' => <<<HTML
+							<span class="landing-filter-create-menu-ai-item-content">
+								<span class="landing-filter-create-menu-ai-item-text">{$generateGptTitleHtml}</span>
+								<span class="landing-filter-create-menu-ai-item-icon ui-icon-set --bitrix-gpt" aria-hidden="true"></span>
+							</span>
+						HTML,
+						'className' => 'landing-filter-create-menu-ai-item menu-popup-no-icon',
+						'dataset' => [
+							'testid' => 'landing-filter-create-ai-site-menu-item',
+						],
+						'onclick' => [
+							'code' => "BX.Landing.Component.Filter.onCreateDropdownItemClick('generate_gpt', " . Json::encode($generateGptLink) . ");",
+						],
+					],
+				);
+			}
+
+			$createButton
+				->setDropdown()
+				->setMenu([
+					'autoHide' => true,
+					'closeEsc' => true,
+					'offsetLeft' => 20,
+					'angle' => true,
+					'items' => $createMenuItems,
+				])
+			;
+		}
+		elseif (!empty($arParams['BUTTONS']))
 		{
 			$createButtonOptions = [];
 			foreach ($arParams['BUTTONS'] as $button)
@@ -124,13 +199,12 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 					];
 				}
 			}
-			if (!empty($createButtonOptions))
-			{
-				$createButton
-					->setIcon(UI\Buttons\Icon::ADD)
-					->setDropdown()
-					->setMenu([
-						'autoHide' => true,
+				if (!empty($createButtonOptions))
+				{
+					$createButton
+						->setDropdown()
+						->setMenu([
+							'autoHide' => true,
 						'closeEsc' => true,
 						'offsetLeft' => 20,
 						'angle' => true,
@@ -256,27 +330,24 @@ if ($arParams['FOLDER_SITE_ID'])
 	}
 	Toolbar::addButton($createFolderButton);
 }
-?>
 
-<?php
-// AI site first popup
-$isNeedShowSiteAIPopup = false;
-$option = \CUserOptions::GetOption('landing', 'site-ai-popup');
-if (!isset($option['isShow']))
+$toolbarParams['componentName'] = $this->getComponent()->getName();
+$signedParameters = $this->getComponent()->getSignedParameters();
+if (!$signedParameters)
 {
-	$isNeedShowSiteAIPopup = true;
+	$signedParameters = \Bitrix\Main\Component\ParameterSigner::signParameters(
+		$this->getComponent()->getName(),
+		$this->getComponent()->arParams
+	);
 }
-if (
-	$arParams['TYPE'] === 'PAGE'
-	&& $isNeedShowSiteAIPopup
-	&& \Bitrix\Landing\Copilot\Manager::isAvailable()
-)
-{
-	$toolbarParams['landingShowSiteAIPopup'] = true;
-}
+$toolbarParams['signedParameters'] = $signedParameters;
 ?>
 
 <script>
+	BX.message(<?= \CUtil::PhpToJSObject([
+		'LANDING_FILTER_LIST_UPDATED' => Loc::getMessage('LANDING_FILTER_LIST_UPDATED'),
+		'LANDING_FILTER_LIST_UPDATE_ERROR' => Loc::getMessage('LANDING_FILTER_LIST_UPDATE_ERROR'),
+	]) ?>);
 	BX.ready(() =>
 	{
 		new BX.Landing.Component.Filter(<?= Json::encode($toolbarParams) ?>);

@@ -45,6 +45,7 @@ $MESS["USER_LAST_SEEN_TOMORROW"] = "ертең #TIME#";
 $MESS["USER_LAST_SEEN_YESTERDAY"] = "кеше #TIME#";
 $MESS["USER_LOGIN_OTP_ERROR"] = "Бір реттік құпиясөздер қолданылмайды.";
 $MESS["USER_LOGIN_OTP_INCORRECT"] = "Қате бір реттік құпиясөз.";
+$MESS["USER_MAX_LOGIN"] = "Логин 50 таңбадан аспауы керек.";
 $MESS["USER_REGISTERED_SIMPLE"] = "Сіз сайтта тіркелдіңіз.";
 $MESS["USER_REGISTER_OK"] = "Сіз сәтті тіркелдіңіз.";
 $MESS["USER_STATUS_OFFLINE"] = "Желіде емес";

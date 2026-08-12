@@ -1,5 +1,6 @@
 import {Uri, Cache, Loc, Reflection, Type, Http, ajax, Text} from 'main.core';
 import {Env} from 'landing.env';
+import {resolveUploadErrorAction} from './upload_error';
 import type {Block, Landing, Site, Template, CreatePageOptions, SourceResponse, PreparedResponse} from './types';
 
 let additionalRequestCompleted = true;
@@ -402,7 +403,12 @@ export class Backend
 			.then((response) => response.result)
 			.catch((err) => {
 				const error = Type.isString(err) ? {type: 'error'} : err;
-				error.action = 'Block::uploadFile';
+				const res = resolveUploadErrorAction(error);
+				error.action = res.action;
+				if (res.hideSupportLink)
+				{
+					error.hideSupportLink = true;
+				}
 				// eslint-disable-next-line
 				BX.Landing.ErrorManager.getInstance().add(error);
 				return Promise.reject(err);

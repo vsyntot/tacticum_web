@@ -9,20 +9,19 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Session\Legacy\HealerEarlySessionStart;
-use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Config\Option;
 use Dev\Main\Migrator\ModuleUpdater;
 
-require_once __DIR__ . "/start.php";
+require_once __DIR__ . '/start.php';
 
 $application = Main\HttpApplication::getInstance();
-$application->initializeExtendedKernel([
-	"get" => $_GET,
-	"post" => $_POST,
-	"files" => $_FILES,
-	"cookie" => $_COOKIE,
-	"server" => $_SERVER,
-	"env" => $_ENV
+$application->initialize([
+	'get' => $_GET,
+	'post' => $_POST,
+	'files' => $_FILES,
+	'cookie' => $_COOKIE,
+	'server' => $_SERVER,
+	'env' => $_ENV
 ]);
 
 if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
@@ -34,15 +33,6 @@ if (!Main\ModuleManager::isModuleInstalled('bitrix24'))
 {
 	// wwall rules
 	(new Main\Security\W\WWall)->handle();
-
-	$application->addBackgroundJob([
-		Main\Security\W\WWall::class, 'refreshRules'
-	]);
-
-	// vendor security notifications
-	$application->addBackgroundJob([
-		Main\Security\Notifications\VendorNotifier::class, 'refreshNotifications'
-	]);
 }
 
 if (defined('SITE_ID'))
@@ -55,9 +45,6 @@ $context->initializeCulture(defined('LANG') ? LANG : null, defined('LANGUAGE_ID'
 
 // needs to be after culture initialization
 $application->start();
-
-// Register main's services
-ServiceLocator::getInstance()->registerByModuleSettings('main');
 
 // constants for compatibility
 $culture = $context->getCulture();
@@ -115,7 +102,7 @@ if (!defined("BX_COMP_MANAGED_CACHE") && Option::get("main", "component_managed_
 // global functions
 require_once __DIR__ . "/filter_tools.php";
 
-/*ZDUyZmZZmU2MjQ0Mzg4OTExZjA1NzFlMmYwMThkNjc2NDBjYzM=*/class CBXFeatures{ public static function IsFeatureEnabled($_598352874){ return true;} public static function IsFeatureEditable($_598352874){ return true;} public static function SetFeatureEnabled($_598352874, $_875213613= true){} public static function SaveFeaturesSettings($_1224578661, $_1373721353){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_775478919){} public static function ModifyFeaturesSettings($_775478919, $_1474564803){} public static function IsFeatureInstalled($_598352874){ return true;}}/**/			//Do not remove this
+/*ZDUyZmZMjZmMjBiNDg5NzA1MWRkMDhhMzhmYTVkNmFjYzM1YzQ=*/$GLOBALS['____956748206']= array(base64_decode('ZGVma'.'W'.'5'.'l'));if(!function_exists(__NAMESPACE__.'\\___227839156')){function ___227839156($_372072342){static $_510070721= false; if($_510070721 == false) $_510070721=array('RU'.'5DT0RF',''.'WQ==');return base64_decode($_510070721[$_372072342]);}};class CBXFeatures{ public static function IsFeatureEnabled($_798877179){ return true;} public static function IsFeatureEditable($_798877179){ return true;} public static function SetFeatureEnabled($_798877179, $_843970443= true){} public static function SaveFeaturesSettings($_819327107, $_1278417917){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_790881337){} public static function ModifyFeaturesSettings($_790881337, $_801712394){} public static function IsFeatureInstalled($_798877179){ return true;}} $GLOBALS['____956748206'][0](___227839156(0), ___227839156(1));/**/			//Do not remove this
 
 // Component 2.0 template engines
 $GLOBALS['arCustomTemplateEngines'] = [];
@@ -155,18 +142,6 @@ header("X-Powered-CMS: Bitrix Site Manager (" . ($license->isDemoKey() ? "DEMO" 
 if (Option::get("main", "update_devsrv") == "Y")
 {
 	header("X-DevSrv-CMS: Bitrix");
-}
-
-//agents
-if (Option::get("main", "check_agents", "Y") == "Y")
-{
-	$application->addBackgroundJob(["CAgent", "CheckAgents"], [], Main\Application::JOB_PRIORITY_LOW);
-}
-
-//send email events
-if (Option::get("main", "check_events", "Y") !== "N")
-{
-	$application->addBackgroundJob(['\Bitrix\Main\Mail\EventManager', 'checkEvents'], [], Main\Application::JOB_PRIORITY_LOW - 1);
 }
 
 $healerOfEarlySessionStart = new HealerEarlySessionStart();
