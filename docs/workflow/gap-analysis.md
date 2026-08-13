@@ -1,7 +1,7 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 07.06.2026
+Дата последнего обновления: 14.08.2026
 
 Статусы:
 
@@ -769,3 +769,17 @@ External gates из Sprint 14 остаются отдельным хвостом
    - `closed`, если полностью устранён;
    - `in-progress`, если часть работ осталась;
    - добавить ссылки на Issue/PR/ADR.
+
+## Production Reconciliation Gaps — 14.08.2026
+
+Операционный contract принят в ADR-013 и `production-deployment-governance.md`, но production mutation остаётся заблокированной до executable evidence.
+
+| ID | Status | Priority | Area | Gap / closure target | PM task |
+|---|---|---:|---|---|---|
+| DELIVERY-E2E-001 | closed | P0 | Contract tooling | `tools/deploy-scope.json`, path/scope `FILE_ONLY` classifier, canonical manifest/plan schema, fail-closed `.env`/SSH preflight и fixtures реализованы; classifier требует отдельный semantic data-lifecycle review и сам не разрешает mutation | `CI-REC-016` |
+| DELIVERY-E2E-002 | blocked | P0 | Production inventory | Нет pinned host identity, dedicated forced-command local key/wrapper denial evidence, решения revoke/break-glass для personal key, двух стабильных PROD manifests и безопасного `BASE_UNKNOWN` two-way inventory | `CI-REC-012` |
+| DELIVERY-E2E-003 | blocked | P0 | Drift reconciliation | Фактические server changes ещё не показаны, не adopted/rejected и не сведены через Git review | `CI-REC-013` |
+| DELIVERY-E2E-004 | open | P0 | Trusted apply | Не реализованы immutable artifact promotion, trusted wrappers, exact approval binding, exclusive lock, backup/restore rehearsal, rollback и dual BASE | `CI-REC-014` |
+| DELIVERY-E2E-005 | blocked | P0 | Release controls | Не выбраны staging path/approved waiver и independent BASE store; не настроены separate keys, environments, reviewers, CODEOWNERS/ruleset | `CI-REC-015` |
+
+Эти gaps нельзя закрывать ссылкой только на зелёный CI, merge или post-deploy smoke. Closure evidence определён в `production-deployment-governance.md`.

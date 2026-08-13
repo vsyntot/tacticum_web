@@ -79,6 +79,9 @@ jobs:
           node --check tools/product-tech-challenge-approval-check.mjs
           node --check tools/product-tech-challenge-owner-status-check.mjs
           node --check tools/product-tech-challenge-issue-backlog-check.mjs
+          node --check tools/production-deploy-contract.mjs
+          node --check tools/production-deploy-cli.mjs
+          node --check tools/production-deploy-contract-self-test.mjs
           bash -n tools/deploy-config-preflight.sh
           bash tools/deploy-config-preflight-self-test.sh
           bash tools/deploy-rsync-filter-self-test.sh
@@ -93,6 +96,8 @@ jobs:
           npm run sale:sunset:check
           npm run release:signoff:check -- docs/workflow/release-signoff.example.json
           npm run release:signoff:self-test
+          npm run prod:contract:self-test
+          npm run prod:scope:prepare
 
   security-checks:
     name: 🛡️ Security & Convention Checks

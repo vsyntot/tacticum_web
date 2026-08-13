@@ -21,8 +21,9 @@
 1. Прочитай `docs/workflow/README.md`.
 2. Проверь `docs/workflow/current-state.md` и `docs/workflow/gap-analysis.md`.
 3. Для backend/API/security задач прочитай `docs/adr/` и `.github/copilot-instructions.md`.
-4. Выбери workflow lane: `Full Feature`, `Fast Fix`, `Security / Integration`, `Incident`.
-5. Для нетривиальной задачи оформи план по `docs/workflow/codex-plan-template.md`.
+4. Для production/deploy задач прочитай `docs/workflow/production-deployment-governance.md` и ADR-013.
+5. Выбери workflow lane: `Full Feature`, `Fast Fix`, `Security / Integration`, `Incident`.
+6. Для нетривиальной задачи оформи план по `docs/workflow/codex-plan-template.md`.
 
 ## Жёсткие Ограничения
 
@@ -34,6 +35,9 @@
 - Новые POST endpoints: `tacticum_rest_validate_origin()` → `tacticum_rest_rate_limit()` → parse JSON → `tacticum_rest_check_csrf()`.
 - Новый JS/CSS подключать через `Bitrix\Main\Page\Asset`, не inline в HTML, если это не временный legacy cleanup.
 - Новые глобальные функции: префиксы `tacticum_`, `tacticum_rest_`, `tacticum_api_`.
+- Не выполнять production mutation без release classification, drift reconciliation, exact plan approval, lock, backup/restore rehearsal и post-deploy verification из `production-deployment-governance.md`.
+- Первый production automation contour — только `FILE_ONLY`; config/DB/iblock/schema/data changes требуют отдельного `STATEFUL` migration plan.
+- Не выдавать production secrets PR jobs и не использовать личный SSH private key в GitHub Actions.
 
 ## Workflow Lanes
 
@@ -41,7 +45,7 @@
 |---|---|---|
 | Full Feature Lane | новая фича, новый UX, новый публичный раздел, неясные требования | PM → Analyst → Designer/Architect → Dev → QA → DevOps → SEO |
 | Fast Fix Lane | маленький баг, текст, CSS/JS/PHP-фикс без нового контракта | PM/Владелец → профильный Dev/SEO → QA smoke |
-| Security / Integration Lane | REST, AI, PII, CSRF/CORS/rate limit, внешний сервис | PM → QA + Architect → Backend → QA security review |
+| Security / Integration Lane | REST, AI, PII, CSRF/CORS/rate limit, внешний сервис или production deploy | PM → QA + Architect/DevOps → профильный Dev → QA security/release review |
 | Incident Lane | P0/P1 production defect | PM → QA reproduction → Dev fix → QA smoke → DevOps deploy → PM summary |
 
 ## Definition Of Ready
@@ -55,6 +59,7 @@
 - нужна ли ADR по `ADR gate`;
 - нужен ли Designer по `Design gate`;
 - для security/API/AI задач — ранний QA review.
+- для production deploy — `FILE_ONLY`/`STATEFUL`, deploy scope, staging evidence или waiver, rollback и monitoring criteria.
 
 ## Definition Of Done
 
@@ -64,6 +69,7 @@
 - PR/review checklist пройден;
 - deploy выполнен, если нужен;
 - post-deploy smoke-check выполнен;
+- для production deploy сохранены approved plan, artifact/manifest hashes, drift decisions, backup/restore evidence, monitoring и две verified BASE copies;
 - sitemap/meta/robots обновлены, если менялся публичный URL;
 - ADR/docs/gap-analysis обновлены, если изменилось решение или закрыт gap;
 - PM оставил краткий итог.
@@ -74,6 +80,7 @@
 - Правила кода: `.github/copilot-instructions.md`
 - Архитектура: `docs/adr/`
 - Workflow: `docs/workflow/README.md`
+- Production deploy governance: `docs/workflow/production-deployment-governance.md`
 - Текущее состояние: `docs/workflow/current-state.md`
 - Gaps: `docs/workflow/gap-analysis.md`
 - MCP tools: `docs/mcp-tools.md`

@@ -205,7 +205,12 @@ Bitrix REST API: `calcrequests.add` / `calcrequests.list` — работа с р
 - Ветки: `feature/<issue-number>-slug`, `fix/<issue-number>-slug`
 - Коммиты: Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `infra:`)
 - PR: закрывает Issue (`Closes #N`), заполнен шаблон `PULL_REQUEST_TEMPLATE.md`
-- Деплой: автоматически при merge в `main` через GitHub Actions
+- Production trigger: push/merge в `main` через GitHub Actions, но mutation разрешена только после gates из `docs/workflow/production-deployment-governance.md` и ADR-013
+- Первый поддерживаемый production contour — `FILE_ONLY`; `STATEFUL` требует отдельного migration plan
+- Перед deploy обязательны immutable artifact, `BASE/PROD/CANDIDATE` reconciliation, exact plan approval, server lock, backup/restore rehearsal, smoke/monitoring и dual BASE
+- Production secrets не выдавать PR jobs; личный SSH private key не переносить в GitHub Actions
+- Личный SSH key не использовать штатным `prod:*` tooling: bootstrap/manual, dedicated local read-only, CI read-only и CI write credentials разделены; read-only обеспечивается server forced command
+- Пока executable production reconciliation gates не реализованы и не проверены, зелёный PR не является разрешением на merge/deploy
 
 ---
 

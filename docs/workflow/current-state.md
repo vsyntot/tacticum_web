@@ -1,7 +1,7 @@
 # Current State — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 07.06.2026
+Дата последнего обновления: 14.08.2026
 
 ## Краткое Резюме
 
@@ -18,6 +18,15 @@
 - публичные страницы имеют базовый canonical/OpenGraph helper;
 - формы, AI-chat, prefill и Telegram resolver отправляют безопасные analytics events без PII;
 - CI уже проверяет PHP syntax и часть security conventions.
+
+## Production Delivery Snapshot — 14.08.2026
+
+- ADR-013 и `production-deployment-governance.md` закрепили обязательную сверку `BASE/PROD/CANDIDATE`, immutable artifact, exact plan approval, server lock, backup/restore rehearsal, staging-or-waiver, smoke/monitoring и dual BASE.
+- Первый поддерживаемый production contour ограничен `FILE_ONLY`; config/DB/iblock/schema/data changes требуют отдельного `STATEFUL` migration plan.
+- Local contract slice `CI-REC-016` реализован: `tools/deploy-scope.json`, path/scope classifier, canonical manifest/plan, fail-closed `.env`/SSH preflight и fixtures включены в PR Quality Gate. Это не production enforcement: trusted wrappers, immutable artifact/apply controller, independent BASE store и GitHub controls остаются в `CI-REC-012`—`CI-REC-015`.
+- Draft PR `#45` имеет зелёный Quality Gate, но не является готовым к merge/deploy: текущий workflow всё ещё способен перейти к `rsync --delete` без полной production reconciliation.
+- До закрытия implementation gates и отдельного user approval разрешены только quality checks и согласованные read-only probes; production mutation заблокирована.
+- Local access contract разделяет personal bootstrap/manual key, dedicated forced-command read-only inventory key и отдельные CI read/write keys. Фактический dedicated key/wrapper/known-hosts ещё не настроен; personal key нельзя считать read-only credential.
 
 Основные риски:
 
