@@ -2,7 +2,7 @@
 
 Задача `CI-REC-009` требует владельца репозитория и отдельного разрешения на production deployment.
 
-Draft PR `#45` (`agent/recover-github-actions` → `main`) создан. Последний подтверждённый remote baseline до contract-tooling slice — GitHub Actions run `31690956455` для head `01eb8995`, status success, merge state `CLEAN`; новый head обязан повторно пройти Quality Gate. `CI-REC-011` и локальный `CI-REC-016` завершены. Финальный production gate `CI-REC-009` остаётся зависим от `CI-REC-012`—`CI-REC-015`.
+Draft PR `#45` (`agent/recover-github-actions` → `main`) создан и остаётся draft. Contract-tooling commit `778c12e9` прошёл GitHub Actions run `31745423204`: PHP 8.4, security/conventions и static/config lifecycle jobs success, включая clean-runner scope preparation. `CI-REC-011` и `CI-REC-016` завершены. Финальный production gate `CI-REC-009` остаётся зависим от `CI-REC-012`—`CI-REC-015`.
 
 До реализации минимального `FILE_ONLY` slice из `production-drift-reconciliation-plan.md` PR не переводить из draft и не merge: текущий workflow способен выполнить `rsync --delete`, не показав предварительно ручные production-изменения, и сохраняет SSH agent до последующего `npm ci`.
 
