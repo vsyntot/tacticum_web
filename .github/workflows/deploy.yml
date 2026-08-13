@@ -4,33 +4,22 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'bitrix/**'
+      - 'docs/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  # ──────────────────────────────────────────
-  # 1. Линтинг PHP
-  # ──────────────────────────────────────────
-  lint:
-    name: 🔍 PHP Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP 8.4
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          coverage: none
-
-      - name: Check PHP syntax — local/ and public PHP
-        run: |
-          find local/ -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
-          find . -maxdepth 1 -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
-          find about services contacts calculator price offer aiagents policies platform agents dev forum -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+  quality:
+    name: 🧪 Pre-deploy quality gate
+    uses: ./.github/workflows/pr-check.yml
 
   # ──────────────────────────────────────────
   # 2. Деплой
@@ -38,70 +27,92 @@ jobs:
   deploy:
     name: 📦 Deploy via rsync
     runs-on: ubuntu-latest
-    needs: lint
+    needs: quality
     environment: production
+    timeout-minutes: 45
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js for deploy tooling
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
+          cache: npm
+
+      - name: Validate deployment configuration
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: bash tools/deploy-config-preflight.sh
 
       - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add server to known_hosts
+        env:
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          test -s ~/.ssh/known_hosts
 
       - name: Sync local/ (кастомный код)
         run: |
+          set -euo pipefail
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='*.log' \
-            --exclude='local/php_interface/include/tacticum_config.php' \
+            --exclude='/php_interface/include/tacticum_config.php' \
             ./local/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/local/
+            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/"
 
       - name: Sync публичные разделы сайта
         run: |
+          set -euo pipefail
           rsync -avz --delete --relative \
             --exclude='.git' \
             ./about/ ./services/ ./contacts/ ./calculator/ \
             ./price/ ./offer/ ./aiagents/ ./policies/ \
             ./platform/ ./agents/ ./dev/ ./forum/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
       - name: Sync корневые файлы
         run: |
+          set -euo pipefail
           STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"
           node ./tools/static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"
           node ./tools/static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check
           rsync -avz \
-            index.php 404.php robots.txt sitemap.xml sitemap-basic-files.xml urlrewrite.php \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+            .bottom.menu.php .htaccess .section.php .top.menu.php \
+            index.php 404.php favicon.ico robots.txt sitemap.xml sitemap-basic-files.xml urlrewrite.php \
+            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
       - name: Remove legacy sitemap artifact
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "rm -f ${{ secrets.DEPLOY_PATH }}/sitemap-files.xml"
+          ssh "$SSH_USER@$SSH_HOST" \
+            "rm -f '$DEPLOY_PATH/sitemap-files.xml'"
 
       - name: Очистка Bitrix cache
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/managed_cache/* 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/tacticum 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/menu/* 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/news.list/* 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/s1/bitrix/news.detail/* 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/html_pages/* 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/css/s1/tacticum/* 2>/dev/null || true; \
-             rm -rf ${{ secrets.DEPLOY_PATH }}/bitrix/cache/js/s1/tacticum/* 2>/dev/null || true; \
+          ssh "$SSH_USER@$SSH_HOST" \
+            "rm -rf '$DEPLOY_PATH'/bitrix/managed_cache/* 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/cache/tacticum 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/cache/s1/bitrix/menu/* 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/cache/s1/bitrix/news.list/* 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/cache/s1/bitrix/news.detail/* 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/html_pages/* 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/cache/css/s1/tacticum/* 2>/dev/null || true; \
+             rm -rf '$DEPLOY_PATH'/bitrix/cache/js/s1/tacticum/* 2>/dev/null || true; \
              echo 'Cache cleared'"
 
       - name: Smoke config health
@@ -112,51 +123,73 @@ jobs:
             "https://tacticum.ru/local/rest/health_config.php"
           grep -q '"success":true' /tmp/tacticum-health-config.json
 
-      - name: Setup Node.js for post-deploy smoke
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-
       - name: Install smoke tooling
+        id: smoke_tooling
         run: npm ci
 
-      - name: Check release lifecycle guard
-        run: |
-          npm run js:check
-          npm run css:check
-          npm run css:syntax
-          npm run template-styles:check
-          npm run config:check
-          npm run seo:check
-          npm run bitrix:check
-          npm run component:states:check
-          npm run product:content:safety:check
-          npm run product:challenge:check
-          npm run sale:sunset:check
-          npm run gaps:known
-          npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-06-01-product-first.draft.json
-          npm run release:signoff:self-test
-
       - name: Post-deploy visual smoke
+        id: visual_smoke
+        continue-on-error: true
         env:
           TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
           TACTICUM_EXPECT_SEO_HEAD: "1"
+          TACTICUM_VISUAL_OUTPUT: ${{ github.workspace }}/artifacts/visual
         run: npm run visual:smoke
 
       - name: Post-deploy browser action smoke
+        id: browser_smoke
+        if: ${{ steps.smoke_tooling.outcome == 'success' }}
+        continue-on-error: true
         env:
           TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
           TACTICUM_VISUAL_ACTIONS: "1"
           TACTICUM_VISUAL_FAIL_ON_WARNINGS: "1"
           TACTICUM_EXPECT_PRICE_TEAM_PRESETS: "1"
+          TACTICUM_VISUAL_OUTPUT: ${{ github.workspace }}/artifacts/browser
         run: npm run browser:console
 
       - name: Post-deploy price team preset smoke
+        id: price_smoke
+        if: ${{ steps.smoke_tooling.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          TACTICUM_VISUAL_OUTPUT: ${{ github.workspace }}/artifacts/price
         run: npm run browser:smoke:price
 
       - name: Post-deploy SEO endpoint smoke
+        id: seo_smoke
+        if: ${{ steps.smoke_tooling.outcome == 'success' }}
+        continue-on-error: true
         run: npm run seo:check:prod
+
+      - name: Upload post-deploy smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: post-deploy-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Assert post-deploy smoke results
+        if: ${{ steps.smoke_tooling.outcome == 'success' }}
+        env:
+          VISUAL_OUTCOME: ${{ steps.visual_smoke.outcome }}
+          BROWSER_OUTCOME: ${{ steps.browser_smoke.outcome }}
+          PRICE_OUTCOME: ${{ steps.price_smoke.outcome }}
+          SEO_OUTCOME: ${{ steps.seo_smoke.outcome }}
+        run: |
+          set -euo pipefail
+          failed=0
+          for check in VISUAL BROWSER PRICE SEO; do
+            outcome_var="${check}_OUTCOME"
+            outcome="${!outcome_var}"
+            if [ "$outcome" != "success" ]; then
+              echo "::error::$check post-deploy smoke outcome: $outcome"
+              failed=1
+            fi
+          done
+          exit "$failed"
 
       - name: ✅ Deploy success
         if: success()

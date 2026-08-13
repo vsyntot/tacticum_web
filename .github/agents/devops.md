@@ -32,6 +32,7 @@
 | Пользователь SSH | `SSH_USER` (GitHub Secret) |
 | Путь на сервере | `DEPLOY_PATH` (GitHub Secret) |
 | SSH-ключ | `SSH_PRIVATE_KEY` (GitHub Secret) |
+| Ключ хоста SSH | `SSH_KNOWN_HOSTS` (GitHub Secret) |
 | PHP версия | 8.4 |
 | Деплой инструмент | rsync |
 
@@ -42,11 +43,14 @@
 ### `deploy.yml` — запускается при push в `main`
 
 Шаги:
-1. PHP 8.4 синтаксис `local/`
-2. rsync `local/` → сервер (без `tacticum_config.php` — он на сервере отдельно)
-3. rsync публичных разделов (`about/`, `services/`, и т.д.)
-4. rsync корневых файлов (`index.php`, `robots.txt`, `sitemap.xml`, ...)
-5. Очистка Bitrix managed_cache и cache/tacticum
+1. Полный reusable quality gate из `pr-check.yml`: PHP, frontend, security/conventions и dependency audit.
+2. Fail-fast проверка обязательных secrets, SSH host/user и безопасного абсолютного deploy path.
+3. rsync `local/` → сервер с source-relative исключением `/php_interface/include/tacticum_config.php`.
+4. rsync публичных разделов и корневых файлов.
+5. Очистка Bitrix managed_cache и проектных cache.
+6. Production health и browser/SEO smoke с публикацией evidence в GitHub Actions artifact.
+
+Коммиты, меняющие только `bitrix/**` или `docs/**`, автоматический production deploy не запускают. Ручной `workflow_dispatch` остаётся доступен.
 
 После успешного deploy PM/QA выполняют smoke-check затронутых сценариев. DevOps отвечает за факт deploy, логи workflow и техническую доступность деплойного процесса; QA отвечает за пользовательскую проверку.
 
@@ -82,6 +86,7 @@
 | Secret | Описание |
 |---|---|
 | `SSH_PRIVATE_KEY` | Приватный Ed25519 ключ для деплоя |
+| `SSH_KNOWN_HOSTS` | Проверенная строка host key production-сервера; получать из доверенного канала, не через runtime `ssh-keyscan` |
 | `SSH_HOST` | IP или hostname сервера |
 | `SSH_USER` | SSH-пользователь на сервере |
 | `DEPLOY_PATH` | Абсолютный путь к корню сайта на сервере |
@@ -97,6 +102,9 @@ ssh-copy-id -i ~/.ssh/tacticum_deploy.pub user@server
 
 # Приватный ключ добавить в GitHub Secret SSH_PRIVATE_KEY:
 cat ~/.ssh/tacticum_deploy
+
+# Host key сверить с администратором сервера и добавить в SSH_KNOWN_HOSTS:
+ssh-keyscan -H server.example.com
 ```
 
 ---
@@ -112,7 +120,7 @@ cat ~/.ssh/tacticum_deploy
 
 ## Чего НЕ делать
 
-- ❌ Не деплоить напрямую без прохождения `lint` джоба
+- ❌ Не деплоить напрямую без прохождения reusable quality gate
 - ❌ Не отменять (`cancel-in-progress: false`) уже идущий деплой — дождаться завершения
 - ❌ Не добавлять секреты в код workflow — только через GitHub Secrets
 - ❌ Не считать production-задачу закрытой без handoff на smoke-check

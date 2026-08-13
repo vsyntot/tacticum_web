@@ -1,0 +1,13 @@
+evidence_id,claim,source,evidence_type,confidence,validation,unsupported_state,updated_at
+E-001,79 из 79 deploy runs failed,GitHub Actions runs API,remote metadata,high,Список 112 runs,Причина каждого run не читалась полностью,2026-08-13
+E-002,Sampled deploy runs падают на Setup SSH key,GitHub Actions jobs API,remote jobs,high,Первый/последний и промежуточные runs,Полный набор из 79 job logs не скачан,2026-08-13
+E-003,Последний SSH_PRIVATE_KEY пуст,GitHub job 94139080821,remote log,high,Точная error line,Остальные secrets неизвестны,2026-08-13
+E-004,Historical sign-off не переносим,release-signoff draft + local command,executable evidence,high,release:signoff:draft-check failed,Historical evidence сохранён только как архивный,2026-08-13
+E-005,Repository quality baseline проходит,локальные npm/php команды,executable evidence,high,PHP lint и quality matrix exit 0,GitHub Ubuntu runner ещё не проверен,2026-08-13
+E-006,Production public surface отвечает,release:public-precheck:prod,production read-only smoke,high,13 pages и endpoints passed,Authenticated admin/forms не проверялись,2026-08-13
+E-007,Dependency critical advisory устранён,npm audit,registry evidence,high,Tailwind 4.3.3; 0 vulnerabilities,Remote npm audit ещё не запускался,2026-08-13
+E-008,Изменённые workflows синтаксически валидны,actionlint 1.7.12,executable evidence,high,Все workflow files exit 0,GitHub compiler ещё не запускался,2026-08-13
+E-009,Server-owned config сохраняется при rsync --delete,deploy-rsync-filter-self-test.sh,behavioral evidence,high,Self-test exit 0,Remote rsync ещё не запускался,2026-08-13
+E-010,Deployment config fail-fast contract работает,deploy-config-preflight-self-test.sh,negative/positive fixtures,high,4 cases passed,Реальные secret values не читались,2026-08-13
+E-011,Локальная validation ladder проходит,PHP/npm/repository commands,executable evidence,high,All available checks exit 0,PHP локально 8.5; GitHub ставит 8.4,2026-08-13
+E-012,Обновлённый product-first production aggregator проходит,npm run release:product-first:prod-check,production read-only smoke,high,Exit 0; 13 rendered pages without hygiene issues,Deployment этой версии ещё не выполнялся,2026-08-13
