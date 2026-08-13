@@ -32,6 +32,8 @@
 | QA early | yes/no | |
 | SEO | yes/no | |
 | Post-deploy smoke | yes/no | |
+| Production release class | `FILE_ONLY` / `STATEFUL` / n/a | |
+| Production governance | plan/waiver/drift/rollback evidence или n/a | |
 
 ## QA / Smoke Scope
 

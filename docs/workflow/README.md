@@ -30,9 +30,17 @@ Implementation
   ↓
 QA / Review
   ↓
-Deploy
+Release classification: FILE_ONLY / STATEFUL
+  ↓
+Staging evidence / approved waiver
+  ↓
+Production drift reconciliation + exact plan approval
+  ↓
+Locked deploy / rollback readiness
   ↓
 Post-deploy smoke
+  ↓
+Monitoring + verified baseline
   ↓
 Gap/Sprint/Docs update
 ```
@@ -43,7 +51,7 @@ Gap/Sprint/Docs update
 |---|---|---|
 | Full Feature Lane | новая фича, новый пользовательский сценарий, новый публичный URL, неясные требования | Issue, AC, Analyst spec при необходимости, Design/ADR по gates, Codex Plan, QA checklist |
 | Fast Fix Lane | небольшой баг, текстовая правка, локальный CSS/JS/PHP фикс без нового контракта | Issue или краткое описание, короткий plan, QA smoke |
-| Security / Integration Lane | REST/API, AI-сервис, PII, CSRF/CORS/rate limit, внешний сервис | Issue, Architect + QA early review, ADR если gate сработал, security checklist |
+| Security / Integration Lane | REST/API, AI-сервис, PII, CSRF/CORS/rate limit, внешний сервис или production deploy | Issue, Architect + QA early review, ADR если gate сработал, security checklist; для deploy — release class и production governance evidence |
 | Incident Lane | P0/P1 production defect | Incident Issue, reproduction, impact, fix, smoke, PM summary |
 
 ## Gates
@@ -81,6 +89,18 @@ QA подключается до разработки, если задача к�
 ### Post-Deploy Gate
 
 После deploy должен быть smoke-check по затронутым URL/API/формам. Issue закрывается только после подтверждения.
+
+### Production Deployment Gate
+
+Любая production mutation выполняется по `production-deployment-governance.md` и ADR-013:
+
+- первый автоматизируемый контур поддерживает только `FILE_ONLY`; `STATEFUL` требует отдельного migration plan;
+- immutable artifact сверяется с `BASE` и фактическим `PROD`; необъяснённый drift блокирует запись;
+- staging evidence или отдельный bounded waiver, exact plan/dry-run и user approval обязательны;
+- apply выполняется под server lock после backup/restore rehearsal;
+- релиз считается завершённым только после smoke/monitoring и записи двух совпадающих BASE copies.
+
+Если executable controls ещё не реализованы или не прошли fixtures, merge в deploy-triggering branch не разрешает production mutation.
 
 ## Bitrix Development Rules
 
@@ -138,6 +158,7 @@ QA подключается до разработки, если задача к�
 - `codex-plan-template.md` — шаблон плана перед реализацией.
 - `sprint-template.md` — шаблон спринта.
 - `post-deploy-smoke.md` — чеклист smoke-check.
+- `production-deployment-governance.md` — обязательный E2E process сверки production, approval, deploy, rollback и baseline.
 - `lead-form-contract.md` — контракт `/local/rest/tacticum_form.php` и taxonomy `form_id`.
 - `chat-offer-contract.md` — контракт AI chat, `group_id`, prefill и handoff в lead form.
 - `chat-api-contract.md` — низкоуровневый contract `/local/rest/tacticum_chat.php`.
@@ -211,6 +232,10 @@ QA подключается до разработки, если задача к�
 
 ## Static Guards
 
+- `npm run prod:contract:self-test` / `npm run prod:scope:prepare` / `npm run prod:scope:check` — deterministic local fixtures для единого deploy-scope, directories/root/generated/tombstone semantics, canonical manifest/plan, rsync contract и fail-closed SSH inputs. `scope:prepare` один раз создаёт ignored `sitemap-basic-files.xml` на clean unprivileged runner, затем запускает check; команды включены в PR Quality Gate и не подключаются к production.
+- `npm run prod:classify -- <changed-path>...` — path/scope release classifier: блокирует known stateful/forbidden/unknown/control-plane paths. `FILE_ONLY` означает только прохождение path gate, требует semantic data-lifecycle review и всегда возвращает `productionMutationAllowed=false`.
+- `npm run prod:manifest -- --root=<tree> --output=<new-file.json>` / `npm run prod:drift:plan -- --prod=<json> --candidate=<json> [--base=<json>]` — canonical local manifest и offline two-way/three-way plan. Команды не получают production state сами и не выполняют apply.
+- `npm run prod:preflight` — читает только allowlisted `PROD_*` из `.env` без `source/eval`, проверяет mode/key pair/agent/pinned known-host и строит strict SSH argv; сетевое подключение не выполняется.
 - `npm run bitrix:check` — guard для Bitrix architecture: thin/lazy `init.php`, отсутствие direct `bitrix:*` в public page entries, отсутствие component-level global helper functions, local component metadata/cache policy, `/offer/` service/cache hardening и footer modal component.
 - `npm run component:states:check` — deterministic source-level fixture guard для product blocks/degraded state, `/price/` team builder, forms, chat and FAQ/content wrappers; also validates `component_wrapper_policy.json` for `content.list`, `content.detail` and `faq.section` and product block policy evidence; запускается в PR/deploy lifecycle.
 - `npm run config:runtime:check` — Bitrix/PHP runtime check для ignored `tacticum_config.php`: health scopes, iblock IDs, product source, endpoint path explicit/default status, CSP mode and REST summary without secret values.
@@ -279,6 +304,7 @@ QA подключается до разработки, если задача к�
 - gates проверены;
 - для Security / Integration Lane есть QA + Architect early review;
 - для Full Feature Lane есть spec/design/ADR там, где это нужно.
+- для production deploy указаны release class, deploy scope, staging evidence или bounded waiver, rollback и monitoring criteria.
 
 ## Definition Of Done
 
@@ -289,4 +315,5 @@ QA подключается до разработки, если задача к�
 - QA или smoke-check выполнен;
 - deploy выполнен, если нужен;
 - post-deploy smoke-check выполнен;
+- для production deploy сохранены exact approval, artifact/manifest hashes, drift decisions, backup/restore evidence, monitoring и две verified BASE copies;
 - gap-analysis/sprint/ADR обновлены, если состояние изменилось.

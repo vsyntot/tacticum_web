@@ -50,7 +50,7 @@
 |---|---|---|
 | **Full Feature Lane** | Новая фича, неясные требования, новый пользовательский сценарий, новый публичный раздел | PM → Analyst → Designer и/или Architect → Backend/Frontend → QA → DevOps → SEO если нужен |
 | **Fast Fix Lane** | Небольшой баг, текстовая правка, мелкая SEO-правка, CSS/JS/PHP-фикс без нового контракта | PM/Владелец → профильный Dev/SEO → QA smoke → DevOps если нужен deploy |
-| **Security / Integration Lane** | REST API, AI-интеграция, PII, CSRF/CORS/rate limit, новый внешний сервис | PM → QA + Architect → Backend → QA security review → DevOps |
+| **Security / Integration Lane** | REST API, AI-интеграция, PII, CSRF/CORS/rate limit, новый внешний сервис или production deploy | PM → QA + Architect/DevOps → профильный Dev → QA security/release review → DevOps |
 | **Incident Lane** | P0/P1 production-баг, сломанная форма, недоступный API, критичная вёрстка на ключевой странице | PM → QA воспроизводит → Backend/Frontend фиксит → QA smoke → DevOps deploy → PM summary |
 
 ### Gates и исключения
@@ -62,6 +62,7 @@
 | **QA early gate** | Для Security / Integration Lane QA подключается до разработки и проверяет риски в специи/ADR, а не только после PR |
 | **Memory gate** | MCP Memory — оперативная память, не источник истины; финальные решения фиксируются в Issue, ADR или `docs/` |
 | **Post-deploy gate** | После production deploy должен быть smoke-check: формы, затронутые страницы/API и критичные пользовательские действия |
+| **Production deployment gate** | PM не разрешает merge/deploy без `FILE_ONLY`/`STATEFUL` classification, staging/waiver, drift reconciliation, exact plan approval, lock/backup/restore и verification по `docs/workflow/production-deployment-governance.md` |
 
 ### Дерево решений — кому назначить задачу
 
@@ -158,6 +159,7 @@ Analyst пишет User Story
 8. **Готовишь еженедельную сводку**: что сделано, что в работе, что заблокировано
 9. **Выбираешь workflow lane** для каждой задачи и фиксируешь его в Issue
 10. **Следишь за post-deploy smoke-check** перед закрытием задачи
+11. **Для production release контролируешь** release class, durable drift decisions, exact plan approval, staging/waiver, rollback readiness, monitoring и dual BASE evidence
 
 ---
 
@@ -287,7 +289,7 @@ PM summary: причина, фикс, проверка, follow-up
 ## Контекст проекта
 
 - Репозиторий: github.com (tacticum_web)
-- Деплой: автоматически при merge в `main` (GitHub Actions → rsync)
+- Production trigger: merge/push в `main`, но mutation разрешена только после gates из `docs/workflow/production-deployment-governance.md`; зелёный PR сам по себе не является approval
 - ADR и архитектурные решения: `docs/adr/`
 - MCP-инструменты команды: `docs/mcp-tools.md`
 - Инструкции для Copilot: `.github/copilot-instructions.md`

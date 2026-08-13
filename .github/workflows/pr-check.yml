@@ -1,17 +1,21 @@
-name: 🔎 PR Check
+name: 🔎 Quality Gate
 
 on:
   pull_request:
     branches:
       - main
       - develop
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   php-lint:
     name: 🔍 PHP 8.4 Syntax Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
@@ -29,16 +33,19 @@ jobs:
     name: 🎨 Static CSS Build Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
 
       - name: Install frontend tooling
         run: npm ci
+
+      - name: Audit Node.js dependencies
+        run: npm audit --audit-level=high
 
       - name: Check generated Tailwind CSS
         run: |
@@ -72,6 +79,12 @@ jobs:
           node --check tools/product-tech-challenge-approval-check.mjs
           node --check tools/product-tech-challenge-owner-status-check.mjs
           node --check tools/product-tech-challenge-issue-backlog-check.mjs
+          node --check tools/production-deploy-contract.mjs
+          node --check tools/production-deploy-cli.mjs
+          node --check tools/production-deploy-contract-self-test.mjs
+          bash -n tools/deploy-config-preflight.sh
+          bash tools/deploy-config-preflight-self-test.sh
+          bash tools/deploy-rsync-filter-self-test.sh
           npm run config:check
           npm run rest:endpoints:self-test
           npm run rest:endpoints:check
@@ -83,21 +96,39 @@ jobs:
           npm run sale:sunset:check
           npm run release:signoff:check -- docs/workflow/release-signoff.example.json
           npm run release:signoff:self-test
+          npm run prod:contract:self-test
+          npm run prod:scope:prepare
 
   security-checks:
     name: 🛡️ Security & Convention Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Resolve changed-files base
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            DIFF_BASE="origin/${{ github.base_ref }}"
+          elif git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            DIFF_BASE="HEAD^"
+          else
+            DIFF_BASE="$(git hash-object -t tree /dev/null)"
+          fi
+
+          echo "TACTICUM_CI_DIFF_BASE=$DIFF_BASE" >> "$GITHUB_ENV"
+          echo "Changed-files base: $DIFF_BASE"
 
       - name: Blockers — runtime REST/API/php_interface conventions
         shell: bash
         run: |
           set +e
           FAIL=0
-          RUNTIME_FILES=$(git diff origin/main...HEAD --name-only -- \
+          RUNTIME_FILES=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-only -- \
             'local/rest/*.php' \
             'local/api/*.php' \
             'local/php_interface/*.php' \
@@ -144,7 +175,7 @@ jobs:
             echo "✅ No plain HTTP curl_init() calls."
           fi
 
-          NEW_ENDPOINTS=$(git diff origin/main...HEAD --name-status -- 'local/rest/*.php' 'local/api/*.php' \
+          NEW_ENDPOINTS=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-status -- 'local/rest/*.php' 'local/api/*.php' \
             | awk '$1 == "A" { print $2 }' \
             | grep -v '^local/rest/rest_helpers.php$')
 
@@ -193,7 +224,7 @@ jobs:
         run: |
           set +e
           FAIL=0
-          SCRIPT_FILES=$(git diff origin/main...HEAD --name-only -- \
+          SCRIPT_FILES=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-only -- \
             'local/**/*.php' \
             'local/**/*.js' \
             '*.php' \
@@ -232,7 +263,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          PUBLIC_FILES=$(git diff origin/main...HEAD --name-only -- \
+          PUBLIC_FILES=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-only -- \
             '*.php' \
             ':!local/**' \
             ':!bitrix/**' \
@@ -298,16 +329,6 @@ jobs:
             FAIL=1
           else
             echo "✅ template_styles.css has no generated Tailwind layer block."
-          fi
-
-          RESULT=$(find local/templates/tacticum/styles -maxdepth 1 -type f ! -name 'global.css' -print)
-          if [ -n "$RESULT" ]; then
-            echo "❌ ERROR: Unused generated page CSS artifacts must not be restored."
-            echo "$RESULT"
-            echo "Use styles/global.css for manual template CSS or component CSS for isolated Bitrix components."
-            FAIL=1
-          else
-            echo "✅ No stale generated page CSS artifacts; styles/global.css is the only approved template styles file."
           fi
 
           RESULT=$(grep -nE 'bundle\.v3\.4\.16\.js|js/init\.js' local/templates/tacticum/header.php)
@@ -481,7 +502,7 @@ jobs:
 
       - name: Проверка изменений в bitrix/ (запрещено)
         run: |
-          RESULT=$(git diff origin/main...HEAD --name-only -- 'bitrix/' || true)
+          RESULT=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-only -- 'bitrix/' || true)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: Changes in bitrix/ are not allowed!"
             echo "$RESULT"

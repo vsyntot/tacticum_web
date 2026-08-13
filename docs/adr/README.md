@@ -23,6 +23,7 @@
 | [ADR-010](ADR-010-product-content-bitrix-model.md) | Bitrix product content model | ✅ Принято | 2026 |
 | [ADR-011](ADR-011-price-team-presets-bitrix-model.md) | Bitrix team presets model for `/price/` | ✅ Принято | 2026 |
 | [ADR-012](ADR-012-offer-taxonomy-presets-bitrix-model.md) | Offer taxonomy and presets Bitrix model | ✅ Принято | 2026 |
+| [ADR-013](ADR-013-github-actions-delivery-gates.md) | GitHub Actions quality, production reconciliation and deploy gates | ✅ Принято | 2026 |
 
 ## Статусы
 

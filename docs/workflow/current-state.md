@@ -1,7 +1,7 @@
 # Current State — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 07.06.2026
+Дата последнего обновления: 14.08.2026
 
 ## Краткое Резюме
 
@@ -18,6 +18,15 @@
 - публичные страницы имеют базовый canonical/OpenGraph helper;
 - формы, AI-chat, prefill и Telegram resolver отправляют безопасные analytics events без PII;
 - CI уже проверяет PHP syntax и часть security conventions.
+
+## Production Delivery Snapshot — 14.08.2026
+
+- ADR-013 и `production-deployment-governance.md` закрепили обязательную сверку `BASE/PROD/CANDIDATE`, immutable artifact, exact plan approval, server lock, backup/restore rehearsal, staging-or-waiver, smoke/monitoring и dual BASE.
+- Первый поддерживаемый production contour ограничен `FILE_ONLY`; config/DB/iblock/schema/data changes требуют отдельного `STATEFUL` migration plan.
+- Local contract slice `CI-REC-016` реализован: `tools/deploy-scope.json`, path/scope classifier, canonical manifest/plan, fail-closed `.env`/SSH preflight и fixtures включены в PR Quality Gate. Это не production enforcement: trusted wrappers, immutable artifact/apply controller, independent BASE store и GitHub controls остаются в `CI-REC-012`—`CI-REC-015`.
+- Draft PR `#45` имеет зелёный Quality Gate, но не является готовым к merge/deploy: текущий workflow всё ещё способен перейти к `rsync --delete` без полной production reconciliation.
+- До закрытия implementation gates и отдельного user approval разрешены только quality checks и согласованные read-only probes; production mutation заблокирована.
+- Local access contract разделяет personal bootstrap/manual key, dedicated forced-command read-only inventory key и отдельные CI read/write keys. Фактический dedicated key/wrapper/known-hosts ещё не настроен; personal key нельзя считать read-only credential.
 
 Основные риски:
 
@@ -244,6 +253,8 @@ Product FAQ hardening 01.06.2026: `/platform/`, `/agents/`, `/dev/`, `/forum/` �
 Product-first release hardening 01.06.2026: добавлены draft sign-off `docs/workflow/release-signoff-2026-06-01-product-first.draft.json` и rollback runbook `docs/workflow/product-first-release-rollback-runbook.md`. Draft фиксирует pending gates для deploy smoke, rendered SEO, CSS/JS e2e, manual success-flow, Metrika and Bitrix admin; config, legacy sunset and staff-sale upstream помечены not applicable для этого scope, потому что config keys, sale aliases and staff upstream contract не менялись.
 
 Product-first CI/deploy coverage 01.06.2026: `.github/workflows/pr-check.yml` and `.github/workflows/deploy.yml` теперь считают `/platform/`, `/agents/`, `/dev/`, `/forum/` публичными разделами для PHP lint, convention scans and rsync deploy. `tools/seo-check.mjs` проверяет canonical paths, static sitemap expectations and product navigation/footer links for product URLs. `tools/visual-smoke.mjs` включает product pages в default rendered smoke, проверяет presence product links in rendered navigation, rendered `SoftwareApplication` + `FAQPage` JSON-LD and rendered `data-product-block` inventory on product URLs under `TACTICUM_EXPECT_SEO_HEAD=1`, and required FAQ toggle action on product pages during action smoke. Deploy lifecycle guard показывает старый external хвост через `npm run gaps:known` и валидирует переносимый product-first draft sign-off.
+
+GitHub Actions recovery baseline 13.08.2026: remote history showed 79/79 production deploy runs failed, with sampled runs failing before SSH connection because `SSH_PRIVATE_KEY` was empty. Local recovery makes `pr-check.yml` reusable and places the full quality/security gate before any production mutation, adds high-severity npm audit and deploy configuration self-tests, skips automatic deploy for docs-only and `bitrix/**`-only commits, replaces runtime `ssh-keyscan` with pinned `SSH_KNOWN_HOSTS`, fixes the source-relative exclusion that protects server-owned `tacticum_config.php`, publishes current-run post-deploy smoke artifacts and removes the historical `/tmp` release-signoff draft from the generic deploy path. ADR-013 records the delivery-gate decision. End-to-end status remains pending until repository secrets/settings are configured and a fresh remote run passes.
 
 Product CTA scenario qualification 01.06.2026: `local/components/tacticum/lead.cta/` получил optional `SCENARIO_OPTIONS` и рендерит controlled select `lead_scenario` без новых JS/CSS. Product pages передают page-specific варианты следующего шага: Platform assessment/pilot/deployment readiness, Agents scenario/RAG/rollout, Dev workflow/gates/design-system guardrails, Forum flow/scenario+LLM/support analytics. `local/rest/tacticum_form.php` строит internal canonical lead qualification profile (`product_interest`, `use_case_interest`, `deployment_interest`, funnel/CTA/budget/timeline fields) from existing `lead_*`, затем переводит известные scenario slugs в человекочитаемые подписи внутри upstream `task`. Top-level structured fields не отправляются во внешний sale endpoint до CRM/upstream approval; `tools/seo-check.mjs` фиксирует canonical profile and product pages scenario qualification.
 
@@ -548,17 +559,18 @@ Owner review runbook progress 04.06.2026: added `docs/workflow/product-tech-chal
 
 `deploy.yml`:
 
-- lint PHP 8.4 по `local/`;
+- вызывает reusable full quality gate из `pr-check.yml` до SSH/rsync;
+- fail-fast проверяет `SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`, `SSH_HOST`, `SSH_USER` и безопасный абсолютный `DEPLOY_PATH`;
 - rsync `local/`;
 - rsync публичных разделов с `--delete`, чтобы удалённые repo-owned файлы не оставались stale на production;
 - rsync корневых файлов;
 - чистит `bitrix/managed_cache`, проектный cache, menu component cache, component HTML cache `bitrix/cache/s1/bitrix/news.list|news.detail`, composite HTML pages и CSS/JS asset cache активного шаблона.
 - проверяет `https://tacticum.ru/local/rest/health_config.php` после deploy/cache clear.
-- запускает `npm ci`, lifecycle guards `css:check` / `template-styles:check`, `npm run visual:smoke` и `npm run browser:smoke` против `https://tacticum.ru`; visual smoke в deploy включает `TACTICUM_EXPECT_SEO_HEAD=1` и проверяет title/description/canonical/OpenGraph/Twitter/JSON-LD/H1, rendered money/product navigation links, product `SoftwareApplication` + `FAQPage` schema and product `data-product-block` inventory on `/platform/`, `/agents/`, `/dev/`, `/forum/`, а `/price/` team presets обязательны через `TACTICUM_EXPECT_PRICE_TEAM_PRESETS=1`.
+- запускает `npm ci`, `npm run visual:smoke`, browser/action, focused price и SEO production smoke против `https://tacticum.ru`; current-run screenshots/manifests сохраняются в Actions artifact, а итоговый assert блокирует run при любом failed smoke.
 - запускает `npm run seo:check` до smoke и `npm run seo:check:prod` после browser smoke, чтобы поймать рассинхрон sitemap/robots/canonical, попадание `/404.php` в Bitrix-generated sitemap и отсутствие `X-Robots-Tag` у JSON endpoints.
 - для ручной/PM проверки CSS/JS e2e readiness добавлены aggregate scripts `npm run e2e:css-js:prod` и `npm run e2e:css-js:local`; Sprint 10 использует их как единый browser/CSS/JS readiness gate.
 - legacy sale aliases контролируются `npm run sale:sunset:check`; access-log inventory собирается агрегатно через `npm run legacy:sale:inventory:logs`; Sprint 09 фиксирует action matrix, Sprint 10 ведёт `docs/workflow/legacy-sale-alias-consumer-inventory.md` с repo scan evidence и внешним inventory по access logs/CRM до `30.06.2026`, migration до `31.08.2026` и final alias mode до `30.09.2026`.
-- release evidence можно закрывать machine-readable JSON по `docs/workflow/release-signoff.example.json`; проверка `npm run release:signoff:check -- <file>` блокирует pending/missing evidence, unknown gates, placeholder/working-tree metadata, валидирует структуру ручных gates, CSS/JS e2e manifests, product rendered schema summary and `content-public-hygiene` evidence, отсекает PII-like evidence; draft-проверка требует `reason`, `due`, runbook и evidence template у pending manual gates; deploy lifecycle guard использует `npm run gaps:known` для текущего external хвоста и `release:signoff:draft-check` для переносимого product-first draft, а не strict example sign-off; `npm run release:product-first:prod-check` агрегирует product-first automated production checks after deploy/cache refresh, включая `content:public-hygiene:rendered:prod`; `npm run content:public-hygiene:rendered:prod:json` печатает safe evidence for `content-public-hygiene`; `npm run release:signoff:summary -- <file>` даёт PM/QA статус draft без чтения JSON; `npm run release:signoff:self-test` закрепляет негативные кейсы checker в PR/deploy lifecycle guard, включая missing product schema summary and content hygiene issues, `npm run gaps:known` показывает текущий известный хвост, а `docs/workflow/manual-release-gates-runbook.md` задаёт порядок закрытия ручных gates без PII.
+- release evidence можно закрывать machine-readable JSON по `docs/workflow/release-signoff.example.json`; проверка `npm run release:signoff:check -- <file>` блокирует pending/missing evidence, unknown gates, placeholder/working-tree metadata, валидирует структуру ручных gates, CSS/JS e2e manifests, product rendered schema summary and `content-public-hygiene` evidence, отсекает PII-like evidence; draft-проверка требует `reason`, `due`, runbook и evidence template у pending manual gates. Generic deploy не читает historical drafts или абсолютные `/tmp` manifests: он выполняет reusable quality gate до mutation и сохраняет current-run smoke evidence в Actions artifact. `npm run release:product-first:prod-check` агрегирует production checks, `release:signoff:self-test` и известный external gap summary без зависимости от historical local artifacts; конкретный sign-off по-прежнему валидируется явно командой `release:signoff:check` или `release:signoff:draft-check`.
 - локальный `npm run dev:preflight` не блокирует работу без PHP CLI 8.4+, но явно сообщает degraded state; authoritative PHP syntax fallback — GitHub job `php-lint`, который устанавливает PHP 8.4 через `shivammathur/setup-php` и проверяет `local/`, корневые PHP и публичные разделы с `short_open_tag=1`.
 
 Production smoke 21.05.2026: `GET https://tacticum.ru/local/rest/health_config.php` с `Origin: https://tacticum.ru` вернул `200` и `{"success":true,"code":"ok"}` по scopes `api`, `ai`, `telegram`, `offer`, `content`, `rest`. После добавления product content registry post-deploy health должен также вернуть scope `products`.
@@ -599,5 +611,5 @@ Gap: новые hardcoded `IBLOCK_ID` не допускаются; публич�
 | Config discipline | Хорошее: config validation есть, local config вынесен из Git index, production health подтверждён, deploy проверяет health endpoint | Низкий |
 | Frontend maintainability | Хорошее: chat/forms/assets, repeated CTA, light chat и price component contracts унифицированы; static Tailwind bundle, `styles/global.css`, browser-error smoke, non-network action-smoke, CSS replacement smoke, aggregate CSS/JS e2e scripts и CSP report-only есть; `template_styles.css` удерживается comment-only guard; `chat-agent.js` грузится только на chat pages через page asset `chat` | Низкий/средний |
 | SEO | Среднее/хорошее: sitemap, description, canonical и OG добавлены; нужен post-deploy render check | Низкий/средний |
-| CI/CD | Среднее/хорошее: runtime blockers и deploy health smoke есть, public hardcode warnings остаются | Средний |
+| CI/CD | Локальный recovery baseline готов: полный pre-deploy quality gate, fail-fast secrets/path, pinned host key, protected server config, current-run smoke artifacts; нужен свежий remote run | Средний до подтверждения remote run |
 | Product flows | Среднее/хорошее: лид-формы, AI-chat, prefill и staff-order имеют контракты и единые handlers; real success-flow закрывается staging/manual sign-off, автоматический deploy smoke покрывает non-network actions | Низкий/средний |

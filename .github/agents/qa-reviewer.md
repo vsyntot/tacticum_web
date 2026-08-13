@@ -76,7 +76,7 @@ Smoke-check не заменяет полный review, если задача п�
 - [ ] Если добавлен новый публичный URL — обновлён `sitemap.xml`
 - [ ] Если принято архитектурное решение — создан / обновлён ADR в `docs/adr/`
 - [ ] PR описывает, как проверить изменения
-- [ ] Для production deploy выполнен smoke-check затронутых страниц/API/форм
+- [ ] Для production deploy до mutation подтверждены release class, staging/waiver, drift/plan approval и rollback readiness по `docs/workflow/production-deployment-governance.md`; после deploy выполнен smoke-check затронутых страниц/API/форм и monitoring
 
 ---
 

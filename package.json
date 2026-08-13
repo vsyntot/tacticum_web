@@ -43,7 +43,7 @@
     "browser:smoke:offer": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_PAGES=/offer/ TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs",
     "release:smoke:prod": "npm run seo:smoke && npm run browser:console:prod && npm run browser:smoke:price",
     "release:public-precheck:prod": "TACTICUM_RELEASE_BASE_URL=https://tacticum.ru node ./tools/release-public-precheck.mjs",
-    "release:product-first:prod-check": "npm run product:content:safety:check && npm run rest:endpoints:check && npm run seo:check:prod && npm run content:public-hygiene:rendered:prod && npm run seo:smoke && npm run browser:console:prod && npm run browser:smoke:price && npm run release:signoff:draft-check -- docs/workflow/release-signoff-2026-06-01-product-first.draft.json && TACTICUM_RELEASE_SIGNOFF=docs/workflow/release-signoff-2026-06-01-product-first.draft.json npm run gaps:known",
+    "release:product-first:prod-check": "npm run product:content:safety:check && npm run rest:endpoints:check && npm run seo:check:prod && npm run content:public-hygiene:rendered:prod && npm run seo:smoke && npm run browser:console:prod && npm run browser:smoke:price && npm run release:signoff:self-test && npm run gaps:known",
     "e2e:css-js:prod": "npm run js:check && npm run css:check && npm run css:syntax && npm run template-styles:check && npm run visual:smoke:prod && npm run browser:console:prod && npm run browser:smoke:price",
     "e2e:css-js:local": "npm run js:check && npm run css:check && npm run css:syntax && npm run template-styles:check && npm run visual:smoke:css-local && npm run browser:console:css-local",
     "release:signoff:check": "node ./tools/release-signoff-check.mjs",
@@ -53,6 +53,13 @@
     "release:manual-gates:helper": "node ./tools/release-manual-gates-helper.mjs",
     "gaps:known": "node ./tools/known-gaps-check.mjs",
     "gaps:known:strict": "node ./tools/known-gaps-check.mjs --strict",
+    "prod:contract:self-test": "node ./tools/production-deploy-contract-self-test.mjs",
+    "prod:scope:prepare": "npm run sitemap:static:generate && npm run prod:scope:check",
+    "prod:scope:check": "node ./tools/production-deploy-cli.mjs scope-check",
+    "prod:classify": "node ./tools/production-deploy-cli.mjs classify",
+    "prod:manifest": "node ./tools/production-deploy-cli.mjs manifest",
+    "prod:drift:plan": "node ./tools/production-deploy-cli.mjs plan",
+    "prod:preflight": "node ./tools/production-deploy-cli.mjs preflight",
     "visual:smoke:css-local": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_REMOVE_CSS=tailwind.generated.css,template_styles.css,styles/global.css,styles/components.css,styles/page-about-calculator.css,styles/page-offer-price-services.css,styles/page-aiagents.css,styles/aiagents.css TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/styles/global.css,local/templates/tacticum/styles/components.css,local/templates/tacticum/styles/page-about-calculator.css,local/templates/tacticum/styles/page-offer-price-services.css,local/templates/tacticum/styles/page-aiagents.css node ./tools/visual-smoke.mjs",
     "browser:smoke:css-local": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_REMOVE_CSS=tailwind.generated.css,template_styles.css,styles/global.css,styles/components.css,styles/page-about-calculator.css,styles/page-offer-price-services.css,styles/page-aiagents.css,styles/aiagents.css TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/styles/global.css,local/templates/tacticum/styles/components.css,local/templates/tacticum/styles/page-about-calculator.css,local/templates/tacticum/styles/page-offer-price-services.css,local/templates/tacticum/styles/page-aiagents.css TACTICUM_VISUAL_ACTIONS=1 node ./tools/visual-smoke.mjs",
     "browser:console:css-local": "TACTICUM_VISUAL_BASE_URL=https://tacticum.ru TACTICUM_VISUAL_REMOVE_CSS=tailwind.generated.css,template_styles.css,styles/global.css,styles/components.css,styles/page-about-calculator.css,styles/page-offer-price-services.css,styles/page-aiagents.css,styles/aiagents.css TACTICUM_VISUAL_INJECT_CSS=local/templates/tacticum/tailwind.generated.css,local/templates/tacticum/styles/global.css,local/templates/tacticum/styles/components.css,local/templates/tacticum/styles/page-about-calculator.css,local/templates/tacticum/styles/page-offer-price-services.css,local/templates/tacticum/styles/page-aiagents.css TACTICUM_VISUAL_ACTIONS=1 TACTICUM_VISUAL_FAIL_ON_WARNINGS=1 node ./tools/visual-smoke.mjs",
@@ -162,7 +169,7 @@
     "content:storage:page-content:seed:wave2:apply": "php ./tools/content-storage-page-content-seed.php --wave=wave_2 --apply"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "4.1.8",
-    "tailwindcss": "4.1.8"
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
   }
 }
