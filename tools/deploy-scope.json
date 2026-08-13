@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "scopeVersion": "2026-08-14.1",
+  "releaseClass": "FILE_ONLY",
+  "authoritativeDirectories": [
+    "local",
+    "about",
+    "services",
+    "contacts",
+    "calculator",
+    "price",
+    "offer",
+    "aiagents",
+    "policies",
+    "platform",
+    "agents",
+    "dev",
+    "forum"
+  ],
+  "exactRootFiles": [
+    ".bottom.menu.php",
+    ".htaccess",
+    ".section.php",
+    ".top.menu.php",
+    "index.php",
+    "404.php",
+    "favicon.ico",
+    "robots.txt",
+    "sitemap.xml",
+    "urlrewrite.php"
+  ],
+  "generatedFiles": [
+    {
+      "path": "sitemap-basic-files.xml",
+      "generator": "tools/static-sitemap-generate.mjs",
+      "generateOnce": true
+    }
+  ],
+  "tombstones": [
+    "sitemap-files.xml"
+  ],
+  "exclusions": [
+    {
+      "kind": "exact",
+      "path": "local/php_interface/include/tacticum_config.php",
+      "reason": "server-owned production config"
+    },
+    {
+      "kind": "suffixUnder",
+      "root": "local",
+      "suffix": ".log",
+      "reason": "runtime logs"
+    }
+  ],
+  "forbiddenPrefixes": [
+    "bitrix",
+    "upload"
+  ],
+  "forbiddenExactPaths": [
+    ".env",
+    ".settings.php",
+    ".settings_extra.php",
+    ".access.php"
+  ],
+  "nonDeployablePrefixes": [
+    "docs",
+    ".github"
+  ],
+  "nonDeployableExactPaths": [
+    "AGENTS.md",
+    "README.md",
+    ".gitignore",
+    ".gitattributes"
+  ],
+  "controlPlanePrefixes": [
+    ".github/workflows",
+    "tools"
+  ],
+  "controlPlaneExactPaths": [
+    "package.json",
+    "package-lock.json",
+    "tools/deploy-scope.json",
+    "tools/production-deploy-contract.mjs",
+    "tools/production-deploy-cli.mjs",
+    "tools/production-deploy-contract-self-test.mjs"
+  ],
+  "statefulTriggers": [
+    {
+      "kind": "exact",
+      "path": "local/php_interface/include/tacticum_config.example.php",
+      "reason": "production config synchronization may be required"
+    },
+    {
+      "kind": "basenameContainsUnder",
+      "root": "tools",
+      "value": "migration",
+      "reason": "migration tooling changed"
+    },
+    {
+      "kind": "basenameContainsUnder",
+      "root": "tools",
+      "value": "seed",
+      "reason": "seed tooling changed"
+    },
+    {
+      "kind": "basenameContainsUnder",
+      "root": "tools",
+      "value": "finalize",
+      "reason": "finalize tooling changed"
+    }
+  ],
+  "rsyncOptions": [
+    "--archive",
+    "--no-owner",
+    "--no-group",
+    "--checksum",
+    "--delay-updates",
+    "--delete-delay"
+  ],
+  "localAccess": {
+    "envFile": ".env",
+    "requiredKeys": [
+      "PROD_HOST",
+      "PROD_WEB_ROOT",
+      "PROD_SSH_USER",
+      "PROD_SSH_PORT",
+      "PROD_SSH_KEY_PATH",
+      "PROD_SSH_PUBLIC_KEY_PATH",
+      "PROD_SSH_KNOWN_HOSTS_PATH"
+    ],
+    "optionalKeys": [
+      "PROD_BASIC_USER"
+    ],
+    "forbiddenKeys": [
+      "PROD_ROOT_PASSWORD"
+    ],
+    "sshUser": "bitrix",
+    "dedicatedKeyBasename": "tacticum_prod_bitrix_ed25519",
+    "originalCommand": "manifest"
+  }
+}

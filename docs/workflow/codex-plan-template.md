@@ -26,6 +26,7 @@ Date:
 - [ ] `docs/workflow/current-state.md`
 - [ ] `docs/workflow/gap-analysis.md`
 - [ ] Relevant ADR:
+- [ ] Для production/deploy: `docs/workflow/production-deployment-governance.md` и ADR-013
 - [ ] Relevant files:
 
 ## Current Behavior
@@ -77,6 +78,19 @@ php -l path/to/file.php
 ## Rollback
 
 Как безопасно откатить изменение.
+
+## Production Delivery (если нужен deploy)
+
+- Release class: `FILE_ONLY` / `STATEFUL`
+- Deploy scope/version:
+- Staging evidence или approved bounded waiver:
+- `BASE/PROD/CANDIDATE` reconciliation owner/evidence:
+- Exact plan/dry-run approval owner:
+- Lock + backup/restore rehearsal:
+- Affected smoke + monitoring thresholds:
+- Baseline/rollback evidence:
+
+Если любой обязательный gate не определён, production mutation остаётся заблокированной по `production-deployment-governance.md`.
 
 ## Docs To Update
 

@@ -4,6 +4,8 @@
 
 Этот документ закрывает release evidence gaps: автоматический rendered SEO head, `/price/` team presets, а также операционные проверки, которые нельзя безопасно автоматизировать в production: реальные успешные отправки форм/чата, проверка целей Метрики, синхронизация server config и проверка админки.
 
+Этот sign-off дополняет, но не заменяет pre-deploy gates из `production-deployment-governance.md`. До production mutation должны быть доказаны `FILE_ONLY` classification либо отдельный `STATEFUL` plan, staging/waiver, production drift reconciliation, exact plan approval, lock и backup/restore readiness. Зелёный post-deploy sign-off без этих evidence не легитимизирует deploy задним числом.
+
 ## Обязательное Правило
 
 PM не закрывает release issue, пока для затронутых областей не заполнен sign-off:

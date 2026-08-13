@@ -13,5 +13,23 @@
 - [x] Проверить YAML, shell, npm scripts, PHP lint, dependency audit и production read-only smoke.
 - [x] Получить разрешение на `.git`, push и draft PR; deployment approval остаётся отдельным gate.
 - [x] Проверить новый GitHub PR Actions run.
-- [ ] Настроить/подтвердить secrets и branch protection.
-- [ ] Merge PR и проверить production deployment/post-deploy smoke artifact.
+- [x] Зафиксировать ownership и E2E `BASE/PROD/CANDIDATE` drift/reconciliation plan.
+- [x] Почелленджить E2E-план по trust boundary, stateful compatibility, ownership, lock, rollback, staging и delivery complexity.
+- [x] Пересобрать operational plan по findings `E2E-CH-001` — `E2E-CH-012` без изменения production.
+- [x] Обновить и принять ADR-013: `FILE_ONLY`, deploy scope, trusted controller, dual BASE, lock, rollback и staging decision.
+- [x] Включить contract в workflow governance, AGENTS/DevOps instructions, current state и gap register без ложного статуса executable enforcement.
+- [x] Принять разделение personal bootstrap/manual, dedicated local read-only, CI read-only и CI write credentials.
+- [ ] Выбрать independent durable baseline store и staging path либо получить bounded waiver.
+- [x] Реализовать machine-readable deploy-scope с authoritative dirs, exact root files, exclusions, generated file и tombstone fixtures.
+- [x] Реализовать path/scope `FILE_ONLY` classifier и canonical manifest/plan schema self-tests; classifier не заменяет data-lifecycle review.
+- [x] Реализовать безопасный `.env` parser и offline SSH preflight без password/path authority, personal key selection или user-config weakening.
+- [ ] Реализовать immutable artifact promotion; privileged controller не должен исполнять candidate scripts.
+- [ ] Получить trusted host fingerprint, создать passphrase-protected `tacticum_prod_bitrix_ed25519`, исправить `.env` paths/mode и проверить private/public fingerprint pair.
+- [ ] Через отдельно подтверждённый personal bootstrap установить dedicated public key с forced-command read-only wrapper.
+- [ ] Негативно проверить denial shell/SFTP/rsync/PTY/forwarding/write и отдельно решить revoke personal authorization либо formal break-glass policy.
+- [ ] Выполнить two-pass/two-way initial inventory и показать redacted production drift без изменений сервера.
+- [ ] Забрать принятые production-изменения через clean worktree/PR, сохранить durable decisions и повторить quality/scan.
+- [ ] Реализовать trusted controller, checksum dry-run, approval binding, exclusive lock, backup/restore rehearsal и dual manifest lifecycle.
+- [ ] Настроить отдельные CI read-only/write keys/wrappers, environments, CODEOWNERS, required reviewer и `main` ruleset; запретить PR secrets.
+- [ ] Показать финальный drift report/dry-run и получить отдельное production approval.
+- [ ] Выполнить controlled `FILE_ONLY` deployment, monitoring, dual BASE finalize и проверить rollback evidence.
