@@ -23,6 +23,8 @@
 - Smoke evidence направлен в current-run Actions artifact; historical `/tmp` draft исключён из generic deploy.
 - `actionlint`, PHP lint и полный локальный quality/release matrix прошли; production public precheck прошёл.
 - Обновлённый `release:product-first:prod-check` полностью прошёл против production в read-only режиме.
+- Draft PR `#45` создан; первый GitHub run подтвердил PHP/security jobs и обнаружил drift generated CSS после Tailwind upgrade.
+- `tailwind.generated.css` пересобран Tailwind `4.3.3`; полный injected CSS visual/action smoke прошёл на 13 публичных страницах desktop/mobile.
 
 ## Блокеры
 

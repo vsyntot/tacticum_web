@@ -6,3 +6,4 @@ R-004,Критическая уязвимость transitive tar,high,high,resol
 R-005,SSH/rsync steps не проверялись 79 запусков,critical,unknown,open,DevOps,После secrets выполнить controlled run и smoke,Actions history,2026-08-13,
 R-006,Direct push обходит PR workflow,high,high,open,Repository owner,Запуск quality на push и branch protection handoff,Actions history,2026-08-13,Branch protection API недоступен
 R-007,rsync --delete удаляет server-owned tacticum_config.php,critical,high,mitigated-local,DevOps,Source-relative exclude и behavioral self-test,deploy-rsync-filter-self-test.sh,2026-08-13,Нужен controlled remote run
+R-008,Dependency update рассинхронизирует tracked generated CSS,high,certain,mitigated-local,DevOps,Пересобрать bundle и выполнить css plus injected browser smoke,"PR run 31690288298; e2e:css-js:local",2026-08-13,Нужен повторный green PR run

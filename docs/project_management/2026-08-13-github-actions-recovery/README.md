@@ -18,6 +18,6 @@
 ## Scope boundary
 
 - `read_scope`: весь локальный репозиторий; публичные GitHub Actions metadata/logs; публичные GET/HEAD `https://tacticum.ru`.
-- `write_scope`: `.github/workflows/`, `package.json`, `package-lock.json`, непосредственно связанные `tools/`, ADR и этот operational package.
+- `write_scope`: `.github/workflows/`, `package.json`, `package-lock.json`, generated `local/templates/tacticum/tailwind.generated.css`, непосредственно связанные `tools/`, ADR и этот operational package. Generated CSS добавлен после того, как GitHub runner подтвердил drift при обновлении Tailwind.
 - `off_limits`: `bitrix/`, production data, GitHub secrets values, authenticated Bitrix admin, формы/лиды, deployment без отдельного разрешения.
 - `remote mutation`: запрещена до явного разрешения пользователя.
