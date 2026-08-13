@@ -1,9 +1,9 @@
 risk_id,risk,impact,likelihood,status,owner_or_role,mitigation,source,updated_at,notes
-R-001,Deployment secrets отсутствуют или названы иначе,critical,high,open,DevOps,Fail-fast preflight и settings handoff,"Actions run 31604185637",2026-08-13,Значения secrets не читать и не логировать
+R-001,Deployment secrets отсутствуют,critical,certain,open,DevOps,Настроить пять secrets по github_handoff.md,"gh secret list: repository and production environment empty",2026-08-13,Значения secrets не читать и не логировать
 R-002,Quality failure после production mutation,critical,high,mitigated-local,DevOps,Reusable quality gate выполняется до deployment mutation,.github/workflows/deploy.yml,2026-08-13,Нужен remote run
 R-003,Historical tmp evidence ломает clean runner,high,certain,resolved,DevOps,Historical draft удалён из generic deploy path,release sign-off self-test,2026-08-13,
 R-004,Критическая уязвимость transitive tar,high,high,resolved,DevOps,Tailwind 4.3.3 и blocking npm audit,npm audit,2026-08-13,0 vulnerabilities
 R-005,SSH/rsync steps не проверялись 79 запусков,critical,unknown,open,DevOps,После secrets выполнить controlled run и smoke,Actions history,2026-08-13,
-R-006,Direct push обходит PR workflow,high,high,open,Repository owner,Запуск quality на push и branch protection handoff,Actions history,2026-08-13,Branch protection API недоступен
+R-006,Direct push обходит PR workflow,high,high,open,Repository owner,Настроить branch protection или ruleset для main,"branch protection 404; rulesets []",2026-08-13,PR Quality Gate работает но не обязателен
 R-007,rsync --delete удаляет server-owned tacticum_config.php,critical,high,mitigated-local,DevOps,Source-relative exclude и behavioral self-test,deploy-rsync-filter-self-test.sh,2026-08-13,Нужен controlled remote run
-R-008,Dependency update рассинхронизирует tracked generated CSS,high,certain,mitigated-local,DevOps,Пересобрать bundle и выполнить css plus injected browser smoke,"PR run 31690288298; e2e:css-js:local",2026-08-13,Нужен повторный green PR run
+R-008,Dependency update рассинхронизирует tracked generated CSS,high,certain,resolved,DevOps,Пересобрать bundle и выполнить css plus injected browser smoke,"e2e:css-js:local; PR run 31690737872",2026-08-13,Повторный PR run зелёный

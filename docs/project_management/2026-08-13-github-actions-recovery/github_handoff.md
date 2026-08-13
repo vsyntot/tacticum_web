@@ -1,6 +1,8 @@
 # GitHub handoff
 
-Задача `CI-REC-008` требует владельца репозитория и отдельного разрешения на production deployment.
+Задача `CI-REC-009` требует владельца репозитория и отдельного разрешения на production deployment.
+
+Текущий publish state: draft PR `#45` (`agent/recover-github-actions` → `main`) создан, GitHub Actions run `31690737872` прошёл. Финальный production gate ведётся как `CI-REC-009`.
 
 ## 1. Production environment secrets
 
@@ -14,6 +16,8 @@
 
 Значения не копировать в issue, PR, workflow logs или этот пакет.
 
+Проверка 13.08.2026 показала пустые списки repository secrets и `production` environment secrets.
+
 ## 2. Ruleset для `main`
 
 - Require a pull request before merging.
@@ -21,11 +25,13 @@
 - Block force pushes and branch deletion.
 - Разрешить production environment deployment только доверенным веткам; при необходимости включить required reviewer.
 
+Проверка 13.08.2026 показала: branch protection для `main` отсутствует, repository rulesets отсутствуют.
+
 ## 3. Публикация и controlled run
 
-1. Создать ветку от `8ef02a60a0641f2acda821cbcf82e98eb8f05c51` и перенести текущий working-tree diff.
-2. Открыть PR и дождаться всех jobs `Quality Gate`.
-3. После review merge в `main`; это запускает `🚀 Deploy to Production`.
+1. Ветка от `8ef02a60a0641f2acda821cbcf82e98eb8f05c51` и draft PR `#45` уже опубликованы.
+2. PR Quality Gate уже прошёл; после настройки secrets дождаться зелёного run для финального head.
+3. После review и отдельного merge/deploy решения перевести PR из draft и merge в `main`; это запускает `🚀 Deploy to Production`.
 4. В deploy log подтвердить последовательность: quality → config preflight → SSH → rsync → cache clear → health → four smoke checks → artifact upload → final assert.
 5. Скачать `post-deploy-smoke-<run_id>-<attempt>` и проверить три manifest плюс screenshots.
 6. Повторить `npm run release:public-precheck:prod` и affected smoke; сохранить ссылки на run/artifact в `evidence_index.csv`.

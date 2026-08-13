@@ -11,6 +11,7 @@
 - [x] Генерировать и upload current-run smoke manifests.
 - [x] Удалить generic dependency от historical `/tmp` evidence.
 - [x] Проверить YAML, shell, npm scripts, PHP lint, dependency audit и production read-only smoke.
-- [ ] Получить разрешение на push/PR и deployment.
+- [x] Получить разрешение на `.git`, push и draft PR; deployment approval остаётся отдельным gate.
+- [x] Проверить новый GitHub PR Actions run.
 - [ ] Настроить/подтвердить secrets и branch protection.
-- [ ] Проверить новый GitHub Actions run и post-deploy smoke.
+- [ ] Merge PR и проверить production deployment/post-deploy smoke artifact.
