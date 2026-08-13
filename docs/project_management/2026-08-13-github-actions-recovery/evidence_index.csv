@@ -13,3 +13,5 @@ E-011,Локальная validation ladder проходит,PHP/npm/repository c
 E-012,Обновлённый product-first production aggregator проходит,npm run release:product-first:prod-check,production read-only smoke,high,Exit 0; 13 rendered pages without hygiene issues,Deployment этой версии ещё не выполнялся,2026-08-13
 E-013,Первый PR run обнаружил generated CSS drift,GitHub Actions run 31690288298 job 94415792044,remote runner log,high,css:check failed на cmp после Tailwind 4.3.3 build,Исправленный commit ещё не проверен GitHub runner,2026-08-13
 E-014,Пересобранный CSS проходит полный injected visual/action smoke,npm run e2e:css-js:local,production read-only browser smoke,high,13 страниц desktop/mobile; exit 0,Production bundle не менялся,2026-08-13
+E-015,Исправленный PR Quality Gate проходит,GitHub Actions run 31690737872,remote runner evidence,high,PHP CSS audit repository and security jobs success,Deploy workflow не запускался,2026-08-13
+E-016,Production configuration отсутствует,GitHub settings APIs via gh,remote configuration metadata,high,Repository/environment secret lists empty; main protection 404; rulesets empty,Secret values по API не читаются,2026-08-13
