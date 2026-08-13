@@ -163,7 +163,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICOD
 
 - CSS: static Tailwind bundle собирается из `assets/src/tailwind.css` в `tailwind.generated.css`.
 - `styles/global.css` содержит migrated global/template CSS и scoped page blocks, подключается через `Asset`; `template_styles.css` должен оставаться пустым/comment-only Bitrix shim.
-- `local/templates/tacticum/styles/` не расширять без отдельного архитектурного решения; сейчас approved только `styles/global.css`.
+- `local/templates/tacticum/styles/` использует approved fixed split: `styles/global.css`, `styles/components.css`, `styles/page-about-calculator.css`, `styles/page-offer-price-services.css`, `styles/page-aiagents.css`; состав проверяет `npm run template-styles:check`, а новые template-level CSS файлы требуют отдельного архитектурного решения.
 - Legacy browser Tailwind runtime `bundle.v3.4.16.js` и `js/init.js` удалены и не должны возвращаться.
 - Новый JS для страницы подключается в `header.php` через `$obAsset->addJs(...)` по explicit page asset flag.
 - Новый CSS предпочтительно добавлять через Tailwind source, scoped block в `styles/global.css` с body/page class или component `style.css`; новый template-level page CSS не добавлять без отдельного архитектурного решения и обновления `docs/workflow/asset-layout-audit.md`.
