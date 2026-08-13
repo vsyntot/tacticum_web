@@ -11,3 +11,5 @@ E-009,Server-owned config сохраняется при rsync --delete,deploy-rs
 E-010,Deployment config fail-fast contract работает,deploy-config-preflight-self-test.sh,negative/positive fixtures,high,4 cases passed,Реальные secret values не читались,2026-08-13
 E-011,Локальная validation ladder проходит,PHP/npm/repository commands,executable evidence,high,All available checks exit 0,PHP локально 8.5; GitHub ставит 8.4,2026-08-13
 E-012,Обновлённый product-first production aggregator проходит,npm run release:product-first:prod-check,production read-only smoke,high,Exit 0; 13 rendered pages without hygiene issues,Deployment этой версии ещё не выполнялся,2026-08-13
+E-013,Первый PR run обнаружил generated CSS drift,GitHub Actions run 31690288298 job 94415792044,remote runner log,high,css:check failed на cmp после Tailwind 4.3.3 build,Исправленный commit ещё не проверен GitHub runner,2026-08-13
+E-014,Пересобранный CSS проходит полный injected visual/action smoke,npm run e2e:css-js:local,production read-only browser smoke,high,13 страниц desktop/mobile; exit 0,Production bundle не менялся,2026-08-13
