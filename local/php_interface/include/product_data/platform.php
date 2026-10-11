@@ -24,7 +24,7 @@ return [
         ],
         [
             'title' => 'Как используется',
-            'text' => 'Platform исполняет общие runtime, data, access и observability-сервисы, а Agents, Dev и Forum описывают доменную логику поверх нее.',
+            'text' => 'Platform исполняет общие runtime, data, access и observability-сервисы, а Agents, ADP и Forum описывают доменную логику поверх нее.',
         ],
         [
             'title' => 'Как начать',
@@ -148,8 +148,8 @@ return [
         'layers' => [
             [
                 'title' => 'Прикладные продукты',
-                'text' => 'Agents, Dev и Forum решают разные бизнес-задачи, но используют общий платформенный контур.',
-                'items' => ['Tacticum Agents', 'Tacticum Dev', 'Tacticum Forum'],
+                'text' => 'Agents, ADP и Forum решают разные бизнес-задачи, но используют общий платформенный контур.',
+                'items' => ['Tacticum Agents', 'Tacticum ADP', 'Tacticum Forum'],
             ],
             [
                 'title' => 'Платформенное ядро',
@@ -207,11 +207,11 @@ return [
                 ],
             ],
             [
-                'title' => 'Выбирайте Agents / Dev / Forum',
+                'title' => 'Выбирайте Agents / ADP / Forum',
                 'text' => 'Когда уже понятен конкретный прикладной контур поверх платформы.',
                 'items' => [
                     'Agents - внутренние ассистенты для функций и знаний.',
-                    'Dev - governance для AI-assisted разработки.',
+                    'ADP - governance для AI-assisted разработки.',
                     'Forum - клиентские диалоги, сценарии и LLM-уточнения.',
                 ],
             ],

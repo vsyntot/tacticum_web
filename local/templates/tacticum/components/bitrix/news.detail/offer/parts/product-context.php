@@ -27,11 +27,11 @@
                 <h3 class="mb-2 text-lg font-bold text-secondary">Agents</h3>
                 <p class="text-sm text-gray-600">Если задача похожа на ассистента для функции, документов или поддержки.</p>
             </a>
-            <a href="/dev/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">
+            <a href="/adp/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <i class="ri-git-branch-line text-2xl"></i>
                 </div>
-                <h3 class="mb-2 text-lg font-bold text-secondary">Dev</h3>
+                <h3 class="mb-2 text-lg font-bold text-secondary">ADP</h3>
                 <p class="text-sm text-gray-600">Если оценка относится к AI-assisted workflow инженерной команды.</p>
             </a>
             <a href="/forum/" class="rounded-xl border border-gray-200 bg-white p-6 hover:border-primary hover:shadow-sm transition-all">

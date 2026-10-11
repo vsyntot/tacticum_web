@@ -12,7 +12,7 @@ const DEFAULT_PAGES = [
   '/about/',
   '/platform/',
   '/agents/',
-  '/dev/',
+  '/adp/',
   '/forum/',
   '/services/',
   '/price/',
@@ -458,7 +458,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
         const isHomepage = currentPath === '/';
         const expectedPageFaqPaths = ['/', '/services', '/price', '/calculator', '/aiagents'];
         const expectsPageFaq = expectedPageFaqPaths.includes(currentPath);
-        const productPaths = ['/platform', '/agents', '/dev', '/forum'];
+        const productPaths = ['/platform', '/agents', '/adp', '/forum'];
         const isProductPage = productPaths.includes(currentPath);
         const pageFaqItems = Array.from(document.querySelectorAll('.faq-item'));
         const visiblePageFaqItems = pageFaqItems.filter((item) => {
@@ -561,7 +561,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           productBlockErrors.push('product links must not use protocol-relative hrefs; found ' + unsafeProductHrefs.slice(0, 3).join(', '));
         }
         const requiredHomeBlocks = ['hero', 'ecosystem-map', 'fit-matrix', 'commercial-next-steps', 'calculator-preview'];
-        const requiredHomeProductLinks = ['platform', 'agents', 'dev', 'forum'];
+        const requiredHomeProductLinks = ['platform', 'agents', 'adp', 'forum'];
         const requiredHomeCommercialLinks = ['offer', 'services', 'price', 'aiagents'];
         const foundHomeBlocks = Array.from(document.querySelectorAll('[data-home-block]'))
           .map((element) => (element.getAttribute('data-home-block') || '').trim())
@@ -797,7 +797,7 @@ async function smokePage({ port, url, page, viewport, screenshotPath, removeCssP
           '/aiagents/',
           '/platform/',
           '/agents/',
-          '/dev/',
+          '/adp/',
           '/forum/'
         ].map(normalizePath);
         for (const path of requiredNavigationPaths) {
@@ -1122,7 +1122,7 @@ async function runActionSmoke(cdp) {
             throw new Error('lead_scenario select did not keep selected value');
           }
           return option.value;
-        }, ['/platform/', '/agents/', '/dev/', '/forum/'].includes(path));
+        }, ['/platform/', '/agents/', '/adp/', '/forum/'].includes(path));
 
         await run('product faq toggle', async () => {
           const item = find('.faq-item');
@@ -1142,7 +1142,7 @@ async function runActionSmoke(cdp) {
             throw new Error('FAQ controlled answer did not become accessible after click');
           }
           return 'faq opened';
-        }, ['/platform/', '/agents/', '/dev/', '/forum/'].includes(path));
+        }, ['/platform/', '/agents/', '/adp/', '/forum/'].includes(path));
 
         await run('contacts message label clearance', async () => {
           const form = find('#contacts-cta-form');

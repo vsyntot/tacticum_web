@@ -12,7 +12,7 @@ const DEFAULT_FILES = [
   'local/php_interface/include/product_page_blocks/procurement.php',
   'local/php_interface/include/product_data/platform.php',
   'local/php_interface/include/product_data/agents.php',
-  'local/php_interface/include/product_data/dev.php',
+  'local/php_interface/include/product_data/adp.php',
   'local/php_interface/include/product_data/forum.php',
   'local/lib/Tacticum/PageContent/CalculatorRenderer.php',
   'local/components/tacticum/chat.surface/component.php',
@@ -59,6 +59,9 @@ const FORBIDDEN_PUBLIC_LABELS = [
   'Platform assessment',
   'Agents pilot',
   'Dev workflow',
+  'Tacticum Dev',
+  'Процесс Dev',
+  'Примеры Dev',
   'Forum launch',
   'Platform team',
   'Platform examples',
@@ -532,7 +535,7 @@ function runSelfTest() {
     "'eyebrow' => 'Когда подходит продукт',",
     "'eyebrow' => 'Сценарии применения',",
     "'eyebrow' => 'Безопасность и закупка',",
-    "$this->block('dev-examples', 'product_card', 'Примеры Dev', 'Пилоты для инженерных команд: процесс, слой знаний, правила и проверки качества.')"
+    "$this->block('adp-examples', 'product_card', 'Примеры ADP', 'Пилоты для инженерных команд: процесс, слой знаний, правила и проверки качества.')"
   ].join('\n');
 
   const unsafeSource = [

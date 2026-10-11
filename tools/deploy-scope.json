@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "scopeVersion": "2026-08-14.1",
+  "scopeVersion": "2026-10-11.1",
   "releaseClass": "FILE_ONLY",
   "authoritativeDirectories": [
     "local",
@@ -14,6 +14,7 @@
     "policies",
     "platform",
     "agents",
+    "adp",
     "dev",
     "forum"
   ],

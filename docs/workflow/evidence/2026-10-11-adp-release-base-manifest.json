@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "scope": "ADP production FILE_ONLY exact artifact",
+  "artifactSha256": "34a31f1bc074d1e9a9c9c19aeeafe6c8eaca4f8672af3ab16e1b66e2f430903f",
+  "entries": [
+    {
+      "path": ".bottom.menu.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 1799,
+      "sha256": "b6e029dbb87cab4c677074bc5d09a34791241e60233f358a7ff82dcc5cac01ca"
+    },
+    {
+      "path": "adp/index.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 1573,
+      "sha256": "64db533314722903668047678cbddc223f499e6c98626c610f859ede14ba5c82"
+    },
+    {
+      "path": "dev/index.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 191,
+      "sha256": "920751008db408702bd95248aed4696035680614a5b72b9ef49e4bc41370c0d1"
+    },
+    {
+      "path": "index.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 956,
+      "sha256": "fa80663d13b86eaeb650cf0ec0109e03720c3c8fecd65a1591cc6448554af83d"
+    },
+    {
+      "path": "local/components/tacticum/home.page/templates/.default/parts/hero.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 4864,
+      "sha256": "7be01bc21d568638ae0249da02740157983c82001ff5d171fbc9b6bc3cdfca65"
+    },
+    {
+      "path": "local/components/tacticum/price.page/templates/.default/parts/calculator.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 1990,
+      "sha256": "fbae53ea0c9d8ca8a36d77ed73bc9bfca86bc0cdfe967f4fd753fdfd5b34ec47"
+    },
+    {
+      "path": "local/components/tacticum/product.page/.description.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 340,
+      "sha256": "ff2f61670faf27a6244b060e202e1f2b4406c018414840744a2edc5227bc49c1"
+    },
+    {
+      "path": "local/lib/Tacticum/Content/PublicCopyNormalizer.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 19299,
+      "sha256": "1e097f61b528c81464496c854c315bfab061e7cb972584931b871ef9c752cb7e"
+    },
+    {
+      "path": "local/lib/Tacticum/PageContent/CalculatorRenderer.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 5982,
+      "sha256": "dfd24a981caa0db2625782de0247d049945bd18694110449bd8ed44565f1b1e6"
+    },
+    {
+      "path": "local/lib/Tacticum/PageContent/HomeRenderAttributes.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 1739,
+      "sha256": "2324c1a3e1daf8d3f168a31ae49c858f95b9ec6124b637addb623567ba3b70c3"
+    },
+    {
+      "path": "local/lib/Tacticum/Product/ContentRuntime.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 4649,
+      "sha256": "7612fae020844abd578aab7ffb301cc745f0c29a4bf74a5bde91c5c26c1ae697"
+    },
+    {
+      "path": "local/lib/Tacticum/Product/ContentService.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 8785,
+      "sha256": "c15052a49b1c257b8942a570adb112a39a678970dc712d455ea0f74cb4482de8"
+    },
+    {
+      "path": "local/lib/Tacticum/Product/Page/Cta.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 3088,
+      "sha256": "12755760583d46b596770095005ae4a0d75deb9590d6c726bce6d61118ffd794"
+    },
+    {
+      "path": "local/lib/Tacticum/Product/Page/DataProvider.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 4948,
+      "sha256": "6266aa1a94aae5cf36e00ff37de35f9ac29f3ce0f2cc9ede57d66fe0648ddb76"
+    },
+    {
+      "path": "local/lib/Tacticum/Product/ProductIdentity.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 1915,
+      "sha256": "283c03d97240a948d76fb5e8272a55e2e33a002849c8abf2db971557b8c0b798"
+    },
+    {
+      "path": "local/php_interface/include/product_data/adp.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 24273,
+      "sha256": "18c3a708458a33262ae2d68c537c44a0126dbbbd75c5824b6e4ee4b1af1c8b92"
+    },
+    {
+      "path": "local/php_interface/include/product_data/dev.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 129,
+      "sha256": "ed987a693893aa8de2730939d75112f09c2b62a681370c8bb687fb266952e3fe"
+    },
+    {
+      "path": "local/php_interface/include/product_data/platform.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 26079,
+      "sha256": "1e293589b33ebd5c7769b08ee6c35028c06b58cdb813307958a1bc7b48fc982d"
+    },
+    {
+      "path": "local/templates/tacticum/assets/src/tailwind.css",
+      "type": "file",
+      "mode": "0644",
+      "size": 1534,
+      "sha256": "21f038beef8ad3d1fbb78674d1decaf7fd423dc0414f9d1a7f7c58a171881104"
+    },
+    {
+      "path": "local/templates/tacticum/components/bitrix/news.detail/offer/parts/product-context.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 3526,
+      "sha256": "14514211f6a964d1aea646b846e41ecd8218e3c893569a05aa8daa9f072a45e0"
+    },
+    {
+      "path": "local/templates/tacticum/js/analytics.js",
+      "type": "file",
+      "mode": "0644",
+      "size": 3505,
+      "sha256": "1b37bc919918bcacd4070549aab60d39e238c1da3072db18816a7d29be153995"
+    },
+    {
+      "path": "local/templates/tacticum/js/forms-runtime.js",
+      "type": "file",
+      "mode": "0644",
+      "size": 7414,
+      "sha256": "14729d9d47664e047f68245c8f602bc10cdd13d951c2f608a1809f30a63556e0"
+    },
+    {
+      "path": "platform/.left.menu.php",
+      "type": "file",
+      "mode": "0644",
+      "size": 537,
+      "sha256": "8e6a238c2b0ee9a56b1c0509d00b319d4ede32d66996a4edcc08c7836dcb50e3"
+    },
+    {
+      "path": "sitemap-basic-files.xml",
+      "type": "file",
+      "mode": "0644",
+      "size": 1527,
+      "sha256": "44bab79d7443f21d99993b5580307bcee2f3b02638f3e1addea2325f4461a584"
+    }
+  ],
+  "tombstones": [
+    "sitemap-files.xml"
+  ],
+  "manifestSha256": "c6bc7472e5ac1c760d50631965d4abdb51b27865f011fe8d9185b07964ede902"
+}

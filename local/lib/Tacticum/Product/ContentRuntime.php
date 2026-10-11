@@ -16,16 +16,9 @@ final class ContentRuntime
         'clients',
     ];
 
-    private const CODES = [
-        'platform' => 'platform.php',
-        'agents' => 'agents.php',
-        'dev' => 'dev.php',
-        'forum' => 'forum.php',
-    ];
-
     public static function codes(): array
     {
-        return self::CODES;
+        return ProductIdentity::codes();
     }
 
     public static function source(): string
@@ -85,6 +78,7 @@ final class ContentRuntime
 
     public static function cacheKey(string $productCode): string
     {
+        $productCode = ProductIdentity::canonicalCode($productCode);
         $iblockIds = [];
         foreach (self::RELATED_IBLOCK_KEYS as $key) {
             $iblockIds[$key] = function_exists('tacticum_rest_get_iblock_id')

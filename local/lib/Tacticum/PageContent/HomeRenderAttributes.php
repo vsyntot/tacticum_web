@@ -28,14 +28,14 @@ final class HomeRenderAttributes
     private static function productCode(array $item): string
     {
         $meta = RenderSupport::text($item['meta'] ?? '');
-        if (preg_match('/(?:^|;)product=(platform|agents|dev|forum)(?:;|$)/', $meta, $matches) === 1) {
-            return $matches[1];
+        if (preg_match('/(?:^|;)product=(platform|agents|adp|dev|forum)(?:;|$)/', $meta, $matches) === 1) {
+            return $matches[1] === 'dev' ? 'adp' : $matches[1];
         }
 
         return match (RenderSupport::href($item['href'] ?? '')) {
             '/platform/' => 'platform',
             '/agents/' => 'agents',
-            '/dev/' => 'dev',
+            '/adp/' => 'adp',
             '/forum/' => 'forum',
             default => '',
         };

@@ -3,12 +3,12 @@
 import http from 'node:http';
 import https from 'node:https';
 
-const DEFAULT_PRODUCT_PAGES = ['/platform/', '/agents/', '/dev/', '/forum/'];
+const DEFAULT_PRODUCT_PAGES = ['/platform/', '/agents/', '/adp/', '/forum/'];
 const DEFAULT_PUBLIC_PAGES = [
   '/',
   '/platform/',
   '/agents/',
-  '/dev/',
+  '/adp/',
   '/forum/',
   '/services/',
   '/price/',

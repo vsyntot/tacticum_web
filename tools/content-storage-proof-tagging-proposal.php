@@ -209,16 +209,16 @@ final class TacticumContentStorageProofTaggingProposal
         $reasons = [];
 
         if ($this->hasAny($text, ['sap', 'superset', 'clickhouse', 'hadoop', 'airflow', 'python', 'etl', 'импортозам', 'bi-стек', 'би-стек'])) {
-            $products = $this->addProducts($products, ['dev', 'platform']);
+            $products = $this->addProducts($products, ['adp', 'platform']);
             $reasons[] = 'BI/data stack, migration or engineering implementation evidence.';
         }
         if ($this->hasAny($text, ['предиктив', 'прогноз', 'скоринг', 'скор-балл', 'скор балл', 'модель', 'рекомендац'])) {
-            $products = $this->addProducts($products, ['platform', 'dev']);
+            $products = $this->addProducts($products, ['platform', 'adp']);
             $reasons[] = 'ML/analytics model evidence fits Platform plus custom implementation.';
         }
         if ($this->hasAny($text, ['маршрут', 'доставк', 'tms', 'грузовик', 'мобильное приложение'])) {
-            $products = $this->addProducts($products, ['platform', 'dev']);
-            $reasons[] = 'Optimization algorithm and operational integrations fit Platform plus Dev.';
+            $products = $this->addProducts($products, ['platform', 'adp']);
+            $reasons[] = 'Optimization algorithm and operational integrations fit Platform plus ADP.';
         }
         if ($this->hasAny($text, ['агент', 'бот', 'ассистент', 'telegram', 'dialogflow', 'faq', 'nlp', 'кандидат'])) {
             $products = $this->addProducts($products, ['agents']);
@@ -230,22 +230,22 @@ final class TacticumContentStorageProofTaggingProposal
         }
 
         if ($this->hasAny($text, ['sap', 'superset', 'clickhouse', 'hadoop', 'airflow', 'python', 'etl', 'импортозам', 'bi-стек', 'би-стек'])) {
-            $products = $this->preferOnly($products, ['platform', 'dev']);
+            $products = $this->preferOnly($products, ['platform', 'adp']);
             $reasons[] = 'Data/BI migration evidence should not be broadened to bot or dialogue products.';
         }
         if ($this->hasAny($text, ['дефолт', 'скоринг', 'скор-балл', 'скор балл', 'прогнозирования рисков'])) {
-            $products = $this->preferOnly($products, ['platform', 'dev']);
+            $products = $this->preferOnly($products, ['platform', 'adp']);
             $reasons[] = 'Risk scoring evidence is a model/platform implementation, not an Agents proof despite generic wording.';
         }
         if ($this->hasAny($text, ['маршрут', 'доставк', 'tms', 'грузовик', 'мобильное приложение'])) {
-            $products = $this->preferOnly($products, ['platform', 'dev']);
+            $products = $this->preferOnly($products, ['platform', 'adp']);
             $reasons[] = 'Logistics optimization evidence is algorithm plus integration, not a dialogue proof.';
         }
         if (
             $this->hasAny($text, ['рекомендац'])
             && !$this->hasAny($text, ['агент', 'бот', 'ассистент', 'telegram', 'dialogflow', 'omnichannel', 'whatsapp', 'диалог'])
         ) {
-            $products = $this->preferOnly($products, ['platform', 'dev']);
+            $products = $this->preferOnly($products, ['platform', 'adp']);
             $reasons[] = 'Recommendation-system evidence is product analytics/model proof, not customer-dialogue proof.';
         }
         if ($this->hasAny($text, ['колл', 'звон', 'оператор', 'ip-телефони', 'omnichannel', 'whatsapp'])) {
@@ -381,7 +381,7 @@ final class TacticumContentStorageProofTaggingProposal
 
     private function orderedProducts(array $codes): array
     {
-        $allowedOrder = ['platform', 'agents', 'dev', 'forum'];
+        $allowedOrder = ['platform', 'agents', 'adp', 'forum'];
         $set = array_fill_keys($codes, true);
         $ordered = [];
         foreach ($allowedOrder as $code) {

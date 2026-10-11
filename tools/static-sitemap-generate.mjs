@@ -10,7 +10,7 @@ const STATIC_PATHS = [
   '/about/',
   '/platform/',
   '/agents/',
-  '/dev/',
+  '/adp/',
   '/forum/',
   '/aiagents/',
   '/calculator/',

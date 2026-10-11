@@ -8,7 +8,7 @@ const DEFAULT_PAGES = [
   '/',
   '/platform/',
   '/agents/',
-  '/dev/',
+  '/adp/',
   '/forum/',
   '/services/',
   '/price/',
@@ -34,6 +34,9 @@ const FORBIDDEN_VISIBLE_PHRASES = [
   'Platform assessment',
   'Agents pilot',
   'Dev workflow',
+  'Tacticum Dev',
+  'Процесс Dev',
+  'Примеры Dev',
   'Forum launch',
   'Platform team',
   'Platform examples',
@@ -235,7 +238,7 @@ function visibleTextLines(html) {
 function runSelfTest() {
   const safeHtml = `
     <section><p>Когда подходит продукт</p><h3>Подходит, если</h3></section>
-    <section><p>Сценарии применения</p><h3>Примеры Dev</h3></section>
+    <section><p>Сценарии применения</p><h3>Примеры ADP</h3></section>
   `;
   const safeAboutHtml = `
     <nav>

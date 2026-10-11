@@ -23,8 +23,8 @@ $aMenuLinks = Array(
         ""
     ),
     Array(
-        "Tacticum Dev",
-        "/dev/",
+        "Tacticum ADP",
+        "/adp/",
         Array(),
         Array(),
         ""

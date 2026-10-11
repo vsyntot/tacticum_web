@@ -29,9 +29,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                         <span class="block text-sm text-blue-100">Бизнес-функции</span>
                         <span class="block font-semibold">Tacticum Agents</span>
                     </a>
-                    <a href="/dev/" class="rounded-lg border border-white/15 bg-white/10 p-4 text-white hover:bg-white/15 transition-colors" data-home-product-link="dev">
+                    <a href="/adp/" class="rounded-lg border border-white/15 bg-white/10 p-4 text-white hover:bg-white/15 transition-colors" data-home-product-link="adp">
                         <span class="block text-sm text-blue-100">Инженерные команды</span>
-                        <span class="block font-semibold">Tacticum Dev</span>
+                        <span class="block font-semibold">Tacticum ADP</span>
                     </a>
                     <a href="/forum/" class="rounded-lg border border-white/15 bg-white/10 p-4 text-white hover:bg-white/15 transition-colors" data-home-product-link="forum">
                         <span class="block text-sm text-blue-100">Клиентские диалоги</span>
@@ -54,7 +54,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                     "INTRO_ITEMS" => [
                         "Platform - если нужен единый AI-контур, RAG, инструменты, доступы и аудит",
                         "Agents - если нужны ассистенты для HR, юридического, поддержки или базы знаний",
-                        "Dev - если нужно управлять AI-assisted разработкой в инженерной команде",
+                        "ADP - если нужно управлять AI-assisted разработкой в инженерной команде",
                         "Forum - если важны управляемые клиентские диалоги и сценарии с LLM",
                     ],
                     "INTRO_OUTRO" => "Если продуктовый вход пока не очевиден, можно начать с расчета, discovery или короткой архитектурной сессии.",

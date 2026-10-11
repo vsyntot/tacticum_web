@@ -67,7 +67,7 @@ const forbiddenManualEvidenceKeys = [
   'user_agent',
 ];
 const allowedStatuses = new Set(allowPending ? ['passed', 'not_applicable', 'pending'] : ['passed', 'not_applicable']);
-const productPages = new Set(['/platform/', '/agents/', '/dev/', '/forum/']);
+const productPages = new Set(['/platform/', '/agents/', '/adp/', '/forum/']);
 const endpointRiskClasses = new Set([
   'PUBLIC_READ',
   'PUBLIC_CONFIG_HEALTH',

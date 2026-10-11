@@ -65,7 +65,7 @@
         "/": { product: "ecosystem", page_role: "ecosystem-router" },
         "/platform/": { product: "platform", page_role: "product-page" },
         "/agents/": { product: "agents", page_role: "product-page" },
-        "/dev/": { product: "dev", page_role: "product-page" },
+        "/adp/": { product: "adp", page_role: "product-page" },
         "/forum/": { product: "forum", page_role: "product-page" },
     };
 

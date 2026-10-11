@@ -10,7 +10,8 @@ final class ContentService
 {
     public static function bitrixDataUncached(string $productCode): array
     {
-        if (!isset(ContentRuntime::codes()[$productCode]) || !Loader::includeModule('iblock')) {
+        $canonicalProductCode = ProductIdentity::canonicalCode($productCode);
+        if (!isset(ContentRuntime::codes()[$canonicalProductCode]) || !Loader::includeModule('iblock')) {
             return [];
         }
 
@@ -21,7 +22,17 @@ final class ContentService
             return [];
         }
 
-        $product = ContentRepository::fetchElementByCode($productsIblockId, $productCode);
+        $resolvedProductCode = $canonicalProductCode;
+        $product = ContentRepository::fetchElementByCode($productsIblockId, $canonicalProductCode);
+        if ($product === null) {
+            foreach (ProductIdentity::legacyCodes($canonicalProductCode) as $legacyCode) {
+                $product = ContentRepository::fetchElementByCode($productsIblockId, $legacyCode);
+                if ($product !== null) {
+                    $resolvedProductCode = $legacyCode;
+                    break;
+                }
+            }
+        }
         if ($product === null) {
             return [];
         }
@@ -32,7 +43,7 @@ final class ContentService
         if (empty($badges)) {
             $badges = ContentMapper::jsonDecode(ContentMapper::propertyScalar($properties, 'BADGES_JSON'));
         }
-        $cta = self::productCta($properties, $productCode);
+        $cta = self::productCta($properties, $canonicalProductCode);
         if (empty($cta)) {
             $cta = ContentMapper::jsonDecode(ContentMapper::propertyScalar($properties, 'CTA_JSON'));
         }
@@ -51,7 +62,8 @@ final class ContentService
             'sections' => [],
             'cta' => $cta,
             '_source' => 'bitrix',
-            '_product_code' => $productCode,
+            '_product_code' => $canonicalProductCode,
+            '_resolved_product_code' => $resolvedProductCode,
             '_product_element_id' => $productId,
         ];
 

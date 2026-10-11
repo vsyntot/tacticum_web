@@ -403,7 +403,7 @@ final class TacticumProductContentMigration
         return [
             'platform' => 'platform.php',
             'agents' => 'agents.php',
-            'dev' => 'dev.php',
+            'adp' => 'adp.php',
             'forum' => 'forum.php',
         ];
     }

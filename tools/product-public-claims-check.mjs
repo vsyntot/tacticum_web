@@ -15,7 +15,7 @@ const DEFAULT_FILES = [
   'local/components/tacticum/aiagents/templates/.default/template.php',
   'local/php_interface/include/product_data/platform.php',
   'local/php_interface/include/product_data/agents.php',
-  'local/php_interface/include/product_data/dev.php',
+  'local/php_interface/include/product_data/adp.php',
   'local/php_interface/include/product_data/forum.php'
 ];
 

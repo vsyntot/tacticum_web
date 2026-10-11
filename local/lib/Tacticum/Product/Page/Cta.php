@@ -2,6 +2,8 @@
 
 namespace Tacticum\Product\Page;
 
+use Tacticum\Product\ProductIdentity;
+
 final class Cta
 {
     public static function standardScenarioOptions(): array
@@ -18,14 +20,14 @@ final class Cta
     public static function leadContext(array $page, array $cta): array
     {
         $rawContext = is_array($cta['lead_context'] ?? null) ? $cta['lead_context'] : [];
-        $productCode = Text::contextSlug(
+        $productCode = ProductIdentity::canonicalCode(Text::contextSlug(
             $page['_product_code'] ?? ($rawContext['lead_product'] ?? ''),
             'product'
-        );
+        ));
 
         $knownProducts = function_exists('tacticum_product_content_codes')
             ? array_keys(tacticum_product_content_codes())
-            : ['platform', 'agents', 'dev', 'forum'];
+            : array_keys(ProductIdentity::codes());
         if (!in_array($productCode, $knownProducts, true)) {
             $productCode = 'product';
         }
