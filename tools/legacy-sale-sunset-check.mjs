@@ -2,7 +2,7 @@
 
 import { access } from 'node:fs/promises';
 
-const sunset = Date.UTC(2026, 8, 30, 0, 0, 0);
+const sunset = Date.UTC(2026, 11, 31, 0, 0, 0);
 const now = process.env.TACTICUM_SUNSET_CHECK_DATE
   ? Date.parse(process.env.TACTICUM_SUNSET_CHECK_DATE)
   : Date.now();
@@ -28,7 +28,7 @@ for (const endpoint of legacyEndpoints) {
 }
 
 if (now >= sunset && existing.length > 0) {
-  console.error('Legacy sale endpoint sunset reached: 2026-09-30.');
+  console.error('Legacy sale endpoint sunset reached: 2026-12-31.');
   console.error('Decide whether to remove aliases, return 410/redirect, or extend support before deploy.');
   console.error(existing.join('\n'));
   process.exit(1);

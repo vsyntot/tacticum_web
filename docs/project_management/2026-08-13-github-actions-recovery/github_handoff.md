@@ -2,9 +2,11 @@
 
 Задача `CI-REC-009` требует владельца репозитория и отдельного разрешения на production deployment.
 
-Draft PR `#45` (`agent/recover-github-actions` → `main`) создан и остаётся draft. Contract-tooling commit `778c12e9` прошёл GitHub Actions run `31745423204`: PHP 8.4, security/conventions и static/config lifecycle jobs success, включая clean-runner scope preparation. `CI-REC-011` и `CI-REC-016` завершены. Финальный production gate `CI-REC-009` остаётся зависим от `CI-REC-012`—`CI-REC-015`.
+PR `#46` (`fix/ci-quality-gate` → `main`) опубликован, не draft, и head `5b0aa0d1a` прошёл все три Quality Gate checks: PHP 8.4, Static CSS Build и Security/Convention. `CI-REC-011`, `CI-REC-012`, `CI-REC-013` и локальный FILE_ONLY apply slice закрыты evidence; rollout зафиксирован в `E-032`.
 
-До реализации минимального `FILE_ONLY` slice из `production-drift-reconciliation-plan.md` PR не переводить из draft и не merge: текущий workflow способен выполнить `rsync --delete`, не показав предварительно ручные production-изменения, и сохраняет SSH agent до последующего `npm ci`.
+Production apply выполнен отдельно по exact plan `637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70`: immutable artifact, lock, backup/restore rehearsal, cache clear, post-manifest и public/browser/SEO smoke прошли; две BASE-копии записаны в независимые домены.
+
+PR не merge-ится автоматически: текущий `deploy.yml` запускает старый privileged rsync на push в `main`, а GitHub production secrets, protected environment, ruleset и trusted CI controller не настроены. До отдельного решения по этим controls merge остаётся stop condition, даже при зелёном Quality Gate.
 
 ## 1. Production environment secrets
 
@@ -22,7 +24,7 @@ Draft PR `#45` (`agent/recover-github-actions` → `main`) создан и ос�
 
 ADR-013 и production governance приняты. До settings mutation должен быть реализован и проверен machine-readable deploy-scope. Privileged jobs используют immutable artifact и protected controller, не запускают `npm ci` или scripts кандидата. Третьи Actions в privileged jobs pin по commit SHA.
 
-Проверка 13.08.2026 показала пустые списки repository secrets и `production` environment secrets.
+Проверка 11.10.2026 показала пустые списки repository secrets и `production` environment secrets; `main` protection/rulesets также отсутствуют.
 
 ## 2. Ruleset для `main`
 
@@ -33,25 +35,25 @@ ADR-013 и production governance приняты. До settings mutation долж
 - Добавить `CODEOWNERS`/required review для `.github/workflows/`, production tooling, deploy-scope, ADR-013 и server wrapper contract.
 - Required reviewer подтверждает exact `plan_id`, artifact digest, PROD manifest hash и список deletions/tombstones; простой approve job без проверки plan summary недостаточен.
 
-Проверка 13.08.2026 показала: branch protection для `main` отсутствует, repository rulesets отсутствуют.
+Проверка 11.10.2026 показала: branch protection для `main` отсутствует, repository rulesets отсутствуют.
 
 ## 3. Production reconciliation до публикации
 
-1. Выбрать independent durable BASE store и staging path либо оформить отдельный user-approved bounded waiver в рамках принятого ADR-013.
-2. `CI-REC-016` выполнен локально: deploy-scope/classifier/canonical manifest/plan/preflight fixtures проходят. Не трактовать этот path-only gate как immutable artifact или production apply readiness.
-3. Закрепить host fingerprint из независимого канала. Существующий personal key использовать только в отдельно подтверждённой bootstrap-сессии для установки dedicated `tacticum_prod_bitrix_ed25519.pub` с forced-command manifest wrapper.
-4. Проверить dedicated key негативными shell/SFTP/rsync/PTY/forwarding/write cases; исправить `.env` на dedicated paths/mode `0600`. Отдельно решить revoke personal authorization либо formal break-glass policy.
-5. Построить dedicated key два совпадающих initial manifests и показать two-way redacted drift относительно candidate; не называть `origin/main` BASE.
-6. Перенести принятые production-изменения через clean worktree/PR; durable decisions связать с observed PROD hashes.
-7. Повторить Quality Gate и scan до отсутствия необъяснённого drift.
-8. Добавить immutable artifact, trusted controller, exclusive lock, approval binding, backup/restore rehearsal и dual BASE lifecycle.
+1. Staging отсутствует; для exact plan оформлен owner-approved bounded waiver. Две BASE-копии сохранены локально и root-only на сервере; independent durable external store и GitHub release controls остаются открыты.
+2. `CI-REC-016` выполнен локально; immutable artifact и bounded controller для exact plan также проверены evidence E-032. Это не закрывает trusted GitHub write path.
+3. Host fingerprint закреплён; personal key использован только в bootstrap-сессии; dedicated `tacticum_prod_bitrix_ed25519` и forced-command manifest wrapper установлены и проверены.
+4. Dedicated key проверен негативными shell/SFTP/PTY probes; forwarding и formal break-glass policy остаются отдельным security follow-up.
+5. Два стабильных initial manifests построены; two-way drift разобран по четырём paths, `origin/main` BASE не считался.
+6. Четыре принятых production-изменения перенесены через exact artifact; durable decisions и observed PROD hashes сохранены в E-032.
+7. Quality Gate, final scan и post-deploy smoke повторены и прошли.
+8. Immutable artifact, bounded controller, exclusive lock, approval binding, backup/restore rehearsal и dual BASE lifecycle выполнены для exact plan; trusted GitHub controller и rollback exercise остаются открыты.
 
 ## 4. Публикация и controlled run
 
-1. Ветка от `8ef02a60a0641f2acda821cbcf82e98eb8f05c51` и draft PR `#45` уже опубликованы.
-2. PR Quality Gate уже прошёл; после reconciliation дождаться зелёного run для нового финального head.
+1. PR `#46` от head `5b0aa0d1a` опубликован, не draft; все три checks зелёные.
+2. Новый финальный head проверен run `38157300093`; Quality Gate зелёный.
 3. До write approval проверить artifact `production-plan-*`: release class `FILE_ONLY`, `BASE/PROD/CANDIDATE`, artifact digest, additions/changes/deletions/tombstones/metadata, отсутствие conflicts, staging evidence/waiver и точный checksum dry-run.
-4. После review и отдельного merge/deploy решения перевести PR из draft и merge в `main`; это запускает gated `🚀 Deploy to Production`.
+4. Merge в `main` остановлен до настройки GitHub production controls: текущий push-trigger запускает старый rsync-контур и не должен использоваться как trusted controller.
 5. В deploy log подтвердить последовательность: quality/classification → immutable artifact → read-only drift → approval binding → exclusive lock → final manifest → disk/backup/restore rehearsal → exact apply → cache clear → post-apply manifest → credential teardown → health/smoke/monitoring → dual BASE finalize.
 6. Скачать `post-deploy-smoke-<run_id>-<attempt>` и проверить manifests plus screenshots; raw production snapshot в artifact отсутствует.
 7. Повторить `npm run release:public-precheck:prod` и affected smoke; сохранить ссылки на plan/run/artifact в `evidence_index.csv`.

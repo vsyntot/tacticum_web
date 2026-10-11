@@ -227,7 +227,7 @@ jobs:
           SCRIPT_FILES=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-only -- \
             'local/**/*.php' \
             'local/**/*.js' \
-            '*.php' \
+            ':(top,glob)*.php' \
             'about/**/*.php' \
             'agents/**/*.php' \
             'aiagents/**/*.php' \

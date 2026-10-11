@@ -7,7 +7,7 @@ require_once(__DIR__ . '/rest_helpers.php');
 header('Content-Type: application/json; charset=UTF-8');
 tacticum_rest_send_noindex_header();
 header('Deprecation: true');
-header('Sunset: Wed, 30 Sep 2026 00:00:00 GMT');
+header('Sunset: Thu, 31 Dec 2026 00:00:00 GMT');
 header('Link: </local/rest/tacticum_form.php>; rel="successor-version"');
 
 tacticum_rest_validate_origin();

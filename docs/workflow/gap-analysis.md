@@ -537,7 +537,7 @@ Product-first release hardening 01.06.2026: добавлены product-first dra
 
 Product-first CI/deploy smoke coverage 01.06.2026: PR/deploy workflows теперь включают `/platform/`, `/agents/`, `/dev/`, `/forum/` в PHP lint, convention scans and production rsync; deploy lifecycle показывает старый external хвост через `gaps:known` and проверяет переносимый product-first draft sign-off. `seo:check` блокирует выпадение product canonical paths and product nav/footer links, а `visual-smoke` рендерит product pages by default, validates product `SoftwareApplication` + `FAQPage` schema under rendered SEO mode and requires FAQ toggle action on them during browser/action smoke. Срез снижает риск, что product-first страницы существуют в repo, но не попадают в deploy/smoke.
 
-GitHub Actions recovery gap 13.08.2026: production delivery remained externally blocked because all 79 recorded deploy runs failed; sampled job evidence points to an empty `SSH_PRIVATE_KEY`. The local remediation also closes repository-side defects found during chain debugging: quality checks now precede rsync, dependency audit blocks high/critical findings, historical `/tmp` sign-off evidence is removed from generic deploy, `SSH_KNOWN_HOSTS` is pinned, server-owned `tacticum_config.php` uses a correct source-relative rsync exclusion, and current-run smoke manifests are uploaded as artifacts. The gap stays `in-progress` until required repository/environment secrets are configured and one full quality → deploy → post-deploy smoke run succeeds.
+GitHub Actions recovery gap 13.08.2026: production delivery remained externally blocked because all 79 recorded deploy runs failed; sampled job evidence points to an empty `SSH_PRIVATE_KEY`. The local remediation also closes repository-side defects found during chain debugging: quality checks now precede rsync, dependency audit blocks high/critical findings, historical `/tmp` sign-off evidence is removed from generic deploy, `SSH_KNOWN_HOSTS` is pinned, server-owned `tacticum_config.php` uses a correct source-relative rsync exclusion, and current-run smoke manifests are uploaded as artifacts. The gap remains `in-progress` because one owner-authorized FILE_ONLY quality → deploy → post-deploy smoke run now succeeds (E-032), while repository/environment secrets and the trusted GitHub production controller are still unconfigured.
 
 Product CTA scenario qualification 01.06.2026: `tacticum:lead.cta` получил optional `SCENARIO_OPTIONS` для controlled `lead_scenario` select, product renderer пробрасывает эти варианты, а `/platform/`, `/agents/`, `/dev/`, `/forum/` теперь позволяют пользователю выбрать безопасный сценарий следующего шага без новых required fields, JS/CSS, upstream changes or analytics params. `/local/rest/tacticum_form.php` мапит известные scenario slugs в readable task labels без изменения response shape. `seo:check` guard фиксирует наличие scenario qualification на product pages. Срез продвигает `PV-012` and `PV-020`, но strict form success-flow остаётся external release gate.
 
@@ -776,16 +776,16 @@ External gates из Sprint 14 остаются отдельным хвостом
    - `in-progress`, если часть работ осталась;
    - добавить ссылки на Issue/PR/ADR.
 
-## Production Reconciliation Gaps — 14.08.2026
+## Production Reconciliation Gaps — 11.10.2026
 
-Операционный contract принят в ADR-013 и `production-deployment-governance.md`, но production mutation остаётся заблокированной до executable evidence.
+Операционный contract принят в ADR-013 и `production-deployment-governance.md`; bounded FILE_ONLY production rollout закрыт evidence E-032, а trusted GitHub delivery и rollback exercise остаются отдельными gaps.
 
 | ID | Status | Priority | Area | Gap / closure target | PM task |
 |---|---|---:|---|---|---|
 | DELIVERY-E2E-001 | closed | P0 | Contract tooling | `tools/deploy-scope.json`, path/scope `FILE_ONLY` classifier, canonical manifest/plan schema, fail-closed `.env`/SSH preflight и fixtures реализованы; classifier требует отдельный semantic data-lifecycle review и сам не разрешает mutation | `CI-REC-016` |
-| DELIVERY-E2E-002 | blocked | P0 | Production inventory | Нет pinned host identity, dedicated forced-command local key/wrapper denial evidence, решения revoke/break-glass для personal key, двух стабильных PROD manifests и безопасного `BASE_UNKNOWN` two-way inventory | `CI-REC-012` |
-| DELIVERY-E2E-003 | blocked | P0 | Drift reconciliation | Фактические server changes ещё не показаны, не adopted/rejected и не сведены через Git review | `CI-REC-013` |
-| DELIVERY-E2E-004 | open | P0 | Trusted apply | Не реализованы immutable artifact promotion, trusted wrappers, exact approval binding, exclusive lock, backup/restore rehearsal, rollback и dual BASE | `CI-REC-014` |
-| DELIVERY-E2E-005 | blocked | P0 | Release controls | Не выбраны staging path/approved waiver и independent BASE store; не настроены separate keys, environments, reviewers, CODEOWNERS/ruleset | `CI-REC-015` |
+| DELIVERY-E2E-002 | in-progress | P0 | Production inventory | Dedicated key, pinned host identity, wrapper denial evidence и два стабильных PROD manifests реализованы; formal break-glass record и durable BASE lifecycle остаются | `CI-REC-012` |
+| DELIVERY-E2E-003 | closed | P0 | Drift reconciliation | Четыре path-level changes приняты explicit approval, exact artifact и post-manifest match подтверждены | `CI-REC-013` |
+| DELIVERY-E2E-004 | in-progress | P0 | Trusted apply | Immutable artifact, exact approval binding, exclusive lock, backup/restore rehearsal, bounded apply и dual BASE доказаны E-032; rollback exercise и trusted GitHub controller остаются | `CI-REC-014` |
+| DELIVERY-E2E-005 | blocked | P0 | Release controls | Staging закрыт owner waiver для этого exact plan, но production environment secrets, reviewers, CODEOWNERS/ruleset и trusted CI key не настроены | `CI-REC-015` |
 
-Эти gaps нельзя закрывать ссылкой только на зелёный CI, merge или post-deploy smoke. Closure evidence определён в `production-deployment-governance.md`.
+Эти gaps нельзя закрывать ссылкой только на зелёный CI, merge или post-deploy smoke; E-032 закрывает только bounded FILE_ONLY rollout этого плана. Closure evidence определён в `production-deployment-governance.md`.

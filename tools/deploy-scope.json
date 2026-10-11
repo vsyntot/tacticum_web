@@ -51,6 +51,12 @@
       "root": "local",
       "suffix": ".log",
       "reason": "runtime logs"
+    },
+    {
+      "kind": "suffixUnder",
+      "root": "local",
+      "suffix": ".DS_Store",
+      "reason": "macOS metadata"
     }
   ],
   "forbiddenPrefixes": [
