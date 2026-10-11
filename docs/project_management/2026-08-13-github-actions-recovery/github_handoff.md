@@ -2,11 +2,13 @@
 
 Задача `CI-REC-009` требует владельца репозитория и отдельного разрешения на production deployment.
 
-PR `#46` (`fix/ci-quality-gate` → `main`) опубликован, не draft, и head `5b0aa0d1a` прошёл все три Quality Gate checks: PHP 8.4, Static CSS Build и Security/Convention. `CI-REC-011`, `CI-REC-012`, `CI-REC-013` и локальный FILE_ONLY apply slice закрыты evidence; rollout зафиксирован в `E-032`.
+PR `#46` и CI-only PR `#47` смёрджены в `main` коммитами `9f4b7205e` и `2428bf812`. Quality Gate прошёл; исправленный sitemap workflow также прошёл run `38158939102` без apt package dependency.
 
-Production apply выполнен отдельно по exact plan `637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70`: immutable artifact, lock, backup/restore rehearsal, cache clear, post-manifest и public/browser/SEO smoke прошли; две BASE-копии записаны в независимые домены.
+Для `main` включены required PR, строгие PHP/CSS/Security checks, linear history, conversation resolution и запрет force-push/delete. Environment `production` ограничен protected branches и reviewer gate.
 
-PR не merge-ится автоматически: текущий `deploy.yml` запускает старый privileged rsync на push в `main`, а GitHub production secrets, protected environment, ruleset и trusted CI controller не настроены. До отдельного решения по этим controls merge остаётся stop condition, даже при зелёном Quality Gate.
+После merge legacy deploy runs `38158457245` и `38158939260` были отменены в состоянии environment wait/queue. SSH/rsync не запускались; production mutation после merge не выполнялась.
+
+Остаются отдельные gates: CI read/write keys, trusted controller, CODEOWNERS/ruleset policy и замена или retirement старого rsync workflow.
 
 ## 1. Production environment secrets
 
@@ -24,7 +26,7 @@ PR не merge-ится автоматически: текущий `deploy.yml` �
 
 ADR-013 и production governance приняты. До settings mutation должен быть реализован и проверен machine-readable deploy-scope. Privileged jobs используют immutable artifact и protected controller, не запускают `npm ci` или scripts кандидата. Третьи Actions в privileged jobs pin по commit SHA.
 
-Проверка 11.10.2026 показала пустые списки repository secrets и `production` environment secrets; `main` protection/rulesets также отсутствуют.
+Проверка после merge: repository secrets по-прежнему пусты; environment `production` защищён reviewer gate, а `main` имеет required checks и запреты force-push/delete.
 
 ## 2. Ruleset для `main`
 
@@ -35,7 +37,7 @@ ADR-013 и production governance приняты. До settings mutation долж
 - Добавить `CODEOWNERS`/required review для `.github/workflows/`, production tooling, deploy-scope, ADR-013 и server wrapper contract.
 - Required reviewer подтверждает exact `plan_id`, artifact digest, PROD manifest hash и список deletions/tombstones; простой approve job без проверки plan summary недостаточен.
 
-Проверка 11.10.2026 показала: branch protection для `main` отсутствует, repository rulesets отсутствуют.
+Проверка после merge показала: classic branch protection для `main` включена; отдельный repository ruleset и CODEOWNERS ещё не настроены.
 
 ## 3. Production reconciliation до публикации
 
@@ -53,7 +55,7 @@ ADR-013 и production governance приняты. До settings mutation долж
 1. PR `#46` от head `5b0aa0d1a` опубликован, не draft; все три checks зелёные.
 2. Новый финальный head проверен run `38157300093`; Quality Gate зелёный.
 3. До write approval проверить artifact `production-plan-*`: release class `FILE_ONLY`, `BASE/PROD/CANDIDATE`, artifact digest, additions/changes/deletions/tombstones/metadata, отсутствие conflicts, staging evidence/waiver и точный checksum dry-run.
-4. Merge в `main` остановлен до настройки GitHub production controls: текущий push-trigger запускает старый rsync-контур и не должен использоваться как trusted controller.
+4. Merge в `main` выполнен после включения базовой защиты. Legacy deploy runs отменены в reviewer wait; approval не выдавался, trusted controller и CI keys ещё не готовы.
 5. В deploy log подтвердить последовательность: quality/classification → immutable artifact → read-only drift → approval binding → exclusive lock → final manifest → disk/backup/restore rehearsal → exact apply → cache clear → post-apply manifest → credential teardown → health/smoke/monitoring → dual BASE finalize.
 6. Скачать `post-deploy-smoke-<run_id>-<attempt>` и проверить manifests plus screenshots; raw production snapshot в artifact отсутствует.
 7. Повторить `npm run release:public-precheck:prod` и affected smoke; сохранить ссылки на plan/run/artifact в `evidence_index.csv`.
