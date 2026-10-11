@@ -1,0 +1,37 @@
+{
+  "run_id": "38162927993",
+  "run_url": "https://github.com/vsyntot/tacticum_web/actions/runs/38162927993",
+  "head_sha": "a6e232d3cd9a6d5dfe1ba6cedf716b81b9bbb150",
+  "release_class": "FILE_ONLY",
+  "plan_id": "f136361eb5f8e317e4cfafd6e2b91974b9296bb6cf8d4dfefc3ab0876e7f6958",
+  "artifact_sha256": "d9fa3a010b0013936df79bdc9b65496bd4d9e1cdfc7a2f8cc3177a778cdf2b50",
+  "base_manifest_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+  "prod_manifest_sha256_before_apply": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+  "candidate_manifest_sha256": "57878b6433ff6ee1f8051a219abdf0d3ea64ebce093171652b5a8d8bcfc85ca8",
+  "post_manifest_sha256": "98fd45448994c662fec4c27e4ebfbf5f00a5f88202e7413a61f612e2725846f2",
+  "post_manifest_entries": 376,
+  "tombstones": ["sitemap-files.xml"],
+  "changed_paths": [
+    "local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php",
+    "local/templates/tacticum/components/bitrix/menu/topmenu/.description.php"
+  ],
+  "controller": {
+    "applied": true,
+    "lock": "held",
+    "backup_sha256": "6cc4c8817b4fdaf6b446a9afd0e58d2ea6be88d418217b81154db666be80f9cf",
+    "restore_rehearsal": "passed",
+    "disk_inodes": "passed",
+    "cache_clear": "passed"
+  },
+  "checks": {
+    "github_quality_and_apply": "passed",
+    "github_post_deploy_smoke": "passed",
+    "local_release_public_precheck_prod": "passed",
+    "local_seo_check_prod": "passed",
+    "local_browser_console_prod": "passed",
+    "local_browser_price_prod": "passed"
+  },
+  "approved_by": "vsyntot",
+  "approved_at": "2026-10-11T18:30:43Z",
+  "recorded_at": "2026-10-11"
+}
