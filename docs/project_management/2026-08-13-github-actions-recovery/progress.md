@@ -6,13 +6,13 @@
 |---|---:|
 | Всего задач | 16 |
 | Выполнено | 13 |
-| В работе | 2 |
-| Заблокировано | 1 |
+| В работе | 3 |
+| Заблокировано | 0 |
 | Осталось | 3 |
 
 ## Сейчас в работе
 
-- В работе `CI-REC-009` и `CI-REC-014`: production FILE_ONLY apply завершён, наблюдение и перенос trusted-контуров в GitHub остаются отдельными шагами.
+- В работе `CI-REC-009`, `CI-REC-014` и `CI-REC-015`: production FILE_ONLY apply завершён, main/environment protection включены, а trusted CI keys/controller и observation остаются отдельными шагами.
 
 ## Последние изменения
 
@@ -42,6 +42,7 @@
 - Выполнен user-authorized bounded FILE_ONLY production snapshot: 14 authoritative directories, 371 одинаковый файл, 0 remote-only, 2 расхождения. Production Tailwind 4.1.8 и sitemap с lastmod 2026-06-07 старее локального baseline (Tailwind 4.3.3 / 2026-08-13), поэтому импорт не выполнялся; `bitrix/`, `upload/`, config и data не затрагивались. Evidence: `production-reconciliation-2026-10-11.json`.
 - Установлен dedicated passphrase-protected `bitrix` key с pinned host fingerprint и forced-command manifest wrapper; shell, empty command, SFTP и PTY probes rejected. Два consecutive production manifests совпали: 376 entries, hash `736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063`; evidence: `production-reconciliation-2026-10-11-dedicated-manifest.json`.
 - Выполнен утверждённый FILE_ONLY rollout по plan `637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70`: четыре path-level drift changes применены под двумя lock-файлами, immutable artifact, backup/restore rehearsal и cache clear; post-manifest стабилен, public precheck/SEO/browser smoke зелёные. Evidence: `production-rollout-2026-10-11-file-only.json`; две hash-only BASE-копии сохранены локально и root-only на сервере.
+- PR `#46` и CI-only PR `#47` смёрджены в `main`; branch protection, required Quality Gate checks и `production` reviewer gate включены. Sitemap workflow исправлен на stdlib XML parser и прошёл run `38158939102`; legacy deploy runs отменены в ожидании environment, без SSH/rsync mutation. Evidence: `github-controls-merge-2026-10-11.json`.
 
 ## Блокеры
 
@@ -52,7 +53,7 @@
 - Текущий workflow не умеет останавливать deploy при ручном production drift, не показывает checksum dry-run и не проверяет TOCTOU перед rsync.
 - Рабочий wrapper/controller, immutable artifact, lock, approval binding и backup/restore rehearsal доказаны для этого rollout; GitHub trusted write path и отдельный rollback exercise остаются открытыми.
 - Staging отсутствует и закрыт bounded owner waiver; две BASE-копии сохранены в локальном evidence и root-only server domains, но durable external store и GitHub release controls ещё не настроены.
-- PR #46 имеет зелёный Quality Gate; automatic merge/deploy остаётся отложенным до настройки trusted GitHub production controls и завершения observation window.
+- PR #46 и PR #47 смёрджены; main protection и production reviewer gate включены. Legacy deploy не approved и не запускался после merge; trusted CI controller, keys и observation window остаются открыты.
 
 ## Следующий шаг
 

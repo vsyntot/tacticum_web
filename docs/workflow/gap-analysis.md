@@ -786,6 +786,6 @@ External gates из Sprint 14 остаются отдельным хвостом
 | DELIVERY-E2E-002 | in-progress | P0 | Production inventory | Dedicated key, pinned host identity, wrapper denial evidence и два стабильных PROD manifests реализованы; formal break-glass record и durable BASE lifecycle остаются | `CI-REC-012` |
 | DELIVERY-E2E-003 | closed | P0 | Drift reconciliation | Четыре path-level changes приняты explicit approval, exact artifact и post-manifest match подтверждены | `CI-REC-013` |
 | DELIVERY-E2E-004 | in-progress | P0 | Trusted apply | Immutable artifact, exact approval binding, exclusive lock, backup/restore rehearsal, bounded apply и dual BASE доказаны E-032; rollback exercise и trusted GitHub controller остаются | `CI-REC-014` |
-| DELIVERY-E2E-005 | blocked | P0 | Release controls | Staging закрыт owner waiver для этого exact plan, но production environment secrets, reviewers, CODEOWNERS/ruleset и trusted CI key не настроены | `CI-REC-015` |
+| DELIVERY-E2E-005 | in-progress | P0 | Release controls | Staging закрыт owner waiver; production reviewer gate и main protection включены E-033, но CI keys, trusted controller, CODEOWNERS/ruleset и old rsync retirement остаются | `CI-REC-015` |
 
 Эти gaps нельзя закрывать ссылкой только на зелёный CI, merge или post-deploy smoke; E-032 закрывает только bounded FILE_ONLY rollout этого плана. Closure evidence определён в `production-deployment-governance.md`.
