@@ -84,5 +84,20 @@
     "Four file drifts require explicit path-level decision before apply",
     "Trusted write controller, lock, backup/restore rehearsal and GitHub environment approval remain open",
     "No production application files were changed during bootstrap or inventory"
-  ]
+  ],
+  "candidate_ref": "ef34f307d",
+  "artifact": {
+    "kind": "FILE_ONLY_TAR_GZ",
+    "path": "/tmp/tacticum-file-only-artifact.tar.gz",
+    "sha256": "71b2ab4fd4fe5d411dd063a178996eb38301b689359c3aae095fa9cac148f33d",
+    "bytes": 7314071,
+    "immutable_after_build": true
+  },
+  "checksum_dry_run": {
+    "plan_id": "637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70",
+    "mode": "BASE_UNKNOWN_TWO_WAY",
+    "candidate_entries": 376,
+    "changes": 4,
+    "apply_status": "not_run"
+  }
 }
