@@ -4,6 +4,10 @@ $MESS["LANDING_TPL_BITRIX24_DOMAIN_NAME"] = "Қосалқы доменді кө�
 $MESS["LANDING_TPL_BITRIX24_SUBTITLE"] = "#POSTFIX# қосалқы доменін пайдаланып сайтыңызды іске қосыңыз";
 $MESS["LANDING_TPL_CHECK"] = "Тексеру";
 $MESS["LANDING_TPL_DOMAIN_AVAILABLE"] = "Бұл домен тіркеуге қолжетімді!";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_DOMAIN_CHECKING"] = "Мекенжай тексерілуде";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_DOMAIN_CHECKING_SUBMIT"] = "Мекенжай тексерілуде. Тексеру аяқталған соң қайта жіберіңіз.";
 $MESS["LANDING_TPL_DOMAIN_FREE_ALREADY_EXIST_DOMAIN_ALERT"] = "<b>#DOMAIN_NAME#</b> доменін осы сайтқа қосқыңыз келе ме?";
 $MESS["LANDING_TPL_DOMAIN_FREE_ALREADY_EXIST_DOMAIN_H1"] = "Сіздің порталыңызда сыйлық ретінде домен бар";
 $MESS["LANDING_TPL_DOMAIN_FREE_ALREADY_EXIST_DOMAIN_TEXT"] = "<b>#DOMAIN_NAME#</b> сыйлық домені пошта үшін қолданылады.";
@@ -20,6 +24,10 @@ $MESS["LANDING_TPL_DOMAIN_FREE_SUSPENDED_H1"] = "Сыйлық ретінде а�
 $MESS["LANDING_TPL_DOMAIN_FREE_SUSPENDED_NOTICE"] = "Сіз доменді сыйлық ретінде таңдаған сайт белсенді, бірақ ескі мекенжайда қолжетімсіз. Сіз &laquo;Битрикс24 қосымша домені&raquo; бөлімінен жаңа сайт мекенжайын таңдай аласыз немесе ақылы тарифке өтіп, сыйлық доменін қалпына келтіре аласыз.";
 $MESS["LANDING_TPL_DOMAIN_FREE_SUSPENDED_TEXT"] = "Сіз тегін тарифке көштіңіз, сондықтан сайт қазір <b>#DOMAIN_NAME#</b> мекенжайында ашылмайды. Доменді қалпына келтіру үшін кез келген ақылы тарифке оралыңыз.";
 $MESS["LANDING_TPL_DOMAIN_LENGTH_LIMIT"] = "#LIMIT# символдан #LENGTH#";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_DOMAIN_MESSAGE_ERROR"] = "Қате. #MESSAGE#";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_DOMAIN_MESSAGE_SUCCESS"] = "Сәтті. #MESSAGE#";
 $MESS["LANDING_TPL_DOMAIN_RULES"] = "Тек әріптер, сандар және сызықша<br>Нүкте домендік деңгейлерді бөлу кезінде рұқсат етіледі<br>63 символдан аспайды";
 $MESS["LANDING_TPL_DOMAIN_RULES_B24"] = "Тек әріптер, сандар және сызықша<br>63 символдан аспайды";
 $MESS["LANDING_TPL_ERROR_DOMAIN_CHECK"] = "Домендік атау тек латын әріптерінен, сандардан және сызықшалардан тұруы мүмкін. Сондай-ақ \".#TLD#\" аяқталады (мысалы, \"mysite.#TLD#\")";
@@ -28,6 +36,8 @@ $MESS["LANDING_TPL_ERROR_DOMAIN_EMPTY"] = "Домендік атау бос бо
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST"] = "Мұндай домен бұрыннан бар";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED"] = "Домен қазірдің өзінде бар және себетте орналасқан сайтқа бекітілген. Сайтты доменнен ажыратыңыз және әрекетті қайталаңыз.";
 $MESS["LANDING_TPL_ERROR_DOMAIN_INCORRECT"] = "Домен атауы дұрыс емес";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_ERROR_DOMAIN_PROCESSING"] = "Мекенжайды тексеру мүмкін болмады, кейінірек қайталап көріңіз";
 $MESS["LANDING_TPL_ERROR_DOMAIN_WRONG_DOMAIN_LEVEL"] = "Доменде нүктемен бөлінген кем дегенде екі деңгей болуы керек";
 $MESS["LANDING_TPL_ERROR_DOMAIN_WRONG_LENGTH"] = "Домен атауы тым ұзақ";
 $MESS["LANDING_TPL_ERROR_DOMAIN_WRONG_NAME"] = "Домен атауындағы жарамсыз символдар";

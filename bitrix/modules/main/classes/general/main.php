@@ -3394,12 +3394,9 @@ class CMain
 		$compositeContent = Composite\Engine::startBuffering($content);
 		$content = implode("", $this->buffer_content) . $content;
 
-		if (function_exists("getmoduleevents"))
+		foreach (GetModuleEvents("main", "OnEndBufferContent", true) as $arEvent)
 		{
-			foreach (GetModuleEvents("main", "OnEndBufferContent", true) as $arEvent)
-			{
-				ExecuteModuleEventEx($arEvent, [&$content]);
-			}
+			ExecuteModuleEventEx($arEvent, [&$content]);
 		}
 
 		$wasContentModified = Composite\Engine::endBuffering($content, $compositeContent);
@@ -3634,12 +3631,11 @@ class CMain
 
 	public static function PrologActions()
 	{
-		/** @global CMain $APPLICATION */
 		global $APPLICATION, $USER;
 
 		if (!defined("BX_BUFFER_USED") || BX_BUFFER_USED !== true)
 		{
-			ob_start([&$APPLICATION, "EndBufferContent"]);
+			ob_start([$APPLICATION, "EndBufferContent"]);
 			$APPLICATION->buffered = true;
 			define("BX_BUFFER_USED", true);
 
@@ -3716,33 +3712,18 @@ class CMain
 	 */
 	public static function RunFinalActionsInternal()
 	{
-		global $DB;
-
 		if (!defined('BX_WITH_ON_AFTER_EPILOG'))
 		{
 			define('BX_WITH_ON_AFTER_EPILOG', true);
 		}
 
-		$events = GetModuleEvents("main", "OnAfterEpilog", true);
+		define("START_EXEC_EVENTS_1", microtime(true));
 
-		define("START_EXEC_EVENTS_1", microtime());
-
-		if (!defined('BX_SENDPULL_COUNTER_QUEUE_DISABLE') || BX_SENDPULL_COUNTER_QUEUE_DISABLE !== true)
-		{
-			$DB->StartUsingMasterOnly();
-			if (CUserCounter::CheckLiveMode())
-			{
-				CUserCounterPage::checkSendCounter();
-			}
-			$DB->StopUsingMasterOnly();
-		}
-
-		define("START_EXEC_EVENTS_2", microtime());
-
-		//OnAfterEpilog
-		foreach ($events as $event)
+		foreach (GetModuleEvents("main", "OnAfterEpilog", true) as $event)
 		{
 			ExecuteModuleEventEx($event);
 		}
+
+		define("START_EXEC_EVENTS_2", microtime(true));
 	}
 }

@@ -1,7 +1,8 @@
 <?php
 $MESS["REST_OPT_ACCESS_POLICY"] = "Қолжетімділік";
 $MESS["REST_OPT_ACCESS_POLICY_ADD_USERS"] = "Пайдаланушыларды қосу";
-$MESS["REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK"] = "Пайдаланушыларға кіріс веб-хуктарды қосуға рұқсат ету";
+$MESS["REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK_CREATE_OWN"] = "Пайдаланушыларға өз кіріс веб-хуктарын қосуға рұқсат ету";
+$MESS["REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK_CREATE"] = "Пайдаланушыларға барлығы үшін кіріс веб-хуктарды қосуға рұқсат ету";
 $MESS["REST_OPT_ACCESS_POLICY_LOCAL_APP"] = "Пайдаланушыларға барлығы үшін қосымшалар қосуға рұқсат ету";
 $MESS["REST_OPT_ACCESS_POLICY_PERSONAL_APP"] = "Пайдаланушыларға өз қосымшаларыңды қосуға рұқсат ету";
 $MESS["REST_OPT_ACTIVE"] = "Логтаудың белсенділігі";

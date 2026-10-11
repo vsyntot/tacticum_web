@@ -54,13 +54,27 @@ this.BX.Landing = this.BX.Landing || {};
 		 * and retain removed block subtrees.
 		 */
 		initFloatingPanel() {
+			const buttons = [{
+				id: 'upload',
+				iconClass: 'landing-ui-node-img-upload-icon',
+				title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_IMAGE_NODE_UPLOAD'),
+				onClick: this.onUploadButtonClick.bind(this)
+			}];
+
+			// AI select button appears only when the copilot element picker is
+			// available and enabled: with the option off the panel keeps no trace
+			// of it. The click only toggles the AI selection of this node.
+			const picker = getElementPicker();
+			if (picker) {
+				buttons.push({
+					id: 'ai_select',
+					iconClass: '--bitrix-gpt',
+					title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT'),
+					onClick: () => picker.toggleSelection(this)
+				});
+			}
 			this.floatingPanel = new BX.Landing.UI.Panel.FloatingNodePanel({
-				buttons: [{
-					id: 'upload',
-					iconClass: 'landing-ui-node-img-upload-icon',
-					title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_IMAGE_NODE_UPLOAD'),
-					onClick: this.onUploadButtonClick.bind(this)
-				}]
+				buttons
 			});
 			this.floatingPanel.attach(this.node);
 			this.onBlockRemove = event => {
@@ -375,6 +389,16 @@ this.BX.Landing = this.BX.Landing || {};
 		}
 	}
 	BX.Landing.Node.Img = Img;
+
+	/**
+	 * Resolves the active copilot element picker. Returns null when the extension
+	 * is not loaded or its option is disabled, so AI controls are not rendered.
+	 * @return {?BX.Landing.Copilot.ElementPicker}
+	 */
+	function getElementPicker() {
+		const picker = BX.Landing.Copilot && BX.Landing.Copilot.ElementPicker;
+		return picker && picker.isEnabled() ? picker.getInstance() : null;
+	}
 
 	/**
 	 * Checks that node use backgroundImage

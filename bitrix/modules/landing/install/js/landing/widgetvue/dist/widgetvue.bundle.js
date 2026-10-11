@@ -75,6 +75,19 @@ this.BX = this.BX || {};
 				}
 			});
 		}
+
+		/**
+		 * Remove frame and release all subscriptions
+		 */
+		unmount() {
+			main_core.Event.unbind(window, 'message', this.#onMessage);
+			BX.removeCustomEvent('BX.Landing.Block:remove', this.#onBlockRemove);
+			if (this.#frame) {
+				main_core.Dom.remove(this.#frame);
+				this.#frame = null;
+			}
+			WidgetVue.runningAppNodes.delete(this.#rootNode);
+		}
 		async #getFrameContent() {
 			let content = '';
 			const core = await this.#getCoreConfigs();
@@ -197,11 +210,19 @@ this.BX = this.BX || {};
 			}, '*');
 		}
 		#bindEvents() {
-			main_core.Event.bind(window, 'message', this.#onMessage.bind(this));
+			main_core.Event.bind(window, 'message', this.#onMessage);
+			BX.addCustomEvent('BX.Landing.Block:remove', this.#onBlockRemove);
 		}
-		#onMessage(event) {
-			// todo: need check origin manually?
-
+		#onBlockRemove = event => {
+			if (this.#blockId > 0 && event?.blockId === this.#blockId) {
+				this.unmount();
+			}
+		};
+		#onMessage = event => {
+			// Frame is sandboxed without allow-same-origin, its origin is opaque - the sender is checked by window reference
+			if (!this.#frame || event.source !== this.#frame.contentWindow) {
+				return;
+			}
 			if (event.data && event.data.origin && event.data.name && event.data.params && main_core.Type.isObject(event.data.params)) {
 				if (event.data.origin !== this.#uniqueId) {
 					return;
@@ -230,7 +251,7 @@ this.BX = this.BX || {};
 					});
 				}
 			}
-		}
+		};
 	}
 
 	exports.WidgetVue = WidgetVue;

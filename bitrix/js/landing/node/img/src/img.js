@@ -3,8 +3,9 @@ import { Env } from 'landing.env';
 import { Image as ImageField } from 'landing.ui.field.image';
 import 'landing.utils';
 import { buildAcceptValue } from './accept';
-// inlined single icon for the AI-mode floating panel upload button
-// (instead of pulling the whole ui.icon-set.outline into every editor session)
+// provides the --bitrix-gpt glyph of the AI select button;
+// the upload button keeps its own icon inlined in css/style.css
+import 'ui.icon-set.outline';
 import './css/style.css';
 
 const attr = BX.Landing.Utils.attr;
@@ -49,16 +50,30 @@ export class Img extends Base
 	 */
 	initFloatingPanel()
 	{
-		this.floatingPanel = new BX.Landing.UI.Panel.FloatingNodePanel({
-			buttons: [
-				{
-					id: 'upload',
-					iconClass: 'landing-ui-node-img-upload-icon',
-					title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_IMAGE_NODE_UPLOAD'),
-					onClick: this.onUploadButtonClick.bind(this),
-				},
-			],
-		});
+		const buttons = [
+			{
+				id: 'upload',
+				iconClass: 'landing-ui-node-img-upload-icon',
+				title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_IMAGE_NODE_UPLOAD'),
+				onClick: this.onUploadButtonClick.bind(this),
+			},
+		];
+
+		// AI select button appears only when the copilot element picker is
+		// available and enabled: with the option off the panel keeps no trace
+		// of it. The click only toggles the AI selection of this node.
+		const picker = getElementPicker();
+		if (picker)
+		{
+			buttons.push({
+				id: 'ai_select',
+				iconClass: '--bitrix-gpt',
+				title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT'),
+				onClick: () => picker.toggleSelection(this),
+			});
+		}
+
+		this.floatingPanel = new BX.Landing.UI.Panel.FloatingNodePanel({ buttons });
 		this.floatingPanel.attach(this.node);
 
 		this.onBlockRemove = (event) => {
@@ -466,6 +481,18 @@ export class Img extends Base
 }
 
 BX.Landing.Node.Img = Img;
+
+/**
+ * Resolves the active copilot element picker. Returns null when the extension
+ * is not loaded or its option is disabled, so AI controls are not rendered.
+ * @return {?BX.Landing.Copilot.ElementPicker}
+ */
+function getElementPicker()
+{
+	const picker = BX.Landing.Copilot && BX.Landing.Copilot.ElementPicker;
+
+	return (picker && picker.isEnabled()) ? picker.getInstance() : null;
+}
 
 /**
  * Checks that node use backgroundImage

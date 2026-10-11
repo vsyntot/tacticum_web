@@ -1,5 +1,6 @@
 <?php
 $MESS["LANDING_TPL_ACTIONS"] = "әрекеттер";
+$MESS["LANDING_TPL_ACTIONS_ARIA_SITE"] = "«#TITLE#» сайтымен әрекеттер";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Жаңа сайт";
 $MESS["LANDING_TPL_ACTION_ADDPAGE"] = "Парақшаны құру";
 $MESS["LANDING_TPL_ACTION_ADDPAGE2"] = "Парақшаны қосу";
@@ -50,11 +51,12 @@ $MESS["LANDING_TPL_DEV_HELP"] = "Сайтты әзірлеуге көмек ке
 $MESS["LANDING_TPL_DEV_HELP_KNOWLEDGE"] = "Білім қорын рәсімдеуге көмек керек пе?";
 $MESS["LANDING_TPL_DEV_ORDER_MSGVER_1"] = "Біздің серіктестерден ендіруге тапсырыс беріңіз";
 $MESS["LANDING_TPL_FEEDBACK_FORM_TITLE"] = "Өтінім қалдыру";
-$MESS["LANDING_TPL_PUBLIC_URL"] = "#LINK# доменінде жариялау";
+$MESS["LANDING_TPL_PUBLIC_URL"] = "#LINK# доменінде жарияланған";
 $MESS["LANDING_TPL_TITLE"] = "Сайттар";
 $MESS["LANDING_TPL_TITLE_KNOWLEDGE"] = "Білім қоры";
 $MESS["LANDING_TPL_TITLE_PAGE"] = "Сайттар";
 $MESS["LANDING_TPL_TITLE_STORE"] = "Дүкендер";
+$MESS["LANDING_TPL_TRASH_EMPTY_TITLE"] = "Себет әзірге бос";
 $MESS["LANDING_TPL_TTL_DELETE"] = "Түпкілікті жойылғанға дейін";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "к.";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Жарияланбаған";

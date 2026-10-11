@@ -61,11 +61,23 @@ export class Link extends Base
 			{
 				if (!BX.Landing.Env.getInstance().isBlockControlsEnabled())
 				{
-					BX.Landing.UI.Panel.SimpleLinkPanel.getInstance().show(this.node, {
+					const options = {
 						href: this.getValue().href,
 						onSave: (url) => this.setValue(this.getSimpleLinkValue(url)),
 						onRemove: () => this.setValue(this.getSimpleLinkValue('#')),
-					});
+					};
+
+					// AI select button appears only when the copilot element
+					// picker is available and enabled: without the handler the
+					// panel keeps no trace of it. The click only toggles the AI
+					// selection of this node and never writes the href.
+					const picker = getElementPicker();
+					if (picker)
+					{
+						options.onAiSelect = () => picker.toggleSelection(this);
+					}
+
+					BX.Landing.UI.Panel.SimpleLinkPanel.getInstance().show(this.node, options);
 				}
 				else
 				{
@@ -355,3 +367,15 @@ export class Link extends Base
 }
 
 BX.Landing.Node.Link = Link;
+
+/**
+ * Resolves the active copilot element picker. Returns null when the extension
+ * is not loaded or its option is disabled, so AI controls are not rendered.
+ * @return {?BX.Landing.Copilot.ElementPicker}
+ */
+function getElementPicker()
+{
+	const picker = BX.Landing.Copilot && BX.Landing.Copilot.ElementPicker;
+
+	return (picker && picker.isEnabled()) ? picker.getInstance() : null;
+}

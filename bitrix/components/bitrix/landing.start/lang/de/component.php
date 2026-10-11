@@ -34,7 +34,7 @@ $MESS["LANDING_CMP_AGREEMENT_TEXT4"] = $MESS["LANDING_CMP_AGREEMENT_TEXT4_1"] . 
 	<li>relevanten Gesetzen Ihres Landes bez. Urheberrechte, Werbung, Marketing sowie anderen Gesetzen (weiter - Geltendes Recht) während der Nutzung von Bitrix24 Sites zu folgen;</li>
 	<li>keine Websites zu erstellen, die zum automatischen Redirect auf Websites von Drittparteien, zum Phishing, zum unerlaubten Sammeln, Speichern und Verarbeiten von persönlichen Daten oder sonstigen Daten von Drittparteien, inkl. Finanzdaten, genutzt werden können;</li>
 	<li>keine schädliche Software (Viren, Trojans, Spyware oder andere Computer-Codes, Dateien oder Programme) hochzuladen und Bitrix24 Sites nicht zu nutzen zum Versand von etwaigem Spam oder ähnlichen Inhalten oder in Verbindung mit etwaigen unethischen Marketing- oder Werbehandlungen;</li>
-	<li>Texte, Bilder, Icons und andere Elemente, die es standardmäßig in Vorlagen und Blöcken von Bitrix24 Sites gibt (im Folgenden als Demo-Content bezeichnet) durch Ihren eigenen Content nicht zu ersetzen. Dieser Demo-Content darf von Ihnen nicht genutzt werden, die Nutzung dieses Contents kann als eine Verletzung des geltenden Rechts angesehen werden.</li>
+	<li>Texte, Bilder, Icons und andere Elemente, die es standardmäßig in Vorlagen und Blöcken von Bitrix24 Sites gibt (im Folgenden als Demo-Content bezeichnet) durch Ihren eigenen Content zu ersetzen. Dieser Demo-Content darf von Ihnen nicht genutzt werden, die Nutzung dieses Contents kann als eine Verletzung des geltenden Rechts angesehen werden.</li>
 	</ul>
 	</li>
 	<li><p><b>Sie garantieren</b>, dass beliebiger Content, den Sie mithilfe von Bitrix24 Sites veröffentlichen oder es zu machen vorhaben, in Übereinstimmung mit dem geltenden Recht erhalten wurde.</p></li>

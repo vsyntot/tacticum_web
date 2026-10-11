@@ -44,6 +44,13 @@
 	text-decoration: none;
 }
 
+.landing-ui-panel-top-logo-link:focus-visible {
+	outline: 2px solid var(--ui-color-accent-main-primary, #0075ff);
+	/* inset: the parent .landing-ui-panel-top-logo has overflow:hidden and wraps the link tightly,
+	   so an outward offset clips the ring */
+	outline-offset: -2px;
+}
+
 .landing-ui-panel-top-logo-home-btn {
 	opacity: .8;
 	display: block;
@@ -502,12 +509,14 @@
 	background-repeat: no-repeat;
 }
 
-.landing-ui-panel-top-chat-toggle:disabled {
+.landing-ui-panel-top-chat-toggle:disabled,
+.landing-ui-panel-top-chat-toggle[aria-disabled="true"] {
 	opacity: .4;
 	cursor: not-allowed;
 }
 
-.landing-ui-panel-top:not(.landing-ui-panel-top-ai) .landing-ui-panel-top-chat-toggle--disabled-offset:disabled {
+.landing-ui-panel-top:not(.landing-ui-panel-top-ai) .landing-ui-panel-top-chat-toggle--disabled-offset:disabled,
+.landing-ui-panel-top:not(.landing-ui-panel-top-ai) .landing-ui-panel-top-chat-toggle--disabled-offset[aria-disabled="true"] {
 	margin-left: 12px;
 }
 
@@ -1112,6 +1121,11 @@ div#landing-popup-publication-error {
 	outline: none !important;
 }
 
+.landing-ui-panel-top-pub-btn:focus-visible {
+	outline: 2px solid var(--ui-color-accent-main-primary, #0075ff) !important;
+	outline-offset: 2px;
+}
+
 .landing-ui-panel-top-pub-btn:not(.landing-ui-panel-top-ai__publication-button):hover {
 	opacity: 1;
 	background-color: rgba(82, 92, 105, 0.12);
@@ -1443,6 +1457,9 @@ div#landing-popup-publication-error {
 	width: 40px;
 	height: 40px;
 	position: relative;
+	padding: 0;
+	border: none;
+	appearance: none;
 	background: center no-repeat url(/bitrix/images/landing/undo.svg?v2);
 	cursor: pointer;
 	transition: opacity 200ms ease;
@@ -1450,6 +1467,13 @@ div#landing-popup-publication-error {
 
 .landing-ui-panel-top-history-redo {
 	background-image: url(/bitrix/images/landing/redo.svg?v2)
+}
+
+.landing-ui-panel-top-history-button:focus-visible {
+	outline: 2px solid var(--ui-color-accent-main-primary, #0075ff);
+	/* inset: the buttons sit flush against the next panel control, which is opaque
+	   and painted later, so an outward offset is clipped */
+	outline-offset: -2px;
 }
 
 .landing-ui-panel-top-history-undo:hover,

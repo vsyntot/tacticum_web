@@ -16,6 +16,8 @@ return [
 		'im.v2.css.tokens',
 		'intranet.ai-chat-panel',
 		'ui.page-context',
+		'landing.ui.a11y',
+		'landing.loc',
 	],
 	'skip_core' => false,
 ];

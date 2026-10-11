@@ -277,19 +277,9 @@ $assets->addString(
 $devicePreviewParentOrigin = $arResult['DEVICE_PREVIEW_PARENT_ORIGIN'] ?? '';
 if ($devicePreviewParentOrigin !== '')
 {
-	// The sandboxed frame has an opaque origin, where document.cookie and Window.localStorage
-	// throw on every access, and an uncaught DOMException aborts the whole surrounding script
-	// block. Neutralise them with in-memory stand-ins before anything else runs: BEFORE_CSS is
-	// the earliest head location, ahead of the kernel and of main's own timezone-cookie script
-	// (which sits at the default AFTER_JS_KERNEL). Assets\Manager is unusable here: it flushes
-	// the whole landing bundle into main's pipeline at AssetLocation::AFTER_JS (see
-	// Assets\Builder::setStrings), so even LOCATION_BEFORE_ALL would land after that script —
-	// its own LOCATION_* values only order assets inside the bundle.
-	$APPLICATION->AddHeadString(
-		'<script src="/bitrix/js/landing/device_preview/sandbox_shim.js"></script>',
-		true,
-		\Bitrix\Main\Page\AssetLocation::BEFORE_CSS
-	);
+	// The storage shim that makes the opaque origin survivable is injected by the component
+	// itself (LandingPubComponent::injectDevicePreviewShim): it has to sit at the very top of
+	// <head>, which this template can no longer reach.
 	$expectedOriginJs = json_encode(
 		$devicePreviewParentOrigin,
 		JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP

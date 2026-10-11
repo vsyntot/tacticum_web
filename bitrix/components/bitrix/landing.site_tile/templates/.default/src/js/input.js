@@ -1,3 +1,7 @@
+import { Dom, Event, Loc } from 'main.core';
+
+import { A11y } from './a11y';
+
 export class LandingSitesAiInput
 {
 	static instance = null;
@@ -89,17 +93,22 @@ export class LandingSitesAiInput
 		this.notice = options.notice || null;
 		this.control = options.control || null;
 		this.input = options.input || null;
+		this.inputDescriptionId = this.input?.getAttribute('aria-describedby') || '';
 		this.valueInput = options.valueInput || null;
 		this.icon = options.icon || null;
 		this.isActive = false;
 		this.isInactive = true;
 		this.isAnimating = false;
 		this.isMultiline = false;
+		this.isLoading = false;
 		this.resizeObserver = null;
 
 		this.handleInput = this.handleInput.bind(this);
 		this.handlePaste = this.handlePaste.bind(this);
 		this.handleKeyDown = this.handleKeyDown.bind(this);
+		this.handleFocus = this.handleFocus.bind(this);
+		this.handleBlur = this.handleBlur.bind(this);
+		this.handlePointerInteraction = this.handlePointerInteraction.bind(this);
 		this.handleIconClick = this.handleIconClick.bind(this);
 		this.handleTransitionEnd = this.handleTransitionEnd.bind(this);
 		this.updateRowsState = this.updateRowsState.bind(this);
@@ -125,6 +134,14 @@ export class LandingSitesAiInput
 		this.input.addEventListener('input', this.handleInput);
 		this.input.addEventListener('paste', this.handlePaste);
 		this.input.addEventListener('keydown', this.handleKeyDown);
+		Event.bind(this.input, 'focus', this.handleFocus);
+		Event.bind(this.input, 'blur', this.handleBlur);
+		if (this.control)
+		{
+			Event.bind(this.control, 'pointerdown', this.handlePointerInteraction);
+			Event.bind(this.control, 'mousedown', this.handlePointerInteraction);
+			Event.bind(this.control, 'touchstart', this.handlePointerInteraction);
+		}
 		this.box.addEventListener('transitionend', this.handleTransitionEnd);
 		this.icon?.addEventListener('click', this.handleIconClick);
 		window.addEventListener('resize', this.updateHeight);
@@ -175,7 +192,7 @@ export class LandingSitesAiInput
 
 		event.preventDefault();
 
-		if (event.repeat || this.isInactive || this.isAnimating)
+		if (event.repeat || this.isInactive || this.isLoading)
 		{
 			return;
 		}
@@ -183,9 +200,45 @@ export class LandingSitesAiInput
 		this.submitInitialPrompt();
 	}
 
+	handleFocus()
+	{
+		if (!this.input)
+		{
+			return;
+		}
+
+		const isKeyboardFocus = document.documentElement.dataset.inputModality === 'keyboard';
+		if (isKeyboardFocus)
+		{
+			Dom.addClass(this.input, '--keyboard-focused');
+		}
+		else
+		{
+			Dom.removeClass(this.input, '--keyboard-focused');
+		}
+	}
+
+	handleBlur()
+	{
+		this.removeKeyboardFocus();
+	}
+
+	handlePointerInteraction()
+	{
+		this.removeKeyboardFocus();
+	}
+
+	removeKeyboardFocus()
+	{
+		if (this.input)
+		{
+			Dom.removeClass(this.input, '--keyboard-focused');
+		}
+	}
+
 	handleIconClick(event)
 	{
-		if (this.isInactive || this.isAnimating)
+		if (this.isInactive || this.isLoading)
 		{
 			event.preventDefault();
 			return;
@@ -200,6 +253,8 @@ export class LandingSitesAiInput
 		const initialPrompt = this.getValue();
 		if (!initialPrompt)
 		{
+			A11y.announce(Loc.getMessage('LANDING_SITE_TILE_AI_INPUT_EMPTY_ANNOUNCE'));
+
 			return;
 		}
 
@@ -213,6 +268,8 @@ export class LandingSitesAiInput
 		{
 			return;
 		}
+
+		this.setLoading(true);
 
 		const form = document.createElement('form');
 		form.method = 'post';
@@ -230,6 +287,19 @@ export class LandingSitesAiInput
 
 		document.body.appendChild(form);
 		form.submit();
+	}
+
+	setLoading(loading)
+	{
+		this.isLoading = loading === true;
+		this.icon?.classList.toggle('--loading', this.isLoading);
+		this.icon?.setAttribute('aria-busy', this.isLoading ? 'true' : 'false');
+		this.box?.classList.toggle('--loading', this.isLoading);
+
+		if (this.input)
+		{
+			this.input.contentEditable = this.isLoading ? 'false' : 'true';
+		}
 	}
 
 	createHiddenInput(name, value)
@@ -355,6 +425,11 @@ export class LandingSitesAiInput
 		this.notice?.classList.toggle('--active', this.isInactive);
 		this.control?.classList.toggle('--active', this.isActive);
 
+		// Only one half of the pair is on the screen: the other one is faded out to opacity 0, which
+		// leaves it readable and reachable, so it is taken out of the accessibility tree as well.
+		A11y.setHidden(this.notice, this.isActive);
+		A11y.setHidden(this.control, this.isInactive);
+
 		if (this.frame)
 		{
 			this.frame.tabIndex = -1;
@@ -365,6 +440,16 @@ export class LandingSitesAiInput
 			this.input.contentEditable = this.isActive ? 'true' : 'false';
 			this.input.setAttribute('aria-disabled', this.isActive ? 'false' : 'true');
 			this.input.tabIndex = this.isActive ? 0 : -1;
+
+			// The notice describes the inactive state only; in the active one it is hidden above.
+			if (this.isActive || !this.inputDescriptionId)
+			{
+				this.input.removeAttribute('aria-describedby');
+			}
+			else
+			{
+				this.input.setAttribute('aria-describedby', this.inputDescriptionId);
+			}
 		}
 
 		if (this.icon)
@@ -423,6 +508,9 @@ export class LandingSitesAiInput
 		}
 
 		this.box.style.height = `${fromHeight}px`;
+		// Commit the starting height. Without a layout read the browser goes straight to the target
+		// height, the transition never starts and its transitionend never releases the box.
+		void this.box.offsetHeight;
 
 		requestAnimationFrame(() => {
 			this.box.style.height = `${nextHeight}px`;

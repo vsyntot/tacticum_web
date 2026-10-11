@@ -11,3 +11,4 @@ $MESS["LANDING_TPL_NEW_COOKIES"] = "Жаңа cookie түрі";
 $MESS["LANDING_TPL_TITLE"] = "Cookie-сипаттамаларының мәтінін редакциялау";
 $MESS["LANDING_TPL_TITLE_CUSTOM"] = "Пайдаланушылық Cookie";
 $MESS["LANDING_TPL_TITLE_SYSTEM"] = "Аналитикалық Cookie";
+$MESS["LANDING_TPL_WARNING_CLOSE"] = "Ескертуді жабу";

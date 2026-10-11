@@ -43,3 +43,10 @@
 	--ui-icon-set__icon-size: 24px;
 	--ui-icon-set__icon-color: var(--ui-color-icon-secondary, #757d87);
 }
+
+/* AI (bitrix-gpt) icon: the mask clips a gradient background to the glyph shape
+   (mirrors the compact editor and simple link panel styling of the same icon) */
+.landing-ui-panel-floating-node__icon.--bitrix-gpt {
+	--ui-icon-set__icon-color: initial;
+	background: linear-gradient(264.09deg, #F96269 1.67%, #F046B7 21.82%, #9D48FF 52.44%, #3F68FF 76.41%, #0098EA 97.21%);
+}

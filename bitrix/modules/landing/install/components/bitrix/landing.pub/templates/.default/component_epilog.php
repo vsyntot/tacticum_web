@@ -31,7 +31,7 @@ if (mb_stripos($bodyTag, 'data-landing-id=') === false)
 $metaOG = Manager::getPageView('MetaOG');
 if (mb_strpos($metaOG, '"og:image"') === false)
 {
-	$preview = $landing->getPreview();
+	$preview = \htmlspecialcharsbx((string)$landing->getPreview());
 	Manager::setPageView(
 		'MetaOG',
 		'<meta property="og:image" content="' . $preview . '" />' .
@@ -39,14 +39,16 @@ if (mb_strpos($metaOG, '"og:image"') === false)
 	);
 }
 
+$siteType = mb_strtolower((string)$arParams['TYPE']);
 Manager::setPageView(
 	'MetaOG',
-	'<meta property="Bitrix24SiteType" content="' . mb_strtolower($arParams['TYPE']) . '" />'
+	'<meta property="Bitrix24SiteType" content="' . \htmlspecialcharsbx($siteType) . '" />'
 );
 
+$faviconPath = rtrim((string)($arResult['SITE_RELATIVE_URL'] ?? ''), '/') . '/favicon.ico';
 Manager::setPageView(
 	'BeforeHeadClose',
-	'<link rel="icon" type="image/x-icon" href="' . ($arResult['SITE_RELATIVE_URL'] ?: '/').'favicon.ico">'
+	'<link rel="icon" type="image/x-icon" href="' . \htmlspecialcharsbx($faviconPath) . '">'
 );
 
 if (\Bitrix\Landing\Connector\Mobile::isMobileHit())

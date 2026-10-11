@@ -1,5 +1,8 @@
 <?php
-$MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "Ein Onlineshop kann nicht erstellt werden, weil die Bestandsverwaltung in 1С aktiviert ist";
+$MESS["LANDING_FILTER_FOLDER_NAME_INPUT_OPENED"] = "Eingabefeld für Ordnernamen geöffnet";
+$MESS["LANDING_FILTER_LIST_UPDATED"] = "Liste aktualisiert.";
+$MESS["LANDING_FILTER_LIST_UPDATE_ERROR"] = "Liste konnte nicht aktualisiert werden.";
+$MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "Ein Onlineshop kann nicht erstellt werden, weil die Bestandsverwaltung in 1C aktiviert ist";
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT"] = "Mehr";
 $MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_AI_SITE"] = "KI-gestützte Website";
 $MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_IN_BUILDER"] = "Mit dem Website-Builder erstellen";
@@ -18,6 +21,8 @@ $MESS["LANDING_TPL_FLT_STATUS_ACTIVE"] = "Veröffentlicht";
 $MESS["LANDING_TPL_FLT_STATUS_ACTIVE_CHANGED"] = "Veröffentlicht, geändert";
 $MESS["LANDING_TPL_FLT_STATUS_NOT_ACTIVE"] = "Nicht veröffentlicht";
 $MESS["LANDING_TPL_FLT_Y"] = "Ja";
+$MESS["LANDING_TPL_FOLDER_NAME_INPUT_LABEL"] = "Ordnername";
 $MESS["LANDING_TPL_PRS_ACTIVE"] = "Aktive";
 $MESS["LANDING_TPL_PRS_MY"] = "Meine";
 $MESS["LANDING_TPL_RECYCLE_BIN"] = "Papierkorb";
+$MESS["LANDING_TPL_SETTINGS_BUTTON_LABEL"] = "Einstellungen";

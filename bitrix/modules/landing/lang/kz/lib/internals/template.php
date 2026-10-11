@@ -11,6 +11,7 @@ $MESS["LANDING_TABLE_FIELD_TITLE"] = "Атауы";
 $MESS["LANDING_TABLE_FIELD_XML_ID"] = "Сыртқы код";
 $MESS["LANDING_TABLE_TPL_EMPTY"] = "Бос";
 $MESS["LANDING_TABLE_TPL_HEADER_FOOTER"] = "Шапка және төменгі бөлікпен";
+$MESS["LANDING_TABLE_TPL_HEADER_ONLY"] = "Тек шапкамен";
 $MESS["LANDING_TABLE_TPL_SIDEBAR_LEFT"] = "Сол жақта сайдбармен";
 $MESS["LANDING_TABLE_TPL_SIDEBAR_RIGHT"] = "Оң жақта сайдбармен";
 $MESS["LANDING_TABLE_TPL_WITHOUT_LEFT"] = "Сол жақ сайдбарсыз";

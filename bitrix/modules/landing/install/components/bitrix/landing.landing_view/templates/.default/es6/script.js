@@ -209,8 +209,18 @@ this.BX.Landing = this.BX.Landing || {};
 			const layout = {
 				wrapper: null,
 				rotate: main_core.Tag.render`<div class="landing-device-rotate" onclick="${rotateClick}" data-role="landing-device-rotate"></div>`,
-				frame: main_core.Tag.render`<iframe data-role="landing-device-preview-iframe" sandbox="allow-scripts" src="${options.frameUrl}"></iframe>`
+				frame: main_core.Tag.render`<iframe data-role="landing-device-preview-iframe" src="${options.frameUrl}"></iframe>`
 			};
+
+			// Sandbox the preview only when it shares the portal origin — that is the only case where
+			// the frame could reach the editor document and the portal session. A cross-origin preview
+			// is already isolated by the browser, and sandboxing it would cost more than it adds: an
+			// opaque origin turns even same-host @font-face into a CORS request, and the portal serves
+			// fonts without Access-Control-Allow-Origin, so icon fonts stop rendering.
+			// Attribute is set before the frame enters the document, so it applies to the first load.
+			if (DeviceUI.isSameOriginPreview(options.frameUrl)) {
+				main_core.Dom.attr(layout.frame, 'sandbox', 'allow-scripts');
+			}
 			layout.wrapper = main_core.Tag.render`
 			<div class="landing-device-wrapper${hidden ? ' landing-device-wrapper-hidden' : ''}">
 				<div class="landing-device-name" onclick="${options.clickHandler}">
@@ -224,6 +234,21 @@ this.BX.Landing = this.BX.Landing || {};
 			</div>
 		`;
 			return layout.wrapper;
+		}
+
+		/**
+		 * Returns true when the preview URL resolves to the origin the editor itself runs on.
+		 * Fails closed: an unparseable URL is treated as same-origin, so the sandbox stays on.
+		 *
+		 * @param {string} frameUrl Preview URL, absolute or relative.
+		 * @return {boolean}
+		 */
+		static isSameOriginPreview(frameUrl) {
+			try {
+				return new URL(frameUrl, window.location.href).origin === window.location.origin;
+			} catch (e) {
+				return true;
+			}
 		}
 
 		/**

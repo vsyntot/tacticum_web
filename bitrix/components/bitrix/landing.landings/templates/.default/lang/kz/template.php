@@ -52,4 +52,10 @@ $MESS["LANDING_TPL_TITLE_PAGE"] = "Сайт";
 $MESS["LANDING_TPL_TITLE_STORE"] = "Дүкен";
 $MESS["LANDING_TPL_TTL_DELETE"] = "Түпкілікті жойылғанға дейін";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "к.";
-$MESS["LANDING_TPL_UNPUBLIC"] = "Жарияланбалы";
+$MESS["LANDING_TPL_UNPUBLIC"] = "Жарияланбады";
+// Temporary translation (BRIEF-landing-a11y-site-pages-list-2026-07-24); translators may replace
+$MESS["LANDING_TPL_ACTIONS_ARIA_PAGE"] = "«#TITLE#» бетімен әрекеттер";
+$MESS["LANDING_TPL_ACTIONS_ARIA_FOLDER"] = "«#TITLE#» қалтасымен әрекеттер";
+$MESS["LANDING_TPL_FOLDER_NAME_INPUT_LABEL"] = "Қалта атауы";
+$MESS["LANDING_TPL_ONBOARDING_VIDEO_PLAY"] = "Бейнені ойнату";
+$MESS["LANDING_TPL_ONBOARDING_VIDEO_PAUSE"] = "Бейнені кідірту";

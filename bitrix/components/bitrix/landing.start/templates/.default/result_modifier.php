@@ -92,7 +92,7 @@ Loc::loadMessages(__DIR__ . '/template.php');
 $arResult['AI_SITE_CHAT_AVAILABLE'] = true;
 if ($arParams['TYPE'] === 'PAGE')
 {
-	$arResult['AI_SITE_CHAT_AVAILABLE'] = (new AiSiteChatAvailabilityService())->isSitesAiChatAvailable(1);
+	$arResult['AI_SITE_CHAT_AVAILABLE'] = (new AiSiteChatAvailabilityService())->isSitesAiChatPotentiallyAvailable();
 }
 
 ob_start();
@@ -308,6 +308,12 @@ elseif (in_array($this->getPageName(), ['template', 'site_show']))
 			$button
 		];
 	}
+	$sef = [];
+	foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
+	{
+		$sef[$code] = $arParams['SEF_FOLDER'] . $url;
+	}
+
 	$APPLICATION->IncludeComponent(
 		'bitrix:landing.filter',
 		'.default',
@@ -316,6 +322,7 @@ elseif (in_array($this->getPageName(), ['template', 'site_show']))
 							? 'LANDING'
 							: 'SITE',
 			'SETTING_LINK' => $settingsLink,
+			'SEF' => $sef,
 			'BUTTONS' => $buttons,
 			'AI_SITE_CHAT_AVAILABLE' => $arResult['AI_SITE_CHAT_AVAILABLE'],
 			'TYPE' => $arParams['TYPE'],

@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_BLOCK_WIDGET_71_1_NAME"] = "Қараңғы фонда тақырыпаты, тақырпшасы, 4 мәтін блогы және сол жақта белгішесі бар  мәтін блогы";
+$MESS["LANDING_BLOCK_WIDGET_71_1_NAME"] = "Қараңғы фонда тақырыпаты, тақырыпшасы, 4 мәтін блогы және сол жақта белгішесі бар  мәтін блогы";
 $MESS["LANDING_BLOCK_WIDGET_71_1_NODE_BADGE"] = " Бейдж";
 $MESS["LANDING_BLOCK_WIDGET_71_1_NODE_CARD"] = " Карточка";
 $MESS["LANDING_BLOCK_WIDGET_71_1_NODE_CARD_TEXT"] = " Карточка мәтіні ";

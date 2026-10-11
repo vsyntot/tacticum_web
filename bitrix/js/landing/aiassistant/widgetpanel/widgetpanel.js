@@ -58,6 +58,8 @@
 			this.chatLoadingClass = this.options.chatLoadingClass || 'landing-ai-assistant-panel__chat--loading';
 			this.isInitialized = false;
 			this.isInitialPromptApplied = false;
+			this._messageFeedLiveRegionApplied = false;
+			this._loadingAnnounced = false;
 			this.widgetLoader = null;
 			this.widgetLoaderContainer = null;
 			this.aiChatPanel = null;
@@ -80,6 +82,13 @@
 			{
 				return this;
 			}
+
+			this.chatContainer.setAttribute('tabindex', '-1');
+			this.chatContainer.setAttribute('role', 'region');
+			this.chatContainer.setAttribute(
+				'aria-label',
+				BX.Landing.Loc.getMessage('LANDING_AI_ASSISTANT_PANEL_CHAT_LABEL'),
+			);
 
 			this.bindToggle();
 			this.setMinimized(this.startMinimized, { skipSync: true });
@@ -481,8 +490,25 @@
 
 		setMinimized(isMinimized, options)
 		{
+			if (
+				this.isInitialized === true
+				&& isMinimized === true
+				&& this.chatContainer.contains(document.activeElement)
+			)
+			{
+				if (this.chatToggleButton)
+				{
+					this.chatToggleButton.focus();
+				}
+				else if (this.rootContainer)
+				{
+					this.rootContainer.setAttribute('tabindex', '-1');
+					this.rootContainer.focus();
+				}
+			}
+
 			this.rootContainer.classList.toggle(this.chatMinimizedClass, isMinimized);
-			this.chatContainer.setAttribute('aria-hidden', isMinimized ? 'true' : 'false');
+			BX.Landing.UI.A11y.setHidden(this.chatContainer, isMinimized);
 			this.syncBodyState(isMinimized);
 			this.syncTopPanelState(isMinimized);
 			this.syncMainChatState(isMinimized, options);
@@ -491,6 +517,11 @@
 			{
 				this.chatToggleButton.textContent = isMinimized ? this.openText : this.closeText;
 				this.chatToggleButton.setAttribute('aria-expanded', isMinimized ? 'false' : 'true');
+			}
+
+			if (this.isInitialized === true && isMinimized === false)
+			{
+				this.chatContainer.focus({ preventScroll: true });
 			}
 		}
 
@@ -611,6 +642,57 @@
 			}
 
 			this.widgetLoader.show();
+			this.announceLoadingStart();
+		}
+
+		isPanelVisible()
+		{
+			return this.rootContainer.classList.contains(this.chatMinimizedClass) !== true;
+		}
+
+		announceLoadingStart()
+		{
+			if (this._loadingAnnounced === true || this.isPanelVisible() !== true)
+			{
+				return;
+			}
+
+			this._loadingAnnounced = true;
+			BX.Landing.UI.A11y.announce(
+				BX.Landing.Loc.getMessage('LANDING_AI_ASSISTANT_WIDGET_LOADING'),
+				'polite',
+			);
+		}
+
+		announceLoadingReady()
+		{
+			if (this.isPanelVisible() !== true)
+			{
+				return;
+			}
+
+			BX.Landing.UI.A11y.announce(
+				BX.Landing.Loc.getMessage('LANDING_AI_ASSISTANT_WIDGET_READY'),
+				'polite',
+			);
+		}
+
+		applyMessageFeedLiveRegion()
+		{
+			if (this._messageFeedLiveRegionApplied === true)
+			{
+				return;
+			}
+
+			const messageList = this.widgetContainer.querySelector(WIDGET_READY_SELECTORS.messageList);
+			if (messageList === null)
+			{
+				return;
+			}
+
+			messageList.setAttribute('role', 'log');
+			messageList.setAttribute('aria-live', 'polite');
+			this._messageFeedLiveRegionApplied = true;
 		}
 
 		hideWidgetLoader()
@@ -677,9 +759,13 @@
 					return this.waitForWidgetReady();
 				})
 				.then(() => {
+					this.applyMessageFeedLiveRegion();
+				})
+				.then(() => {
 					return this.applyInitialPrompt();
 				})
 				.then(() => {
+					this.announceLoadingReady();
 					this.hideWidgetLoader();
 				})
 				.catch((error) => {

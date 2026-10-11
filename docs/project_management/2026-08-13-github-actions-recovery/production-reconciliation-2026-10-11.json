@@ -1,0 +1,59 @@
+{
+  "evidence_id": "E-030",
+  "captured_at": "2026-10-10T21:45:26.986Z",
+  "purpose": "User-authorized bounded FILE_ONLY production-to-local reconciliation",
+  "authorization": "explicit user instruction in current session; read-only remote access",
+  "mutation_performed": false,
+  "access_method": "root/password via expect; strict known_hosts; PubkeyAuthentication=no; no production write",
+  "scope_version": "2026-08-14.1",
+  "scope_manifest_sha256": "2cd54724b29b343623473d74d020c1559a97387b80a1bb451b02b8ea59ce5b73",
+  "baseline_commit": "36e9fe77e151fb65ef4f04554e65f16e44019b97",
+  "remote_snapshot": {
+    "authoritative_directories": 13,
+    "root_files_requested": 12,
+    "rsync_status": "23 for root file batch",
+    "missing_root_files": [
+      "sitemap-files.xml"
+    ]
+  },
+  "classification": {
+    "same": 371,
+    "changed": 2,
+    "remote_only": 0,
+    "local_only": 2
+  },
+  "changed": [
+    {
+      "path": "local/templates/tacticum/tailwind.generated.css",
+      "local_sha256": "de749cf0402ffbe4a051065fe44834c94e9d2ff1b31b0befa5413222f50ae3d8",
+      "remote_sha256": "a6642961be238dcc0bc5fc860aeddd187726e2394ab417aeb17a70a50b509f56",
+      "disposition": "retain_local_newer",
+      "reason": "remote bundle is Tailwind 4.1.8 and matches parent of local 4.3.3 rebuild commit d39d8050"
+    },
+    {
+      "path": "sitemap-basic-files.xml",
+      "local_sha256": "71b4f1df884fe1d7c5fe0004f2f910fac9ac579f44aef2411232abb6ebb9d317",
+      "remote_sha256": "46acaf758b6ca3f827c4ac5b6e19cb71c83657df944390ddd1755e81057129f6",
+      "disposition": "retain_local_newer",
+      "reason": "remote lastmod is 2026-06-07; local generated artifact is 2026-08-13"
+    }
+  ],
+  "local_only": [
+    "local/.DS_Store",
+    "local/templates/.DS_Store"
+  ],
+  "remote_only": [],
+  "imported_paths": [],
+  "verification": [
+    "npm run css:check",
+    "npm run seo:check",
+    "npm run prod:scope:check",
+    "npm run bitrix:check",
+    "git diff --check"
+  ],
+  "residual_limits": [
+    "No bitrix/upload/config/DB/iblock content was imported by policy",
+    "No dedicated forced-command key, dual stable BASE manifests, or trusted apply evidence established",
+    "Production SSH shell/version probe was not relied on; this evidence covers only the allowlisted FILE_ONLY snapshot"
+  ]
+}

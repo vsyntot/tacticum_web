@@ -322,27 +322,34 @@
 
 						if (BX.Landing.Utils.isPlainObject(action) && !BX.Landing.Utils.isEmpty(action))
 						{
+							// the message is built detached, so the region is filled in one go and announced once
+							var userActionContent = document.createDocumentFragment();
+
 							if (action.header)
 							{
-								userActionContainer.querySelector('h3').innerText = action.header;
+								BX.Dom.append(BX.Dom.create('h3', {text: action.header}), userActionContent);
 							}
 
 							if (action.description)
 							{
-								userActionContainer.querySelector('p').innerText = action.description;
-							}
-
-							if (action.href)
-							{
-								userActionContainer.querySelector('a').setAttribute('href', action.href);
+								BX.Dom.append(BX.Dom.create('p', {text: action.description}), userActionContent);
 							}
 
 							if (action.text)
 							{
-								userActionContainer.querySelector('a').innerText = action.text;
+								// an action without an address leads nowhere: it stays a button, reachable all the same
+								var userActionButton = action.href
+									? BX.Dom.create('a', {attrs: {href: action.href, className: 'ui-btn'}, text: action.text})
+									: BX.Dom.create('button', {attrs: {type: 'button', className: 'ui-btn'}, text: action.text});
+
+								BX.Dom.append(BX.Dom.create('div', {children: [userActionButton]}), userActionContent);
 							}
 
-							userActionContainer.classList.add('landing-ui-user-action-show');
+							// the region is announceable only from the moment it has the message: an empty alert
+							// left in the markup is a live region announcing nothing
+							BX.Dom.attr(userActionContainer, 'role', 'alert');
+							BX.Dom.append(userActionContent, userActionContainer);
+							BX.Dom.addClass(userActionContainer, 'landing-ui-user-action-show');
 
 							document.querySelector('.landing-ui-panel-top-history').classList.add('landing-ui-disabled');
 							document.querySelector('.landing-ui-panel-top-devices').classList.add('landing-ui-disabled');
@@ -356,7 +363,13 @@
 							BX.Dom.addClass(loaderContainer, 'landing-ui-hide');
 							setTimeout(function() {
 								BX.remove(loaderContainer);
-								BX.remove(userActionContainer);
+
+								// a message shown stays: a live region taken away half a second later is
+								// one a screen reader may never get to read
+								if (!BX.Dom.hasClass(userActionContainer, 'landing-ui-user-action-show'))
+								{
+									BX.remove(userActionContainer);
+								}
 							}, 200);
 						}, 300);
 					});

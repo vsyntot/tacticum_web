@@ -1,0 +1,8 @@
+<?php
+$MESS["MSGSVC_CT_GRID_COL_AUTHOR"] = "Жасады";
+$MESS["MSGSVC_CT_GRID_COL_CONTEXT"] = "Байланыс";
+$MESS["MSGSVC_CT_GRID_COL_DATE_CREATE"] = "Жасалды";
+$MESS["MSGSVC_CT_GRID_COL_DATE_MODIFY"] = "Өзгертілді";
+$MESS["MSGSVC_CT_GRID_COL_MODIFIED_BY"] = "Өзгертті";
+$MESS["MSGSVC_CT_GRID_COL_SCENE"] = "Қайда қолданылады";
+$MESS["MSGSVC_CT_GRID_COL_TITLE"] = "Атауы";

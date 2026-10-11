@@ -26,7 +26,10 @@ const PANEL_INSET = 12;
  * Shows itself in the top right corner of the target node on `mouseenter`
  * and hides immediately on `mouseleave`. Moving the cursor between the node
  * and the panel does not hide it: `mouseleave` is ignored when
- * `event.relatedTarget` is inside the panel or the node.
+ * `event.relatedTarget` is inside the panel or the node. The same handlers
+ * back `focusin`/`focusout`, so the panel is fully reachable by keyboard:
+ * focusing the node (made focusable on attach) shows it and, when the focus
+ * came from the keyboard, moves focus onto the panel button.
  * A shown panel is also dismissable with the Escape key (WCAG 1.4.13).
  *
  * The panel knows nothing about node types: buttons (icon + click handler)
@@ -45,6 +48,16 @@ export class FloatingNodePanel extends BasePanel
 	#buttons: FloatingNodePanelButton[];
 
 	#targetNode: HTMLElement | null = null;
+
+	// original 'tabindex' attribute of the target node, captured only when
+	// attach makes the node focusable; `undefined` means attach did not touch
+	// it. `null` = the attribute was absent, a string = its previous value, so
+	// detach can restore the node exactly and not leave it stuck in tab order.
+	#targetNodeTabIndex: string | null | undefined = undefined;
+
+	// guards the focusin fired by the programmatic focus return in hide()
+	// from re-showing the panel (e.g. Escape while a panel button is focused)
+	#restoringFocus: boolean = false;
 
 	constructor(options: FloatingNodePanelOptions)
 	{
@@ -73,11 +86,23 @@ export class FloatingNodePanel extends BasePanel
 
 		this.detach();
 
+		// make a non-focusable node (typically an <img> or a background <div>)
+		// reachable by keyboard while the panel is attached, remembering the
+		// original tabindex so detach can restore it
+		if (targetNode.tabIndex < 0)
+		{
+			this.#targetNodeTabIndex = targetNode.getAttribute('tabindex');
+			targetNode.tabIndex = 0;
+		}
+
 		this.#targetNode = targetNode;
 		Event.bind(targetNode, 'mouseenter', this.#onMouseEnter);
 		Event.bind(targetNode, 'mouseleave', this.#onMouseLeave);
+		Event.bind(targetNode, 'focusin', this.#onMouseEnter);
+		Event.bind(targetNode, 'focusout', this.#onMouseLeave);
 		Event.bind(targetNode.ownerDocument, 'keydown', this.#onKeyDown);
 		this.renderTo(targetNode.ownerDocument.body);
+		Event.bind(this.layout, 'focusout', this.#onMouseLeave);
 	}
 
 	/**
@@ -93,9 +118,35 @@ export class FloatingNodePanel extends BasePanel
 
 		Event.unbind(this.#targetNode, 'mouseenter', this.#onMouseEnter);
 		Event.unbind(this.#targetNode, 'mouseleave', this.#onMouseLeave);
+		Event.unbind(this.#targetNode, 'focusin', this.#onMouseEnter);
+		Event.unbind(this.#targetNode, 'focusout', this.#onMouseLeave);
 		Event.unbind(this.#targetNode.ownerDocument, 'keydown', this.#onKeyDown);
+		Event.unbind(this.layout, 'focusout', this.#onMouseLeave);
+		this.#restoreTargetNodeTabIndex();
 		this.#targetNode = null;
 		this.remove();
+	}
+
+	// undoes the tabIndex made focusable on attach, so the node does not stay
+	// stuck in the tab order after detach: absent attribute is removed again,
+	// a previous value is put back
+	#restoreTargetNodeTabIndex(): void
+	{
+		if (this.#targetNodeTabIndex === undefined || !this.#targetNode)
+		{
+			return;
+		}
+
+		if (this.#targetNodeTabIndex === null)
+		{
+			this.#targetNode.removeAttribute('tabindex');
+		}
+		else
+		{
+			this.#targetNode.setAttribute('tabindex', this.#targetNodeTabIndex);
+		}
+
+		this.#targetNodeTabIndex = undefined;
 	}
 
 	show(): Promise<any>
@@ -113,10 +164,21 @@ export class FloatingNodePanel extends BasePanel
 
 	hide(): Promise<any>
 	{
+		// focus must not stay on the hidden (display: none) button:
+		// hand it back to the target node before hiding
+		const focusWasInside = this.layout.contains(this.layout.ownerDocument.activeElement);
+
 		if (this.isShown())
 		{
 			Dom.removeClass(this.layout, this.classShow);
 			Dom.addClass(this.layout, this.classHide);
+		}
+
+		if (focusWasInside)
+		{
+			this.#restoringFocus = true;
+			this.#targetNode?.focus({ preventScroll: true });
+			this.#restoringFocus = false;
 		}
 
 		return Promise.resolve();
@@ -145,11 +207,23 @@ export class FloatingNodePanel extends BasePanel
 		return layout;
 	}
 
-	#onMouseEnter = (): void => {
+	#onMouseEnter = (event: MouseEvent | FocusEvent): void => {
+		if (this.#restoringFocus)
+		{
+			return;
+		}
+
 		void this.show();
+
+		// keyboard focus (`:focus-visible`) pulls focus into the panel so the
+		// button is operable; pointer/programmatic focus just reveals the panel
+		if (event.type === 'focusin' && this.#targetNode?.matches(':focus-visible'))
+		{
+			this.layout.querySelector('button')?.focus();
+		}
 	};
 
-	#onMouseLeave = (event: MouseEvent): void => {
+	#onMouseLeave = (event: MouseEvent | FocusEvent): void => {
 		const relatedTarget = event.relatedTarget;
 
 		// cursor moved between the node and the panel: keep the panel shown

@@ -1,5 +1,5 @@
 <?php
-$MESS["LANDING_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION"] = "Нысанды жариялау үшін қауіпсіздік мақсатында SMS - тен тексеру кодын көрсету қажет. Бұл әр нысан үшін бір рет орындалады.";
+$MESS["LANDING_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION"] = "Нысанды жариялау үшін қауіпсіздік мақсатында SMS-тен тексеру кодын көрсету қажет. Бұл әр нысан үшін бір рет орындалады.";
 $MESS["LANDING_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE"] = "Нысанды жариялау";
 $MESS["LANDING_FORM_PHONE_VERIFY_CUSTOM_TITLE"] = "Тексеру кодын SMS-пен алу";
 $MESS["LANDING_FORM_SHARE__COMMUNICATION_ACTION_LABEL"] = "Баптау";

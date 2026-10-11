@@ -6,9 +6,9 @@ $MESS["LANDING_TPL_DEMO_PRODUCTS_IN_TRADE_CATALOG"] = "Ihr Onlineshop enthält d
 $MESS["LANDING_TPL_DEMO_PRODUCTS_IN_TRADE_CATALOG_LOOK"] = "Schauen Sie sich diese Demodaten an und testen Sie Ihren Onlineshop. Sie können Ihre eigenen Produkte jederzeit hinzufügen.";
 $MESS["LANDING_TPL_DEMO_PRODUCTS_IN_TRADE_CATALOG_TITLE"] = "So wird das Produktformular Ihres Onlineshops aussehen";
 $MESS["LANDING_TPL_FIRST_ORDER"] = "Geben Sie eine Bestellung ab, um sicherzustellen, dass alles funktioniert";
-$MESS["LANDING_TPL_FIRST_ORDER_REQUIREMENTS"] = "E-Commerce in Belarus erfordert Ihre vollständige Kompatibilität mit dem likalen Recht. #LINK_HELP1#Learn more#LINK_HELP2#";
+$MESS["LANDING_TPL_FIRST_ORDER_REQUIREMENTS"] = "E-Commerce in Belarus erfordert Ihre vollständige Kompatibilität mit dem lokalen Recht. #LINK_HELP1#Learn more#LINK_HELP2#";
 $MESS["LANDING_TPL_FIRST_ORDER_STEPS_1"] = "Sie können die Bestellbestätigungen per SMS und WhatsApp über die Services der Drittanbieter auch dann senden, wenn Sie den kostenlosen Tarif nutzen. Nachrichten, die Sie über den Benachrichtigungsservice in Bitrix24 senden, sind auf den kostenpflichtigen Tarifen kostenlos. #LINK_HELP1#Mehr dazu#LINK_HELP2#";
-$MESS["LANDING_TPL_FIRST_ORDER_STEPS_2"] = "Nachdem Sie die erste Testbestellung abgeben werden, werden wir Ihnen eine Nachricht senden. Die personenbezogenen Informationen, die im Bestellformular angegeben sein werden, werden an den Telekommunikationsanbieter gesendet.";
+$MESS["LANDING_TPL_FIRST_ORDER_STEPS_2"] = "Nachdem Sie die erste Testbestellung abgegeben haben, senden wir Ihnen eine Nachricht. Die personenbezogenen Informationen, die im Bestellformular angegeben sein werden, werden an den Telekommunikationsanbieter gesendet.";
 $MESS["LANDING_TPL_FORM_COMPLETE_DEAL"] = "Offene Aufträge";
 $MESS["LANDING_TPL_FORM_COMPLETE_ORDER"] = "Seite der Bestellungen öffnen";
 $MESS["LANDING_TPL_FORM_COMPLETE_SHOP"] = "Verkauf starten";
@@ -24,6 +24,8 @@ $MESS["LANDING_TPL_PAGES_SHOW"] = "Anzeigen";
 $MESS["LANDING_TPL_PLACEHOLDER_COMPANY"] = "Bitrix24 Onlineshop";
 $MESS["LANDING_TPL_PLACEHOLDER_DOMAIN_NAME"] = "Domainname";
 $MESS["LANDING_TPL_PLACEHOLDER_PHONE"] = "+1 (222) 333 - 4444";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_QRCODE_ADDRESS"] = "Oder öffnen Sie Ihren Onlineshop unter";
 $MESS["LANDING_TPL_QRCODE_CAMERA"] = "Scannen Sie diesen Bildschirm ein, um den QR-Code zu lesen";
 $MESS["LANDING_TPL_QRCODE_COPY"] = "Ein unentbehrlicher Assistent für Ihr Geschäft";
 $MESS["LANDING_TPL_QRCODE_HOW_SCAN"] = "Wie kann ich den QR-Code einscannen?";
@@ -33,7 +35,21 @@ $MESS["LANDING_TPL_SHOW_SHOP"] = "Eigenen Onlineshop anzeigen";
 $MESS["LANDING_TPL_STEP1_DESC"] = "Geben Sie Ihre Kontaktdaten an, damit diese auf der Website erscheinen";
 $MESS["LANDING_TPL_STEP1_TITLE"] = "Kontakt";
 $MESS["LANDING_TPL_STEP2_DESC"] = "Produkte Ihres Onlineshops";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP2_NEXT_READY"] = "Sie können zum nächsten Schritt übergehen";
 $MESS["LANDING_TPL_STEP2_TITLE"] = "Produkte";
 $MESS["LANDING_TPL_STEP3_DESC"] = "Ihr Onlineshop funktioniert jetzt";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_NEXT_READY"] = "Alles fertig, Sie können zum nächsten Schritt übergehen";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_ORDER_CREATED"] = "Bestellung erstellt";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_SHOP_VIEWED"] = "Onlineshop angesehen";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_STATUS_DONE"] = "Erledigt";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_STATUS_WAITING"] = "Ausstehend";
 $MESS["LANDING_TPL_STEP3_TITLE"] = "Erste Bestellung";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP_POSITION"] = "Schritt #NUMBER# von #TOTAL#";
 $MESS["LANDING_TPL_WORKING_ALREADY"] = "ist fast einsatzbereit, nur noch ein paar Schritte";

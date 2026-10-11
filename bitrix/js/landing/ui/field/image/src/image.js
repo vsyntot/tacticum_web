@@ -78,6 +78,7 @@ export class Image extends TextField
 		this.dropzone.addEventListener("dragover", this.onDragOver);
 		this.dropzone.addEventListener("dragleave", this.onDragLeave);
 		this.dropzone.addEventListener("drop", this.onDrop);
+		Event.bind(this.dropzone, "keydown", this.onDropzoneKeydown.bind(this));
 
 		this.clearButton = Image.createClearButton();
 		this.clearButton.on("click", this.onClearClick.bind(this));
@@ -329,7 +330,7 @@ export class Image extends TextField
 					),
 				}),
 			],
-			attrs: {"for": "file_" + id, "data-testid": "landing-field-image-dropzone"},
+			attrs: {"for": "file_" + id, "role": "button", "tabindex": "0", "data-testid": "landing-field-image-dropzone"},
 		});
 	}
 
@@ -341,7 +342,7 @@ export class Image extends TextField
 	{
 		return new BaseButton("clear", {
 			className: "landing-ui-field-image-action-button-clear",
-			attrs: {"data-testid": "landing-field-image-clear-btn"},
+			attrs: {"aria-label": Loc.getMessage("LANDING_FIELD_IMAGE_CLEAR"), "data-testid": "landing-field-image-clear-btn"},
 		});
 	}
 
@@ -521,6 +522,16 @@ export class Image extends TextField
 		this.dropzone.classList.remove("landing-ui-active");
 		this.onFileChange(event.dataTransfer.files[0]);
 		this.imageHidden = false;
+	}
+
+	onDropzoneKeydown(event)
+	{
+		// <label role="button"> is not natively focusable/clickable, activate manually
+		if (event.key === "Enter" || event.key === " ")
+		{
+			event.preventDefault();
+			this.fileInput.click();
+		}
 	}
 
 	onFileChange(file)

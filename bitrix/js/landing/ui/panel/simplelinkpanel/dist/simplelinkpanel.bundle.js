@@ -7,6 +7,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	const PANEL_INSET = 12;
 	const PANEL_WIDTH = 340;
+	const PANEL_WIDTH_WITH_AI = 380;
 	const CLASS_SHOW = 'landing-ui-show';
 	const CLASS_HIDE = 'landing-ui-hide';
 	const BLOCK_LINK_REGEXP = /^(?:block:)?#block(\d+)$/;
@@ -23,6 +24,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 		#boundDocument = null;
 		#onSave = null;
 		#onRemove = null;
+		#onAiSelect = null;
+		#aiButton;
 		static getInstance() {
 			if (!SimpleLinkPanel.#instance) {
 				SimpleLinkPanel.#instance = new SimpleLinkPanel();
@@ -89,6 +92,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 		`;
 			this.#layout.appendChild(this.#field);
 			this.#layout.appendChild(saveButtonNode);
+			this.#aiButton = main_core.Tag.render`
+			<button
+				type="button"
+				class="landing-ui-panel-simple-link__ai-button"
+				data-testid="landing-simplelinkpanel-ai"
+				title="${main_core.Text.encode(landing_loc.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT'))}"
+			>
+				<span class="ui-icon-set --bitrix-gpt landing-ui-panel-simple-link__ai-icon"></span>
+			</button>
+		`;
+			main_core.Event.bind(this.#aiButton, 'click', this.#handleAiSelect);
 			main_core.Event.bind(this.#input, 'keydown', this.#handleKeyDown);
 		}
 		show(anchorEl, options = {}) {
@@ -99,6 +113,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			this.#anchorEl = anchorEl;
 			this.#onSave = main_core.Type.isFunction(options.onSave) ? options.onSave : null;
 			this.#onRemove = main_core.Type.isFunction(options.onRemove) ? options.onRemove : null;
+			this.#onAiSelect = main_core.Type.isFunction(options.onAiSelect) ? options.onAiSelect : null;
+			this.#toggleAiButton();
 			const href = main_core.Type.isStringFilled(options.href) ? options.href : '';
 			const blockId = this.#resolveExistingBlockId(href);
 			const targetDocument = anchorEl.ownerDocument;
@@ -192,6 +208,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			}
 			this.hide();
 		};
+		#toggleAiButton() {
+			if (this.#onAiSelect) {
+				main_core.Dom.addClass(this.#layout, '--with-ai');
+				main_core.Dom.append(this.#aiButton, this.#layout);
+			} else {
+				main_core.Dom.removeClass(this.#layout, '--with-ai');
+				main_core.Dom.remove(this.#aiButton);
+			}
+		}
+		#handleAiSelect = event => {
+			event.preventDefault();
+			event.stopPropagation();
+			if (this.#onAiSelect) {
+				this.#onAiSelect();
+			}
+		};
 		#handleChipRemove = () => {
 			this.#enterTextMode('');
 			this.#input.focus({
@@ -260,7 +292,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			}
 			const anchorRect = this.#anchorEl.getBoundingClientRect();
 			const panelRect = this.#layout.getBoundingClientRect();
-			const panelWidth = panelRect.width || PANEL_WIDTH;
+			const panelWidth = panelRect.width || (this.#onAiSelect ? PANEL_WIDTH_WITH_AI : PANEL_WIDTH);
 			const panelHeight = panelRect.height;
 			const {
 				pageXOffset,

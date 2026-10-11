@@ -1,0 +1,21 @@
+<?php
+$MESS["LANDING_TPL_ACTION_ADD"] = "Hinzufügen";
+$MESS["LANDING_TPL_ACTION_DEL"] = "Löschen";
+$MESS["LANDING_TPL_ACTION_EDIT"] = "Bearbeiten";
+$MESS["LANDING_TPL_ACTION_RIGHT"] = "Zugriffsrecht hinzufügen";
+$MESS["LANDING_TPL_ACTION_SAVE"] = "Speichern";
+$MESS["LANDING_TPL_ARIA_ADD_ACCESS_CODE"] = "Zugriffsrecht hinzufügen: #RIGHT#";
+$MESS["LANDING_TPL_ARIA_DELETE_ACCESS_CODE"] = "#ENTITY# aus dem Zugriffsrecht #RIGHT# entfernen";
+$MESS["LANDING_TPL_ARIA_DELETE_RIGHT"] = "Zugriffsrecht für #ENTITY# löschen";
+$MESS["LANDING_TPL_ARIA_DELETE_ROLE"] = "Rolle #ROLE# löschen";
+$MESS["LANDING_TPL_ARIA_EDIT_ROLE"] = "Rolle #ROLE# bearbeiten";
+$MESS["LANDING_TPL_ARIA_ROLE_SELECT"] = "Rolle für #ENTITY#";
+$MESS["LANDING_TPL_BUTTON_MODE_TO_ROLE"] = "Rollenbasiertes Modell aktivieren";
+$MESS["LANDING_TPL_BUTTON_SAVE"] = "Speichern";
+$MESS["LANDING_TPL_COL_ACTIONS"] = "Aktionen";
+$MESS["LANDING_TPL_COL_ENTITY"] = "Zugriffsberechtigte";
+$MESS["LANDING_TPL_COL_NAME"] = "Name";
+$MESS["LANDING_TPL_COL_ROLE"] = "Rolle";
+$MESS["LANDING_TPL_COL_ROLES"] = "Rollen";
+$MESS["LANDING_TPL_EXTENDED_MODE"] = "Erweiterte Rollen sind aktiviert. Sie können jetzt Zugriffsrechte für eine bestimmte Website definieren.";
+$MESS["LANDING_TPL_TITLE"] = "Zugriffsrechte";

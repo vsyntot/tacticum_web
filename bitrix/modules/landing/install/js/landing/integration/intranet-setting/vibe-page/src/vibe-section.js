@@ -355,7 +355,7 @@ export class VibeSection extends EventEmitter
 		if (!this.#buttonMainSettings)
 		{
 			this.#buttonMainSettings = Tag.render`
-				<button class="intranet-settings-btn-settings">
+				<button type="button" class="intranet-settings-btn-settings">
 					<div class="ui-icon-set --more"></div>
 				</button>
 			`;
@@ -369,7 +369,7 @@ export class VibeSection extends EventEmitter
 		if (!this.#buttonSecondarySettings)
 		{
 			this.#buttonSecondarySettings = Tag.render`
-				<button class="intranet-settings-btn-settings">
+				<button type="button" class="intranet-settings-btn-settings">
 					<div class="ui-icon-set --more"></div>
 				</button>
 			`;
@@ -696,12 +696,12 @@ export class VibeSection extends EventEmitter
 		{
 			const buttonEdit = Tag.render`
 			
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_EDIT')}
 				</button>
 			`;
 			const buttonEditLock = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue --disabled">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue --disabled">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_EDIT')}
 					${this.renderLockElement()}
 				</button>
@@ -717,13 +717,13 @@ export class VibeSection extends EventEmitter
 		if (!this.#buttonPublish)
 		{
 			const renderNode = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
 						${this.#isPageExists ? 'ui-btn-primary' : '--light-blue'}">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_PUBLIC')}
 				</button>
 			`;
 			const renderNodeLock = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --disabled
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --disabled
 						${this.#isPageExists ? 'ui-btn-primary' : '--light-blue'}">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_PUBLIC')}
 					${this.renderLockElement()}
@@ -740,7 +740,7 @@ export class VibeSection extends EventEmitter
 		if (!this.#buttonWithdraw)
 		{
 			this.#buttonWithdraw = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
 						${this.#isPageExists ? 'ui-btn-primary' : '--light-blue'}">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_UNPUBLIC')}
 				</button>
@@ -760,7 +760,7 @@ export class VibeSection extends EventEmitter
 		if (!this.#buttonPartners)
 		{
 			this.#buttonPartners = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-gray">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-gray">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_PARTNERS')}
 				</button>
 			`;
@@ -780,12 +780,12 @@ export class VibeSection extends EventEmitter
 		{
 			const buttonColor = this.#isPageExists ? '--light-blue' : 'ui-btn-primary';
 			const renderNode = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor}">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor}">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_MARKET')}
 				</button>
 			`;
 			const renderNodeLock = Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor} --disabled">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor} --disabled">
 					${Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_MARKET')}
 					${this.renderLockElement()}
 				</button>

@@ -20,13 +20,11 @@
 	var onAnimationEnd = BX.Landing.Utils.onAnimationEnd;
 	var slice = BX.Landing.Utils.slice;
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
-	var  timeA;
 
 	onCustomEvent("BX.Landing.Block:init", function(event) {
-		timeA = Date.now();
 		if (BX.hasClass(event.block, 'landing-designer-block-mode'))
 		{
-			return ;
+			return;
 		}
 
 		var allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(event.block);

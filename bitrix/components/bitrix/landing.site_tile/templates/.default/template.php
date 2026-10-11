@@ -6,8 +6,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Landing\Copilot\Services\NameService;
 use Bitrix\Landing\Manager;
+use Bitrix\Landing\Metrika\Sections;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -23,6 +25,7 @@ Extension::load([
 	'ui.hint',
 	'ui.a11y',
 	'main.popup',
+	'ui.icon-set.outline',
 ]);
 
 $isAjax = $component->isAjax();
@@ -82,7 +85,15 @@ $isAiSiteChatAvailable =
 	($arParams['AI_SITE_CHAT_AVAILABLE'] ?? true) !== false
 	&& ($arParams['AI_SITE_CHAT_AVAILABLE'] ?? true) !== 'N'
 ;
-if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
+
+// every entry point of the tile opens the same address of the generation page, marked by the source of the entry
+$aiUrl = (string)($arParams['AI_URL'] ?? '');
+$aiGenerationUrl = (new Uri($aiUrl !== '' ? $aiUrl : '/sites/ai/'))
+	->addParams([Sections::URL_PARAM => Sections::sites->value])
+	->getUri()
+;
+
+if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable && empty($arParams['IS_DELETED']))
 {
 	$htmlItems = [];
 	$aiFirstVisitTooltipOptionName = LandingSiteTileComponent::getAiFirstVisitTooltipOptionName();
@@ -117,32 +128,33 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 		$templatesButtonText = Loc::getMessage('LANDING_SITE_TILE_AI_TEMPLATES_BUTTON');
 		$builderButtonText = Loc::getMessage('LANDING_SITE_TILE_AI_BUILDER_BUTTON');
 
-		$fan = '<div id="landing-sites-ai-slider"></div>';
+		$fan = '<div id="landing-sites-ai-slider" data-testid="landing-sites-ai-slider"></div>';
 		$inputPlaceholder = NameService::replaceCopilotName(Loc::getMessage('LANDING_SITE_TILE_AI_INPUT_PLACEHOLDER'));
 		$inputLabel = NameService::replaceCopilotName(Loc::getMessage('LANDING_SITE_TILE_AI_INPUT_LABEL'));
 		$inputNotice = Loc::getMessage('LANDING_SITE_TILE_AI_INPUT_NOTICE');
 		$inputSubmitLabel = Loc::getMessage('LANDING_SITE_TILE_AI_SUBMIT_BUTTON');
-		$inputIconHref = $arParams['AI_URL'] ?? '';
-		$inputContainer = '<div tabindex="-1" class="landing-sites-ai__input-frame --inactive" data-landing-sites-ai-input-frame>'
+		$inputIconHref = $aiUrl !== '' ? $aiGenerationUrl : '';
+		$inputNoticeId = 'landing-sites-ai-input-notice';
+		$inputContainer = '<div tabindex="-1" class="landing-sites-ai__input-frame --inactive" data-testid="landing-sites-ai-input-frame" data-landing-sites-ai-input-frame>'
 			. '<div class="landing-sites-ai__input-box --inactive" data-landing-sites-ai-input-box>'
-			. '<div class="landing-sites-ai__input-notice" data-landing-sites-ai-input-notice>' . htmlspecialcharsbx($inputNotice) . '</div>'
+			. '<div class="landing-sites-ai__input-notice" id="' . htmlspecialcharsbx($inputNoticeId) . '" data-testid="landing-sites-ai-input-notice" data-landing-sites-ai-input-notice>' . htmlspecialcharsbx($inputNotice) . '</div>'
 			. '<div class="landing-sites-ai__input-control" data-landing-sites-ai-input-control>'
-			. '<div class="landing-sites-ai__input" contenteditable="false" role="textbox" aria-label="' . htmlspecialcharsbx($inputLabel) . '" aria-multiline="true" aria-disabled="true" tabindex="-1" data-placeholder="' . htmlspecialcharsbx($inputPlaceholder) . '" data-landing-sites-ai-input></div>'
+			. '<div class="landing-sites-ai__input" contenteditable="false" role="textbox" aria-label="' . htmlspecialcharsbx($inputLabel) . '" aria-multiline="true" aria-describedby="' . htmlspecialcharsbx($inputNoticeId) . '" aria-disabled="true" tabindex="-1" data-placeholder="' . htmlspecialcharsbx($inputPlaceholder) . '" data-testid="landing-sites-ai-input" data-landing-sites-ai-input></div>'
 			. '<button type="button" class="landing-sites-ai__input-icon" data-action="' . htmlspecialcharsbx($inputIconHref) . '" tabindex="-1" aria-disabled="true" aria-label="' . htmlspecialcharsbx($inputSubmitLabel) . '" data-testid="landing-sites-ai-submit-btn" data-landing-sites-ai-input-icon></button>'
 			. '</div>'
 			. '<input type="hidden" name="ai_prompt" data-landing-sites-ai-input-value /> '
 			. '</div>'
 			. '</div>';
-		$buttonsContainer = '<div class="landing-sites-ai__actions">'
-			. '<a class="ui-btn ui-btn-no-caps landing-action-btn" href="' . htmlspecialcharsbx($marketButtonUrl) . '"> <div class="ui-icon-set --o-market" aria-hidden="true"></div> ' . htmlspecialcharsbx($templatesButtonText) . '</a> '
-			. '<button type="button" class="ui-btn ui-btn-no-caps landing-action-btn" onclick="BX.Landing.Component.Filter.onCreateDropdownItemClick(\'build_yourself\');"> <div class="ui-icon-set --s-browser" aria-hidden="true"></div> ' . htmlspecialcharsbx($builderButtonText) . '</button>'
+		$buttonsContainer = '<div class="landing-sites-ai__actions" data-testid="landing-sites-ai-actions">'
+			. '<a class="ui-btn ui-btn-no-caps landing-action-btn" href="' . htmlspecialcharsbx($marketButtonUrl) . '" data-testid="landing-sites-ai-templates-btn"> <div class="ui-icon-set --o-market" aria-hidden="true"></div> ' . htmlspecialcharsbx($templatesButtonText) . '</a> '
+			. '<button type="button" class="ui-btn ui-btn-no-caps landing-action-btn" data-testid="landing-sites-ai-builder-btn" onclick="BX.Landing.Component.Filter.onCreateDropdownItemClick(\'build_yourself\');"> <div class="ui-icon-set --s-browser" aria-hidden="true"></div> ' . htmlspecialcharsbx($builderButtonText) . '</button>'
 			. '</div>';
 
 		$fanHtml = in_array('fan', $htmlItems, true) ? $fan : '';
 		$inputContainerHtml = in_array('input', $htmlItems, true) ? $inputContainer : '';
 		$buttonsContainerHtml = in_array('buttons', $htmlItems, true) ? $buttonsContainer : '';
 
-		$aiHtml = '<div class="landing-sites-ai-shell">'
+		$aiHtml = '<div class="landing-sites-ai-shell" data-testid="landing-sites-ai-shell">'
 			. '<div class="landing-sites-ai-shell__inner">'
 			. $fanHtml
 			. $inputContainerHtml
@@ -158,7 +170,7 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 }
 ?>
 
-<?php if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable): ?>
+<?php if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable && empty($arParams['IS_DELETED'])): ?>
 <script>
 	BX.ready(function()
 	{
@@ -317,7 +329,19 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 </script>
 <?php endif; ?>
 
-<?php if (!$arParams['ITEMS'] && $arParams['TYPE'] === 'STORE' ):
+<?php if (!empty($arParams['IS_DELETED']) && !$arParams['ITEMS'] && $arParams['TOTAL_COUNT'] === 0): ?>
+	<div class="landing-sites__trash-empty" data-testid="landing-sites-trash-empty">
+		<div class="landing-sites__trash-empty-card">
+			<div class="landing-sites__trash-empty-image" aria-hidden="true">
+				<span class="ui-icon-set --o-trashcan"></span>
+			</div>
+			<div class="landing-sites__trash-empty-title" role="status">
+				<?= htmlspecialcharsbx(Loc::getMessage('LANDING_SITE_TILE_TRASH_EMPTY_TITLE')) ?>
+			</div>
+		</div>
+	</div>
+	<div class="landing-sites" id="landing-sites"></div>
+<?php elseif (!$arParams['ITEMS'] && $arParams['TYPE'] === 'STORE' ):
 	$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT1');
 	if ($zone === 'ru')
 	{
@@ -377,7 +401,7 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 				</div>
 			</div>
 			<div class="landing-sites__grid-empty--info-image-block">
-				<img src="<?= $templateFolder?>/images/empty_<?= strtolower($arParams['TYPE'])?>_<?= $langImg?>.png" alt="" class="landing-sites__grid-empty--info-image"/>
+				<img src="<?= $templateFolder?>/images/empty_<?= htmlspecialcharsbx(strtolower((string)$arParams['TYPE']))?>_<?= $langImg?>.png" alt="" class="landing-sites__grid-empty--info-image"/>
 			</div>
 		</div>
 	</div>
@@ -434,6 +458,7 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 				message: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_NOT_PUBLISHED_MSG')) ?>',
 			},
 			isNeedCreateCopilotPopup: isNeedCopilotPopup,
+			copilotPopupAiUrl: '<?= CUtil::JSEscape($aiGenerationUrl)?>',
 			lang: lang,
 			zone: '<?= CUtil::JSEscape($zone)?>',
 			createByCopilotText: createByCopilotText,
@@ -486,7 +511,14 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 				})
 				.then(function()
 				{
-					item.updateDomainStatus(item.domainStatus, item.domainStatusMessage, { announce: true });
+					if (item.domainStatus === 'unknown' && !item.domainProvider)
+					{
+						item.updateDomainStatus('success', '', { announce: true });
+					}
+					else
+					{
+						item.updateDomainStatus(item.domainStatus, item.domainStatusMessage, { announce: true });
+					}
 					item.unLock();
 					item.updatePublishedStatus(true);
 				})
@@ -614,6 +646,7 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable)
 			}).then(function()
 			{
 				item.remove({ announce: true });
+				top.BX.onCustomEvent('BX.Landing.Filter:apply');
 			});
 		});
 		<?if ($arParams['TYPE'] === 'STORE'):?>

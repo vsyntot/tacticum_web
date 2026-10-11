@@ -260,7 +260,7 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 		#getButtonMainSettings() {
 			if (!this.#buttonMainSettings) {
 				this.#buttonMainSettings = main_core.Tag.render`
-				<button class="intranet-settings-btn-settings">
+				<button type="button" class="intranet-settings-btn-settings">
 					<div class="ui-icon-set --more"></div>
 				</button>
 			`;
@@ -270,7 +270,7 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 		#getButtonSecondarySettings() {
 			if (!this.#buttonSecondarySettings) {
 				this.#buttonSecondarySettings = main_core.Tag.render`
-				<button class="intranet-settings-btn-settings">
+				<button type="button" class="intranet-settings-btn-settings">
 					<div class="ui-icon-set --more"></div>
 				</button>
 			`;
@@ -504,12 +504,12 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 			if (!this.#buttonEdit) {
 				const buttonEdit = main_core.Tag.render`
 			
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_EDIT')}
 				</button>
 			`;
 				const buttonEditLock = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue --disabled">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-blue --disabled">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_EDIT')}
 					${this.renderLockElement()}
 				</button>
@@ -521,13 +521,13 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 		#getButtonPublish() {
 			if (!this.#buttonPublish) {
 				const renderNode = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
 						${this.#isPageExists ? 'ui-btn-primary' : '--light-blue'}">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_PUBLIC')}
 				</button>
 			`;
 				const renderNodeLock = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --disabled
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --disabled
 						${this.#isPageExists ? 'ui-btn-primary' : '--light-blue'}">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_PUBLIC')}
 					${this.renderLockElement()}
@@ -540,7 +540,7 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 		#getButtonWithdraw() {
 			if (!this.#buttonWithdraw) {
 				this.#buttonWithdraw = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps
 						${this.#isPageExists ? 'ui-btn-primary' : '--light-blue'}">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_UNPUBLIC')}
 				</button>
@@ -554,7 +554,7 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 			}
 			if (!this.#buttonPartners) {
 				this.#buttonPartners = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-gray">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps --light-gray">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_PARTNERS')}
 				</button>
 			`;
@@ -568,12 +568,12 @@ this.BX.Landing.Integration = this.BX.Landing.Integration || {};
 			if (!this.#buttonMarket) {
 				const buttonColor = this.#isPageExists ? '--light-blue' : 'ui-btn-primary';
 				const renderNode = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor}">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor}">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_MARKET')}
 				</button>
 			`;
 				const renderNodeLock = main_core.Tag.render`
-				<button class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor} --disabled">
+				<button type="button" class="ui-btn ui-btn-md ui-btn-round ui-btn-no-caps ${buttonColor} --disabled">
 					${main_core.Loc.getMessage('INTRANET_SETTINGS_VIBE_BUTTON_MARKET')}
 					${this.renderLockElement()}
 				</button>
