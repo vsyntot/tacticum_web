@@ -2066,13 +2066,22 @@ if (deployWorkflow === null) {
   if (!CHECK_HTTP) {
     fail('.github/workflows/deploy.yml is required for local SEO guard.');
   }
+} else if (deployWorkflow.includes('production-readonly')) {
+  if (
+    !deployWorkflow.includes('npm run sitemap:static:generate')
+    || !deployWorkflow.includes('npm run sitemap:static:check')
+    || !deployWorkflow.includes('candidate.tar.gz')
+    || !deployWorkflow.includes('Apply through pinned controller')
+  ) {
+    fail('trusted deploy workflow must generate, verify and package sitemap-basic-files.xml in the immutable artifact');
+  }
 } else if (
   !deployWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
   || !deployWorkflow.includes('static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
   || !deployWorkflow.includes('static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
   || !deployWorkflow.includes('sitemap-basic-files.xml urlrewrite.php')
 ) {
-  fail('deploy workflow must generate, verify and rsync sitemap-basic-files.xml as a build artifact');
+  fail('deploy workflow must generate, verify and publish sitemap-basic-files.xml');
 }
 if (sitemapWorkflow === null) {
   if (!CHECK_HTTP) {

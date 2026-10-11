@@ -8,7 +8,9 @@ PR `#46` и CI-only PR `#47` смёрджены в `main` коммитами `9f
 
 После merge legacy deploy runs `38158457245` и `38158939260` были отменены в состоянии environment wait/queue. SSH/rsync не запускались; production mutation после merge не выполнялась.
 
-Остаются отдельные gates: CI read/write keys, trusted controller, CODEOWNERS/ruleset policy и замена или retirement старого rsync workflow.
+Trusted CI contour подготовлен в текущей ветке: `deploy.yml` больше не содержит legacy `rsync`, а использует immutable artifact → read-only PROD → BASE/PROD/CANDIDATE plan → protected production reviewer → root forced-command controller → smoke. На production установлены отдельные CI read-only/write ключи и pinned controller; первый запуск после merge должен оставаться controlled review.
+
+Остаются gates: merge и controlled workflow run, CODEOWNERS/ruleset policy, observation window и promotion свежего post-manifest в durable BASE после успешного run.
 
 ## 1. Production environment secrets
 
@@ -22,7 +24,9 @@ PR `#46` и CI-only PR `#47` смёрджены в `main` коммитами `9f
 
 Значения не копировать в issue, PR, workflow logs или этот пакет.
 
-Для целевого `inspect-production` создать отдельный environment `production-readonly` и secret `SSH_READONLY_PRIVATE_KEY`; server-side public key должен быть ограничен `restrict` + forced-command manifest wrapper. Не использовать для CI личный `~/.ssh/id_ed25519`. Environment secrets не выдавать ни `pull_request`, ни `pull_request_target` workflows.
+Для целевого `inspect-production` создан environment `production-readonly` с `SSH_READONLY_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`, `SSH_HOST`, `SSH_USER`; server-side public key ограничен `restrict` + forced-command manifest wrapper. В `production` добавлены отдельные `SSH_WRITE_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`, `SSH_HOST`, `SSH_USER`; ключ входит только в forced-command root wrapper. Личный `~/.ssh/id_ed25519` в CI не используется. Environment secrets не выдавать ни `pull_request`, ни `pull_request_target` workflows.
+
+Fingerprints (public only): read-only `SHA256:dGLLM2EK4E4eemsZ7O1iEaFrsPXV+0ZUXTA4UCbVp2k`, write `SHA256:v+DsGRHx7Y1hnD//f2+sx/nyBPZKTYSAwmZjpgNga9I`. Private values не записываются в carrier.
 
 ADR-013 и production governance приняты. До settings mutation должен быть реализован и проверен machine-readable deploy-scope. Privileged jobs используют immutable artifact и protected controller, не запускают `npm ci` или scripts кандидата. Третьи Actions в privileged jobs pin по commit SHA.
 
@@ -56,7 +60,7 @@ ADR-013 и production governance приняты. До settings mutation долж
 2. Новый финальный head проверен run `38157300093`; Quality Gate зелёный.
 3. До write approval проверить artifact `production-plan-*`: release class `FILE_ONLY`, `BASE/PROD/CANDIDATE`, artifact digest, additions/changes/deletions/tombstones/metadata, отсутствие conflicts, staging evidence/waiver и точный checksum dry-run.
 4. Merge в `main` выполнен после включения базовой защиты. Legacy deploy runs отменены в reviewer wait; approval не выдавался, trusted controller и CI keys ещё не готовы.
-5. В deploy log подтвердить последовательность: quality/classification → immutable artifact → read-only drift → approval binding → exclusive lock → final manifest → disk/backup/restore rehearsal → exact apply → cache clear → post-apply manifest → credential teardown → health/smoke/monitoring → dual BASE finalize.
+5. Новый workflow `deploy.yml` подтверждает последовательность: quality → immutable artifact → read-only drift → BASE/PROD/CANDIDATE plan → approval binding → forced-command upload → exclusive lock → final manifest → disk/backup/restore rehearsal → exact apply → cache clear → post-apply manifest → smoke.
 6. Скачать `post-deploy-smoke-<run_id>-<attempt>` и проверить manifests plus screenshots; raw production snapshot в artifact отсутствует.
 7. Повторить `npm run release:public-precheck:prod` и affected smoke; сохранить ссылки на plan/run/artifact в `evidence_index.csv`.
 
@@ -80,3 +84,20 @@ ADR-013 и production governance приняты. До settings mutation долж
 - Reduction/root cause: replaced the apt dependency with `tools/xml-well-formed-check.py` using `xml.etree.ElementTree`; root cause is `known` for the workflow dependency, not sitemap content.
 - Retry guard: run the sitemap workflow with no apt install, then require XML parsing, static sitemap generation/check and `npm run seo:check` to pass.
 - Owner/next step: repository CI; push the bounded fix and accept only a green sitemap run before considering the main release fully green.
+
+## Failure ledger — production-readonly environment bootstrap
+
+- Operation/signal: initial GitHub API environment update returned `422`; `gh -f` serialized integer/boolean/object fields as strings and the environment public-key endpoint returned `404`.
+- Reproduction: `gh api --method PUT ... -f wait_timer=0 -f prevent_self_review=false -f deployment_branch_policy='...'`.
+- Localization: GitHub API request encoding, not SSH or key material. The production environment remained unchanged.
+- Reduction/root cause: switched to a JSON `--input` payload; environment was created with protected-branch policy, then secrets were set successfully.
+- Retry guard: require `gh api .../environments/production-readonly` to show the environment and `gh secret list --env production-readonly` to show only the four expected names.
+- Owner/next step: repository owner; merge and execute one controlled review run before any application mutation.
+
+## Failure ledger — trusted workflow guard migration
+
+- Operation/signal: first manual Quality Gate run `38162061888` failed because `deploy-rsync-filter-self-test.sh` still required the removed legacy rsync exclusion; the next run also found the same assumption in `seo:check`.
+- Localization: repository tests encoded the old deployment contract; no SSH or production mutation occurred.
+- Reduction/root cause: replaced the filter test with trusted-controller assertions and taught `seo-check.mjs` to validate immutable sitemap packaging.
+- Retry guard: run `bash tools/deploy-rsync-filter-self-test.sh`, `npm run seo:check`, then full Quality Gate; run `38162324734` passed all three required jobs.
+- Owner/next step: repository CI; retain the PR open until a normal review/merge path records the new workflow on `main`.
