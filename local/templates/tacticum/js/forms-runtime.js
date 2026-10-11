@@ -2,9 +2,10 @@
     if (window.TacticumFormsRuntime) return;
 
     const RETURNING_LEAD_STORAGE_KEY = "tacticum:returningLead:v1";
+    const PRODUCT_ALIASES = { dev: "adp" };
 
     const productAnalyticsValues = {
-        product: new Set(["ecosystem", "platform", "agents", "dev", "forum"]),
+        product: new Set(["ecosystem", "platform", "agents", "adp", "dev", "forum"]),
         pageRole: new Set([
             "ecosystem-router",
             "trust-entry",
@@ -47,8 +48,13 @@
         return allowedValues.has(normalized) ? normalized : "";
     };
 
+    const normalizeProductValue = (value) => {
+        const normalized = normalizeControlledValue(value, productAnalyticsValues.product);
+        return PRODUCT_ALIASES[normalized] || normalized;
+    };
+
     const buildProductAnalyticsMeta = (payload) => {
-        const product = normalizeControlledValue(payload.lead_product, productAnalyticsValues.product);
+        const product = normalizeProductValue(payload.lead_product);
         if (!product) return null;
 
         const pageRole = normalizeControlledValue(payload.lead_page_role, productAnalyticsValues.pageRole);
@@ -86,7 +92,7 @@
 
     const buildReturningLeadKey = (form, payload = null) => {
         const source = payload || Object.fromEntries(new FormData(form).entries());
-        const product = normalizeControlledValue(source.lead_product, productAnalyticsValues.product);
+        const product = normalizeProductValue(source.lead_product);
         if (!product) return "";
 
         return `${product}:${getFormId(form)}`;
@@ -98,7 +104,7 @@
 
         const state = readReturningLeadState();
         state.entries[key] = {
-            product: normalizeControlledValue(payload.lead_product, productAnalyticsValues.product),
+            product: normalizeProductValue(payload.lead_product),
             form_id: getFormId(form),
             updated_at: Date.now(),
         };

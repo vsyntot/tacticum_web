@@ -7,7 +7,7 @@ import process from 'node:process';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const FIXTURE_DIR = path.join(ROOT, 'tools/fixtures/product-content-target-evidence');
 
-const DEFAULT_PRODUCT_CODES = ['platform', 'agents', 'dev', 'forum'];
+const DEFAULT_PRODUCT_CODES = ['platform', 'agents', 'adp', 'forum'];
 const REQUIRED_EVIDENCE_IBLOCK_KEYS = ['products', 'product_blocks', 'product_use_cases', 'faq'];
 const REQUIRED_ADMIN_MODEL_IBLOCK_KEYS = ['products', 'product_blocks', 'product_use_cases'];
 const DEFAULT_EXPECTED_SCHEMA_VERSION = 'v1';

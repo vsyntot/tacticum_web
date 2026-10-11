@@ -46,6 +46,7 @@ const publicPageEntries = [
   'policies/index.php',
   'platform/index.php',
   'agents/index.php',
+  'adp/index.php',
   'dev/index.php',
   'forum/index.php',
 ];
@@ -53,7 +54,7 @@ const publicPageEntries = [
 const productPageEntryAllowlist = new Map([
   ['platform/index.php', 'BPC-ARCH-001: product pages still use include renderer until tacticum:product.page migration'],
   ['agents/index.php', 'BPC-ARCH-001: product pages still use include renderer until tacticum:product.page migration'],
-  ['dev/index.php', 'BPC-ARCH-001: product pages still use include renderer until tacticum:product.page migration'],
+  ['adp/index.php', 'BPC-ARCH-001: product pages still use include renderer until tacticum:product.page migration'],
   ['forum/index.php', 'BPC-ARCH-001: product pages still use include renderer until tacticum:product.page migration'],
 ]);
 
@@ -156,7 +157,7 @@ for (const publicFile of publicPageEntries) {
   }
 }
 
-for (const publicFile of ['platform/index.php', 'agents/index.php', 'dev/index.php', 'forum/index.php']) {
+for (const publicFile of ['platform/index.php', 'agents/index.php', 'adp/index.php', 'forum/index.php']) {
   const source = await readFile(publicFile, 'utf8');
   const usesProductComponent = /IncludeComponent\(\s*[\r\n\t ]*['"]tacticum:product\.page['"]/m.test(source);
   const usesLegacyRenderer = /tacticum_product_page_data|tacticum_render_product_page/.test(source);
@@ -398,6 +399,7 @@ for (const entry of [
   'aiagents',
   'calculator',
   'contacts',
+  'adp',
   'dev',
   'forum',
   'offer',

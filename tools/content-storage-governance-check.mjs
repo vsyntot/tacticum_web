@@ -465,7 +465,7 @@ requireAll('local/lib/Tacticum/PageContent/HomeRenderAttributes.php', [
   [/data-home-product-link/, 'page-content homepage product smoke markers'],
   [/data-home-commercial-link/, 'page-content homepage commercial smoke markers'],
   [/product=/, 'page-content homepage product metadata mapping'],
-  [/\/platform\/[\s\S]*\/agents\/[\s\S]*\/dev\/[\s\S]*\/forum\//, 'page-content homepage product href mapping'],
+  [/\/platform\/[\s\S]*\/agents\/[\s\S]*\/adp\/[\s\S]*\/forum\//, 'page-content homepage product href mapping'],
 ]);
 requireFile('local/lib/Tacticum/PageContent/RenderSupport.php');
 requireAll('local/lib/Tacticum/PageContent/RenderSupport.php', [

@@ -27,7 +27,7 @@ jobs:
         run: |
           find local/ -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
           find . -maxdepth 1 -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
-          find about services contacts calculator price offer aiagents policies platform agents dev forum -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+          find about services contacts calculator price offer aiagents policies platform agents adp dev forum -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
 
   css-build:
     name: 🎨 Static CSS Build Check
@@ -233,6 +233,7 @@ jobs:
             'aiagents/**/*.php' \
             'calculator/**/*.php' \
             'contacts/**/*.php' \
+            'adp/**/*.php' \
             'dev/**/*.php' \
             'forum/**/*.php' \
             'offer/**/*.php' \
@@ -367,7 +368,7 @@ jobs:
             echo "✅ FAQ presentation is parameter-driven."
           fi
 
-          RESULT=$(grep -RInE --include='*.php' 'onclick=' index.php about services calculator contacts offer aiagents policies price platform agents dev forum local/components local/templates/tacticum)
+          RESULT=$(grep -RInE --include='*.php' 'onclick=' index.php about services calculator contacts offer aiagents policies price platform agents adp dev forum local/components local/templates/tacticum)
           if [ -n "$RESULT" ]; then
             echo "❌ ERROR: Inline onclick handlers are not allowed in public/template markup."
             echo "$RESULT"

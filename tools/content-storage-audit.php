@@ -1034,7 +1034,7 @@ final class TacticumContentStorageAudit
             return array_keys(tacticum_product_content_codes());
         }
 
-        return ['platform', 'agents', 'dev', 'forum'];
+        return ['platform', 'agents', 'adp', 'forum'];
     }
 
     private function iblockId(string $key): int

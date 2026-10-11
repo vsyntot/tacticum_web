@@ -5,6 +5,12 @@
 
 ## Краткое Резюме
 
+## ADP Identity Migration Snapshot — 11.10.2026
+
+- Canonical product route and active code are now `/adp/` and `adp`; `/dev/` is retained only as a permanent query-preserving 301 compatibility route.
+- Local FILE_ONLY implementation, generated sitemap/check updates and the approved production Bitrix migration are complete. The migration preserved IDs/XML_IDs and applied 62 primary product changes, 7 page-content changes and 3 cross-product Platform block changes; the final idempotent dry-run reports zero changes.
+- The owner-approved no-staging waiver is recorded because this project has no stage host. Production backup/restore rehearsal, credential rotation, release lock and post-deploy public/browser/SEO/source smoke all passed. Hash-only BASE copies now match across local and root-only evidence stores. The product owner is assigned release, rollback and monitoring ownership; the 24–72-hour observation window is active.
+
 Приложение — корпоративный сайт на 1C-Bitrix с кастомным шаблоном `local/templates/tacticum`, публичными страницами, инфоблоками для контента/офферов и набором кастомных REST/API endpoints для форм, чата и AI-интеграции.
 
 Сильные стороны:
@@ -99,7 +105,7 @@
 | `team` | 18 | Команда |
 | `policies` | 19 | Политики / legal контент |
 | `aiagents` | 20 | AI agents |
-| `products` | 21 | Продукты: Platform / Agents / Dev / Forum |
+| `products` | 21 | Продукты: Platform / Agents / ADP / Forum |
 | `product_blocks` | 22 | Структурные блоки продуктовых страниц |
 | `product_use_cases` | 23 | Use cases продуктовых страниц |
 | `page_sections` | 24 | Structured generic page sections, currently shadow/fallback-governed |

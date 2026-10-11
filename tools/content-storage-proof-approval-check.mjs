@@ -3,7 +3,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const ALLOWED_IBLOCKS = new Set(['cases', 'feedback', 'clients']);
-const ALLOWED_PRODUCTS = new Set(['platform', 'agents', 'dev', 'forum']);
+const ALLOWED_PRODUCTS = new Set(['platform', 'agents', 'adp', 'forum']);
 const ALLOWED_DECISIONS = new Set(['pending', 'tag', 'global', 'not_public']);
 const REQUIRED_OWNERS = ['content', 'sales', 'seo'];
 const FORBIDDEN_KEYS = new Set([

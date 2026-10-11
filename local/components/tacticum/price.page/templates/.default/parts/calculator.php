@@ -24,7 +24,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                             "QUICK_REPLIES" => [
                                 "Предпроектная оценка Platform",
                                 "Пилот Agents",
-                                "Процесс Dev",
+                                "Процесс ADP",
                                 "Запуск Forum",
                             ],
                         ],

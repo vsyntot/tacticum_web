@@ -749,6 +749,12 @@ External gates из Sprint 14 остаются отдельным хвостом
 | FSC-011 | accepted | P3 | Local PHP CLI | Локальный PHP CLI отсутствует; GitHub PHP 8.4 lint остаётся authoritative fallback |
 | FSC-012 | closed | P2 | Contact/legal content hierarchy | `/contacts/` CTA moved before legal details; legal/trust copy remains available below |
 
+## Product Identity Migration — 11.10.2026
+
+| ID | Status | Priority | Area | Gap / closure target | Evidence |
+|---|---|---:|---|---|---|
+| PRODUCT-RENAME-001 | partial | P0 | Tacticum Dev → ADP | `/adp/`, permanent `/dev/` 301, `adp-cta`, local runtime and production Bitrix state are migrated; staging is waived by the owner, production public/browser/SEO/source smoke is green, matching hash-only BASE manifests are recorded, and the product owner owns release/rollback/monitoring. The 24–72-hour observation window remains active. | `docs/workflow/plans/2026-10-11-dev-to-adp-product-rename.md`, `docs/workflow/evidence/2026-10-11-adp-release-base-manifest.json`, ADR-014 |
+
 ## Recommended First Sprint
 
 См. `docs/workflow/sprints/2026-05-20-sprint-01-stabilization.md`.

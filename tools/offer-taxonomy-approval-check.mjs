@@ -22,7 +22,7 @@ const ALLOWED_PRESET_SOURCES = new Set(['defer', 'featured_terms', 'filter_prese
 const ALLOWED_BUDGET_DECISIONS = new Set(['defer', 'php_config', 'bitrix_terms']);
 const ALLOWED_PRODUCT_RELATIONS = new Set(['defer', 'optional_relation', 'none']);
 const ALLOWED_INDEXABILITY = new Set(['defer', 'keep_noindex', 'seo_landing_project']);
-const ALLOWED_PRODUCT_FAMILIES = new Set(['', 'none', 'platform', 'agents', 'dev', 'forum']);
+const ALLOWED_PRODUCT_FAMILIES = new Set(['', 'none', 'platform', 'agents', 'adp', 'forum']);
 const FORBIDDEN_KEYS = new Set([
   'html',
   'raw_html',
@@ -295,7 +295,7 @@ function validateTerms(payload, errors) {
       activeFeatured++;
     }
     if (typeof term.product_family !== 'string' || !ALLOWED_PRODUCT_FAMILIES.has(term.product_family)) {
-      errors.push(`${path}.product_family must be empty, none, platform, agents, dev or forum.`);
+      errors.push(`${path}.product_family must be empty, none, platform, agents, adp or forum.`);
     }
     if (productRelation === 'none' && term.product_family && term.product_family !== 'none') {
       errors.push(`${path}.product_family must be empty when decisions.product_family_relation=none.`);

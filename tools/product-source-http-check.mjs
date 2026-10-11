@@ -3,7 +3,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
-const DEFAULT_PAGES = ['/platform/', '/agents/', '/dev/', '/forum/'];
+const DEFAULT_PAGES = ['/platform/', '/agents/', '/adp/', '/forum/'];
 const REQUIRED_PRODUCT_BLOCKS = [
   'hero',
   'fit-guide',

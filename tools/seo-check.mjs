@@ -24,7 +24,7 @@ const expectedStaticPages = new Map([
   ['about/index.php', '/about/'],
   ['platform/index.php', '/platform/'],
   ['agents/index.php', '/agents/'],
-  ['dev/index.php', '/dev/'],
+  ['adp/index.php', '/adp/'],
   ['forum/index.php', '/forum/'],
   ['aiagents/index.php', '/aiagents/'],
   ['calculator/index.php', '/calculator/'],
@@ -63,7 +63,7 @@ const expectedTopMenuUrls = [
 const expectedProductMenuUrls = [
   '/platform/',
   '/agents/',
-  '/dev/',
+  '/adp/',
   '/forum/'
 ];
 
@@ -78,9 +78,11 @@ const expectedProductScenarioValues = [
 const expectedProductPagePaths = new Map([
   ['platform/index.php', '/platform/'],
   ['agents/index.php', '/agents/'],
-  ['dev/index.php', '/dev/'],
+  ['adp/index.php', '/adp/'],
   ['forum/index.php', '/forum/']
 ]);
+
+const legacyProductPath = '/dev/';
 
 const forbiddenProductSchemaFields = [
   'aggregateRating',
@@ -390,6 +392,19 @@ function assertCanonicalPaths() {
   }
 }
 
+function assertLegacyProductRedirectSource() {
+  const legacySource = read('dev/index.php');
+  if (!/header\s*\(\s*['"]Location:\s*['"]\s*\.\s*\$location/s.test(legacySource)) {
+    fail('dev/index.php must issue a redirect through the Location header');
+  }
+  if (!/['"]\/adp\/['"]/.test(legacySource) || !/301/.test(legacySource)) {
+    fail('dev/index.php must redirect permanently to /adp/');
+  }
+  if (!legacySource.includes('QUERY_STRING')) {
+    fail('dev/index.php must preserve the legacy query string during redirect');
+  }
+}
+
 function assertTopMenuProminence() {
   const menuSource = [
     read('.top.menu.php'),
@@ -435,7 +450,7 @@ function assertTopMenuProminence() {
   if (/Расчет проекта|hasOfferService|Смотреть расчеты/.test(servicesTemplateSource)) {
     fail('services block must not synthesize /offer/ as a hardcoded service card; seed services iblock instead');
   }
-  for (const relativeFooterUrl of ['"services/"', '"price/"', '"offer/"', '"calculator/"', '"aiagents/"', '"platform/"', '"agents/"', '"dev/"', '"forum/"']) {
+  for (const relativeFooterUrl of ['"services/"', '"price/"', '"offer/"', '"calculator/"', '"aiagents/"', '"platform/"', '"agents/"', '"adp/"', '"forum/"']) {
     if (bottomMenuSource.includes(relativeFooterUrl)) {
       fail(`bottom menu must use absolute public URLs, found ${relativeFooterUrl}`);
     }
@@ -620,9 +635,9 @@ function assertPublicPageComponentization() {
       dataFile: 'local/php_interface/include/product_data/agents.php'
     },
     {
-      file: 'dev/index.php',
-      key: 'dev',
-      dataFile: 'local/php_interface/include/product_data/dev.php'
+      file: 'adp/index.php',
+      key: 'adp',
+      dataFile: 'local/php_interface/include/product_data/adp.php'
     },
     {
       file: 'forum/index.php',
@@ -660,7 +675,7 @@ function assertPublicPageComponentization() {
     'services/index.php',
     'platform/index.php',
     'agents/index.php',
-    'dev/index.php',
+    'adp/index.php',
     'forum/index.php',
     'aiagents/index.php',
     'offer/index.php',
@@ -689,7 +704,7 @@ function assertPublicPageComponentization() {
     'policies/index.php',
     'platform/index.php',
     'agents/index.php',
-    'dev/index.php',
+    'adp/index.php',
     'forum/index.php',
     '404.php'
   ];
@@ -835,7 +850,10 @@ function assertPublicPageComponentization() {
   if (!productRendererLogicSource.includes('tacticum_product_content_bitrix_data') || !productRendererLogicSource.includes('tacticum_product_page_fallback_data')) {
     fail('product_page.php must support Bitrix product content with Git fallback');
   }
-  if (!productRendererLogicSource.includes("$data['_product_code'] = $productCode") || !productContentRuntimeAndFacadeSource.includes("'_product_code' => $productCode")) {
+  if (
+    !productRendererLogicSource.includes("$data['_product_code'] = $productCode")
+    || !/(['"]_product_code['"]\s*=>\s*\$canonicalProductCode|['_"]_product_code['"]\s*=>\s*\$productCode)/.test(productContentRuntimeAndFacadeSource)
+  ) {
     fail('product Bitrix and fallback data must carry _product_code for product CTA context enforcement');
   }
   if (!productRendererLogicSource.includes('tacticum_product_content_is_minimum_renderable') || !productRendererLogicSource.includes('$source === \'bitrix\'')) {
@@ -1477,7 +1495,7 @@ function assertPublicPageComponentization() {
       !seedSource.includes("'section_key' => 'fit-matrix'")
       || !seedSource.includes("'platform-fit'")
       || !seedSource.includes("'agents-fit'")
-      || !seedSource.includes("'dev-fit'")
+      || !seedSource.includes("'adp-fit'")
       || !seedSource.includes("'forum-fit'")
     ) {
       fail('homepage must include product fit matrix decision-support block');
@@ -1500,7 +1518,7 @@ function assertPublicPageComponentization() {
       fail(`homepage must expose data-home-block="${homeBlock}" for router smoke coverage`);
     }
   }
-  for (const productLink of ['platform', 'agents', 'dev', 'forum']) {
+  for (const productLink of ['platform', 'agents', 'adp', 'forum']) {
     if (!homepageSource.includes(`data-home-product-link="${productLink}"`)) {
       fail(`homepage must expose data-home-product-link="${productLink}"`);
     }
@@ -1906,6 +1924,21 @@ async function checkHttpOfferCatalogPrettyUrl() {
   }
 }
 
+async function checkHttpLegacyProductRedirect() {
+  const response = await fetch(`${HTTP_BASE_URL}${legacyProductPath}?utm_source=legacy`, {
+    redirect: 'manual',
+  });
+  if (response.status !== 301) {
+    fail(`legacy product URL must return HTTP 301; got ${response.status}`);
+    return;
+  }
+
+  const location = response.headers.get('location') || '';
+  if (!location.includes('/adp/') || !location.includes('utm_source=legacy')) {
+    fail(`legacy product redirect must target /adp/ and preserve query string; got ${location || '(empty)'}`);
+  }
+}
+
 async function fetchHttpText(path, label) {
   const response = await fetch(`${HTTP_BASE_URL}${path}`);
   if (!response.ok) {
@@ -2055,6 +2088,7 @@ if (sitemapWorkflow === null) {
 }
 
 assertCanonicalPaths();
+assertLegacyProductRedirectSource();
 assertTopMenuProminence();
 assertDefaultSocialPreview();
 assertTemplateLanguageDeclaration();
@@ -2073,6 +2107,7 @@ if (CHECK_HTTP) {
   await checkHttpRobots();
   await checkHttpOfferSitemap();
   await checkHttpOfferCatalogPrettyUrl();
+  await checkHttpLegacyProductRedirect();
 }
 
 if (errors.length > 0) {

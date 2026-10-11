@@ -181,7 +181,7 @@ final class TacticumContentStorageFaqMigration
         return [
             'platform' => 'platform.php',
             'agents' => 'agents.php',
-            'dev' => 'dev.php',
+            'adp' => 'adp.php',
             'forum' => 'forum.php',
         ];
     }
@@ -331,7 +331,7 @@ final class TacticumContentStorageFaqMigration
         return match ($productCode) {
             'platform' => 'Platform',
             'agents' => 'Agents',
-            'dev' => 'Dev',
+            'adp' => 'ADP',
             'forum' => 'Forum',
             default => ucfirst($productCode),
         };

@@ -3,7 +3,7 @@
   "version": 1,
   "source": "local/php_interface/include/product_data/*.php",
   "target_iblocks": ["products", "product_blocks", "product_use_cases"],
-  "product_codes": ["platform", "agents", "dev", "forum"],
+  "product_codes": ["platform", "agents", "adp", "forum"],
   "allowed_block_types": [
     "hero",
     "fit_guide",

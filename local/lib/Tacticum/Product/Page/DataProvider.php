@@ -2,10 +2,13 @@
 
 namespace Tacticum\Product\Page;
 
+use Tacticum\Product\ProductIdentity;
+
 final class DataProvider
 {
     public static function data(string $productCode): array
     {
+        $productCode = ProductIdentity::canonicalCode($productCode);
         $source = function_exists('tacticum_product_content_source')
             ? tacticum_product_content_source()
             : 'fallback';
@@ -40,6 +43,7 @@ final class DataProvider
 
     public static function unavailableData(string $productCode, array $bitrixData = []): array
     {
+        $productCode = ProductIdentity::canonicalCode($productCode);
         if (!headers_sent()) {
             http_response_code(503);
         }
@@ -93,12 +97,9 @@ final class DataProvider
     {
         $productFiles = function_exists('tacticum_product_content_codes')
             ? tacticum_product_content_codes()
-            : [
-                'platform' => 'platform.php',
-                'agents' => 'agents.php',
-                'dev' => 'dev.php',
-                'forum' => 'forum.php',
-            ];
+            : ProductIdentity::codes();
+
+        $productCode = ProductIdentity::canonicalCode($productCode);
 
         if (!isset($productFiles[$productCode])) {
             return [];

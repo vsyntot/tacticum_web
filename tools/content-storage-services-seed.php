@@ -199,7 +199,7 @@ final class TacticumContentStorageServicesSeed
                 'name' => 'AI/IT-разработка и интеграции',
                 'preview' => 'Собираем backend, frontend, ML и интеграционный слой вокруг бизнес-процесса.',
                 'class' => 'code-box',
-                'link' => '/dev/',
+                'link' => '/adp/',
                 'linktext' => 'Обсудить разработку',
                 'options' => [
                     'Backend, frontend и ML-разработка под бизнес-процесс',
@@ -207,7 +207,7 @@ final class TacticumContentStorageServicesSeed
                     'QA, DevOps, мониторинг и release gates',
                     'Доработка существующих систем без переписывания с нуля',
                 ],
-                'product_codes' => ['dev'],
+                'product_codes' => ['adp'],
             ],
             [
                 'code' => 'managed-ai-it-team',
@@ -223,7 +223,7 @@ final class TacticumContentStorageServicesSeed
                     'T&M или выделенная команда под roadmap',
                     'Прозрачные ставки, состав и формат подключения',
                 ],
-                'product_codes' => ['dev'],
+                'product_codes' => ['adp'],
                 'legacy_names' => ['Time & Material', 'Time and Material'],
             ],
         ];

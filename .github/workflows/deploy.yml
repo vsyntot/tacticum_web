@@ -83,7 +83,7 @@ jobs:
             --exclude='.git' \
             ./about/ ./services/ ./contacts/ ./calculator/ \
             ./price/ ./offer/ ./aiagents/ ./policies/ \
-            ./platform/ ./agents/ ./dev/ ./forum/ \
+            ./platform/ ./agents/ ./adp/ ./dev/ ./forum/ \
             "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
       - name: Sync корневые файлы

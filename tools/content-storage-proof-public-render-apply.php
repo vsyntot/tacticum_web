@@ -11,7 +11,7 @@ tacticum_tools_reexec_with_short_open_tag($argv);
 final class TacticumContentStorageProofPublicRenderApply
 {
     private const ALLOWED_IBLOCKS = ['cases', 'feedback', 'clients'];
-    private const ALLOWED_PRODUCTS = ['platform', 'agents', 'dev', 'forum'];
+    private const ALLOWED_PRODUCTS = ['platform', 'agents', 'adp', 'forum'];
     private const REQUIRED_OWNERS = ['content', 'sales', 'seo'];
     private const PUBLIC_RENDER_PROPERTY = 'PUBLIC_RENDER_APPROVED';
     private const FORBIDDEN_KEYS = [

@@ -10,7 +10,7 @@
 @source "../../../../../price/**/*.php";
 @source "../../../../../platform/**/*.php";
 @source "../../../../../agents/**/*.php";
-@source "../../../../../dev/**/*.php";
+@source "../../../../../adp/**/*.php";
 @source "../../../../../forum/**/*.php";
 @source "../../../../../services/**/*.php";
 @source "../../../../../local/components/**/*.php";

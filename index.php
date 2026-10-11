@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_be
 
 $APPLICATION->SetPageProperty("tacticum_page_assets", "faq,chat");
 $APPLICATION->SetTitle("Тактикум - экосистема корпоративных AI-продуктов");
-$APPLICATION->SetPageProperty("description", "Tacticum развивает корпоративную AI-экосистему: Platform, Agents, Dev и Forum, а также помогает оценить, внедрить и запустить AI-решения в бизнес-процессах.");
+$APPLICATION->SetPageProperty("description", "Tacticum развивает корпоративную AI-экосистему: Platform, Agents, ADP и Forum, а также помогает оценить, внедрить и запустить AI-решения в бизнес-процессах.");
 tacticum_apply_seo_defaults('/', [
     'faq_schema' => true,
 ]);
