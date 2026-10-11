@@ -44,6 +44,7 @@
 - Установлен dedicated passphrase-protected `bitrix` key с pinned host fingerprint и forced-command manifest wrapper; shell, empty command, SFTP и PTY probes rejected. Два consecutive production manifests совпали: 376 entries, hash `736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063`; evidence: `production-reconciliation-2026-10-11-dedicated-manifest.json`.
 - Выполнен утверждённый FILE_ONLY rollout по plan `637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70`: четыре path-level drift changes применены под двумя lock-файлами, immutable artifact, backup/restore rehearsal и cache clear; post-manifest стабилен, public precheck/SEO/browser smoke зелёные. Evidence: `production-rollout-2026-10-11-file-only.json`; две hash-only BASE-копии сохранены локально и root-only на сервере.
 - PR `#46` и CI-only PR `#47` смёрджены в `main`; branch protection, required Quality Gate checks и `production` reviewer gate включены. Sitemap workflow исправлен на stdlib XML parser и прошёл run `38158939102`; legacy deploy runs отменены в ожидании environment, без SSH/rsync mutation. Evidence: `github-controls-merge-2026-10-11.json`.
+- Trusted GitHub FILE_ONLY run `38162927993` approved by the owner and completed successfully: exact plan `f136361e…`, immutable artifact, forced-command apply, lock, backup/restore rehearsal, cache clear and post-deploy smoke all passed. Post-manifest `98fd4544…` contains 376 entries and matches controller evidence; local production precheck, SEO, console and price smoke also passed. Evidence: `production-trusted-ci-run-2026-10-11.json`.
 
 ## Блокеры
 
@@ -58,7 +59,7 @@
 
 ## Следующий шаг
 
-- Разблокировать `CI-REC-009`: смёрджить trusted workflow, провести один controlled reviewer run без обхода forced-command boundary, проверить smoke/controller evidence и только затем обновить durable BASE.
+- Для `CI-REC-009`, `CI-REC-014` и `CI-REC-015` завершить observation window, обновить durable BASE двумя независимыми копиями и оформить CODEOWNERS/ruleset; application apply и controlled reviewer run уже доказаны evidence E-034.
 
 ## Gate state
 
