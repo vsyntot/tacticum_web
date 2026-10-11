@@ -1,0 +1,53 @@
+{
+  "evidence_id": "E-033",
+  "captured_at": "2026-10-11T17:18:20Z",
+  "purpose": "Configure GitHub protection, merge accepted CI changes, and verify post-merge workflows without approving legacy production rsync",
+  "authorization": "User explicitly continued the accepted GitHub-controls and merge work; production approval remained withheld for the legacy deploy job",
+  "github": {
+    "pr_46": "merged 9f4b7205eccf7a2b7c9294563e60e9d04b4cd9c9",
+    "pr_47": "merged 2428bf812628bbd7eb6e8f48526210b5ed4507e9",
+    "main_protection": {
+      "required_status_checks": [
+        "🔍 PHP 8.4 Syntax Check",
+        "🎨 Static CSS Build Check",
+        "🛡️ Security & Convention Checks"
+      ],
+      "require_pull_request": true,
+      "enforce_admins": true,
+      "linear_history": true,
+      "conversation_resolution": true,
+      "force_push": false,
+      "deletion": false
+    },
+    "production_environment": {
+      "protected_branches": true,
+      "required_reviewer": "vsyntot",
+      "prevent_self_review": false,
+      "secrets_present": false
+    },
+    "sitemap_run": {
+      "run_id": 38158939102,
+      "status": "success",
+      "apt_dependency_removed": true
+    },
+    "deploy_runs": [
+      {
+        "run_id": 38158457245,
+        "status": "cancelled",
+        "reason": "legacy deploy held environment wait"
+      },
+      {
+        "run_id": 38158939260,
+        "status": "cancelled",
+        "reason": "legacy deploy queued behind protected environment"
+      }
+    ]
+  },
+  "production_mutation_after_merge": false,
+  "remaining_gates": [
+    "dedicated CI read/write keys and trusted controller",
+    "CODEOWNERS/ruleset policy",
+    "legacy deploy workflow replacement or explicit retirement"
+  ],
+  "failure_ledger_ref": "github_handoff.md#failure-ledger--sitemap-run-38158457159"
+}
