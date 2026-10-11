@@ -42,3 +42,5 @@
 ## Evidence
 
 Hashes, remote authorized-key backup, workflow run and controller report are recorded in the recovery carrier after installation. Secret values are never committed or logged.
+
+The first controlled workflow run must leave the production reviewer gate pending until the redacted plan summary and artifact digest have been inspected.
