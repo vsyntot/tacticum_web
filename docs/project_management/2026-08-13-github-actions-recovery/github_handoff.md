@@ -69,3 +69,12 @@ ADR-013 и production governance приняты. До settings mutation долж
 - Backup или restore verification failed — rsync не запускать.
 - Quality gate failed — production mutation не должна начаться.
 - Любой post-deploy smoke failed — использовать Actions artifact для triage; при подтверждённой regression выполнить documented rollback.
+
+## Failure ledger — sitemap run 38158457159
+
+- Operation/signal: `Validate XML sitemaps` failed with exit `100` while installing `libxml2-utils`; the GitHub Ubuntu mirror returned `404` for the package.
+- Reproduction: failed on the runner at the package-install boundary; local `sitemap.xml` parses successfully.
+- Localization: runner package mirror/tooling dependency; falsifier is a clean run that uses only preinstalled Python stdlib XML parsing.
+- Reduction/root cause: replaced the apt dependency with `tools/xml-well-formed-check.py` using `xml.etree.ElementTree`; root cause is `known` for the workflow dependency, not sitemap content.
+- Retry guard: run the sitemap workflow with no apt install, then require XML parsing, static sitemap generation/check and `npm run seo:check` to pass.
+- Owner/next step: repository CI; push the bounded fix and accept only a green sitemap run before considering the main release fully green.

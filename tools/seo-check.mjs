@@ -2082,7 +2082,7 @@ if (sitemapWorkflow === null) {
   !sitemapWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
   || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
   || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
-  || !sitemapWorkflow.includes('xmllint --noout /tmp/sitemap-basic-files.xml')
+  || !sitemapWorkflow.includes('python3 tools/xml-well-formed-check.py /tmp/sitemap-basic-files.xml')
 ) {
   fail('sitemap workflow must generate and validate static sitemap artifact');
 }

@@ -9,6 +9,7 @@ on:
       - 'offer/sitemap.php'
       - 'tools/static-sitemap-generate.mjs'
       - 'tools/seo-check.mjs'
+      - 'tools/xml-well-formed-check.py'
     branches:
       - main
 
@@ -19,23 +20,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install xmllint
-        run: sudo apt-get install -y libxml2-utils
-
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: "22"
 
       - name: Validate sitemap.xml
-        run: xmllint --noout sitemap.xml && echo "✅ sitemap.xml valid"
+        run: python3 tools/xml-well-formed-check.py sitemap.xml
 
       - name: Generate and validate static sitemap artifact
         run: |
           STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"
           node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"
           node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check
-          xmllint --noout /tmp/sitemap-basic-files.xml
+          python3 tools/xml-well-formed-check.py /tmp/sitemap-basic-files.xml
 
       - name: Validate SEO sitemap governance
         run: npm run seo:check
