@@ -21,7 +21,7 @@ PM не закрывает release issue, пока для затронутых �
 | `metrika-goals` | Изменены `analytics.js`, `metrika.js`, формы, чат или goal taxonomy | PM/Marketing + QA | Названия проверенных goals и время проверки в Yandex.Metrika |
 | `config-sync` | Добавлены/изменены config keys | DevOps | Подтверждение, что production/staging `tacticum_config.php` синхронизирован с `tacticum_config.example.php`; для ignored runtime config приложить `npm run config:runtime:check` без secret values |
 | `bitrix-admin` | Изменён template/header/assets/deploy/cache | QA/Admin | Авторизованный вход в Bitrix admin panel после deploy |
-| `legacy-sunset` | Изменены legacy sale aliases или дата >= 30.09.2026 | Architect + Backend | Решение по Sprint 09 matrix: удалить aliases, вернуть `410/redirect` или продлить поддержку |
+| `legacy-sunset` | Изменены legacy sale aliases или дата >= 31.12.2026 | Architect + Backend | Решение по Sprint 09 matrix и extension record: удалить aliases, вернуть `410/redirect` или продлить поддержку |
 | `staff-sale-upstream` | Изменён `ai.endpoint_paths.staff_sale` или upstream workers contract | Architect + Backend + QA + DevOps | Config-sync, health-check и staging staff-order success-flow |
 | `csp-enforce` | `security.csp_mode=enforce` или CSP policy меняется в сторону blocking behavior | Security + Frontend + QA | Report-only baseline, inline/vendor inventory, staging enforce smoke, rollback to report-only |
 | `sensitive-endpoint-access` | Добавлен private proof/doc/procurement endpoint, gated download or sensitive access flow | Security + PM + Backend + QA | Allowed/denied/expired access smoke, noindex/cache policy, no-PII logging evidence |
@@ -55,7 +55,7 @@ PM не закрывает release issue, пока для затронутых �
 
 ## Sale / Staff Process Rules
 
-- До `30.09.2026` legacy aliases проходят по matrix из `docs/workflow/sprints/2026-05-23-sprint-09-sale-sunset-upstream.md`; consumer inventory ведётся в `docs/workflow/legacy-sale-alias-consumer-inventory.md`; release нельзя закрывать, если выбранный final mode не отражён в implementation, headers/checker и contract docs.
+- До `31.12.2026` legacy aliases проходят по matrix из `docs/workflow/sprints/2026-05-23-sprint-09-sale-sunset-upstream.md` и extension record `docs/workflow/legacy-sale-support-extension-2026-10-11.md`; consumer inventory ведётся в `docs/workflow/legacy-sale-alias-consumer-inventory.md`; release нельзя закрывать, если выбранный final mode не отражён в implementation, headers/checker и contract docs.
 - `ai.endpoint_paths.staff_sale` меняется только при совместимом rich workers upstream contract. Если меняется request/response model, нужен новый Security / Integration scope с ADR-006 и Lead Form Contract update до deploy.
 
 ## PR / Issue Template Snippet

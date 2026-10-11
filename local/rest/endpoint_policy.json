@@ -110,7 +110,7 @@
       "noindex": true,
       "legacy_alias": {
         "successor": "/local/rest/tacticum_form.php",
-        "sunset": "2026-09-30"
+        "sunset": "2026-12-31"
       },
       "upstream": "chat_agent_sale",
       "contract": "legacy_offer_success_shape"
@@ -137,7 +137,7 @@
       "noindex": true,
       "legacy_alias": {
         "successor": "/local/rest/tacticum_form.php",
-        "sunset": "2026-09-30"
+        "sunset": "2026-12-31"
       },
       "upstream": "chat_agent_sale",
       "contract": "legacy_sale_success_shape"

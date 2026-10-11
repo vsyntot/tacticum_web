@@ -4,7 +4,7 @@
 
 ## Workstream Goal
 
-Поддерживающий artifact для Sprint 09 Overall Gap Closure: закрыть документационно-процессный gap по legacy sale aliases и будущему rich workers upstream. К `30.09.2026` есть явная матрица решений по `tacticum_offer.php` / `tacticum_sale.php`, а `/price/` staff-order имеет согласованный маршрут переключения через `ai.endpoint_paths.staff_sale`.
+Поддерживающий artifact для Sprint 09 Overall Gap Closure: закрыть документационно-процессный gap по legacy sale aliases и будущему rich workers upstream. К `31.12.2026` действует временное продление поддержки с явной матрицей финального решения по `tacticum_offer.php` / `tacticum_sale.php`, а `/price/` staff-order имеет согласованный маршрут переключения через `ai.endpoint_paths.staff_sale`.
 
 ## Capacity / Constraints
 
@@ -35,8 +35,8 @@
 | До `30.06.2026` | Оставить aliases, собрать потребителей | PM + Backend | Проверить access logs / CRM источники, зафиксировать известных внешних consumers |
 | `01.07.2026` - `31.08.2026` | Мигрировать consumers на `/local/rest/tacticum_form.php` | PM + Backend | Уведомить владельцев интеграций, проверить что новые интеграции не используют aliases |
 | `01.09.2026` - `29.09.2026` | Выбрать финальный режим | Architect + Backend + DevOps | Решить: удалить aliases, вернуть `410 Gone`, применить проверенный redirect для POST или продлить поддержку |
-| `30.09.2026` | Не оставлять aliases без явного решения | Architect + Backend + DevOps | Перед deploy закрыть `legacy-sunset` sign-off; если files остаются, обновить implementation и sunset check под выбранный режим |
-| После `30.09.2026`, если нужен extension | Продление только как accepted risk | PM + Architect | Обновить `Sunset` header, `tools/legacy-sale-sunset-check.mjs`, release notes и эту матрицу с новой датой |
+| `30.09.2026` | Временное продление поддержки принято PM | PM + Architect | Обновить `Sunset` header, endpoint policy, checker, release precheck и contract docs; решение зафиксировано в `docs/workflow/legacy-sale-support-extension-2026-10-11.md` |
+| `31.12.2026` | Не оставлять aliases без финального режима | Architect + Backend + DevOps + PM | Удалить aliases или вернуть `410 Gone`; закрыть inventory, endpoint smoke и release sign-off |
 
 Финальные варианты:
 
@@ -83,7 +83,7 @@
 
 | Risk | Owner | Mitigation |
 |---|---|---|
-| Внешний consumer продолжает использовать aliases после `30.09.2026` | PM + Backend | Logs/CRM inventory до `30.06.2026`, миграция до `31.08.2026`, explicit final mode до `30.09.2026` |
+| Внешний consumer продолжает использовать aliases после `31.12.2026` | PM + Backend | Logs/CRM inventory, миграция на `/local/rest/tacticum_form.php`, explicit final mode до `31.12.2026` |
 | `410` или redirect ломает POST clients | Backend + QA | Не выбирать без client smoke; preferred финальный вариант при нулевом трафике - удалить aliases |
 | Новый rich workers endpoint несовместим с текущим frontend payload | Architect + Backend | Не ограничиваться config switch; открыть новую задачу и обновить ADR/contract |
 | Production config drift | DevOps | `config-sync` sign-off и health smoke перед закрытием release |
@@ -92,7 +92,7 @@
 
 ### Done
 
-- Legacy sale sunset получил action/decision matrix с датами до `30.09.2026`.
+- Legacy sale sunset получил action/decision matrix с временным продлением до `31.12.2026`; accepted-risk record зафиксирован отдельно.
 - Rich workers upstream получил switch matrix через `ai.endpoint_paths.staff_sale`.
 - ADR/contract/workflow docs теперь ссылаются на единый Sprint 09 decision artifact.
 
@@ -106,4 +106,4 @@
 
 - До `30.06.2026` PM + Backend должны заполнить `docs/workflow/legacy-sale-alias-consumer-inventory.md` по access logs / CRM reports.
 - До `31.08.2026` владельцы интеграций должны мигрировать на `/local/rest/tacticum_form.php`.
-- До `30.09.2026` Architect + Backend + DevOps должны выбрать и реализовать финальный режим aliases.
+- До `31.12.2026` Architect + Backend + DevOps + PM должны завершить inventory и выбрать/реализовать финальный режим aliases.

@@ -755,8 +755,14 @@ function extractFingerprint(output) {
 async function defaultCommandRunner(command, args, options = {}) {
   const { spawn } = await import('node:child_process');
   return new Promise((resolve, reject) => {
+    const childEnv = {
+      PATH: process.env.PATH || '',
+    };
+    if (process.env.SSH_AUTH_SOCK) {
+      childEnv.SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK;
+    }
     const child = spawn(command, args, {
-      env: { PATH: process.env.PATH || '' },
+      env: childEnv,
       shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
     });

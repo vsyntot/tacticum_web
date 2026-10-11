@@ -237,7 +237,7 @@ async function checkLegacyAliasHeaders() {
     const robots = String(headers['x-robots-tag'] || '').toLowerCase();
     const ok = response.status === 405
       && deprecation === 'true'
-      && sunset.includes('30 Sep 2026')
+      && sunset.includes('31 Dec 2026')
       && link.includes('/local/rest/tacticum_form.php')
       && robots.includes('noindex');
     addCheck(`legacy_alias ${endpoint}`, ok, `status=${response.status} deprecation=${deprecation || '-'} sunset=${sunset || '-'}`);

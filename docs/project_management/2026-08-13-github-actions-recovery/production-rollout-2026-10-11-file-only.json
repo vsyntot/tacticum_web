@@ -1,0 +1,66 @@
+{
+  "evidence_id": "E-032",
+  "captured_at": "2026-10-11T16:49:13Z",
+  "purpose": "Bounded FILE_ONLY production rollout with exact artifact, lock, backup/restore rehearsal and post-deploy verification",
+  "authorization": "Explicit user approval of the exact production plan in the current session; staging waiver approved because no stage host exists",
+  "classification": "FILE_ONLY",
+  "mutation_performed": true,
+  "scope_version": "2026-10-11.1",
+  "plan_id": "637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70",
+  "artifact": {
+    "sha256": "71b2ab4fd4fe5d411dd063a178996eb38301b689359c3aae095fa9cac148f33d",
+    "bytes": 7314071,
+    "controller_commit": "c777318ff",
+    "controller_sha256": "4df3f66a83fe25488752edde6db2cf65ccfe5e271dc1f299926a66383958e91e"
+  },
+  "pre_apply": {
+    "prod_manifest_sha256": "736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063",
+    "candidate_manifest_sha256": "1c0a7b32969e744cffcf0f663e6fa567deba34088edbda1539b88c3807ee4d33",
+    "candidate_entries": 376,
+    "changed_paths": [
+      "local/rest/endpoint_policy.json",
+      "local/rest/tacticum_offer.php",
+      "local/rest/tacticum_sale.php",
+      "local/templates/tacticum/tailwind.generated.css"
+    ],
+    "tombstones": [
+      "sitemap-files.xml"
+    ],
+    "approval_expiry": "2026-10-11T18:42:50Z"
+  },
+  "apply": {
+    "status": "passed",
+    "lock": "held",
+    "disk_inodes": "passed",
+    "backup_sha256": "5f82db516da53fc0337698aae45d6344facadc578379ffcc567847d4a6fc8dee",
+    "restore_rehearsal": "passed",
+    "cache_clear": "passed",
+    "post_manifest_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+    "post_entries_match_candidate": true,
+    "post_tombstone": "already_absent"
+  },
+  "post_apply": {
+    "manifest_a_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+    "manifest_b_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+    "stable_dual_manifest": true,
+    "entries_match_candidate": true,
+    "health_config": "passed_success_true",
+    "public_precheck": "passed",
+    "seo_check_prod": "passed",
+    "browser_console_prod": "passed",
+    "browser_price_prod": "passed",
+    "legacy_alias_headers": "deprecation=true; sunset=Thu, 31 Dec 2026 00:00:00 GMT"
+  },
+  "base_copies": {
+    "local": "docs/project_management/2026-08-13-github-actions-recovery/production-base-manifest-2026-10-11.json",
+    "remote": "/var/lib/tacticum-deploy/base/2026-10-11.1/manifest.json",
+    "manifest_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+    "independent_trust_domains": true
+  },
+  "residual_limits": [
+    "GitHub production environment secrets, protected reviewers and ruleset remain unconfigured; this rollout used the explicitly authorized bootstrap path.",
+    "The existing automatic deploy workflow must not be treated as a trusted controller until its production controls are configured.",
+    "The previous parser-only controller attempt failed before mutation; the successful run used the corrected controller and a fresh approval binding.",
+    "Remote SSH emitted a post-quantum key-exchange warning and PHP emitted an existing opcache module warning; neither affected the controlled file apply or smoke results."
+  ]
+}

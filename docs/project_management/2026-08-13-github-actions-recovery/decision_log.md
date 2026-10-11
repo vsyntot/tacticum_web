@@ -79,3 +79,10 @@
 - Рассмотрено: использовать личный ключ для всех local inventory; считать client-side SSH options достаточным read-only ограничением; создать один общий local/CI key.
 - Обоснование: ключ пользователя `bitrix` с обычным shell сохраняет право записи независимо от имени ключа и client flags; server-side forced command уменьшает blast radius и делает read-only свойство проверяемым.
 - Влияние: `CI-REC-012` остаётся blocked до pinned host identity, dedicated key generation, wrapper installation, negative denial checks, `.env` mode/path correction и отдельного решения об отзыве personal authorization либо break-glass policy. На этом шаге local/production credentials не изменяются.
+
+## 2026-10-11 — executed bootstrap
+
+- Решение: выполнить отдельную bootstrap-сессию через явно разрешённый personal key и установить для `bitrix` dedicated passphrase-protected key с `restrict`/forced-command manifest wrapper.
+- Источник: прямое поручение пользователя реализовать production contour; evidence `E-031`.
+- Проверка: pinned host key, local preflight `status=ready`, shell/empty/SFTP probes exit `126`, PTY allocation denied; два последовательных manifests совпали.
+- Ограничение: bootstrap не менял production application files; `BASE_UNKNOWN`, drift decisions, trusted write controller, lock, backup/restore и exact apply approval остаются открытыми.

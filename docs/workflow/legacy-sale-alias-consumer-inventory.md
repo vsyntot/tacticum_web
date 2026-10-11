@@ -2,7 +2,7 @@
 
 Дата фиксации: 24.05.2026
 
-Status: `in progress` до завершения access logs / CRM inventory к `30.06.2026`.
+Status: `in progress`; support extension to `31.12.2026` accepted by PM on `2026-10-11` while access logs / CRM inventory remains incomplete.
 
 Sprint 22 follow-up 04.06.2026: `docs/workflow/product-security-release-legacy-closure-decision-2026-06-04.md` records the final-mode matrix for these aliases. No removal, `410`, redirect or support extension is allowed until the full-window access-log aggregate and CRM/upstream source report are captured without PII.
 
@@ -15,7 +15,7 @@ Sprint 22 follow-up 04.06.2026: `docs/workflow/product-security-release-legacy-c
 
 Successor endpoint: `/local/rest/tacticum_form.php`.
 
-Цель: до `30.06.2026` понять, есть ли реальные consumers legacy aliases, назначить owner для каждого consumer и подготовить миграцию до `31.08.2026`, чтобы к `30.09.2026` выбрать финальный режим aliases: удалить, вернуть `410 Gone`, применить проверенный redirect или продлить поддержку как accepted risk.
+Цель: завершить access logs / CRM inventory, назначить owner для каждого consumer и подготовить миграцию на `/local/rest/tacticum_form.php`; временная дата поддержки — `31.12.2026`, после неё требуется финальный режим aliases: удалить или вернуть `410 Gone`.
 
 ## Evidence Rules
 
@@ -111,7 +111,7 @@ Allowed statuses: `pending`, `identified`, `owner-assigned`, `migration-planned`
 5. If source cannot be identified, assign Backend + DevOps owner and leave status `owner-assigned`, not `done`.
 6. After `30.06.2026`, update Sprint 10 and Sprint 09 artifacts with the inventory result.
 7. After `31.08.2026`, confirm migration status for every consumer or create accepted-risk sign-off.
-8. Before `30.09.2026`, choose final alias mode and sync implementation, `tools/legacy-sale-sunset-check.mjs`, release notes and release sign-off.
+8. Before `31.12.2026`, choose final alias mode and sync implementation, `tools/legacy-sale-sunset-check.mjs`, release notes and release sign-off.
 
 ## Closure Criteria
 
@@ -119,4 +119,4 @@ Allowed statuses: `pending`, `identified`, `owner-assigned`, `migration-planned`
 - Every non-zero consumer has owner, target endpoint, migration target date and status.
 - No PII or raw payload evidence is stored in repo.
 - Migration is complete by `31.08.2026` or accepted risk is approved by PM + Architect.
-- Final alias mode is implemented before `30.09.2026` or support extension is explicitly documented with a new sunset date.
+- Final alias mode is implemented before `31.12.2026` or a further support extension is explicitly documented with a new sunset date.
