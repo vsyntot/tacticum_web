@@ -93,3 +93,11 @@ ADR-013 и production governance приняты. До settings mutation долж
 - Reduction/root cause: switched to a JSON `--input` payload; environment was created with protected-branch policy, then secrets were set successfully.
 - Retry guard: require `gh api .../environments/production-readonly` to show the environment and `gh secret list --env production-readonly` to show only the four expected names.
 - Owner/next step: repository owner; merge and execute one controlled review run before any application mutation.
+
+## Failure ledger — trusted workflow guard migration
+
+- Operation/signal: first manual Quality Gate run `38162061888` failed because `deploy-rsync-filter-self-test.sh` still required the removed legacy rsync exclusion; the next run also found the same assumption in `seo:check`.
+- Localization: repository tests encoded the old deployment contract; no SSH or production mutation occurred.
+- Reduction/root cause: replaced the filter test with trusted-controller assertions and taught `seo-check.mjs` to validate immutable sitemap packaging.
+- Retry guard: run `bash tools/deploy-rsync-filter-self-test.sh`, `npm run seo:check`, then full Quality Gate; run `38162324734` passed all three required jobs.
+- Owner/next step: repository CI; retain the PR open until a normal review/merge path records the new workflow on `main`.
