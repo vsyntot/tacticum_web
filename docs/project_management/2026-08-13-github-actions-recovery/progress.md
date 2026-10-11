@@ -12,7 +12,7 @@
 
 ## Сейчас в работе
 
-- В работе `CI-REC-009`, `CI-REC-014` и `CI-REC-015`: production FILE_ONLY apply завершён, main/environment protection включены, а trusted CI keys/controller и observation остаются отдельными шагами.
+- В работе `CI-REC-009`, `CI-REC-014` и `CI-REC-015`: production FILE_ONLY apply завершён, main/environment protection включены, trusted CI keys/controller установлены, а merge, controlled run, observation и durable BASE promotion остаются отдельными шагами.
 
 ## Последние изменения
 
@@ -28,6 +28,7 @@
 - Повторный GitHub run `31690737872` прошёл: PHP 8.4, CSS/dependency/repository matrix и security conventions зелёные.
 - Draft PR `#45` обновлён из `agent/recover-github-actions`: contract-tooling commit `778c12e9` прошёл remote Quality Gate run `31745423204` — PHP 8.4, security/conventions и static/config lifecycle jobs зелёные; PR остаётся draft.
 - Принят обязательный E2E gate: до production mutation показать `BASE/PROD/CANDIDATE` drift, перенести нужные server changes в Git/свести конфликты, повторить scan, показать checksum dry-run и проверить неизменность production непосредственно перед apply.
+- Новый trusted workflow фиксирует immutable artifact, read-only manifest, three-way plan и forced-command apply; legacy production `rsync`/shell steps удалены.
 - Сохранён `production-drift-reconciliation-plan.md`; production scan, SSH mutation и deploy на этом шаге не выполнялись.
 - Challenge выявил 12 design findings: trust boundary, stateful rollback, ownership mismatch, BASE integrity, server lock, bootstrap semantics, rollback completeness, `.env` authority, approval binding, manifest schema, staging/monitoring и чрезмерный initial scope.
 - E2E-план пересобран: первый контур только `FILE_ONLY`; введены machine-readable deploy-scope, immutable artifact, trusted controller, dual BASE, two-way bootstrap, exclusive lock, restore rehearsal и staging-or-waiver gate.
@@ -46,24 +47,24 @@
 
 ## Блокеры
 
-- GitHub не содержит repository или `production` environment secrets; обязательные пять secret names отсутствуют.
-- `main` не имеет branch protection/ruleset.
+- GitHub repository secrets остаются пустыми; environment `production` и `production-readonly` содержат только отдельные CI names, без personal key.
+- `main` classic branch protection включена; отдельные CODEOWNERS/ruleset ещё не настроены.
 - После bootstrap personal `id_ed25519` остаётся только break-glass средством текущей сессии; dedicated key не использует personal shell boundary.
 - Path-level drift reconciliation закрыт для plan `637e64de`; дальнейшие изменения требуют нового manifest/approval, а observation window после rollout остаётся открытым.
-- Текущий workflow не умеет останавливать deploy при ручном production drift, не показывает checksum dry-run и не проверяет TOCTOU перед rsync.
-- Рабочий wrapper/controller, immutable artifact, lock, approval binding и backup/restore rehearsal доказаны для этого rollout; GitHub trusted write path и отдельный rollback exercise остаются открытыми.
+- Trusted workflow останавливает production drift до approval, показывает plan hashes и передаёт immutable artifact в pinned controller; первый remote run и отдельный rollback exercise остаются открытыми.
+- Рабочий wrapper/controller, immutable artifact, lock, approval binding и backup/restore rehearsal доказаны для этого rollout; GitHub trusted write path установлен, но ещё не прошёл controlled run.
 - Staging отсутствует и закрыт bounded owner waiver; две BASE-копии сохранены в локальном evidence и root-only server domains, но durable external store и GitHub release controls ещё не настроены.
-- PR #46 и PR #47 смёрджены; main protection и production reviewer gate включены. Legacy deploy не approved и не запускался после merge; trusted CI controller, keys и observation window остаются открыты.
+- PR #46 и PR #47 смёрджены; main protection и production reviewer gate включены. Legacy deploy после merge не запускался; новый trusted workflow ждёт merge, controlled reviewer run и observation window.
 
 ## Следующий шаг
 
-- Разблокировать `CI-REC-012`: получить trusted host fingerprint независимым каналом, создать dedicated passphrase-protected key, исправить `.env` mode/paths, согласовать и установить forced-command read-only wrapper через отдельную bootstrap-сессию. До этого не подключаться к production.
+- Разблокировать `CI-REC-009`: смёрджить trusted workflow, провести один controlled reviewer run без обхода forced-command boundary, проверить smoke/controller evidence и только затем обновить durable BASE.
 
 ## Gate state
 
-- `security/access`: `blocked` — credential roles приняты, но dedicated local key, pinned host identity, forced-command denial checks, personal-key revoke/break-glass decision и CI wrappers ещё не реализованы.
+- `security/access`: `partial` — CI read-only/write keys, pinned host identity and forced wrappers installed; CODEOWNERS/ruleset and separate rollback exercise remain open.
 - `privacy/data`: `open` — до snapshot нужны allowlist, secret/PII scan и redaction; raw production content запрещён в GitHub artifacts.
 - `compatibility/data-lifecycle`: `blocked` — path/scope classifier работает и блокирует известные stateful paths, но семантически не доказывает отсутствие config/DB/iblock impact; перед каждым artifact promotion нужен ручной review.
-- `QA/release`: `blocked` — staging/waiver, immutable artifact, lock, dry-run, restore rehearsal, smoke и monitoring ещё не реализованы end-to-end.
-- `external mutation`: `not_run` — production и GitHub settings на этом шаге не изменялись.
+- `QA/release`: `blocked` — staging/waiver exists, immutable artifact and controller checks pass locally, but trusted workflow run and post-deploy monitoring are not yet accepted.
+- `external mutation`: `partial` — GitHub environments/secrets and production forced-command tooling changed; application files were not mutated.
 - `operational docs validation`: `passed` после contract self-test, scope check, JS/audit checks и синхронизации реестров.

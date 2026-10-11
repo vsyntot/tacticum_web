@@ -1,9 +1,8 @@
-name: 🚀 Deploy to tacticum.ru
+name: 🚀 Trusted FILE_ONLY deploy to tacticum.ru
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths-ignore:
       - 'bitrix/**'
       - 'docs/**'
@@ -21,180 +20,275 @@ jobs:
     name: 🧪 Pre-deploy quality gate
     uses: ./.github/workflows/pr-check.yml
 
-  # ──────────────────────────────────────────
-  # 2. Деплой
-  # ──────────────────────────────────────────
-  deploy:
-    name: 📦 Deploy via rsync
+  artifact:
+    name: 📦 Build immutable candidate artifact
     runs-on: ubuntu-latest
     needs: quality
-    environment: production
-    timeout-minutes: 45
-    env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
-      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
     steps:
       - uses: actions/checkout@v7
-
-      - name: Setup Node.js for deploy tooling
-        uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
-
-      - name: Validate deployment configuration
-        shell: bash
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-        run: bash tools/deploy-config-preflight.sh
-
-      - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add server to known_hosts
-        env:
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          test -s ~/.ssh/known_hosts
-
-      - name: Sync local/ (кастомный код)
-        run: |
-          set -euo pipefail
-          rsync -avz --delete \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='*.log' \
-            --exclude='/php_interface/include/tacticum_config.php' \
-            ./local/ \
-            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/"
-
-      - name: Sync публичные разделы сайта
-        run: |
-          set -euo pipefail
-          rsync -avz --delete --relative \
-            --exclude='.git' \
-            ./about/ ./services/ ./contacts/ ./calculator/ \
-            ./price/ ./offer/ ./aiagents/ ./policies/ \
-            ./platform/ ./agents/ ./adp/ ./dev/ ./forum/ \
-            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
-
-      - name: Sync корневые файлы
-        run: |
-          set -euo pipefail
-          STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"
-          node ./tools/static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"
-          node ./tools/static-sitemap-generate.mjs --output=sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check
-          rsync -avz \
-            .bottom.menu.php .htaccess .section.php .top.menu.php \
-            index.php 404.php favicon.ico robots.txt sitemap.xml sitemap-basic-files.xml urlrewrite.php \
-            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
-
-      - name: Remove legacy sitemap artifact
-        run: |
-          ssh "$SSH_USER@$SSH_HOST" \
-            "rm -f '$DEPLOY_PATH/sitemap-files.xml'"
-
-      - name: Очистка Bitrix cache
-        run: |
-          ssh "$SSH_USER@$SSH_HOST" \
-            "rm -rf '$DEPLOY_PATH'/bitrix/managed_cache/* 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/cache/tacticum 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/cache/s1/bitrix/menu/* 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/cache/s1/bitrix/news.list/* 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/cache/s1/bitrix/news.detail/* 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/html_pages/* 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/cache/css/s1/tacticum/* 2>/dev/null || true; \
-             rm -rf '$DEPLOY_PATH'/bitrix/cache/js/s1/tacticum/* 2>/dev/null || true; \
-             echo 'Cache cleared'"
-
-      - name: Smoke config health
-        run: |
-          curl --fail --show-error --silent --location \
-            --max-time 20 \
-            --output /tmp/tacticum-health-config.json \
-            "https://tacticum.ru/local/rest/health_config.php"
-          grep -q '"success":true' /tmp/tacticum-health-config.json
-
-      - name: Install smoke tooling
-        id: smoke_tooling
+      - name: Install unprivileged build dependencies
         run: npm ci
+      - name: Generate and verify generated sitemap
+        run: |
+          set -euo pipefail
+          npm run sitemap:static:generate
+          npm run sitemap:static:check
+      - name: Build candidate manifest
+        run: node tools/production-deploy-cli.mjs manifest --tree-kind=candidate --output=candidate.json
+      - name: Build immutable artifact
+        run: python3 tools/production_artifact_build.py --root=. --manifest=candidate.json --output=candidate.tar.gz
+      - name: Record artifact hashes
+        run: |
+          set -euo pipefail
+          sha256sum candidate.tar.gz candidate.json > candidate-hashes.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: candidate-${{ github.sha }}
+          path: |
+            candidate.tar.gz
+            candidate.json
+            candidate-hashes.txt
+          if-no-files-found: error
+          retention-days: 30
 
-      - name: Post-deploy visual smoke
-        id: visual_smoke
-        continue-on-error: true
+  inspect:
+    name: 🔍 Read-only production manifest
+    runs-on: ubuntu-latest
+    needs: [quality, artifact]
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: candidate-${{ github.sha }}
+          path: candidate
+      - name: Fetch production manifest through forced command
         env:
-          TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
-          TACTICUM_EXPECT_SEO_HEAD: "1"
-          TACTICUM_VISUAL_OUTPUT: ${{ github.workspace }}/artifacts/visual
-        run: npm run visual:smoke
+          SSH_READONLY_PRIVATE_KEY: ${{ secrets.SSH_READONLY_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_READONLY_PRIVATE_KEY"
+          test -n "$SSH_KNOWN_HOSTS"
+          test -n "$SSH_HOST"
+          test -n "$SSH_USER"
+          key="$RUNNER_TEMP/tacticum-readonly"
+          hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          printf '%s\n' "$SSH_READONLY_PRIVATE_KEY" > "$key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          chmod 600 "$key" "$hosts"
+          ssh -F /dev/null -i "$key" -p 22 \
+            -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o PreferredAuthentications=publickey -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no -o ForwardAgent=no \
+            -o ClearAllForwardings=yes -o RequestTTY=no \
+            "$SSH_USER@$SSH_HOST" manifest > prod.json
+          node -e "const m=require('./prod.json'); if(m.treeKind!=='prod'||!m.manifestSha256) process.exit(1)"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: production-${{ github.sha }}
+          path: prod.json
+          if-no-files-found: error
+          retention-days: 30
 
-      - name: Post-deploy browser action smoke
-        id: browser_smoke
-        if: ${{ steps.smoke_tooling.outcome == 'success' }}
-        continue-on-error: true
+  plan:
+    name: 🧾 Reconcile BASE/PROD/CANDIDATE
+    runs-on: ubuntu-latest
+    needs: [artifact, inspect]
+    outputs:
+      deploy_required: ${{ steps.plan_gate.outputs.deploy_required }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: candidate-${{ github.sha }}
+          path: release
+      - uses: actions/download-artifact@v7
+        with:
+          name: production-${{ github.sha }}
+          path: release
+      - name: Build exact comparison plan
+        run: |
+          set -euo pipefail
+          node tools/production-deploy-cli.mjs plan \
+            --base=docs/project_management/2026-08-13-github-actions-recovery/production-base-manifest-2026-10-11.json \
+            --prod=release/prod.json \
+            --candidate=release/candidate.json \
+            --output=release/plan.json
+      - name: Block drift, stateful and control-plane changes
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plan = json.loads(Path('release/plan.json').read_text())
+          allowed = {'LOCAL_CHANGE', 'CONVERGED'}
+          statuses = {item['status'] for item in plan['changes']}
+          if plan['comparisonMode'] != 'THREE_WAY' or not statuses.issubset(allowed):
+              raise SystemExit(f"production drift requires reconciliation: {sorted(statuses)}")
+          PY
+      - name: Decide whether an application mutation is required
+        id: plan_gate
+        run: |
+          set -euo pipefail
+          changed="$(python3 -c 'import json;print(len(json.load(open("release/plan.json"))["changes"]))')"
+          if [ "$changed" -gt 0 ]; then
+            echo 'deploy_required=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'deploy_required=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Write redacted plan summary
+        run: |
+          set -euo pipefail
+          {
+            echo '### Trusted FILE_ONLY plan'
+            echo
+            echo "- plan_id: \`$(python3 -c 'import json;print(json.load(open("release/plan.json"))["planId"])')\`"
+            echo "- BASE: \`$(python3 -c 'import json;print(json.load(open("release/plan.json"))["baseManifestSha256"])')\`"
+            echo "- PROD: \`$(python3 -c 'import json;print(json.load(open("release/plan.json"))["prodManifestSha256"])')\`"
+            echo "- CANDIDATE: \`$(python3 -c 'import json;print(json.load(open("release/plan.json"))["candidateManifestSha256"])')\`"
+            echo "- changed entries: \`$(python3 -c 'import json;print(len(json.load(open("release/plan.json"))["changes"]))')\`"
+            echo
+            echo 'Environment approval must bind this exact plan and artifact digest.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Bundle exact plan
+        run: cp docs/project_management/2026-08-13-github-actions-recovery/production-base-manifest-2026-10-11.json release/base.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ github.sha }}
+          path: release
+          if-no-files-found: error
+          retention-days: 30
+
+  deploy:
+    name: 🔐 Apply approved FILE_ONLY plan
+    runs-on: ubuntu-latest
+    needs: plan
+    if: ${{ needs.plan.outputs.deploy_required == 'true' }}
+    environment: production
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: release-${{ github.sha }}
+          path: release
+      - name: Validate approval inputs and create binding
         env:
-          TACTICUM_VISUAL_BASE_URL: https://tacticum.ru
-          TACTICUM_VISUAL_ACTIONS: "1"
-          TACTICUM_VISUAL_FAIL_ON_WARNINGS: "1"
-          TACTICUM_EXPECT_PRICE_TEAM_PRESETS: "1"
-          TACTICUM_VISUAL_OUTPUT: ${{ github.workspace }}/artifacts/browser
-        run: npm run browser:console
-
-      - name: Post-deploy price team preset smoke
-        id: price_smoke
-        if: ${{ steps.smoke_tooling.outcome == 'success' }}
-        continue-on-error: true
+          APPROVED_BY: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+          plan = json.loads(Path('release/plan.json').read_text())
+          candidate = json.loads(Path('release/candidate.json').read_text())
+          approval = {
+              'plan_id': plan['planId'],
+              'artifact_sha256': sha('release/candidate.tar.gz'),
+              'base_manifest_sha256': plan['baseManifestSha256'],
+              'prod_manifest_sha256': plan['prodManifestSha256'],
+              'candidate_manifest_sha256': plan['candidateManifestSha256'],
+              'changed_paths': sorted(item['path'] for item in plan['changes'] if item['status'] == 'LOCAL_CHANGE'),
+              'tombstones': candidate['tombstones'],
+              'release_class': 'FILE_ONLY',
+              'production_mutation_allowed': True,
+              'approved_by': os.environ['APPROVED_BY'],
+              'approval_source': f"github-actions:production:{os.environ['RUN_ID']}",
+              'approved_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+              'expires_at': (datetime.now(timezone.utc) + timedelta(minutes=20)).isoformat().replace('+00:00', 'Z'),
+              'scope_version': candidate['scopeVersion'],
+          }
+          Path('release/approval.json').write_text(json.dumps(approval, sort_keys=True, separators=(',', ':')) + '\n')
+          if not approval['changed_paths']:
+              raise SystemExit('candidate has no local changes against PROD')
+          print(json.dumps({k: approval[k] for k in ('plan_id','artifact_sha256','base_manifest_sha256','prod_manifest_sha256','candidate_manifest_sha256','changed_paths','tombstones')}))
+          PY
+      - name: Upload exact state to forced-command controller
         env:
-          TACTICUM_VISUAL_OUTPUT: ${{ github.workspace }}/artifacts/price
-        run: npm run browser:smoke:price
-
-      - name: Post-deploy SEO endpoint smoke
-        id: seo_smoke
-        if: ${{ steps.smoke_tooling.outcome == 'success' }}
-        continue-on-error: true
-        run: npm run seo:check:prod
-
-      - name: Upload post-deploy smoke evidence
+          SSH_WRITE_PRIVATE_KEY: ${{ secrets.SSH_WRITE_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_WRITE_PRIVATE_KEY"; test -n "$SSH_KNOWN_HOSTS"; test -n "$SSH_HOST"; test -n "$SSH_USER"
+          key="$RUNNER_TEMP/tacticum-write"; hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          printf '%s\n' "$SSH_WRITE_PRIVATE_KEY" > "$key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          chmod 600 "$key" "$hosts"
+          plan_id="$(python3 -c 'import json;print(json.load(open("release/plan.json"))["planId"])')"
+          put() {
+            local kind="$1" file="$2" hash
+            hash="$(sha256sum "$file" | awk '{print $1}')"
+            ssh -F /dev/null -i "$key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+              -o PreferredAuthentications=publickey -o PasswordAuthentication=no \
+              -o KbdInteractiveAuthentication=no -o ForwardAgent=no \
+              -o ClearAllForwardings=yes -o RequestTTY=no \
+              "$SSH_USER@$SSH_HOST" "put $kind $plan_id $hash" < "$file"
+          }
+          put plan release/plan.json
+          put base release/base.json
+          put prod release/prod.json
+          put candidate release/candidate.json
+          put approval release/approval.json
+          put artifact release/candidate.tar.gz
+      - name: Apply through pinned controller
+        env:
+          SSH_WRITE_PRIVATE_KEY: ${{ secrets.SSH_WRITE_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          set -euo pipefail
+          key="$RUNNER_TEMP/tacticum-write"; hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          plan_id="$(python3 -c 'import json;print(json.load(open("release/plan.json"))["planId"])')"
+          ssh -F /dev/null -i "$key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o PreferredAuthentications=publickey -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no -o ForwardAgent=no \
+            -o ClearAllForwardings=yes -o RequestTTY=no \
+            "$SSH_USER@$SSH_HOST" "apply $plan_id" | tee apply-report.json
+      - name: Upload controller evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: post-deploy-smoke-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/
+          name: trusted-apply-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            release/approval.json
+            apply-report.json
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Assert post-deploy smoke results
-        if: ${{ steps.smoke_tooling.outcome == 'success' }}
-        env:
-          VISUAL_OUTCOME: ${{ steps.visual_smoke.outcome }}
-          BROWSER_OUTCOME: ${{ steps.browser_smoke.outcome }}
-          PRICE_OUTCOME: ${{ steps.price_smoke.outcome }}
-          SEO_OUTCOME: ${{ steps.seo_smoke.outcome }}
-        run: |
-          set -euo pipefail
-          failed=0
-          for check in VISUAL BROWSER PRICE SEO; do
-            outcome_var="${check}_OUTCOME"
-            outcome="${!outcome_var}"
-            if [ "$outcome" != "success" ]; then
-              echo "::error::$check post-deploy smoke outcome: $outcome"
-              failed=1
-            fi
-          done
-          exit "$failed"
-
-      - name: ✅ Deploy success
-        if: success()
-        run: echo "Deploy to tacticum.ru completed at $(date)"
-
-      - name: ❌ Deploy failed
-        if: failure()
-        run: echo "Deploy FAILED. Check logs above."
+  smoke:
+    name: ✅ Post-deploy smoke
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: ${{ needs.deploy.result == 'success' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install smoke tooling
+        run: npm ci
+      - name: Production public precheck
+        run: npm run release:public-precheck:prod
+      - name: Production browser smoke
+        run: npm run browser:console:prod
+      - name: Production price smoke
+        run: npm run browser:smoke:price
+      - name: Production SEO smoke
+        run: npm run seo:check:prod
