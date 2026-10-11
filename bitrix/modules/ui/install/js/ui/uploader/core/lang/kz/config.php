@@ -1,4 +1,5 @@
 <?php
+$MESS["UPLOADER_CLOUD_ERROR"] = "Файлды бұлтқа жүктеу қатесі  (#CODE#).";
 $MESS["UPLOADER_FILE_LOAD_ABORTED"] = "Файл деректерін жүктеу тоқтатылды.";
 $MESS["UPLOADER_FILE_SIZE_POSTFIXES"] = " Б| КБ| МБ| ГБ| TB";
 $MESS["UPLOADER_FILE_UPLOAD_ABORTED"] = "Файлды серверге жүктеу тоқтатылды.";

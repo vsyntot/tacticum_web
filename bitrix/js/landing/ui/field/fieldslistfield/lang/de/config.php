@@ -31,6 +31,6 @@ $MESS["LANDING_FIELDS_LIST_FIELD_PRODUCTS_SHOW_BIG_PICTURE"] = "Zeigt große Pro
 $MESS["LANDING_FIELDS_LIST_FIELD_PRODUCTS_TITLE"] = "Produktliste";
 $MESS["LANDING_FIELDS_LIST_FIELD_PRODUCTS_TITLE2"] = "Produktliste";
 $MESS["LANDING_FIELDS_LIST_FIELD_SEPARATOR_TITLE"] = "Trennzeichen";
-$MESS["LANDING_FIELDS_SELECT_PRODUCTS_BUTTON_TITLE"] = "Produkte hinzufugen";
+$MESS["LANDING_FIELDS_SELECT_PRODUCTS_BUTTON_TITLE"] = "Produkte hinzufügen";
 $MESS["LANDING_FIELDS_SELECT_SEPARATOR_BUTTON_TITLE"] = "Trennzeichen hinzufügen";
 $MESS["LANDING_PHONE_FIELD_AHA_MOMENT_REGION_CODE"] = "Sie können auch das Feld des Ländecodes hinzufügen. Nutzer müssen es nicht manuell eingeben, was Fehler reduziert.";

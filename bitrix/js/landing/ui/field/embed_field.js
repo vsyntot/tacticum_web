@@ -39,6 +39,8 @@
 		});
 
 		this.error = BX.create('div', {props: {className: 'landing-ui-field-error'}});
+		this.error.setAttribute('id', this.selector + '_error');
+		this.shownErrorMessage = null;
 		BX.Dom.append(this.error, this.layout);
 
 		BX.Dom.style(this.description, 'margin-bottom', '0px');
@@ -101,10 +103,10 @@
 		{
 			var value = String(this.input.innerText).trim();
 
-			this.hideError();
-
 			if (this.isEmbedUrl(value))
 			{
+				this.hideError();
+
 				if (this.mediaService && this.mediaService.form)
 				{
 					remove(this.mediaService.form.layout);
@@ -155,19 +157,70 @@
 				{
 					this.showError(BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_ALL"));
 				}
+				else
+				{
+					this.hideError();
+				}
 			}
 		},
 
 		showError: function(message)
 		{
+			if (this.shownErrorMessage === message)
+			{
+				return;
+			}
+
+			BX.Dom.clean(this.error);
 			BX.Dom.append(BX.Landing.UI.Field.BaseField.createError(message), this.error);
 			BX.Dom.style(this.description, 'margin-bottom', null);
+
+			this.input.setAttribute('aria-invalid', 'true');
+			this.addErrorDescribedBy(this.error.getAttribute('id'));
+			this.shownErrorMessage = message;
 		},
 
 		hideError: function()
 		{
+			if (this.shownErrorMessage === null)
+			{
+				return;
+			}
+
 			BX.Dom.clean(this.error);
 			BX.Dom.style(this.description, 'margin-bottom', '0px');
+
+			this.input.removeAttribute('aria-invalid');
+			this.removeErrorDescribedBy(this.error.getAttribute('id'));
+			this.shownErrorMessage = null;
+		},
+
+		// Merge (not overwrite) the error container id into aria-describedby, keeping ids set by BaseField.
+		addErrorDescribedBy: function(errorId)
+		{
+			var ids = (this.input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+			if (!ids.includes(errorId))
+			{
+				ids.push(errorId);
+			}
+			this.input.setAttribute('aria-describedby', ids.join(' '));
+		},
+
+		removeErrorDescribedBy: function(errorId)
+		{
+			var ids = (this.input.getAttribute('aria-describedby') || '')
+				.split(/\s+/)
+				.filter(Boolean)
+				.filter(function(id) { return id !== errorId; });
+
+			if (ids.length > 0)
+			{
+				this.input.setAttribute('aria-describedby', ids.join(' '));
+			}
+			else
+			{
+				this.input.removeAttribute('aria-describedby');
+			}
 		}
 	}
 })();

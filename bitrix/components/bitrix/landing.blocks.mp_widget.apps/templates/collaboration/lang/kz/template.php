@@ -7,4 +7,4 @@ $MESS["BLOCK_MP_WIDGET_APPS_COLLABORATION_QR_POPUP_TITLE"] = "Битрикс24 �
 $MESS["BLOCK_MP_WIDGET_APPS_COLLABORATION_TEXT_1"] = "Бүкіл компанияны бір жұмыс кеңістігінде біріктіріңіз: қызметкерлерді жылдам хабардар етіңіз және кеңседе жұмыс істемейтіндермен де міндеттер бойынша үндесіңіз";
 $MESS["BLOCK_MP_WIDGET_APPS_COLLABORATION_TEXT_2"] = "Телефоннан шоттарға, кадрлық құжаттарға, өтініштерге қол қойыңыз";
 $MESS["BLOCK_MP_WIDGET_APPS_COLLABORATION_TEXT_3"] = "Барлық қызметкерлеріңізді тікелей мобильді қосымшаға сілтеме, e-mail немесе телефон нөмірі арқылы шақырыңыз";
-$MESS["BLOCK_MP_WIDGET_APPS_COLLABORATION_TITLE"] = "<br>Кез келген кәсіптің барлық қызметкерлері үшін мобильді <span style=\"color: var(--primary)\">қосымша</span>";
+$MESS["BLOCK_MP_WIDGET_APPS_COLLABORATION_TITLE"] = "Кез келген кәсіптің барлық қызметкерлері үшін<br>мобильді <span style=\"color: var(--primary)\">қосымша</span>";

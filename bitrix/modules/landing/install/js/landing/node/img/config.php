@@ -13,6 +13,7 @@ return [
 		'landing.node.base',
 		'landing.ui.field.image',
 		'landing.utils',
+		'ui.icon-set.outline',
 	],
 	'skip_core' => true,
 ];

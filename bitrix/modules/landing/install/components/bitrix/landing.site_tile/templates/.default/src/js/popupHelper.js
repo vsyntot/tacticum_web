@@ -213,9 +213,9 @@ export default class PopupHelper
 		if (!this.$containerInputUrl)
 		{
 			this.$containerInputUrl = Tag.render`
-				<input 
-					type="text" 
-					style="position: absolute; opacity: 0; pointer-events: none"
+				<input
+					type="text"
+					style="position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none"
 					value="${this.fullUrl}">
 			`;
 		}

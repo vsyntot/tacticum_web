@@ -2,6 +2,7 @@
     "defaultTableName": "b_landing",
     "installDirectoriesMapping": {
         "install/components": "components",
+        "install/images": "images",
         "install/js": "js",
         "install/blocks": "blocks",
         "install/templates": "templates"

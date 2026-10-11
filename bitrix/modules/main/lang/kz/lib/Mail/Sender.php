@@ -1,7 +1,9 @@
 <?php
 $MESS["MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT"] = "Email мекенжайын растау";
+$MESS['MAIN_MAIL_SENDER_ADDRESS_MISMATCH_ERROR'] = 'Жіберуші қолжетімсіз. Өзекті жіберушіні таңдап, хатты қайта жіберіңіз';
 $MESS["MAIN_MAIL_SENDER_EDIT_ERROR"] = "Жіберушіні редакциялауға құқықтар жеткіліксіз";
 $MESS["MAIN_MAIL_SENDER_INVALID_NAME"] = "Жіберушінің аты кез-келген әліпбидің әріптерін, сандарды, бос орындарды және , \' . - ( ) таңбаларын қамтуы мүмкін";
+$MESS['MAIN_MAIL_SENDER_UNAVAILABLE_ERROR'] = 'Жіберуші қолжетімсіз. Басқа жіберушіні таңдап, хатты қайта жіберіңіз';
 $MESS["MAIN_MAIL_SENDER_UNKNOWN_SENDER_ERROR"] = "Жіберуші табылмады";
 $MESS["MAIN_SENDER_EMPTY_SMTP_LOGIN"] = "SMTP-серверінде авторландыруға арналған логинді енгізіңіз";
 $MESS["MAIN_SENDER_EMPTY_SMTP_PASSWORD"] = "SMTP-серверінде авторландыруға арналған құпиясөзді енгізіңіз";

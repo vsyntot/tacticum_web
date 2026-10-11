@@ -24,6 +24,8 @@ $MESS["LANDING_TPL_PAGES_SHOW"] = "Қарап шығу";
 $MESS["LANDING_TPL_PLACEHOLDER_COMPANY"] = "Битрикс24.Дүкен";
 $MESS["LANDING_TPL_PLACEHOLDER_DOMAIN_NAME"] = "Домендік атау";
 $MESS["LANDING_TPL_PLACEHOLDER_PHONE"] = "+1 234 567 89 01";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_QRCODE_ADDRESS"] = "Немесе дүкенді мына мекенжай бойынша ашыңыз";
 $MESS["LANDING_TPL_QRCODE_CAMERA"] = "Кодты оқу үшін телефонның камерасын осы экранға бағыттаңыз";
 $MESS["LANDING_TPL_QRCODE_COPY"] = "Бизнеске жұмыс істеуге көмектеседі";
 $MESS["LANDING_TPL_QRCODE_HOW_SCAN"] = "QR кодты қалай сканерлеу керек";
@@ -33,7 +35,21 @@ $MESS["LANDING_TPL_SHOW_SHOP"] = "Дүкеніңізді қараңыз";
 $MESS["LANDING_TPL_STEP1_DESC"] = "Байланыс мәліметтерін көрсетіңіз: олар сіздің сайтыңызда бірден пайда болады";
 $MESS["LANDING_TPL_STEP1_TITLE"] = "Дүкен байланыс деректері";
 $MESS["LANDING_TPL_STEP2_DESC"] = "Сіздің дүкеніңіздің тауарлары";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP2_NEXT_READY"] = "Келесі қадамға өтуге болады";
 $MESS["LANDING_TPL_STEP2_TITLE"] = "Тауарлар";
 $MESS["LANDING_TPL_STEP3_DESC"] = "Жаңа сатылымдардың барлық сиқырын сезініңіз! Екі қарапайым қадамды орындаңыз";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_NEXT_READY"] = "Барлығы дайын, келесі қадамға өтуге болады";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_ORDER_CREATED"] = "Тапсырыс жасалды";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_SHOP_VIEWED"] = "Дүкен қаралды";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_STATUS_DONE"] = "Орындалды";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP3_STATUS_WAITING"] = "Күтілуде";
 $MESS["LANDING_TPL_STEP3_TITLE"] = "Бірінші тапсырыс";
+// TEMPORARY: pending translator review
+$MESS["LANDING_TPL_STEP_POSITION"] = "#TOTAL# қадамның #NUMBER#-і";
 $MESS["LANDING_TPL_WORKING_ALREADY"] = "Дайын дерлік, сәл ғана қалды ";

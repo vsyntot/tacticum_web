@@ -13,6 +13,7 @@ return [
 		'landing.loc',
 		'landing.pageobject',
 		'landing.sliderhacks',
+		'landing.ui.a11y',
 		'landing.ui.panel.content',
 		'landing.ui.panel.floatingnodepanel',
 		'landing.ui.panel.saveblock',

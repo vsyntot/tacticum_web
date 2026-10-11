@@ -2,7 +2,7 @@
 $MESS["LANDING_HOOK_COOKIES_AGREEMENT_ID"] = "Келісім идентификаторы";
 $MESS["LANDING_HOOK_COOKIES_COLOR_BG"] = "Фонның түсі";
 $MESS["LANDING_HOOK_COOKIES_COLOR_TEXT"] = "Белгіше мен мәтіннің түсі";
-$MESS["LANDING_HOOK_COOKIES_MODE"] = "Жұмыс уақыты";
+$MESS["LANDING_HOOK_COOKIES_MODE"] = "Жұмыс режимі";
 $MESS["LANDING_HOOK_COOKIES_MODE_A"] = "пайдаланушының келісімі қажет";
 $MESS["LANDING_HOOK_COOKIES_MODE_HELP"] = "толығырақ";
 $MESS["LANDING_HOOK_COOKIES_MODE_I"] = "cookies жинау туралы ақпараттандыру";

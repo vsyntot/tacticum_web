@@ -7,11 +7,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Landing\Help;
 use Bitrix\Landing\Manager;
+use Bitrix\Landing\Metrika\Sections;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 use Bitrix\UI;
 use Bitrix\UI\Toolbar\ButtonLocation;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
@@ -79,6 +81,7 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 	if (isset($button['LINK'], $button['TITLE']))
 	{
 		$isPageDropdown = $arParams['TYPE'] === 'PAGE';
+		$createButtonHasMenu = false;
 		if ($isPageDropdown)
 		{
 			$button['TYPE'] = 'dropdown';
@@ -100,6 +103,7 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 				'text' => HtmlFilter::encode($button['TITLE']),
 			]);
 		}
+		$createButton->addAttribute('data-testid', 'landing-filter-create-btn');
 		$toolbarParams['landingCreateButtonId'] = $createButton->getUniqId();
 
 		$isButtonDisabled = isset($button['DISABLED']) && $button['DISABLED'] === true;
@@ -131,7 +135,12 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 
 		if ($isPageDropdown)
 		{
-			$generateGptLink = '/sites/ai/';
+			// the same generation page the tile and the onboarding open, marked by the menu item as the source
+			$aiUrl = (string)($arParams['~SEF']['ai'] ?? '');
+			$generateGptLink = (new Uri($aiUrl !== '' ? $aiUrl : '/sites/ai/'))
+				->addParams([Sections::URL_PARAM => Sections::buttonMenu->value])
+				->getUri()
+			;
 			$selectTemplateLink = $button['LINK'];
 			$generateGptTitle = Loc::getMessage('LANDING_TPL_CREATE_DROPDOWN_ITEM_AI_SITE');
 			$generateGptTitleHtml = HtmlFilter::encode($generateGptTitle);
@@ -185,6 +194,7 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 					'items' => $createMenuItems,
 				])
 			;
+			$createButtonHasMenu = true;
 		}
 		elseif (!empty($arParams['BUTTONS']))
 		{
@@ -211,7 +221,17 @@ if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
 						'items' => $createButtonOptions,
 					])
 				;
+				$createButtonHasMenu = true;
 			}
+		}
+
+		// the initial state is closed, the script keeps it in sync with the menu popup
+		if ($createButtonHasMenu)
+		{
+			$createButton
+				->addAttribute('aria-haspopup', 'menu')
+				->addAttribute('aria-expanded', 'false')
+			;
 		}
 
 		Toolbar::addButton($createButton, ButtonLocation::AFTER_TITLE);
@@ -233,17 +253,21 @@ $filterOptions = [
 Toolbar::addFilter($filterOptions);
 
 // RECYCLE
-Toolbar::addButton(
-	new UI\Buttons\Button([
-		'id' => 'landing-recycle-bin',
-		'color' => UI\Buttons\Color::LIGHT_BORDER,
-		'text' => Loc::getMessage('LANDING_TPL_RECYCLE_BIN'),
-		'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onRecycleBinClick'),
-		'dataset' => [
-			'toolbar-collapsed-icon' => UI\Buttons\Icon::REMOVE,
-		],
-	])
-);
+$recycleBinButton = new UI\Buttons\Button([
+	'id' => 'landing-recycle-bin',
+	'color' => UI\Buttons\Color::LIGHT_BORDER,
+	'text' => Loc::getMessage('LANDING_TPL_RECYCLE_BIN'),
+	'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onRecycleBinClick'),
+	'dataset' => [
+		'toolbar-collapsed-icon' => UI\Buttons\Icon::REMOVE,
+	],
+]);
+$recycleBinButton
+	->addAttribute('aria-pressed', $isDeleted ? 'true' : 'false')
+	->addAttribute('data-testid', 'landing-filter-recycle-bin-btn')
+;
+$toolbarParams['landingRecycleBinButtonId'] = $recycleBinButton->getUniqId();
+Toolbar::addButton($recycleBinButton);
 
 // SETTINGS
 if ($arParams['SETTING_LINK'])
@@ -294,14 +318,25 @@ if ($arParams['SETTING_LINK'])
 
 	$toolbarParams['landingSettingsButtons'] = $links;
 
-	Toolbar::addButton(
-		new UI\Buttons\Button([
-			'id' => 'landing-menu-settings',
-			'color' => UI\Buttons\Color::LIGHT_BORDER,
-			'icon' => UI\Buttons\Icon::SETTINGS,
-			'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onSettingsClick'),
-		])
-	);
+	$settingsButton = new UI\Buttons\Button([
+		'id' => 'landing-menu-settings',
+		'color' => UI\Buttons\Color::LIGHT_BORDER,
+		'icon' => UI\Buttons\Icon::SETTINGS,
+		'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onSettingsClick'),
+	]);
+	$settingsButton
+		->addAttribute('aria-label', Loc::getMessage('LANDING_TPL_SETTINGS_BUTTON_LABEL'))
+		->addAttribute('data-testid', 'landing-filter-settings-btn')
+	;
+	// a single link opens a slider, several links open a menu: only the menu case gets popup semantics
+	if (count($links) > 1)
+	{
+		$settingsButton
+			->addAttribute('aria-haspopup', 'menu')
+			->addAttribute('aria-expanded', 'false')
+		;
+	}
+	Toolbar::addButton($settingsButton);
 }
 
 // FOLDER
@@ -319,6 +354,10 @@ if ($arParams['FOLDER_SITE_ID'])
 			'folderId' => $arParams['FOLDER_ID'],
 		],
 	]);
+	$createFolderButton
+		->addAttribute('aria-label', Loc::getMessage('LANDING_TPL_CREATE_FOLDER'))
+		->addAttribute('data-testid', 'landing-filter-create-folder-btn')
+	;
 	$toolbarParams['landingCreateFolderButtonId'] = $createFolderButton->getUniqId();
 	if ($isDeleted)
 	{
@@ -341,13 +380,22 @@ if (!$signedParameters)
 	);
 }
 $toolbarParams['signedParameters'] = $signedParameters;
+
+// a missing phrase is dropped here: on the client it would become the literal "null"
+// in an accessible name or in an announcement
+$templateMessages = array_filter(
+	[
+		'LANDING_FILTER_LIST_UPDATED' => Loc::getMessage('LANDING_FILTER_LIST_UPDATED'),
+		'LANDING_FILTER_LIST_UPDATE_ERROR' => Loc::getMessage('LANDING_FILTER_LIST_UPDATE_ERROR'),
+		'LANDING_FILTER_FOLDER_NAME_INPUT_OPENED' => Loc::getMessage('LANDING_FILTER_FOLDER_NAME_INPUT_OPENED'),
+		'LANDING_TPL_FOLDER_NAME_INPUT_LABEL' => Loc::getMessage('LANDING_TPL_FOLDER_NAME_INPUT_LABEL'),
+	],
+	static fn($phrase) => $phrase !== null && $phrase !== '',
+);
 ?>
 
 <script>
-	BX.message(<?= \CUtil::PhpToJSObject([
-		'LANDING_FILTER_LIST_UPDATED' => Loc::getMessage('LANDING_FILTER_LIST_UPDATED'),
-		'LANDING_FILTER_LIST_UPDATE_ERROR' => Loc::getMessage('LANDING_FILTER_LIST_UPDATE_ERROR'),
-	]) ?>);
+	BX.message(<?= \CUtil::PhpToJSObject($templateMessages) ?>);
 	BX.ready(() =>
 	{
 		new BX.Landing.Component.Filter(<?= Json::encode($toolbarParams) ?>);

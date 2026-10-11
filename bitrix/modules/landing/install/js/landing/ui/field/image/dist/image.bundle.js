@@ -54,6 +54,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			this.dropzone.addEventListener("dragover", this.onDragOver);
 			this.dropzone.addEventListener("dragleave", this.onDragLeave);
 			this.dropzone.addEventListener("drop", this.onDrop);
+			main_core.Event.bind(this.dropzone, "keydown", this.onDropzoneKeydown.bind(this));
 			this.clearButton = Image.createClearButton();
 			this.clearButton.on("click", this.onClearClick.bind(this));
 			this.preview = Image.createImagePreview();
@@ -263,6 +264,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				})],
 				attrs: {
 					"for": "file_" + id,
+					"role": "button",
+					"tabindex": "0",
 					"data-testid": "landing-field-image-dropzone"
 				}
 			});
@@ -276,6 +279,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			return new landing_ui_button_basebutton.BaseButton("clear", {
 				className: "landing-ui-field-image-action-button-clear",
 				attrs: {
+					"aria-label": landing_loc.Loc.getMessage("LANDING_FIELD_IMAGE_CLEAR"),
 					"data-testid": "landing-field-image-clear-btn"
 				}
 			});
@@ -454,6 +458,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			this.dropzone.classList.remove("landing-ui-active");
 			this.onFileChange(event.dataTransfer.files[0]);
 			this.imageHidden = false;
+		}
+		onDropzoneKeydown(event) {
+			// <label role="button"> is not natively focusable/clickable, activate manually
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault();
+				this.fileInput.click();
+			}
 		}
 		onFileChange(file) {
 			this.showLoader();

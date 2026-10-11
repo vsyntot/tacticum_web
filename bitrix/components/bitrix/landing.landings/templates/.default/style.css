@@ -273,3 +273,86 @@
 	color: #333;
 	box-sizing: border-box;
 }
+/* ===================== a11y: onboarding dialog (WCAG 2.1 AA) ===================== */
+
+/* video play/pause control. Colors are a neutral default — final visual to be confirmed by design */
+.landing-site-pages-onboarding-video-toggle {
+	position: absolute;
+	left: 12px;
+	bottom: 20px;
+	z-index: 3;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.55);
+	cursor: pointer;
+}
+
+.landing-site-pages-onboarding-video-toggle:hover {
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.landing-site-pages-onboarding-video-toggle:focus-visible {
+	outline: 2px solid var(--ui-color-base-white-fixed, #fff);
+	outline-offset: 2px;
+}
+
+/* pause glyph (video playing): two bars */
+.landing-site-pages-onboarding-video-toggle::before,
+.landing-site-pages-onboarding-video-toggle::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	width: 4px;
+	height: 14px;
+	background: var(--ui-color-base-white-fixed, #fff);
+	transform: translateY(-50%);
+}
+
+.landing-site-pages-onboarding-video-toggle::before {
+	left: 13px;
+}
+
+.landing-site-pages-onboarding-video-toggle::after {
+	right: 13px;
+}
+
+/* play glyph (video paused): single triangle */
+.landing-site-pages-onboarding-video-toggle.--paused::before {
+	left: 50%;
+	width: 0;
+	height: 0;
+	background: transparent;
+	border-style: solid;
+	border-width: 7px 0 7px 12px;
+	border-color: transparent transparent transparent var(--ui-color-base-white-fixed, #fff);
+	transform: translate(-40%, -50%);
+}
+
+.landing-site-pages-onboarding-video-toggle.--paused::after {
+	content: none;
+}
+
+/* respect reduced-motion: stop the one-shot glow spin (autoplay is gated in JS) */
+@media (prefers-reduced-motion: reduce) {
+	.landing-site-pages-onboarding-glow.--spin {
+		animation: none;
+	}
+}
+
+/* visible keyboard focus for page tiles. Inset offset: tiles and grid use overflow:hidden, an outward ring gets clipped */
+.landing-title-btn:focus-visible,
+.landing-item-folder-dropdown:focus-visible,
+.landing-item-inner:focus-visible {
+	outline: 2px solid var(--ui-color-accent-main-primary);
+	outline-offset: -2px;
+}
+
+/* overlay link: reveal the existing hover overlay on keyboard focus + add a ring */
+.landing-item-link:focus-visible {
+	opacity: 1;
+	outline: 2px solid var(--ui-color-accent-main-primary);
+	outline-offset: -2px;
+}

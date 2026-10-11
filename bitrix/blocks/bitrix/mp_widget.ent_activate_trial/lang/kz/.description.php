@@ -1,2 +1,2 @@
 <?php
-$MESS["LANDING_BLOCK_WIDGET_ENT_2_NAME"] = "Энтерпайз тарифін белсендіру";
+$MESS["LANDING_BLOCK_WIDGET_ENT_2_NAME"] = "Энтерпрайз тарифін белсендіру";

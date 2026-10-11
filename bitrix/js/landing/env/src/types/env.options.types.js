@@ -90,6 +90,7 @@ interface EnvOptions
 	xml_id: string,
 	default_section: string,
 	blockControlsEnabled: boolean,
+	aiSiteSelectedElementEditEnabled?: boolean,
 	vkVideoAvailable: boolean,
 	specialType: string,
 	design_block: string,

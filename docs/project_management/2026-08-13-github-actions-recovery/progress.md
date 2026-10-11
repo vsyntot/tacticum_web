@@ -1,6 +1,6 @@
 # Статус выполнения
 
-Обновлено: 2026-08-14
+Обновлено: 2026-10-11
 
 | Метрика | Значение |
 |---|---:|
@@ -38,6 +38,8 @@
 - Clean GitHub runner подтвердил новый gate: generated sitemap создаётся до scope check, contract/self-tests проходят без production credentials; run `31745423204` success для head `778c12e9`.
 - После повторного local SSH review принято разделение credentials: `id_ed25519` — только explicit bootstrap/break-glass, `tacticum_prod_bitrix_ed25519` — штатный forced-command read-only inventory; CI read/write keys остаются отдельными.
 - Локальные metadata подтверждают personal Ed25519 mode `0600`, passphrase и fingerprint, но access ещё не готов: `.env` mode `0644`, dedicated key/public path и pinned known-hosts отсутствуют, default SSH допускает interactive trust/password/multiple identities.
+
+- Выполнен user-authorized bounded FILE_ONLY production snapshot: 14 authoritative directories, 371 одинаковый файл, 0 remote-only, 2 расхождения. Production Tailwind 4.1.8 и sitemap с lastmod 2026-06-07 старее локального baseline (Tailwind 4.3.3 / 2026-08-13), поэтому импорт не выполнялся; `bitrix/`, `upload/`, config и data не затрагивались. Evidence: `production-reconciliation-2026-10-11.json`.
 
 ## Блокеры
 

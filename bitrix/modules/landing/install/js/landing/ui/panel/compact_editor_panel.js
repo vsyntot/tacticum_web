@@ -422,8 +422,22 @@
 
 
 	/**
+	 * Resolves the active copilot element picker. Returns null when the
+	 * extension is not loaded or its option is disabled, so callers can
+	 * skip rendering AI controls entirely.
+	 * @return {?BX.Landing.Copilot.ElementPicker}
+	 */
+	function resolveElementPicker()
+	{
+		var picker = BX.Landing.Copilot && BX.Landing.Copilot.ElementPicker;
+
+		return (picker && picker.isEnabled()) ? picker.getInstance() : null;
+	}
+
+
+	/**
 	 * Register compact set of editor actions: bold, italic, underline,
-	 * strikeThrough, createLink
+	 * strikeThrough, createLink, AI element select (when the picker is active)
 	 * @param {BX.Landing.UI.Panel.CompactEditorPanel} editor
 	 */
 	function registerCompactActions(editor)
@@ -482,9 +496,39 @@
 
 		editor.addButton(linkButton);
 
-		// The bitrix-gpt (AI) button is intentionally not registered yet - it will
-		// be added together with its concrete AI action. Its icon/gradient styles
-		// (compact_editor_panel.css) and title phrase remain ready for that.
+		// The bitrix-gpt (AI) button is registered only when the copilot element
+		// picker is available and enabled: with the option off the panel keeps
+		// no trace of it. Clicking the button never edits content - it only
+		// toggles the AI selection of the currently edited text node.
+		var picker = resolveElementPicker();
+		if (picker)
+		{
+			var aiButton = new BX.Landing.UI.Button.EditorAction("aiElementSelect", {
+				html: "<span class=\"ui-icon-set --bitrix-gpt\"></span>",
+				className: ["landing-ui-button-compact-editor-action", "--ai"],
+				attrs: {
+					title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT"),
+					"data-testid": "landing-compact-editor-ai-btn"
+				}
+			});
+
+			// The default EditorAction handler would run
+			// execCommand("aiElementSelect"), so it is replaced (see the
+			// createLink button above for the BX.proxy unbind mechanics).
+			BX.unbind(aiButton.layout, "click", BX.proxy(aiButton.onClick, aiButton));
+			BX.bind(aiButton.layout, "click", function(event) {
+				event.preventDefault();
+				event.stopPropagation();
+
+				var currentNode = BX.Landing.Node.Text.currentNode;
+				if (currentNode)
+				{
+					picker.toggleSelection(currentNode);
+				}
+			});
+
+			editor.addButton(aiButton);
+		}
 	}
 
 

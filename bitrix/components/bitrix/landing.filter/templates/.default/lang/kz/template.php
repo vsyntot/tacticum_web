@@ -1,4 +1,6 @@
 <?php
+$MESS["LANDING_FILTER_LIST_UPDATED"] = "Тізім жаңартылды";
+$MESS["LANDING_FILTER_LIST_UPDATE_ERROR"] = "Тізімді жаңарту мүмкін болмады";
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "1С-да Қойма есебі жұмыс режимі қосылған, сондықтан Дүкен құру мүмкін емес";
 $MESS["LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT"] = "Толығырақ";
 $MESS["LANDING_TPL_CREATE_DROPDOWN_ITEM_AI_SITE"] = "AI сайты";

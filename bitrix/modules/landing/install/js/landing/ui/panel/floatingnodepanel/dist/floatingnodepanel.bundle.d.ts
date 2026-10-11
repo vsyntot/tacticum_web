@@ -17,7 +17,10 @@ declare namespace BX.Landing.UI.Panel {
 	 * Shows itself in the top right corner of the target node on `mouseenter`
 	 * and hides immediately on `mouseleave`. Moving the cursor between the node
 	 * and the panel does not hide it: `mouseleave` is ignored when
-	 * `event.relatedTarget` is inside the panel or the node.
+	 * `event.relatedTarget` is inside the panel or the node. The same handlers
+	 * back `focusin`/`focusout`, so the panel is fully reachable by keyboard:
+	 * focusing the node (made focusable on attach) shows it and, when the focus
+	 * came from the keyboard, moves focus onto the panel button.
 	 * A shown panel is also dismissable with the Escape key (WCAG 1.4.13).
 	 *
 	 * The panel knows nothing about node types: buttons (icon + click handler)

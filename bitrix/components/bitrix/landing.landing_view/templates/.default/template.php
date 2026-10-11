@@ -31,6 +31,9 @@ $context = Application::getInstance()->getContext();
 $request = $context->getRequest();
 $generationId = $request->get('site_generated') ? (int)$request->get('site_generated') : null;
 $isNewLanding = $request->get('newLanding') === 'Y';
+$isFromAiGenerator = $request->get(Metrika\EditorOpenEventResolver::FROM_GENERATOR_PARAM)
+	=== Metrika\EditorOpenEventResolver::FROM_GENERATOR_PARAM_VALUE
+;
 $isLandingAiSitesEnabled = Copilot\Manager::isAiSitesEnabled();
 $isAiAssistantPanelEnabled = (bool)($arResult['SHOW_AI_ASSISTANT_PANEL'] ?? false);
 $isCreatedByAiScenario = (bool)($arResult['IS_CREATED_BY_AI_SCENARIO'] ?? false);
@@ -122,6 +125,7 @@ Extension::load([
 	'landing.copilot.generation-observer',
 	'landing.editor.realtime',
 	'landing.copilot.change-ai-site-editor-sync',
+	'landing.copilot.element-picker',
 	'intranet.sidepanel.bindings',
 ]);
 
@@ -186,10 +190,16 @@ if ($request->get('landing_mode') === 'edit')
 	;
 	$metrika = new Metrika\Metrika(
 		$category,
-		Metrika\Events::openEditor,
+		Metrika\EditorOpenEventResolver::resolveEvent($isCreatedByAiScenario),
 		$tools,
 	);
-	if ($generationId)
+	if ($isCreatedByAiScenario)
+	{
+		$metrika->setSubSection(
+			Metrika\EditorOpenEventResolver::resolveAiSubSection($isFromAiGenerator)
+		);
+	}
+	elseif ($generationId)
 	{
 		$metrika
 			->setType(Metrika\Types::ai)
@@ -217,9 +227,10 @@ if ($request->get('landing_mode') === 'edit')
 
 	$metrika->setParam(3, 'siteId', $arResult['LANDING']->getSiteId());
 
+	$errorStatus = Metrika\EditorOpenEventResolver::resolveErrorStatus($isCreatedByAiScenario);
 	if ($arResult['FATAL'])
 	{
-		$metrika->setError('fatal');
+		$metrika->setError('fatal', $errorStatus);
 	}
 	elseif ($arResult['ERRORS'])
 	{
@@ -238,7 +249,7 @@ if ($request->get('landing_mode') === 'edit')
 			{
 				$errorFull .= $code . ':' . $message . "-";
 			}
-			$metrika->setError($errorFull);
+			$metrika->setError($errorFull, $errorStatus);
 		}
 	}
 
@@ -476,21 +487,21 @@ if (!$request->offsetExists('landing_mode')):
 			<div class="landing-ui-panel-top-ai__spacer"></div>
 			<div class="landing-ui-panel-top-devices">
 				<div class="landing-ui-panel-top-devices-inner">
-					<button class="landing-ui-button landing-ui-button-desktop active" type="button" data-id="desktop_button" tabindex="0">
+					<button class="landing-ui-button landing-ui-button-desktop active" type="button" data-id="desktop_button" tabindex="0" aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_DEVICE_DESKTOP'))?>" aria-pressed="true">
 						<span class="ui-icon-set --o-screen" aria-hidden="true"></span>
 					</button>
-					<button class="landing-ui-button landing-ui-button-tablet" type="button" data-id="tablet_button" tabindex="0">
+					<button class="landing-ui-button landing-ui-button-tablet" type="button" data-id="tablet_button" tabindex="0" aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_DEVICE_TABLET'))?>" aria-pressed="false">
 						<span class="ui-icon-set --o-tablet" aria-hidden="true"></span>
 					</button>
-					<button class="landing-ui-button landing-ui-button-mobile" type="button" data-id="mobile_button" tabindex="0">
+					<button class="landing-ui-button landing-ui-button-mobile" type="button" data-id="mobile_button" tabindex="0" aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_DEVICE_MOBILE'))?>" aria-pressed="false">
 						<span class="ui-icon-set --o-mobile" aria-hidden="true"></span>
 					</button>
 				</div>
 			</div>
 			<div class="landing-ui-panel-top-ai__spacer"></div>
 			<div class="landing-ui-panel-top-history">
-				<button class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled" type="button" tabindex="-1" disabled></button>
-				<button class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled" type="button" tabindex="-1" disabled></button>
+				<button class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled" type="button" tabindex="-1" disabled aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_HISTORY_UNDO'))?>"></button>
+				<button class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled" type="button" tabindex="-1" disabled aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_HISTORY_REDO'))?>"></button>
 			</div>
 			<div class="landing-ui-panel-top-ai__actions" id="landing-panel-settings">
 				<?php if ($arParams['DRAFT_MODE'] != 'Y'): ?>
@@ -545,7 +556,7 @@ if (!$request->offsetExists('landing_mode')):
 						type="button"
 						tabindex="0"
 						aria-expanded="<?= $startAiAssistantPanelMinimized ? 'false' : 'true' ?>"
-						<?= $isAiAssistantToggleDisabled ? 'disabled' : '' ?>
+						<?= $isAiAssistantToggleDisabled ? 'aria-disabled="true"' : '' ?>
 					>
 						<?= $aiAssistantToggleText ?>
 					</button>
@@ -661,7 +672,7 @@ if (!$request->offsetExists('landing_mode')):
 
 		if ($arParams['DRAFT_MODE'] != 'Y'):
 			?>
-			<button class="<?=$panelBtnAutoPubClass?>" id="landing-popup-publication-btn" data-hint="<?=$btnAutoPubHint?>" data-hint-no-icon>
+			<button class="<?=$panelBtnAutoPubClass?>" id="landing-popup-publication-btn" type="button" aria-label="<?=htmlspecialcharsbx($btnAutoPubHint)?>" data-hint="<?=$btnAutoPubHint?>" data-hint-no-icon>
 				<svg class="landing-ui-panel-top-pub-btn-icon" width="25" height="25" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill="#C6CDD3" class="landing-ui-panel-top-pub-btn-icon-defs-cloud"  d="M18.5075 18.8896H10.4177C10.3485 18.8896 10.2799 18.887 10.2119 18.882C8.38363 18.8398 6.91434 17.3271 6.91434 15.4671C6.91487 14.5606 7.27128 13.6914 7.90517 13.0507C8.2301 12.7223 8.61429 12.4678 9.03227 12.2978C9.02528 12.2055 9.02172 12.1123 9.02172 12.0182C9.02229 11.0617 9.39838 10.1446 10.0672 9.46862C10.7361 8.79266 11.6429 8.41324 12.5883 8.41382C13.7992 8.41531 14.8683 9.02804 15.5108 9.96325C15.816 9.85386 16.1444 9.79441 16.4866 9.79459C17.9982 9.79643 19.2397 10.9624 19.3836 12.4534C20.832 12.7729 21.9159 14.0785 21.9146 15.6395C21.9131 17.4385 20.4711 18.8958 18.6932 18.895C18.6309 18.895 18.569 18.8932 18.5075 18.8896Z" fill-rule="evenodd" clip-rule="evenodd"/>
 					<path fill="#FFFFFF" class="landing-ui-panel-top-pub-btn-icon-defs-success" d="M7.46967 13.782L9.1093 12.14L12.2726 15.2532L18.6078 8.91091L20.2474 10.5529L12.2881 18.5218L7.46967 13.782Z" fill-rule="evenodd" clip-rule="evenodd"/>
@@ -703,9 +714,9 @@ if (!$request->offsetExists('landing_mode')):
 
 		<div class="landing-ui-panel-top-devices">
 			<div class="landing-ui-panel-top-devices-inner">
-				<button class="landing-ui-button landing-ui-button-desktop active" data-id="desktop_button"></button>
-				<button class="landing-ui-button landing-ui-button-tablet" data-id="tablet_button"></button>
-				<button class="landing-ui-button landing-ui-button-mobile" data-id="mobile_button"></button>
+				<button class="landing-ui-button landing-ui-button-desktop active" data-id="desktop_button" aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_DEVICE_DESKTOP'))?>" aria-pressed="true"></button>
+				<button class="landing-ui-button landing-ui-button-tablet" data-id="tablet_button" aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_DEVICE_TABLET'))?>" aria-pressed="false"></button>
+				<button class="landing-ui-button landing-ui-button-mobile" data-id="mobile_button" aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_DEVICE_MOBILE'))?>" aria-pressed="false"></button>
 			</div>
 		</div>
 
@@ -713,8 +724,8 @@ if (!$request->offsetExists('landing_mode')):
 
 		<!-- region History-->
 		<div class="landing-ui-panel-top-history">
-			<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled"></span>
-			<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled"></span>
+			<button class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled" type="button" tabindex="-1" disabled aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_HISTORY_UNDO'))?>"></button>
+			<button class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled" type="button" tabindex="-1" disabled aria-label="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_HISTORY_REDO'))?>"></button>
 		</div>
 		<!-- endregion -->
 
@@ -724,14 +735,15 @@ if (!$request->offsetExists('landing_mode')):
 					$arResult['IS_AREA'] === false
 					&& !$isVibeEditor
 				):?>
-					<div
+					<button
+						type="button"
 						id="landing-popup-preview-btn"
 						data-domain="<?= $site['DOMAIN_NAME']?>"
 						data-form-verification-required="<?=(($isFormEditor && $arResult['FORM_VERIFICATION_REQUIRED']) ? '1' : '0')?>"
 						data-form-verification-entity="<?=(int)$arResult['VERIFY_FORM_ID']?>"
 						class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu">
 						<?= $isFormEditor ? Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN_FORM') : Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
-					</div>
+					</button>
 				<?php endif;?>
 
 				<?php if (!$isFormEditor): ?>
@@ -746,9 +758,9 @@ if (!$request->offsetExists('landing_mode')):
 						?> value="<?= $featuresText?>"<?php
 						?> />
 				<?php else: ?>
-					<span class="ui-btn ui-btn-light-border ui-btn-round landing-form-editor-share-button"><?php
+					<button type="button" class="ui-btn ui-btn-light-border ui-btn-round landing-form-editor-share-button"><?php
 						echo Loc::getMessage('LANDING_FORM_FEATURES')
-					?></span>
+					?></button>
 				<?php endif; ?>
 			<?php else:?>
 				<div id="landing-panel-settings-kb"></div>
@@ -761,7 +773,7 @@ if (!$request->offsetExists('landing_mode')):
 					class="landing-ui-panel-top-chat-toggle landing-ai-assistant-panel__toggle<?= $isAiAssistantToggleDisabled ? ' landing-ui-panel-top-chat-toggle--disabled-offset' : '' ?>"
 					type="button"
 					aria-expanded="<?= $startAiAssistantPanelMinimized ? 'false' : 'true' ?>"
-					<?= $isAiAssistantToggleDisabled ? 'disabled' : '' ?>
+					<?= $isAiAssistantToggleDisabled ? 'aria-disabled="true"' : '' ?>
 				>
 					<?= $aiAssistantToggleText ?>
 				</button>
@@ -953,49 +965,6 @@ if ($request->offsetExists('landing_mode'))
 		</script>
 	<?php endif;?>
 
-	<?php if (isset($generationId)):?>
-	<?php
-		$blocksData = '';
-		$generation = new Copilot\Generation();
-		if ($generation->initById($generationId))
-		{
-			$blocksData = $generation->getBlocksData($arResult['LANDING']->getBlocks());
-			$blocksData = \CUtil::jsEscape($blocksData);
-
-			Extension::load(['landing.animation.copilot']);
-
-			?>
-			<script>
-				BX.ready(() => {
-					const iframe = BX.Landing.PageObject.getEditorWindow();
-					BX.bindOnce(iframe, 'load', () => {
-						const blocksData = JSON.parse('<?= $blocksData ?>');
-						const animationCopilot = new BX.Landing.Animation.Copilot();
-						const generationId = <?= $generationId ?>;
-						animationCopilot
-							.setBlocksData(blocksData)
-							.setGenerationId(generationId)
-							.init()
-						;
-
-						const observer = new BX.Landing.Copilot.GenerationObserver(generationId);
-						observer.observe();
-
-						setTimeout(() => {
-							animationCopilot.animateSite();
-						}, 2000);
-					});
-				});
-			</script>
-			<?php
-		}
-		else
-		{
-			unset($generationId);
-		}
-	?>
-	<?php endif?>
-
 	<script>
 		BX.ready(() => {
 			const observer = new BX.Landing.Copilot.GenerationObserver(null, {
@@ -1005,12 +974,21 @@ if ($request->offsetExists('landing_mode'))
 		});
 	</script>
 
-	<?php if (isset($generationId) || $isNewLanding): ?>
+	<?php if (isset($generationId) || $isNewLanding || $isFromAiGenerator): ?>
 		<script>
 			BX.ready(() => {
-				const currentUrlString = window.parent.location.href;
-				const currentUrl = new URL(currentUrlString);
+				const currentUrl = new URL(window.parent.location.href);
+				<?php if ($isNewLanding): ?>
 				currentUrl.search = '';
+				<?php elseif (isset($generationId)): ?>
+				// keep non-SEF editor routing in the query, drop only the generation mark,
+				// otherwise a refresh of the cleaned URL leads to a wrong screen
+				currentUrl.searchParams.delete('site_generated');
+				<?php else: ?>
+				// the transition from AI 2.0 keeps the editor routing of the non-SEF config in the query
+				// and only drops its own mark, otherwise a refresh of the cleaned URL leads to a wrong screen
+				currentUrl.searchParams.delete('<?= CUtil::jsEscape(Metrika\EditorOpenEventResolver::FROM_GENERATOR_PARAM) ?>');
+				<?php endif; ?>
 				window.parent.history.replaceState({}, '', currentUrl.toString());
 			});
 		</script>
@@ -1230,15 +1208,10 @@ else
 	</script>
 	<div class="landing-ui-view-wrapper">
 		<div class="landing-editor-loader-container"></div>
-			<div class="landing-editor-required-user-action">
-				<h3></h3>
-				<p></p>
-				<div>
-					<a href="" class="ui-btn"></a>
-				</div>
-			</div>
+			<?php // filled in and given its alert role by the script: an empty region announces nothing?>
+			<div class="landing-editor-required-user-action"></div>
 			<div class="landing-ui-view-iframe-wrapper">
-				<iframe src="<?= $urls['landingFrame']->getUri() ?>" class="landing-ui-view" id="landing-view-frame" allowfullscreen></iframe>
+				<iframe src="<?= htmlspecialcharsbx($urls['landingFrame']->getUri()) ?>" class="landing-ui-view" id="landing-view-frame" title="<?=htmlspecialcharsbx(Loc::getMessage('LANDING_TPL_EDITOR_FRAME_TITLE'))?>" allowfullscreen></iframe>
 			</div>
 	</div>
 	</div>

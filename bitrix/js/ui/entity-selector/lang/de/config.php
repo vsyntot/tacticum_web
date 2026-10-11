@@ -1,8 +1,17 @@
 <?php
 $MESS["UI_SELECTOR_CREATE_ITEM_LABEL"] = "Erstellen:";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_DEFAULT"] = "Elemente auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_DEPARTMENT"] = "Abteilung auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_PROJECT"] = "Projekt auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_PROJECT_DEPARTMENT"] = "Projekt oder Abteilung auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_USER"] = "Nutzer auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_USER_DEPARTMENT"] = "Nutzer oder Abteilung auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_USER_PROJECT"] = "Nutzer oder Projekt auswählen";
+$MESS["UI_SELECTOR_DIALOG_ARIA_LABEL_USER_PROJECT_DEPARTMENT"] = "Nutzer, Projekt oder Abteilung auswählen";
 $MESS["UI_SELECTOR_ITEM_LINK_TITLE"] = "Details";
 $MESS["UI_SELECTOR_RECENT_TAB_TITLE"] = "Zuletzt verwendet";
 $MESS["UI_SELECTOR_SEARCH_LOADER_TEXT"] = "Es wird nach zusätzlichen Ergebnissen gesucht.";
+$MESS["UI_SELECTOR_SEARCH_RESULTS_COUNT"] = "Elemente gefunden: #COUNT#";
 $MESS["UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1"] = "Versuchen Sie andere Stichwörter oder Filter zu nutzen.";
 $MESS["UI_SELECTOR_SEARCH_STUB_TITLE"] = "Keine Ergebnisse";
 $MESS["UI_SELECTOR_SEARCH_TAB_TITLE"] = "Suche";

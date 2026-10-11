@@ -3,6 +3,7 @@ type SimpleLinkPanelOptions = {
 	href?: string;
 	onSave?: (url: string) => void;
 	onRemove?: () => void;
+	onAiSelect?: () => void;
 };
 
 declare namespace BX.Landing.UI.Panel {

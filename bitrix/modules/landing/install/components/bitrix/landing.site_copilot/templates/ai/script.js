@@ -218,10 +218,12 @@ window.LandingCopilotProgress = class
 	{
 		if (this.progress)
 		{
+			const progressValue = progressValues[index] ?? progressValues[progressValues.length - 1];
 			this.progress.style.setProperty(
 				'--landing-site-copilot-ai-placeholder-progress',
-				progressValues[index] ?? progressValues[progressValues.length - 1],
+				progressValue,
 			);
+			this.progress.setAttribute('aria-valuenow', parseInt(progressValue, 10));
 		}
 
 		const phraseIndex = progressPhraseIndexes[index];
@@ -229,5 +231,51 @@ window.LandingCopilotProgress = class
 		{
 			this.generationText.textContent = this.phrases[phraseIndex];
 		}
+	}
+};
+
+window.LandingCopilotA11y = class
+{
+	constructor(options = {})
+	{
+		this.messages = options.messages ?? {};
+		this.announcedMilestones = new Set();
+	}
+
+	announceGenerationStarted(generationId)
+	{
+		this.announceMilestone('generationStarted', 'polite', generationId);
+	}
+
+	announceGenerationFinished(generationId)
+	{
+		this.announceMilestone('generationFinished', 'polite', generationId);
+	}
+
+	announceGenerationFailed(generationId)
+	{
+		this.announceMilestone('generationFailed', 'assertive', generationId);
+	}
+
+	announceMilestone(milestone, politeness, generationId)
+	{
+		// A milestone belongs to its generation: a command the pull stream delivers twice says
+		// nothing new, while the same milestone of the next generation is news of its own.
+		const milestoneKey = `${parseInt(generationId, 10) || 0}:${milestone}`;
+		if (this.announcedMilestones.has(milestoneKey))
+		{
+			return;
+		}
+
+		const message = this.messages[milestone];
+		const announcer = BX.UI?.Accessibility?.LiveAnnouncer;
+		if (!message || !announcer)
+		{
+			return;
+		}
+
+		// A milestone counts as announced only once the announcer has actually been reached.
+		announcer.announce(message, politeness);
+		this.announcedMilestones.add(milestoneKey);
 	}
 };

@@ -24,7 +24,10 @@
 	outline: none;
 }
 
-
+.landing-ui-button:focus-visible {
+	outline: 2px solid var(--ui-color-accent-main-primary, #0075ff);
+	outline-offset: 2px;
+}
 
 .landing-ui-button-content-save,
 .landing-ui-button-content-cancel {

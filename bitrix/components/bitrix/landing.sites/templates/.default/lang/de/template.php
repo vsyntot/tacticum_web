@@ -1,5 +1,6 @@
 <?php
 $MESS["LANDING_TPL_ACTIONS"] = "Aktionen";
+$MESS["LANDING_TPL_ACTIONS_ARIA_SITE"] = "Aktionen für die Website \"#TITLE#\"";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Neue Website";
 $MESS["LANDING_TPL_ACTION_ADDPAGE"] = "Seite erstellen";
 $MESS["LANDING_TPL_ACTION_ADDPAGE2"] = "Eine Seite hinzufügen";
@@ -55,6 +56,7 @@ $MESS["LANDING_TPL_TITLE"] = "Websites";
 $MESS["LANDING_TPL_TITLE_KNOWLEDGE"] = "Wissensbasis";
 $MESS["LANDING_TPL_TITLE_PAGE"] = "Websites";
 $MESS["LANDING_TPL_TITLE_STORE"] = "Onlineshops";
+$MESS["LANDING_TPL_TRASH_EMPTY_TITLE"] = "Der Papierkorb ist leer.";
 $MESS["LANDING_TPL_TTL_DELETE"] = "Tage bis zum endgültigen Löschen";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "Tage";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Nicht veröffentlicht";

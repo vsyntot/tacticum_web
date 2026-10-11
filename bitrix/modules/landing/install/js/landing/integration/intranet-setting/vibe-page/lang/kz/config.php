@@ -28,6 +28,6 @@ $MESS["INTRANET_SETTINGS_VIBE_SHARE_POPUP_TITLE_MSGVER_1"] = "Басты бет�
 $MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_BTN_CONFIRM"] = "Иә, алып тастаңыз";
 $MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_BTN_CONFIRM_FREE"] = "Иә, өшіру";
 $MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_CONTENT"] = "Бет жойылмайды, бірақ Біздің вайб тармағы сол жақ мәзірде қолжетімсіз болады";
-$MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_CONTENT_FREE"] = "Ол мәзірден жоғалады және қолжетімсіз болады, бірақ баптауларда сақталады. Бетті тек Профессиональный немесе Энтерпрайз тарифтерінде қайтаруға болады..";
+$MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_CONTENT_FREE"] = "Ол мәзірден жоғалады және қолжетімсіз болады, бірақ баптауларда сақталады. Бетті тек Профессиональный немесе Энтерпрайз тарифтерінде қайтаруға болады.";
 $MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_TITLE"] = "Жариялымнан басты бетті алып тастайсыз ба?";
 $MESS["INTRANET_SETTINGS_VIBE_WITHDRAW_POPUP_TITLE_FREE"] = "Басты бетті өшіру керек пе?";

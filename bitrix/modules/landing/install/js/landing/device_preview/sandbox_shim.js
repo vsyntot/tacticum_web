@@ -1,7 +1,8 @@
 /**
- * Storage/cookie neutraliser for the sandboxed device preview.
+ * Storage/cookie neutraliser for the sandboxed preview: the editor device frame and the
+ * signed preview page of the cloud (CSP sandbox).
  *
- * The preview frame is sandboxed without allow-same-origin, so its origin is opaque and any
+ * The preview is sandboxed without allow-same-origin, so its origin is opaque and any
  * access to document.cookie or Window.localStorage throws a DOMException. The previewed public
  * page (kernel, landing_public, blocks) touches both freely, and an uncaught exception aborts
  * the whole surrounding script block — so the damage goes well beyond the cookie itself.
@@ -144,6 +145,9 @@
 	}))
 	{
 		installCookieJar();
+		// Tells the follow-up inline scripts that cookie writes now land in the in-memory jar,
+		// so they may seed preview-only cookies without ever touching a real cookie store.
+		window.landingDevicePreviewSandboxed = true;
 	}
 
 	["localStorage", "sessionStorage"].forEach(function(name) {

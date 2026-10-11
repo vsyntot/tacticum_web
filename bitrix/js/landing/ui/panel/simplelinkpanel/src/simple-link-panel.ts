@@ -3,6 +3,8 @@ import { Button, ButtonSize, AirButtonStyle, type ButtonOptions } from 'ui.butto
 import { Loc } from 'landing.loc';
 import { PageObject } from 'landing.pageobject';
 import 'ui.forms';
+// provides the --bitrix-gpt glyph of the AI select button
+import 'ui.icon-set.outline';
 
 import './css/style.css';
 
@@ -13,12 +15,17 @@ export type SimpleLinkPanelOptions = {
 	onSave?: (url: string) => void;
 	// called on save with an empty field
 	onRemove?: () => void;
+	// called on the AI select button click; the button is rendered
+	// only when the handler is provided
+	onAiSelect?: () => void;
 };
 
 const PANEL_INSET = 12;
-// Fixed panel width from css/style.css; used only as a fallback when the layout
-// has not measured yet (getBoundingClientRect returns 0 width).
+// Fixed panel widths from css/style.css (base and --with-ai variants); used
+// only as a fallback when the layout has not measured yet
+// (getBoundingClientRect returns 0 width).
 const PANEL_WIDTH = 340;
+const PANEL_WIDTH_WITH_AI = 380;
 const CLASS_SHOW = 'landing-ui-show';
 const CLASS_HIDE = 'landing-ui-hide';
 
@@ -67,6 +74,10 @@ export class SimpleLinkPanel
 	#onSave: ((url: string) => void) | null = null;
 
 	#onRemove: (() => void) | null = null;
+
+	#onAiSelect: (() => void) | null = null;
+
+	#aiButton: HTMLElement;
 
 	static getInstance(): SimpleLinkPanel
 	{
@@ -150,6 +161,20 @@ export class SimpleLinkPanel
 		this.#layout.appendChild(this.#field);
 		this.#layout.appendChild(saveButtonNode);
 
+		// Third fixed slot after Save. Not appended here: `show()` attaches it
+		// only when an onAiSelect handler is provided (see #toggleAiButton).
+		this.#aiButton = Tag.render`
+			<button
+				type="button"
+				class="landing-ui-panel-simple-link__ai-button"
+				data-testid="landing-simplelinkpanel-ai"
+				title="${Text.encode(Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT'))}"
+			>
+				<span class="ui-icon-set --bitrix-gpt landing-ui-panel-simple-link__ai-icon"></span>
+			</button>
+		`;
+		Event.bind(this.#aiButton, 'click', this.#handleAiSelect);
+
 		Event.bind(this.#input, 'keydown', this.#handleKeyDown);
 	}
 
@@ -169,6 +194,8 @@ export class SimpleLinkPanel
 		this.#anchorEl = anchorEl;
 		this.#onSave = Type.isFunction(options.onSave) ? options.onSave : null;
 		this.#onRemove = Type.isFunction(options.onRemove) ? options.onRemove : null;
+		this.#onAiSelect = Type.isFunction(options.onAiSelect) ? options.onAiSelect : null;
+		this.#toggleAiButton();
 
 		const href = Type.isStringFilled(options.href) ? options.href : '';
 		const blockId = this.#resolveExistingBlockId(href);
@@ -337,6 +364,35 @@ export class SimpleLinkPanel
 		this.hide();
 	};
 
+	// The AI slot exists only while a handler is provided: without it the
+	// singleton keeps its regular 340px layout with no trace of the button.
+	// Re-evaluated on every show(), so the same panel serves both modes.
+	#toggleAiButton(): void
+	{
+		if (this.#onAiSelect)
+		{
+			Dom.addClass(this.#layout, '--with-ai');
+			Dom.append(this.#aiButton, this.#layout);
+		}
+		else
+		{
+			Dom.removeClass(this.#layout, '--with-ai');
+			Dom.remove(this.#aiButton);
+		}
+	}
+
+	// A separate control on purpose: selecting the element for AI must not go
+	// through #handleSave (no href write) and must not close the panel.
+	#handleAiSelect = (event: MouseEvent): void => {
+		event.preventDefault();
+		event.stopPropagation();
+
+		if (this.#onAiSelect)
+		{
+			this.#onAiSelect();
+		}
+	};
+
 	// Removes the whole chip and switches to an empty text field for re-entry.
 	// Focus moves to the now-visible input so it does not fall back to <body>
 	// (WCAG 2.4.3: focus order stays inside the panel after the chip is gone).
@@ -443,7 +499,8 @@ export class SimpleLinkPanel
 		// The panel is already in the DOM and shown here, so getBoundingClientRect
 		// gives real dimensions; fall back to the fixed width if layout is not ready.
 		const panelRect = this.#layout.getBoundingClientRect();
-		const panelWidth = panelRect.width || PANEL_WIDTH;
+		const panelWidth = panelRect.width
+			|| (this.#onAiSelect ? PANEL_WIDTH_WITH_AI : PANEL_WIDTH);
 		const panelHeight = panelRect.height;
 
 		const { pageXOffset, pageYOffset, innerWidth, innerHeight } = targetWindow;

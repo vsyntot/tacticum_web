@@ -13,6 +13,7 @@ return [
 		'main.core',
 		'ui.buttons',
 		'ui.forms',
+		'ui.icon-set.outline',
 	],
     'skip_core' => false,
 ];

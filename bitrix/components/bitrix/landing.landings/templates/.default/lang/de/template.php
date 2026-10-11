@@ -1,5 +1,7 @@
 <?php
 $MESS["LANDING_TPL_ACTIONS"] = "Aktionen";
+$MESS["LANDING_TPL_ACTIONS_ARIA_FOLDER"] = "Aktionen für den Ordner \"#TITLE#\"";
+$MESS["LANDING_TPL_ACTIONS_ARIA_PAGE"] = "Aktionen für die Seite \"#TITLE#\"";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Neue Seite";
 $MESS["LANDING_TPL_ACTION_ADD_PAGE"] = "Seite erstellen";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Seite kopieren";
@@ -36,6 +38,7 @@ $MESS["LANDING_TPL_AREA_WITHOUT_RIGHT_1"] = "Header";
 $MESS["LANDING_TPL_AREA_WITHOUT_RIGHT_2"] = "Linke Seitenleiste";
 $MESS["LANDING_TPL_AREA_WITHOUT_RIGHT_3"] = "Footer";
 $MESS["LANDING_TPL_DELETED"] = "Gelöscht";
+$MESS["LANDING_TPL_FOLDER_NAME_INPUT_LABEL"] = "Ordnername";
 $MESS["LANDING_TPL_MODIF"] = "Geändert";
 $MESS["LANDING_TPL_ONBOARDING_AI_BUTTON"] = "Eine Website erstellen";
 $MESS["LANDING_TPL_ONBOARDING_AI_ITEM_1_DESC_MSGVER_1"] = "KI erstellt eine Website-Struktur, fügt Inhalte hinzu und veröffentlicht eine neue Landingpage.";
@@ -46,6 +49,8 @@ $MESS["LANDING_TPL_ONBOARDING_AI_ITEM_3_DESC_MSGVER_1"] = "Die Websites, die Sie
 $MESS["LANDING_TPL_ONBOARDING_AI_ITEM_3_TITLE_MSGVER_1"] = "Ihre alten Websites bleiben intakt";
 $MESS["LANDING_TPL_ONBOARDING_AI_SUBTITLE_MSGVER_1"] = "Erstellen Sie eine neue Website in wenigen Minuten.";
 $MESS["LANDING_TPL_ONBOARDING_AI_TITLE_MSGVER_1"] = "KI-gestützte Websites";
+$MESS["LANDING_TPL_ONBOARDING_VIDEO_PAUSE"] = "Video anhalten";
+$MESS["LANDING_TPL_ONBOARDING_VIDEO_PLAY"] = "Video abspielen";
 $MESS["LANDING_TPL_PUBLIC"] = "Veröffentlicht";
 $MESS["LANDING_TPL_TITLE"] = "Website";
 $MESS["LANDING_TPL_TITLE_PAGE"] = "Website";

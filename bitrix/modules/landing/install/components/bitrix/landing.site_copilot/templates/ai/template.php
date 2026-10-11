@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 
 use Bitrix\Landing\Copilot\Services\NameService;
 use Bitrix\Landing\Manager;
+use Bitrix\Landing\Metrika\EditorOpenEventResolver;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
@@ -26,6 +27,7 @@ $aiSiteTriggerEnabled = ($arResult['AI_SITE_TRIGGER_ENABLED'] ?? false) === true
 ;
 $isAiAssistantChatExpandable = $aiSiteTriggerEnabled;
 $isAiAssistantToggleDisabled = !$isAiAssistantChatExpandable;
+$aiAssistantChatColumnId = 'landing-site-copilot-ai-chat-column';
 $aiAssistantPanelClass = 'landing-site-copilot-ai landing-ai-assistant-panel';
 if (!$isAiAssistantChatExpandable)
 {
@@ -40,6 +42,7 @@ $extensions = [
 	'landing.copilot.change-ai-site-editor-sync',
 	'ui.icon-set.actions',
 	'ui.design-tokens',
+	'ui.a11y',
 	'intranet.sidepanel.bindings',
 ];
 if ($aiSiteTriggerEnabled)
@@ -70,6 +73,8 @@ $aiSiteTriggerOptions = Json::encode([
 $landingViewUrlTemplate = Json::encode(
 	($arParams['~PAGE_URL_LANDING_VIEW'] ?? '') ?: '/sites/site/#site_show#/view/#landing_edit#/'
 );
+$editorFromGeneratorParam = Json::encode(EditorOpenEventResolver::FROM_GENERATOR_PARAM);
+$editorFromGeneratorParamValue = Json::encode(EditorOpenEventResolver::FROM_GENERATOR_PARAM_VALUE);
 $placeholderProgressPhrases = Json::encode(array_map(
 	static fn(?string $phrase): string => NameService::replaceCopilotName($phrase),
 	[
@@ -78,6 +83,13 @@ $placeholderProgressPhrases = Json::encode(array_map(
 		Loc::getMessage('LANDING_COPILOT_AI_SITE_PLACEHOLDER_2'),
 	]
 ));
+$placeholderProgressLabel = htmlspecialcharsbx(Loc::getMessage('LANDING_COPILOT_AI_SITE_PROGRESS_LABEL'));
+$placeholderA11yMessages = Json::encode([
+	'generationStarted' => Loc::getMessage('LANDING_COPILOT_AI_SITE_A11Y_GENERATION_STARTED'),
+	'generationFinished' => Loc::getMessage('LANDING_COPILOT_AI_SITE_A11Y_GENERATION_FINISHED'),
+	'generationFailed' => Loc::getMessage('LANDING_COPILOT_AI_SITE_A11Y_GENERATION_FAILED'),
+]);
+$topPanelExitHint = htmlspecialcharsbx(Loc::getMessage('LANDING_COPILOT_AI_TOP_PANEL_EXIT_HINT'));
 $initialPlaceholderMessage = htmlspecialcharsbx(Loc::getMessage('LANDING_COPILOT_AI_SITE_INITIAL_PLACEHOLDER'));
 $initialPlaceholderCopilotName = htmlspecialcharsbx(NameService::getCopilotName() ?? '#COPILOT_NAME#');
 $initialPlaceholderText = str_replace(
@@ -101,12 +113,18 @@ foreach ($cssFiles as $cssFile) {
 }
 ?>
 
-<div class="<?= $aiAssistantPanelClass ?>">
+<div class="<?= $aiAssistantPanelClass ?>" data-testid="landing-ai-site-generation-page">
 	<div class="landing-site-copilot-ai-site landing-ai-assistant-panel__main">
-		<div class="landing-ui-panel landing-ui-panel-top landing-ui-panel-top-ai">
+		<div class="landing-ui-panel landing-ui-panel-top landing-ui-panel-top-ai" data-testid="landing-ai-site-top-panel">
 			<div class="landing-ui-panel-top-ai__brand">
-				<a href="/sites/" class="landing-ui-panel-top-ai__brand-link" data-slider-ignore-autobinding="true" target="_top">
-					<span class="ui-icon-set --o-home landing-ui-panel-top-ai__home" data-hint="Выйти из редактора" data-hint-no-icon=""></span>
+				<a href="/sites/" class="landing-ui-panel-top-ai__brand-link" data-slider-ignore-autobinding="true" target="_top" data-testid="landing-ai-site-exit-link">
+					<span
+						class="ui-icon-set --o-home landing-ui-panel-top-ai__home"
+						role="img"
+						aria-label="<?= $topPanelExitHint ?>"
+						data-hint="<?= $topPanelExitHint ?>"
+						data-hint-no-icon=""
+					></span>
 					<span class="landing-ui-panel-top-ai__product"><?= Loc::getMessage('LANDING_COPILOT_AI_TOP_PANEL_TITLE') ?></span>
 				</a>
 			</div>
@@ -116,21 +134,21 @@ foreach ($cssFiles as $cssFile) {
 			</div>
 			<div class="landing-ui-panel-top-ai__title-icon ui-icon-set --o-no-cloud-sync" aria-hidden="true"></div>
 			<div class="landing-ui-panel-top-ai__spacer"></div>
-			<div class="landing-ui-panel-top-devices landing-ui-disabled">
+			<div class="landing-ui-panel-top-devices landing-ui-disabled" aria-hidden="true">
 				<div class="landing-ui-panel-top-devices-inner">
-					<button class="landing-ui-button landing-ui-button-desktop active" data-id="desktop_button">
+					<button class="landing-ui-button landing-ui-button-desktop active" data-id="desktop_button" disabled>
 						<span class="ui-icon-set --o-screen" aria-hidden="true"></span>
 					</button>
-					<button class="landing-ui-button landing-ui-button-tablet" data-id="tablet_button">
+					<button class="landing-ui-button landing-ui-button-tablet" data-id="tablet_button" disabled>
 						<span class="ui-icon-set --o-tablet" aria-hidden="true"></span>
 					</button>
-					<button class="landing-ui-button landing-ui-button-mobile" data-id="mobile_button">
+					<button class="landing-ui-button landing-ui-button-mobile" data-id="mobile_button" disabled>
 						<span class="ui-icon-set --o-mobile" aria-hidden="true"></span>
 					</button>
 				</div>
 			</div>
 			<div class="landing-ui-panel-top-ai__spacer"></div>
-			<div class="landing-ui-panel-top-history">
+			<div class="landing-ui-panel-top-history" aria-hidden="true">
 				<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled"></span>
 				<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled"></span>
 			</div>
@@ -138,6 +156,7 @@ foreach ($cssFiles as $cssFile) {
 				<div
 					class="landing-ui-panel-top-ai__icon-button landing-ui-panel-top-ai__publication-button landing-ui-panel-top-pub-btn"
 					id="landing-popup-preview-btn"
+					aria-hidden="true"
 					data-hint="<?= Loc::getMessage('LANDING_CMP_TOP_PANEL_PREVIEW_BTN_TEXT') ?>"
 					data-hint-no-icon=""
 				>
@@ -147,6 +166,7 @@ foreach ($cssFiles as $cssFile) {
 					class="ui-btn --air --style-outline-no-accent ui-btn-no-caps ui-btn-sm landing-ui-panel-top-ai__features landing-ui-panel-top-menu-link-features"
 					id="landing-popup-features-btn"
 					type="button"
+					data-testid="landing-ai-site-features-btn"
 				>
 					<span class="landing-ui-panel-top-ai__features-text">
 						<?= Loc::getMessage('LANDING_CMP_TOP_PANEL_FEATURES_BTN_TEXT') ?>
@@ -157,7 +177,9 @@ foreach ($cssFiles as $cssFile) {
 					<button
 						class="landing-ui-panel-top-ai__icon-button landing-ui-panel-top-chat-toggle landing-ai-assistant-panel__toggle"
 						type="button"
+						data-testid="landing-ai-site-chat-toggle-btn"
 						aria-expanded="<?= $isAiAssistantChatExpandable ? 'true' : 'false' ?>"
+						<?= $isAiAssistantChatExpandable ? 'aria-controls="' . $aiAssistantChatColumnId . '"' : '' ?>
 						<?= $isAiAssistantToggleDisabled ? 'disabled' : '' ?>
 					>
 						<?= Loc::getMessage('LANDING_COPILOT_AI_CHAT_TOGGLE_CLOSE') ?>
@@ -167,6 +189,7 @@ foreach ($cssFiles as $cssFile) {
 		</div>
 		<div
 			class="landing-site-copilot-ai-placeholder"
+			data-testid="landing-ai-site-generation-placeholder"
 			data-js-landing-site-copilot-ai-placeholder-video-container
 			data-landing-site-copilot-ai-placeholder-video-container
 			data-landing-site-copilot-ai-placeholder-video-state="paused"
@@ -205,13 +228,21 @@ foreach ($cssFiles as $cssFile) {
 					</span>
 					<span
 						class="landing-site-copilot-ai-placeholder-text --hidden"
+						role="status"
+						aria-live="polite"
+						data-testid="landing-ai-site-generation-status"
 						data-landing-site-copilot-ai-placeholder-generation-text
 					>
 						<?= Loc::getMessage('LANDING_COPILOT_AI_SITE_PLACEHOLDER') ?>
 					</span>
 					<span
 						class="landing-site-copilot-ai-placeholder-progress --hidden"
-						aria-hidden="true"
+						role="progressbar"
+						aria-label="<?= $placeholderProgressLabel ?>"
+						aria-valuemin="0"
+						aria-valuemax="100"
+						aria-valuenow="0"
+						data-testid="landing-ai-site-generation-progress"
 						data-js-landing-site-copilot-ai-placeholder-progress
 						data-landing-site-copilot-ai-placeholder-progress
 						style="--landing-site-copilot-ai-placeholder-progress: 0%;"
@@ -222,7 +253,12 @@ foreach ($cssFiles as $cssFile) {
 		</div>
 	</div>
 	<?php if ($isAiAssistantChatExpandable): ?>
-		<div class="landing-site-copilot-ai-chat landing-ai-assistant-panel__chat" aria-hidden="false">
+		<div
+			class="landing-site-copilot-ai-chat landing-ai-assistant-panel__chat"
+			id="<?= $aiAssistantChatColumnId ?>"
+			data-testid="landing-ai-site-chat-column"
+			aria-hidden="false"
+		>
 			<div class="landing-ai-assistant-panel__widget"></div>
 		</div>
 	<?php endif; ?>
@@ -232,6 +268,7 @@ foreach ($cssFiles as $cssFile) {
 	BX.ready(() => {
 		const rootContainer = document.querySelector('.landing-site-copilot-ai');
 		const placeholderProgressPhrases = <?= $placeholderProgressPhrases ?>;
+		const placeholderA11yMessages = <?= $placeholderA11yMessages ?>;
 		if (rootContainer && window.LandingCopilotVideo)
 		{
 			rootContainer.landingSiteCopilotAiPlaceholderVideo = new window.LandingCopilotVideo(rootContainer);
@@ -259,6 +296,14 @@ foreach ($cssFiles as $cssFile) {
 			window.landingSiteCopilotAiPlaceholderProgress = rootContainer.landingSiteCopilotAiPlaceholderProgress;
 		}
 
+		if (rootContainer && window.LandingCopilotA11y)
+		{
+			rootContainer.landingSiteCopilotAiA11y = new window.LandingCopilotA11y(
+				{messages: placeholderA11yMessages}
+			);
+			window.landingSiteCopilotAiA11y = rootContainer.landingSiteCopilotAiA11y;
+		}
+
 		<?php if ($isAiAssistantChatExpandable): ?>
 			const aiSiteTriggerOptions = <?= $aiSiteTriggerOptions ?>;
 			new BX.Landing.AiAssistant.WidgetPanel({
@@ -277,7 +322,14 @@ foreach ($cssFiles as $cssFile) {
 		let generationId = null;
 		let activePlaceholderGenerationId = null;
 		const finishedPlaceholderGenerationIds = new Set();
+		// The pull stream may deliver the same command more than once, and a finish may follow an
+		// error of the same generation, so only the handoff to the editor is kept to a single run.
+		const editorHandoffGenerationIds = new Set();
 		const landingViewUrlTemplate = <?= $landingViewUrlTemplate ?>;
+		// The editor tells apart an opening made right after the generation by this address param.
+		// It only picks the sub-section of the opening event and is wiped from the address there.
+		const editorFromGeneratorParam = <?= $editorFromGeneratorParam ?>;
+		const editorFromGeneratorParamValue = <?= $editorFromGeneratorParamValue ?>;
 
 		const startPlaceholderMedia = () => {
 			window.landingSiteCopilotAiPlaceholderAnimation?.show();
@@ -307,6 +359,7 @@ foreach ($cssFiles as $cssFile) {
 					.replace('#landing_edit#', landingId)
 				;
 				const editorUrl = new URL(editorPath, window.location.origin);
+				editorUrl.searchParams.set(editorFromGeneratorParam, editorFromGeneratorParamValue);
 
 				window.location.href = `${editorUrl.pathname}${editorUrl.search}${editorUrl.hash}`;
 			}
@@ -342,6 +395,10 @@ foreach ($cssFiles as $cssFile) {
 			}).catch(() => null);
 		};
 
+		// The live announcer writes into the region a frame later, so the page has to outlive the
+		// readiness milestone it announces before the editor takes it over.
+		const readinessAnnouncementDeliveryDelay = 1500;
+
 		const handleGenerationState = (state) => {
 			const stateGenerationId = parseInt(state?.generationId, 10) || 0;
 			if (stateGenerationId <= 0)
@@ -358,11 +415,20 @@ foreach ($cssFiles as $cssFile) {
 					activePlaceholderGenerationId = null;
 				}
 				stopPlaceholderMedia();
-				redirectToEditor(
-					state.siteId,
-					state.landingId,
-					stateGenerationId
-				);
+				if (editorHandoffGenerationIds.has(stateGenerationId))
+				{
+					return;
+				}
+
+				editorHandoffGenerationIds.add(stateGenerationId);
+				window.landingSiteCopilotAiA11y?.announceGenerationFinished(stateGenerationId);
+				setTimeout(() => {
+					redirectToEditor(
+						state.siteId,
+						state.landingId,
+						stateGenerationId
+					);
+				}, readinessAnnouncementDeliveryDelay);
 			}
 		};
 
@@ -389,6 +455,7 @@ foreach ($cssFiles as $cssFile) {
 
 				activePlaceholderGenerationId = eventGenerationId;
 				startPlaceholderMedia();
+				window.landingSiteCopilotAiA11y?.announceGenerationStarted(eventGenerationId);
 			});
 		};
 
@@ -431,11 +498,23 @@ foreach ($cssFiles as $cssFile) {
 				return;
 			}
 
+			// The command is addressed to the user and shared by both site scenarios, so only a
+			// failure of the generation this page follows may speak here. The id is known from the
+			// create event even when the start was never shown, and it is read before the
+			// placeholder is settled below.
+			const isObservedGeneration = generationId === eventGenerationId
+				|| activePlaceholderGenerationId === eventGenerationId;
+
 			finishedPlaceholderGenerationIds.add(eventGenerationId);
 			if (activePlaceholderGenerationId === eventGenerationId)
 			{
 				activePlaceholderGenerationId = null;
 				stopPlaceholderMedia();
+			}
+
+			if (isObservedGeneration)
+			{
+				window.landingSiteCopilotAiA11y?.announceGenerationFailed(eventGenerationId);
 			}
 		};
 

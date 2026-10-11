@@ -463,9 +463,9 @@ this.BX.Landing = this.BX.Landing || {};
 		getContainerInputUrl() {
 			if (!this.$containerInputUrl) {
 				this.$containerInputUrl = main_core.Tag.render`
-				<input 
-					type="text" 
-					style="position: absolute; opacity: 0; pointer-events: none"
+				<input
+					type="text"
+					style="position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none"
 					value="${this.fullUrl}">
 			`;
 			}
@@ -1763,11 +1763,15 @@ this.BX.Landing = this.BX.Landing || {};
 		}
 	}
 
+	// where the popup goes when the caller passes no address: the same page the template opens, marked by
+	// the sites section - st_section is the wire name Bitrix\Landing\Metrika\Sections::URL_PARAM holds
+	const DEFAULT_AI_URL = '/sites/ai/?st_section=sites';
 	class PopupCopilot {
 		constructor(options) {
 			this.id = options.id;
 			this.videoSrc = options.videoSrc;
 			this.zone = options.zone ?? null;
+			this.aiUrl = options.aiUrl ?? DEFAULT_AI_URL;
 			this.container = null;
 			this.content = null;
 			this.popup = this.getPopup();
@@ -1775,7 +1779,7 @@ this.BX.Landing = this.BX.Landing || {};
 		getContent() {
 			if (!this.content) {
 				this.content = main_core.Tag.render`
-				<div class="landing-site_title-popup-content">
+				<div class="landing-site_title-popup-content" data-testid="landing-sites-copilot-popup">
 					<div class="landing-site_title-popup-main">
 						<div class="landing-site_title-popup-title">
 							${main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_TITLE')}
@@ -1854,9 +1858,12 @@ this.BX.Landing = this.BX.Landing || {};
 						size: ui_buttons.Button.Size.EXTRA_LARGE,
 						useAirDesign: true,
 						style: ui_buttons.Button.AirStyle.FILLED_SUCCESS,
+						dataset: {
+							testid: 'landing-sites-copilot-popup-create-btn'
+						},
 						onclick: button => {
 							button.setWaiting();
-							window.location.href = '/sites/ai/';
+							window.location.href = this.aiUrl;
 						}
 					})]
 				});
@@ -1948,16 +1955,21 @@ this.BX.Landing = this.BX.Landing || {};
 			this.notice = options.notice || null;
 			this.control = options.control || null;
 			this.input = options.input || null;
+			this.inputDescriptionId = this.input?.getAttribute('aria-describedby') || '';
 			this.valueInput = options.valueInput || null;
 			this.icon = options.icon || null;
 			this.isActive = false;
 			this.isInactive = true;
 			this.isAnimating = false;
 			this.isMultiline = false;
+			this.isLoading = false;
 			this.resizeObserver = null;
 			this.handleInput = this.handleInput.bind(this);
 			this.handlePaste = this.handlePaste.bind(this);
 			this.handleKeyDown = this.handleKeyDown.bind(this);
+			this.handleFocus = this.handleFocus.bind(this);
+			this.handleBlur = this.handleBlur.bind(this);
+			this.handlePointerInteraction = this.handlePointerInteraction.bind(this);
 			this.handleIconClick = this.handleIconClick.bind(this);
 			this.handleTransitionEnd = this.handleTransitionEnd.bind(this);
 			this.updateRowsState = this.updateRowsState.bind(this);
@@ -1978,6 +1990,13 @@ this.BX.Landing = this.BX.Landing || {};
 			this.input.addEventListener('input', this.handleInput);
 			this.input.addEventListener('paste', this.handlePaste);
 			this.input.addEventListener('keydown', this.handleKeyDown);
+			main_core.Event.bind(this.input, 'focus', this.handleFocus);
+			main_core.Event.bind(this.input, 'blur', this.handleBlur);
+			if (this.control) {
+				main_core.Event.bind(this.control, 'pointerdown', this.handlePointerInteraction);
+				main_core.Event.bind(this.control, 'mousedown', this.handlePointerInteraction);
+				main_core.Event.bind(this.control, 'touchstart', this.handlePointerInteraction);
+			}
 			this.box.addEventListener('transitionend', this.handleTransitionEnd);
 			this.icon?.addEventListener('click', this.handleIconClick);
 			window.addEventListener('resize', this.updateHeight);
@@ -2012,13 +2031,35 @@ this.BX.Landing = this.BX.Landing || {};
 				return;
 			}
 			event.preventDefault();
-			if (event.repeat || this.isInactive || this.isAnimating) {
+			if (event.repeat || this.isInactive || this.isLoading) {
 				return;
 			}
 			this.submitInitialPrompt();
 		}
+		handleFocus() {
+			if (!this.input) {
+				return;
+			}
+			const isKeyboardFocus = document.documentElement.dataset.inputModality === 'keyboard';
+			if (isKeyboardFocus) {
+				main_core.Dom.addClass(this.input, '--keyboard-focused');
+			} else {
+				main_core.Dom.removeClass(this.input, '--keyboard-focused');
+			}
+		}
+		handleBlur() {
+			this.removeKeyboardFocus();
+		}
+		handlePointerInteraction() {
+			this.removeKeyboardFocus();
+		}
+		removeKeyboardFocus() {
+			if (this.input) {
+				main_core.Dom.removeClass(this.input, '--keyboard-focused');
+			}
+		}
 		handleIconClick(event) {
-			if (this.isInactive || this.isAnimating) {
+			if (this.isInactive || this.isLoading) {
 				event.preventDefault();
 				return;
 			}
@@ -2028,6 +2069,7 @@ this.BX.Landing = this.BX.Landing || {};
 		submitInitialPrompt() {
 			const initialPrompt = this.getValue();
 			if (!initialPrompt) {
+				A11y.announce(main_core.Loc.getMessage('LANDING_SITE_TILE_AI_INPUT_EMPTY_ANNOUNCE'));
 				return;
 			}
 			if (!this.icon) {
@@ -2037,6 +2079,7 @@ this.BX.Landing = this.BX.Landing || {};
 			if (!action) {
 				return;
 			}
+			this.setLoading(true);
 			const form = document.createElement('form');
 			form.method = 'post';
 			form.action = action;
@@ -2049,6 +2092,15 @@ this.BX.Landing = this.BX.Landing || {};
 			}
 			document.body.appendChild(form);
 			form.submit();
+		}
+		setLoading(loading) {
+			this.isLoading = loading === true;
+			this.icon?.classList.toggle('--loading', this.isLoading);
+			this.icon?.setAttribute('aria-busy', this.isLoading ? 'true' : 'false');
+			this.box?.classList.toggle('--loading', this.isLoading);
+			if (this.input) {
+				this.input.contentEditable = this.isLoading ? 'false' : 'true';
+			}
 		}
 		createHiddenInput(name, value) {
 			const input = document.createElement('input');
@@ -2136,6 +2188,11 @@ this.BX.Landing = this.BX.Landing || {};
 			this.box.classList.toggle('--animating', this.isAnimating);
 			this.notice?.classList.toggle('--active', this.isInactive);
 			this.control?.classList.toggle('--active', this.isActive);
+
+			// Only one half of the pair is on the screen: the other one is faded out to opacity 0, which
+			// leaves it readable and reachable, so it is taken out of the accessibility tree as well.
+			A11y.setHidden(this.notice, this.isActive);
+			A11y.setHidden(this.control, this.isInactive);
 			if (this.frame) {
 				this.frame.tabIndex = -1;
 			}
@@ -2143,6 +2200,13 @@ this.BX.Landing = this.BX.Landing || {};
 				this.input.contentEditable = this.isActive ? 'true' : 'false';
 				this.input.setAttribute('aria-disabled', this.isActive ? 'false' : 'true');
 				this.input.tabIndex = this.isActive ? 0 : -1;
+
+				// The notice describes the inactive state only; in the active one it is hidden above.
+				if (this.isActive || !this.inputDescriptionId) {
+					this.input.removeAttribute('aria-describedby');
+				} else {
+					this.input.setAttribute('aria-describedby', this.inputDescriptionId);
+				}
 			}
 			if (this.icon) {
 				this.icon.setAttribute('aria-disabled', this.isActive ? 'false' : 'true');
@@ -2182,6 +2246,9 @@ this.BX.Landing = this.BX.Landing || {};
 				return;
 			}
 			this.box.style.height = `${fromHeight}px`;
+			// Commit the starting height. Without a layout read the browser goes straight to the target
+			// height, the transition never starts and its transitionend never releases the box.
+			void this.box.offsetHeight;
 			requestAnimationFrame(() => {
 				this.box.style.height = `${nextHeight}px`;
 			});
@@ -2745,6 +2812,7 @@ this.BX.Landing = this.BX.Landing || {};
 			this.scroller = null;
 			this.createByCopilotText = options.createByCopilotText || null;
 			this.copilotGeneratedText = options.copilotGeneratedText || null;
+			this.copilotPopupAiUrl = options.copilotPopupAiUrl || DEFAULT_AI_URL;
 			let videoSrc = '/bitrix/components/bitrix/landing.site_tile/templates/.default/video/en/siteWithCopilot.webm';
 			this.zone = options.zone || null;
 			if (options.lang === 'ru') {
@@ -2765,7 +2833,8 @@ this.BX.Landing = this.BX.Landing || {};
 						this.popupCopilot = new PopupCopilot({
 							id: 'popupCopilot',
 							videoSrc,
-							zone: this.zone
+							zone: this.zone,
+							aiUrl: this.copilotPopupAiUrl
 						});
 						this.popupCopilot.showPopup(1000);
 						this.popupCopilot.getPopup().subscribe('onAfterClose', () => {
