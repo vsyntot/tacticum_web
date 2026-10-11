@@ -94,7 +94,7 @@ AI sale path берётся из config `ai.endpoint_paths.*`: обычные л
 
 ## Sale Alias Lifecycle And Staff Upstream
 
-`tacticum_offer.php` и `tacticum_sale.php` являются legacy aliases. Successor endpoint для новых интеграций - `/local/rest/tacticum_form.php`; aliases должны отдавать `Deprecation`, `Sunset` с target date `30.09.2026` и `Link: rel="successor-version"` до финального решения. Sprint 09 фиксирует обязательную матрицу действий: inventory consumers до `30.06.2026`, миграция до `31.08.2026`, финальное решение до `30.09.2026`.
+`tacticum_offer.php` и `tacticum_sale.php` являются legacy aliases. Successor endpoint для новых интеграций - `/local/rest/tacticum_form.php`; aliases должны отдавать `Deprecation`, `Sunset` с target date `31.12.2026` и `Link: rel="successor-version"` до финального решения. Продление зафиксировано в `docs/workflow/legacy-sale-support-extension-2026-10-11.md`; к `31.12.2026` требуется финальное решение.
 
 Для `/price/` staff-order единственный поддерживаемый путь переключения на будущий rich workers upstream - изменение server config `ai.endpoint_paths.staff_sale`. До появления совместимого upstream contract значение остаётся `/tacticum/v1/chat_agent/sale`; если новый contract требует другой payload или response shape, это новая Security / Integration задача с обновлением ADR-006 и этого contract.
 
@@ -198,7 +198,7 @@ Contract decision:
 }
 ```
 
-Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call and retry policy. `tacticum_offer.php` and `tacticum_sale.php` are legacy aliases: they preserve response shape, but return `Deprecation`, `Sunset` target `30.09.2026` and `Link: rel="successor-version"` headers pointing to `/local/rest/tacticum_form.php`. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
+Backend treats any upstream `2xx` response from `/tacticum/v1/chat_agent/sale` as accepted, including an empty upstream body. The default lead endpoint, `tacticum_offer.php` and `tacticum_sale.php` use shared `tacticum_rest_submit_chat_agent_sale(...)` for the upstream call and retry policy. `tacticum_offer.php` and `tacticum_sale.php` are legacy aliases: they preserve response shape, but return `Deprecation`, `Sunset` target `31.12.2026` and `Link: rel="successor-version"` headers pointing to `/local/rest/tacticum_form.php`. If upstream rejects a sale payload that contains `group_id`, backend retries the same lead once without `group_id`; this keeps the manual contact request deliverable when AI chat context is stale or malformed upstream. Non-2xx after retry remains `502 upstream_error`.
 
 For default lead forms, allowlisted `lead_*` fields are normalized into the canonical lead profile and appended to upstream `task` as a short `Контекст заявки` block. Unknown request fields are not forwarded. Contact data and free-form `message` remain subject to existing validation and masking/logging rules.
 
