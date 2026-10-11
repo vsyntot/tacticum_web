@@ -123,7 +123,8 @@ def run(root, state, tool_root, apply):
     require(approval['plan_id'] == PLAN and approval['artifact_sha256'] == ARTIFACT, 'approval binding')
     require(approval['prod_manifest_sha256'] == PROD and approval['candidate_manifest_sha256'] == CANDIDATE, 'approval inputs')
     from datetime import datetime, timezone
-    require(datetime.now(timezone.utc) < datetime.fromisoformat(approval['expires_at']), 'approval expired')
+    expires_at = approval['expires_at'].replace('Z', '+00:00')
+    require(datetime.now(timezone.utc) < datetime.fromisoformat(expires_at), 'approval expired')
     require(digest((state / 'artifact.tar.gz').read_bytes()) == ARTIFACT, 'artifact integrity')
     old = {e['path']: e for e in prod['entries']}
     new = {e['path']: e for e in candidate['entries']}
