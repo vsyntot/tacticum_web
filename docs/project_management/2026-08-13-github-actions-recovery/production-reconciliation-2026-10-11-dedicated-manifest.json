@@ -1,0 +1,88 @@
+{
+  "evidence_id": "E-031",
+  "captured_at": "2026-10-11T15:41:45Z",
+  "purpose": "Dedicated FILE_ONLY production inventory bootstrap and two-way reconciliation",
+  "authorization": "Explicit user instruction in current session to implement the production contour; personal key used only for bootstrap",
+  "mutation_performed": true,
+  "production_content_mutation": false,
+  "bootstrap": {
+    "host_identity_sha256": "SHA256:tXW60yeMeDJGi/olIsKhKFklQBArPHZGkdhWxcgaIM8",
+    "ssh_user": "bitrix",
+    "dedicated_key_fingerprint": "SHA256:BSjEU21T8oAvvsdH8XGAgzwlqEHzrP7Ls0TZyGVlLmo",
+    "wrapper": "/usr/local/sbin/tacticum-prod-bitrix-manifest",
+    "server_tool_root": "/usr/local/lib/tacticum-deploy",
+    "server_scope_sha256": "a94d6afadc34d984eab19d5f6c582fa1374e6c9ec92eded0f7b022fd554a9652",
+    "server_sources": {
+      "production-deploy-contract.mjs": "20c06068c42ddfdefe9a41e3c0e3a0b0c442cae9527bf3c29536a290471a83",
+      "production-server-manifest.mjs": "5c11b660d3605606f3bbe40eec9cfbd0b1ab5cc39728e01b81fdf9276149e464",
+      "wrapper": "61df8608ed2f7a2d9f1f1ba1e48d221e9e27b5cdfdfb5253703232020d9dc37c"
+    },
+    "denial_checks": {
+      "shell": "passed_exit_126",
+      "empty_command": "passed_exit_126",
+      "sftp": "passed_exit_126",
+      "pty": "passed_allocation_denied"
+    }
+  },
+  "scope_version": "2026-10-11.1",
+  "prod_manifest": {
+    "tree_kind": "prod",
+    "entry_count": 376,
+    "manifest_sha256": "736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063",
+    "second_manifest_sha256": "736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063",
+    "stable": true
+  },
+  "candidate_manifest_sha256": "1c0a7b32969e744cffcf0f663e6fa567deba34088edbda1539b88c3807ee4d33",
+  "plan_id": "637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70",
+  "comparison_mode": "BASE_UNKNOWN_TWO_WAY",
+  "changes": [
+    {
+      "path": "local/rest/endpoint_policy.json",
+      "status": "DIFFERENT_UNRESOLVED",
+      "prod_sha256": "4008e252153656b24eb41054d74b1062272a815c32a3b0ca6cd39d9d0d018bf7",
+      "candidate_sha256": "3205420074781a877a76aa770f545fd3d7fb63693df501ba467fbcbfcf5fd028",
+      "decision": "candidate_promotion_proposed",
+      "approval": "pending"
+    },
+    {
+      "path": "local/rest/tacticum_offer.php",
+      "status": "DIFFERENT_UNRESOLVED",
+      "prod_sha256": "1977ab84dd4a9556dd85ecd25052ab98a7c0360277305fcbb89bf8d2befa6edc",
+      "candidate_sha256": "4460c78cb09b563ad263936def1f2a62d9946ac5389fdf2a63f3e3eea96ba3c5",
+      "decision": "candidate_promotion_proposed",
+      "approval": "pending"
+    },
+    {
+      "path": "local/rest/tacticum_sale.php",
+      "status": "DIFFERENT_UNRESOLVED",
+      "prod_sha256": "7a888e498c3de6e0ee006fef40267a4b1b4a6f86cab88977970155b010c7d9af",
+      "candidate_sha256": "76d740b0f1120ddf9bb5e872b5e045e18153c089f4d89059efc4eb6b964a8163",
+      "decision": "candidate_promotion_proposed",
+      "approval": "pending"
+    },
+    {
+      "path": "local/templates/tacticum/tailwind.generated.css",
+      "status": "DIFFERENT_UNRESOLVED",
+      "prod_sha256": "a6642961be238dcc0bc5fc860aeddd187726e2394ab417aeb17a70a50b509f56",
+      "candidate_sha256": "de749cf0402ffbe4a051065fe44834c94e9d2ff1b31b0befa5413222f50ae3d8",
+      "decision": "candidate_promotion_proposed",
+      "approval": "pending"
+    }
+  ],
+  "gate_state": {
+    "dedicated_readonly_inventory": "passed",
+    "stable_dual_manifest": "passed",
+    "drift_decisions": "open",
+    "exact_apply_approval": "pending",
+    "server_lock": "not_run",
+    "backup_restore_rehearsal": "not_run",
+    "production_apply": "not_run",
+    "post_apply_smoke": "not_run"
+  },
+  "residual_limits": [
+    "BASE_UNKNOWN remains; origin/main is not BASE",
+    "Four file drifts require explicit path-level decision before apply",
+    "Trusted write controller, lock, backup/restore rehearsal and GitHub environment approval remain open",
+    "No production application files were changed during bootstrap or inventory"
+  ]
+}

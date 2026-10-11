@@ -5,14 +5,14 @@
 | Метрика | Значение |
 |---|---:|
 | Всего задач | 16 |
-| Выполнено | 11 |
+| Выполнено | 12 |
 | В работе | 0 |
-| Заблокировано | 4 |
-| Осталось | 5 |
+| Заблокировано | 3 |
+| Осталось | 4 |
 
 ## Сейчас в работе
 
-- Активных локальных задач нет. Следующий E2E-шаг `CI-REC-012` требует внешнего access decision и trusted server inputs; production access и deploy не выполнялись.
+- Активных локальных задач нет. `CI-REC-012` закрыт dedicated read-only inventory; следующий E2E-шаг — path-level drift decisions и trusted guarded apply.
 
 ## Последние изменения
 
@@ -40,13 +40,14 @@
 - Локальные metadata подтверждают personal Ed25519 mode `0600`, passphrase и fingerprint, но access ещё не готов: `.env` mode `0644`, dedicated key/public path и pinned known-hosts отсутствуют, default SSH допускает interactive trust/password/multiple identities.
 
 - Выполнен user-authorized bounded FILE_ONLY production snapshot: 14 authoritative directories, 371 одинаковый файл, 0 remote-only, 2 расхождения. Production Tailwind 4.1.8 и sitemap с lastmod 2026-06-07 старее локального baseline (Tailwind 4.3.3 / 2026-08-13), поэтому импорт не выполнялся; `bitrix/`, `upload/`, config и data не затрагивались. Evidence: `production-reconciliation-2026-10-11.json`.
+- Установлен dedicated passphrase-protected `bitrix` key с pinned host fingerprint и forced-command manifest wrapper; shell, empty command, SFTP и PTY probes rejected. Два consecutive production manifests совпали: 376 entries, hash `736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063`; evidence: `production-reconciliation-2026-10-11-dedicated-manifest.json`.
 
 ## Блокеры
 
 - GitHub не содержит repository или `production` environment secrets; обязательные пять secret names отсутствуют.
 - `main` не имеет branch protection/ruleset.
-- На production ещё не установлен/не проверен dedicated forced-command public key для `bitrix`, host fingerprint не закреплён и достоверный deployment manifest отсутствует.
-- Не принято отдельное решение: отозвать personal `id_ed25519` authorization после bootstrap либо сохранить его по formal break-glass policy.
+- После bootstrap personal `id_ed25519` остаётся только break-glass средством текущей сессии; dedicated key не использует personal shell boundary.
+- Четыре path-level drift decisions не утверждены; `BASE_UNKNOWN` сохраняется, `origin/main` не считается BASE.
 - Текущий workflow не умеет останавливать deploy при ручном production drift, не показывает checksum dry-run и не проверяет TOCTOU перед rsync.
 - Принятый ADR/governance ещё не обеспечен production wrapper/controller, immutable artifact promotion, lock, backup/restore, approval binding и rollback tooling.
 - Независимый durable baseline store и staging path не выбраны; waiver отсутствует.

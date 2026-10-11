@@ -783,7 +783,7 @@ External gates из Sprint 14 остаются отдельным хвостом
 | ID | Status | Priority | Area | Gap / closure target | PM task |
 |---|---|---:|---|---|---|
 | DELIVERY-E2E-001 | closed | P0 | Contract tooling | `tools/deploy-scope.json`, path/scope `FILE_ONLY` classifier, canonical manifest/plan schema, fail-closed `.env`/SSH preflight и fixtures реализованы; classifier требует отдельный semantic data-lifecycle review и сам не разрешает mutation | `CI-REC-016` |
-| DELIVERY-E2E-002 | blocked | P0 | Production inventory | Нет pinned host identity, dedicated forced-command local key/wrapper denial evidence, решения revoke/break-glass для personal key, двух стабильных PROD manifests и безопасного `BASE_UNKNOWN` two-way inventory | `CI-REC-012` |
+| DELIVERY-E2E-002 | in-progress | P0 | Production inventory | Dedicated key, pinned host identity, wrapper denial evidence и два стабильных PROD manifests реализованы; остаются formal break-glass record и дальнейшая BASE lifecycle | `CI-REC-012` |
 | DELIVERY-E2E-003 | blocked | P0 | Drift reconciliation | Фактические server changes ещё не показаны, не adopted/rejected и не сведены через Git review | `CI-REC-013` |
 | DELIVERY-E2E-004 | open | P0 | Trusted apply | Не реализованы immutable artifact promotion, trusted wrappers, exact approval binding, exclusive lock, backup/restore rehearsal, rollback и dual BASE | `CI-REC-014` |
 | DELIVERY-E2E-005 | blocked | P0 | Release controls | Не выбраны staging path/approved waiver и independent BASE store; не настроены separate keys, environments, reviewers, CODEOWNERS/ruleset | `CI-REC-015` |
