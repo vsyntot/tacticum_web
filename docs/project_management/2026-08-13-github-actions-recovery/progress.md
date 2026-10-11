@@ -5,14 +5,14 @@
 | Метрика | Значение |
 |---|---:|
 | Всего задач | 16 |
-| Выполнено | 12 |
-| В работе | 0 |
-| Заблокировано | 3 |
-| Осталось | 4 |
+| Выполнено | 13 |
+| В работе | 2 |
+| Заблокировано | 1 |
+| Осталось | 3 |
 
 ## Сейчас в работе
 
-- Активных локальных задач нет. `CI-REC-012` закрыт dedicated read-only inventory; следующий E2E-шаг — path-level drift decisions и trusted guarded apply.
+- В работе `CI-REC-009` и `CI-REC-014`: production FILE_ONLY apply завершён, наблюдение и перенос trusted-контуров в GitHub остаются отдельными шагами.
 
 ## Последние изменения
 
@@ -41,17 +41,18 @@
 
 - Выполнен user-authorized bounded FILE_ONLY production snapshot: 14 authoritative directories, 371 одинаковый файл, 0 remote-only, 2 расхождения. Production Tailwind 4.1.8 и sitemap с lastmod 2026-06-07 старее локального baseline (Tailwind 4.3.3 / 2026-08-13), поэтому импорт не выполнялся; `bitrix/`, `upload/`, config и data не затрагивались. Evidence: `production-reconciliation-2026-10-11.json`.
 - Установлен dedicated passphrase-protected `bitrix` key с pinned host fingerprint и forced-command manifest wrapper; shell, empty command, SFTP и PTY probes rejected. Два consecutive production manifests совпали: 376 entries, hash `736095634beb3738dc70f595745620481dc26969ffc36863a64b30c399f05063`; evidence: `production-reconciliation-2026-10-11-dedicated-manifest.json`.
+- Выполнен утверждённый FILE_ONLY rollout по plan `637e64de088c5ac1519b7539923bacba8cf35f7c7e6f3eaebfbe25fc58818f70`: четыре path-level drift changes применены под двумя lock-файлами, immutable artifact, backup/restore rehearsal и cache clear; post-manifest стабилен, public precheck/SEO/browser smoke зелёные. Evidence: `production-rollout-2026-10-11-file-only.json`; две hash-only BASE-копии сохранены локально и root-only на сервере.
 
 ## Блокеры
 
 - GitHub не содержит repository или `production` environment secrets; обязательные пять secret names отсутствуют.
 - `main` не имеет branch protection/ruleset.
 - После bootstrap personal `id_ed25519` остаётся только break-glass средством текущей сессии; dedicated key не использует personal shell boundary.
-- Четыре path-level drift decisions не утверждены; `BASE_UNKNOWN` сохраняется, `origin/main` не считается BASE.
+- Path-level drift reconciliation закрыт для plan `637e64de`; дальнейшие изменения требуют нового manifest/approval, а observation window после rollout остаётся открытым.
 - Текущий workflow не умеет останавливать deploy при ручном production drift, не показывает checksum dry-run и не проверяет TOCTOU перед rsync.
-- Принятый ADR/governance ещё не обеспечен production wrapper/controller, immutable artifact promotion, lock, backup/restore, approval binding и rollback tooling.
-- Независимый durable baseline store и staging path не выбраны; waiver отсутствует.
-- Merge PR запускает production deployment, поэтому до настройки secrets и явного merge/deploy решения выполнять его нельзя.
+- Рабочий wrapper/controller, immutable artifact, lock, approval binding и backup/restore rehearsal доказаны для этого rollout; GitHub trusted write path и отдельный rollback exercise остаются открытыми.
+- Staging отсутствует и закрыт bounded owner waiver; две BASE-копии сохранены в локальном evidence и root-only server domains, но durable external store и GitHub release controls ещё не настроены.
+- PR #46 имеет зелёный Quality Gate; automatic merge/deploy остаётся отложенным до настройки trusted GitHub production controls и завершения observation window.
 
 ## Следующий шаг
 
