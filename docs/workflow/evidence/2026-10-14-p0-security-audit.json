@@ -34,12 +34,32 @@
       "crypto_key_blob_hits": 3,
       "secret_values_recorded": false,
       "history_scope": "bounded paths and names only"
+    },
+    "diff_based_history_search": {
+      "status": "partial",
+      "crypto_key_commit_count": 9,
+      "private_key_marker_commit_count": 1,
+      "token_pattern_search": "not_checked_after_regex_error",
+      "values_printed": false
     }
   },
   "limitations": [
-    "This is not a full credential inventory.",
-    "The all-object history scan was stopped after an inefficient IPC implementation exceeded the bounded run window; no repository or production data was changed.",
+    "This is not a full arbitrary credential inventory.",
+    "Two all-object scan implementations were stopped after exceeding the bounded run window; no repository or production data was changed.",
+    "Diff-based search covered crypto_key and private-key marker patterns; token prefix patterns remain not_checked after a regex command error.",
     "Historical crypto_key findings require an owner-approved remediation decision; history rewrite was not performed."
   ],
-  "next_validation": "Complete credential inventory and owner-approved remediation plan for historical findings."
+  "next_validation": "Complete credential inventory and owner-approved remediation plan for historical findings.",
+  "failure_ledger": [
+    {
+      "attempt": "all reachable blob object scan",
+      "result": "stopped_bounded_window",
+      "impact": "no repository or production mutation; full inventory remains unsupported"
+    },
+    {
+      "attempt": "diff-based token prefix search",
+      "result": "command_failed_regex_exit_128",
+      "impact": "no data mutation; token patterns remain not_checked"
+    }
+  ]
 }
