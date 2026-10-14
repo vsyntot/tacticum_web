@@ -1,9 +1,13 @@
 # Current State — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 14.08.2026
+Дата последнего обновления: 14.10.2026
 
 ## Краткое Резюме
+
+## План общего CI и синхронизации платформы — 14.10.2026
+
+По результатам грилля подготовлен [пошаговый план двух сайтов, CI/CD и импорта обновлений Битрикс](plans/2026-10-14-multisite-ci-core-sync.md). Владелец принял реализацию; P0/P1/P2/P4/P5 начаты в ветке `feat/multisite-delivery-core-sync`, полный результат `in_progress`. Config исключён из локального Git index, secret guard и deterministic archive fixtures проходят; v2 сборка охватывает 399+10 файлов, platform import пока проверен на fixtures; live crypto_key ротирован по exact STATEFUL approval 14.10.2026 (verified: 252 HTTP проверки за 15 минут, browser smoke обоих сайтов, owner-confirmed admin login и две совпадающие scoped STATEFUL BASE copies), новая production automation не установлена. Приоритет — устранение подтверждённого раскрытия конфигурационного секрета; далее единый multi-root scope, воспроизводимая сборка, pinned platform snapshot, интеграционные проверки и verified dual BASE. Владелец планирует перенос в self-managed GitLab и исключил привязку хранения к GitHub. Выбор и развёртывание snapshot/backup storage отложены владельцем до GitLab. Независимый CI пакет вынесен в PR #55: 7 jobs прошли, чистая сборка 399+10 файлов совпала на Mac и Linux; portable smoke 14 маршрутов passed. Требуемых checks main теперь 7, остальные protection settings сохранены. Candidate transaction kernel прошёл 10 isolated recovery tests; production controller не установлен. Новые gaps `MSCI-01`—`MSCI-10` не отменяют завершённый contact-only запуск Divatech.
 
 ## Divatech multisite — 14.10.2026
 

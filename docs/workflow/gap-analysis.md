@@ -1,7 +1,24 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 14.08.2026
+Дата последнего обновления: 14.10.2026
+
+## Общий CI, два сайта и обновления платформы — 14.10.2026
+
+Основание: гриль 14.10.2026 и [детальный план](plans/2026-10-14-multisite-ci-core-sync.md). MSCI-09 закрыт по воспроизводимым clean builds, остальные gaps не закрыты; локальная реализация MSCI-01/02/03/05/06/07/09 начата, remote acceptance впереди; приоритеты — техническая оценка по последствиям, не утверждённый срок. Новая задача не переоткрывает завершённый contact-only запуск Divatech.
+
+| Gap | Приоритет | Статус | Проблема | Закрывающие этапы плана |
+|---|---|---|---|---|
+| MSCI-01 | P0 | in_progress | Ротация раскрытого production crypto_key verified; проверка остальных credentials, полная инвентаризация и устранение раскрытия в опубликованной истории остаются открыты | P0 |
+| MSCI-02 | P1 | in_progress | Ядро хранится в Git, но его импорт запрещён CI; версии модулей частично исключены | P1, P2 |
+| MSCI-03 | P1 | in_progress | Mtime-sync одного корня не обеспечивает точное соответствие платформы и не обрабатывает upstream deletions | P2, P8 |
+| MSCI-04 | P1 | open | Platform/core/schema identity не связана с допуском application deploy | P2, P3, P6, P8 |
+| MSCI-05 | P1 | in_progress | Общая доставка и post-deploy smoke не охватывают полный второй корень | P4, P6, P7, P9 |
+| MSCI-06 | P1 | in_progress | В PR #55 добавлены ранняя классификация и 7 проверенных CI jobs; все 7 назначены required. Merge/проверка main и real integration остаются впереди | P5 |
+| MSCI-07 | P1 | in_progress | CONVERGED/no-op и продвижение независимого verified BASE не завершены | P7, P9 |
+| MSCI-08 | P1 | open | Контроллер ограничен заменой существующих файлов; нужен проверенный lifecycle create/delete и recovery двух корней | P6, P8, P9 |
+| MSCI-09 | P2 | closed | Versioned sitemap input и нормализованный архив: две clean builds и Mac/Linux дали одинаковый SHA-256; evidence в плане/PR #55 | P4 |
+| MSCI-10 | P1 | open | CI/runtime PHP расходятся; нет обязательной полной интеграционной среды обоих сайтов на pinned platform | P3, P5, P8 |
 
 ## Divatech multisite — обновление 14.10.2026
 

@@ -44,6 +44,48 @@ jobs:
             exit 1
           fi
 
+  php-production:
+    name: PHP 8.5 production syntax and contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: none
+      - name: Check application PHP for both sites
+        run: python3 tools/ci/php-check.py
+
+  delivery-contracts:
+    name: Multisite delivery and platform contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Check multi-root build, safety and reproducibility
+        run: bash tools/ci/delivery-checks.sh
+
+  multisite-build:
+    name: Multisite clean build reproducibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Build both sites twice from the checked-out commit
+        run: python3 tools/ci/multisite-build-check.py --output=multisite-build-receipt.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: multisite-build-receipt-${{ github.sha }}
+          path: multisite-build-receipt.json
+          if-no-files-found: error
+          retention-days: 14
+
   multisite-config:
     name: Divatech virtual host boundaries
     runs-on: ubuntu-latest
@@ -129,6 +171,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Check indexed sources for secrets and environment-owned files
+        run: |
+          python3 tools/repository-security-self-test.py
+          python3 tools/repository-security-check.py
 
       - name: Resolve changed-files base
         shell: bash
@@ -526,11 +573,5 @@ jobs:
 
       - name: Проверка изменений в bitrix/ (запрещено)
         run: |
-          RESULT=$(git diff "$TACTICUM_CI_DIFF_BASE"...HEAD --name-only -- 'bitrix/' || true)
-          if [ -n "$RESULT" ]; then
-            echo "❌ ERROR: Changes in bitrix/ are not allowed!"
-            echo "$RESULT"
-            exit 1
-          else
-            echo "✅ bitrix/ not modified."
-          fi
+          # Removing tracked environment secrets is allowed; vendor edits remain blocked.
+          python3 tools/repository-security-check.py --check-core-diff "$TACTICUM_CI_DIFF_BASE"

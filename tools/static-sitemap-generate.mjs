@@ -22,7 +22,9 @@ const STATIC_PATHS = [
 ];
 
 const options = parseOptions(process.argv.slice(2));
-const lastmod = normalizeLastmod(options.lastmod || process.env.TACTICUM_STATIC_SITEMAP_LASTMOD || currentDate());
+const input = JSON.parse(await readFile(new URL('./static-sitemap-input.json', import.meta.url), 'utf8'));
+if (input.schemaVersion !== 1) throw new Error('Unsupported static sitemap input version');
+const lastmod = normalizeLastmod(options.lastmod || process.env.TACTICUM_STATIC_SITEMAP_LASTMOD || input.lastmod);
 const output = resolve(options.output || DEFAULT_OUTPUT);
 const xml = buildSitemapXml(lastmod);
 
@@ -98,10 +100,6 @@ function buildSitemapXml(lastmodDate) {
     '</urlset>',
     ''
   ].join('\n');
-}
-
-function currentDate() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function normalizeLastmod(value) {
