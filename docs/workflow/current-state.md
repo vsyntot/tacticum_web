@@ -11,6 +11,8 @@
 
 ## Divatech multisite — 14.10.2026
 
+Fixture P6/P7 controller/finalizer пакет принят через [PR #57](https://github.com/vsyntot/tacticum_web/pull/57), merge `55509cd6`. Main run `38574979561` завершён success: 7 quality jobs и classifier passed, production artifact/inspect/reconcile/apply/smoke skipped по классификации control-plane. Production controller не установлен.
+
 Divatech работает как s2 общей установки по https://divatech.space/: отдельные root/template/TLS, формы выключены по принятому решению. Выпуск `DIVA-1c7758f70cde739f` с исправлением `DIVA-FIX-3c159bad6601` verified: security/browser/TLS/SEO smoke, 19 циклов/133 route checks за 15 минут, dual STATEFUL BASE и cleanup прошли. Tacticum работает без обнаруженной регрессии. [План и evidence](plans/2026-10-13-divatech-bitrix-multisite.md), [ADR-015](../adr/ADR-015-divatech-multisite.md). Review-доставка `DIVA-REVIEW-be77e02f8f5ade6e` также verified: shared-код и два entry points обновлены, 133 проверки за 15 минут прошли. [PR #53](https://github.com/vsyntot/tacticum_web/pull/53) смержен в main (`b8a90aab3`); общий BASE содержит 399 файлов. [Main workflow](https://github.com/vsyntot/tacticum_web/actions/runs/38534851216) завершился success: zero changes, production apply пропущен. Две независимые копии общего и Divatech BASE проверены. Контроль через 24 часа не запускался в фоне.
 
 ## ADP Identity Migration Snapshot — 11.10.2026
