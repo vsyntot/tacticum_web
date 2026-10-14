@@ -1,0 +1,100 @@
+{
+  "status": "prepared_awaiting_exact_approval",
+  "plan_id": "DIVA-REVIEW-be77e02f8f5ade6e",
+  "artifact_sha256": "96c8fdd89bf3ad78ffb736b4acf69264f96783a60d9ea3c113217eb9d30d573c",
+  "operator_sha256": "ea4a3d85e3ab7b77e52c04e44fae7a02ca2d821121409d688990369d09120f89",
+  "git_commit": "7ae35b91e9a92b3bf627614408b18f9b239ddb89",
+  "pr": "https://github.com/vsyntot/tacticum_web/pull/53",
+  "quality_run": "https://github.com/vsyntot/tacticum_web/actions/runs/38513991489",
+  "quality": "4 jobs passed",
+  "prod_manifest_sha256": "0ffe48a7928ab2d96dfda33f213017bf3ad925adb2a54bd27bbd15430ada02fb",
+  "backup_restore": "passed content/mode/uid/gid",
+  "server_backup_sha256": "4e2c9b7d9656521bbcde58f14fcdcb1355ca2843316a4c1b58a93709fa7952ae",
+  "release_class": "STATEFUL",
+  "scope": [
+    {
+      "source": "local/lib/Tacticum/Rest/RequestSite.php",
+      "destination": "/home/bitrix/www/local/lib/Tacticum/Rest/RequestSite.php",
+      "size": 735,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "a7926d86267fd59a9d9e85e3763330d05c1be211d66147cf75fc551334ac2950"
+    },
+    {
+      "source": "local/lib/Tacticum/Rest/Security.php",
+      "destination": "/home/bitrix/www/local/lib/Tacticum/Rest/Security.php",
+      "size": 8352,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "8ec32caf605ff7a95d7ce0184bbfe56754a63a92ffcb4ce709a4fb7e4496b1ac"
+    },
+    {
+      "source": "local/php_interface/include/tacticum_config.example.php",
+      "destination": "/home/bitrix/www/local/php_interface/include/tacticum_config.example.php",
+      "size": 2906,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "48ed91527fe7db53bea0ea90f94f80872407dd56e7a1b48ad4f51e760b4694d5"
+    },
+    {
+      "source": "local/rest/rest_helpers.php",
+      "destination": "/home/bitrix/www/local/rest/rest_helpers.php",
+      "size": 7232,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "40247917e2937b1faa6c39ee3020eaac0d6afb8a2adc513bdd91955759a5e6b3"
+    },
+    {
+      "source": "sitemap-basic-files.xml",
+      "destination": "/home/bitrix/www/sitemap-basic-files.xml",
+      "size": 1527,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "6a8fe72e57ee204d78222be05116edd42d0db035fb42b37a51c1435e99fcec6f"
+    },
+    {
+      "source": "sites/divatech/404.php",
+      "destination": "/home/bitrix/ext_www/divatech.space/404.php",
+      "size": 647,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "7ce752cd76c7240ff348353fa92e527780565811af6fef1cc7bf1d4247ac7ed9"
+    },
+    {
+      "source": "sites/divatech/index.php",
+      "destination": "/home/bitrix/ext_www/divatech.space/index.php",
+      "size": 597,
+      "mode": "0644",
+      "uid": 600,
+      "gid": 600,
+      "sha256": "1c018589c0d90deaa0894e665f5742cadb1623056da3e6313bb1aed5fa22892a"
+    }
+  ],
+  "deletions": [],
+  "database_config_services": "unchanged",
+  "production_apply": false,
+  "approval_requested": "2026-10-14; exact plan question in conversation",
+  "expires_at": "2026-10-14T12:00:00Z",
+  "private_local_evidence": "~/Library/Application Support/Tacticum/releases/divatech-delivery-20261014/",
+  "private_server_evidence": "/root/tacticum-releases/DIVA-REVIEW-be77e02f8f5ade6e/",
+  "failure_ledger": [
+    {
+      "step": "dedicated read-only SSH inventory",
+      "state": "failed",
+      "cause": "key authentication unavailable in current agent",
+      "resolution": "existing authorized root channel runs fixed manifest wrapper as bitrix; host pin enforced"
+    },
+    {
+      "step": "preparation operator import",
+      "state": "resolved",
+      "cause": "operator.py shadowed Python standard library operator module before any application mutation",
+      "resolution": "renamed release_operator.py; new exact plan; superseded staging removed; server restore preparation passed"
+    }
+  ]
+}
