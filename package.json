@@ -166,7 +166,11 @@
     "content:storage:page-content:seed": "php ./tools/content-storage-page-content-seed.php",
     "content:storage:page-content:seed:wave2": "php ./tools/content-storage-page-content-seed.php --wave=wave_2",
     "content:storage:page-content:seed:apply": "php ./tools/content-storage-page-content-seed.php --apply",
-    "content:storage:page-content:seed:wave2:apply": "php ./tools/content-storage-page-content-seed.php --wave=wave_2 --apply"
+    "content:storage:page-content:seed:wave2:apply": "php ./tools/content-storage-page-content-seed.php --wave=wave_2 --apply",
+    "ci:delivery": "bash tools/ci/delivery-checks.sh",
+    "ci:php": "python3 tools/ci/php-check.py",
+    "ci:multisite-build": "python3 tools/ci/multisite-build-check.py",
+    "smoke:multisite": "python3 tools/multisite-public-smoke.py"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.3.3",

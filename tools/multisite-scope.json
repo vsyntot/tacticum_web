@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "scopeVersion": "2026-10-14.multisite.1",
+  "primaryScope": "tools/deploy-scope.json",
+  "roots": {
+    "primary": {"source": ".", "destination": "/home/bitrix/www", "sites": ["s1", "s2"]},
+    "divatech": {"source": "sites/divatech", "destination": "/home/bitrix/ext_www/divatech.space", "sites": ["s2"]}
+  },
+  "sharedPrefix": "local/",
+  "divatechRuntimeLinks": {
+    "bitrix": "/home/bitrix/www/bitrix",
+    "local": "/home/bitrix/www/local",
+    "upload": "/home/bitrix/www/upload"
+  },
+  "statefulSiteFiles": [".access.php", ".htsecure"],
+  "productionReady": false
+}

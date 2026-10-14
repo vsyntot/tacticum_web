@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import tarfile
+from unittest.mock import patch
 
 from production_artifact_build import build
 
@@ -35,6 +36,17 @@ def main() -> None:
             names = archive.getnames()
             assert names == ["index.php"], names
             assert archive.extractfile("index.php").read() == file.read_bytes()
+        with patch('gzip.time.time', return_value=1):
+            second = Path(temporary) / 'different-name.tar.gz'
+            build(root, manifest_path, second)
+        assert artifact.read_bytes() == second.read_bytes(), 'build depends on time/output name'
+        file.write_text('changed after manifest creation')
+        try:
+            build(root, manifest_path, Path(temporary) / 'drift.tar.gz')
+        except SystemExit:
+            assert not (Path(temporary) / 'drift.tar.gz').exists()
+        else:
+            raise AssertionError('source drift was accepted')
         manifest["entries"][0]["path"] = "../escape"
         manifest_path.write_text(json.dumps(manifest))
         try:

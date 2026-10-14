@@ -106,6 +106,8 @@ jobs:
       deploy_required: ${{ steps.plan_gate.outputs.deploy_required }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v7
         with:
           name: candidate-${{ github.sha }}
@@ -122,28 +124,22 @@ jobs:
             --prod=release/prod.json \
             --candidate=release/candidate.json \
             --output=release/plan.json
-      - name: Block drift, stateful and control-plane changes
+      - name: Classify the full diff since the verified baseline and block drift
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          plan = json.loads(Path('release/plan.json').read_text())
-          allowed = {'LOCAL_CHANGE', 'CONVERGED'}
-          statuses = {item['status'] for item in plan['changes']}
-          if plan['comparisonMode'] != 'THREE_WAY' or not statuses.issubset(allowed):
-              raise SystemExit(f"production drift requires reconciliation: {sorted(statuses)}")
-          PY
+          node tools/production-release-gate.mjs \
+            --plan=release/plan.json \
+            --evidence=docs/workflow/plans/2026-10-14-divatech-delivery-review.json > release/gate.json
       - name: Decide whether an application mutation is required
         id: plan_gate
         run: |
           set -euo pipefail
-          changed="$(python3 -c 'import json;print(len(json.load(open("release/plan.json"))["changes"]))')"
-          if [ "$changed" -gt 0 ]; then
-            echo 'deploy_required=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'deploy_required=false' >> "$GITHUB_OUTPUT"
-          fi
+          python3 - <<'PY_GATE'
+          import json, os
+          gate = json.load(open('release/gate.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('deploy_required=' + str(gate['deployRequired']).lower() + '\n')
+          PY_GATE
       - name: Write redacted plan summary
         run: |
           set -euo pipefail

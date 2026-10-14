@@ -47,9 +47,14 @@
 
 # --- License / keys / sensitive ---
 /bitrix/license_key.php
+/bitrix/.settings*.php
 /.settings.php
 /.settings_extra.php
 /.access.php
+
+# Local Python tooling caches
+__pycache__/
+*.pyc
 
 # --- Tacticum: конфиг с секретами (IP, URL AI-сервиса) — хранится на сервере отдельно ---
 /local/php_interface/include/tacticum_config.php

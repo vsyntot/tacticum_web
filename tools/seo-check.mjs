@@ -2088,12 +2088,16 @@ if (sitemapWorkflow === null) {
     fail('.github/workflows/sitemap.yml is required for local SEO guard.');
   }
 } else if (
-  !sitemapWorkflow.includes('STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"')
-  || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"')
-  || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check')
+  !sitemapWorkflow.includes('tools/static-sitemap-input.json')
+  || sitemapWorkflow.includes('date +%F')
+  || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml\n')
+  || !sitemapWorkflow.includes('static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --check')
   || !sitemapWorkflow.includes('python3 tools/xml-well-formed-check.py /tmp/sitemap-basic-files.xml')
 ) {
-  fail('sitemap workflow must generate and validate static sitemap artifact');
+  fail('sitemap workflow must generate and validate static sitemap from versioned inputs');
+}
+if (!staticSitemapGenerator.includes('./static-sitemap-input.json')) {
+  fail('static sitemap generator must read its versioned lastmod input');
 }
 
 assertCanonicalPaths();
