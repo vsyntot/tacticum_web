@@ -9,7 +9,7 @@
 
 | Gap | Приоритет | Статус | Проблема | Закрывающие этапы плана |
 |---|---|---|---|---|
-| MSCI-01 | P0 | in_progress | Ротация раскрытого production crypto_key verified; проверка остальных credentials, полная инвентаризация и устранение раскрытия в опубликованной истории остаются открыты | P0 |
+| MSCI-01 | P0 | in_progress | Ротация раскрытого production crypto_key verified; indexed scan и crypto regression tests passed, но bounded history check подтвердил 3 historical crypto-key blobs, а полная credential inventory и remediation остаются открыты | P0; [P0 evidence](evidence/2026-10-14-p0-security-audit.json) |
 | MSCI-02 | P1 | in_progress | Ядро хранится в Git, но его импорт запрещён CI; версии модулей частично исключены | P1, P2 |
 | MSCI-03 | P1 | in_progress | Mtime-sync одного корня не обеспечивает точное соответствие платформы и не обрабатывает upstream deletions | P2, P8 |
 | MSCI-04 | P1 | open | Platform/core/schema identity не связана с допуском application deploy | P2, P3, P6, P8 |

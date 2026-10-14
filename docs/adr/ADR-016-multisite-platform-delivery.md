@@ -60,15 +60,13 @@ credentials туда не передаются. Установка trusted contr
 exporter, storage permissions и новые required checks — отдельные reviewable
 control-plane changes. Привилегированный controller не исполняет candidate code.
 
-Storage provider, окончательный core lock с schema/module/runtime provenance,
-совместимая synthetic DB, multi-root apply/recovery, independent BASE CAS и
-полная integration smoke matrix ещё не приняты как работающий результат.
-Владелец сообщил о планируемом переносе в self-managed GitLab и потребовал
-отсутствия привязки storage к GitHub. GitHub Releases исключён из целевого
-предложения. D1 остаётся открытым между независимым S3-compatible storage и
-GitLab Generic Package Registry; concrete endpoint/provider ещё неизвестен.
-Public Git пока содержит vendor/config history. Production crypto_key уже
-ротирован и принят, но это не очищает старые копии и не закрывает весь P0.
+Окончательный core lock с schema/module/runtime provenance, совместимая
+synthetic DB, multi-root apply/recovery, independent BASE CAS и полная
+integration smoke matrix ещё не приняты как работающий результат.
+Репозиторий и внешняя инфраструктура для snapshot/BASE/evidence/backup вынесены
+в отдельную тему владельца; этот ADR не выбирает провайдера, endpoint,
+retention или миграционный маршрут. Production crypto_key ротирован и принят,
+но исторические blobs и полный credential inventory остаются открытым P0.
 
 Переходный v1 workflow теперь классифицирует **весь diff от verified baseline
 commit**, включая STATEFUL/control-plane/unknown paths, а не только последний
@@ -85,24 +83,9 @@ P0–P9 и A1–A12 плана дают отдельные evidence. Fixtures и
 `productionReady` остаётся false до этих проверок и точного approval.
 
 
-## Переносимость Git/CI/storage — уточнение 14.10.2026
+## Внешняя инфраструктурная граница — 14.10.2026
 
-Принятое ограничение владельца: единая кодовая база переносится в собственный
-GitLab, storage не должен зависеть от GitHub. Выбор конкретного S3/registry и
-сам перенос репозитория в этом сообщении не разрешены к исполнению.
-
-Предлагаемая реализация: команды export/import/build/verify живут в проекте;
-workflow GitHub Actions и будущий `.gitlab-ci.yml` только вызывают их.
-Version/module/schema metadata и digest фиксируются в core lock; credentials
-и endpoint configuration хранятся отдельно, без GitHub repository/release ID
-как идентичности snapshot. Конкретная схема lock ещё проходит P2/P3 review.
-
-Рекомендован независимый private S3-compatible bucket при наличии обслуживаемой
-инфраструктуры. GitLab Generic Package Registry поддерживает versioned generic
-files, API, CI job token и deploy token; пригодность текущей self-managed
-инсталляции нужно проверить по версии, настройкам registry, лимитам размера,
-доступу runners и резервированию.
-[GitLab documentation](https://docs.gitlab.com/user/packages/generic_packages/).
-Registry остаётся зависимым от доступности GitLab; отдельный S3 backend самого
-GitLab не делает его API независимым. Не предлагать установку нового object
-storage на production web server как резервную копию независимой системы.
+Репозиторий, snapshot/BASE/evidence/backup storage и связанная миграционная
+история не являются частью текущего ADR. Их решения будут оформлены отдельным
+accepted plan владельца. До этого команды export/import/build/verify остаются
+provider-neutral, а `productionReady=false` сохраняется.
