@@ -82,7 +82,7 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 | Этап | Результат | depends_on | Роль | Статус | Предварительная работа / календарное время без ожидания |
 |---|---|---|---|---|---|
 | P0 | Устранение раскрытия и защита от повторения | — | Security reviewer + DevOps, PM | in_progress | Подготовка 2–4 ч / 2–4 ч; полный срок partial_unknown |
-| P1 | Согласованные contracts и карта владения | — | Architect + PM + QA | in_progress | 2–4 ч / 2–4 ч |
+| P1 | Согласованные contracts и карта владения | — | Architect + PM + QA | partial | 2–4 ч / 2–4 ч |
 | P2 | Проверяемый импорт платформы и core lock | P0, P1; external infrastructure topic | DevOps + Dev | deferred_external | 4–8 ч / 4–8 ч |
 | P3 | Изолированная среда обоих сайтов | P2 | Dev + QA | todo | 4–8 ч / 4–8 ч |
 | P4 | Одна воспроизводимая сборка двух корней | P1 | DevOps + Dev | in_progress | 3–6 ч / 3–6 ч |
@@ -301,7 +301,7 @@ RTO/RPO и retention для production остаются governance prerequisites
 
 Последний main run `38574979561` завершён `success`: семь quality jobs и classifier прошли, production artifact/inspect/reconcile/apply/smoke были ожидаемо пропущены. Локально проходят `npm run ci:delivery`, `npm run ci:php`, `npm run ci:multisite-build` и `python3 tools/multisite-trusted-controller-self-test.py`. Clean build подтверждён для 399 primary и 10 Divatech entries; fixture archive и manifest сверяются, временные результаты удаляются.
 
-Текущий результат: `in_progress`. Закрыта локальная проверяемая часть CI и fixture-контуров. P0-аудит зафиксирован в [redacted evidence](../evidence/2026-10-14-p0-security-audit.json): indexed scan и crypto tests passed, но bounded history check нашёл 3 historical crypto-key blobs; полная credential inventory и remediation не выполнены. Открыты P2/P3 real platform/runtime integration, production wrapper installation, real two-root release/recovery и P10 operational handoff. Эти пункты не объявляются закрытыми по зелёному CI.
+Текущий результат: `in_progress`. Закрыта локальная проверяемая часть CI и fixture-контуров. P0-аудит зафиксирован в [redacted evidence](../evidence/2026-10-14-p0-security-audit.json): indexed scan и crypto tests passed, но bounded history check нашёл 3 historical crypto-key blobs; полная credential inventory и remediation не выполнены. P1 contract evidence зафиксирован в [P1 evidence](../evidence/2026-10-14-p1-contract-evidence.json): новый multisite scope `2026-10-14.multisite.1` расходится с legacy production scope `2026-10-11.1`, поэтому P1 остаётся partial. Открыты P2/P3 real platform/runtime integration, production wrapper installation, real two-root release/recovery и P10 operational handoff. Эти пункты не объявляются закрытыми по зелёному CI.
 
 Failure ledger P0: all-object history scan остановлен после превышения безопасного окна из-за неэффективного построчного IPC; код, Git history и production не изменялись. Повтор выполнен в bounded-режиме по секретным путям и names, поэтому результат остаётся `partial`, а не `passed`.
 
