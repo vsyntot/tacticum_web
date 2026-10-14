@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "2026-10-14.candidate.1",
+  "directories": ["admin", "blocks", "components", "css", "fonts", "gadgets", "images", "js", "legal", "modules", "panel", "services", "sounds", "templates", "themes", "tools", "wizards"],
+  "files": ["bitrix.php", "composer-bx.json", "composer.json.example", "coupon_activation.php", "footer.php", "header.php", "index.php", "p3p.xml", "routing_index.php", "rss.php", "spread.php"],
+  "excludedDirectories": ["backup", "cache", "managed_cache", "stack_cache", "html_pages", "tmp", "updates", "otp", "php_interface"],
+  "excludedFiles": [".access.php", ".config.php", ".settings.php", ".settings_extra.php", "license_key.php", "urlrewrite.php", ".DS_Store"],
+  "productionReady": false
+}

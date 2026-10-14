@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "exceptions": [
+    {
+      "path": "bitrix/modules/main/lib/orm/fields/cryptofield.php",
+      "sha256": "04033c47d5fcf38b0c4dcd73a0612c50c4e8fbfab9c31737a2a05fa7e4a67cdd",
+      "rule": "literal_crypto_key",
+      "reason": "Vendor API docblock example; no runtime credential."
+    },
+    {
+      "path": "tools/deploy-config-preflight-self-test.sh",
+      "sha256": "3c1a52031805d4ea5a032ae07d9eba0a27542adae93ff76f95520af1aa85c08c",
+      "rule": "private_key",
+      "reason": "Header-only malformed SSH key fixtures; no key body."
+    }
+  ]
+}
