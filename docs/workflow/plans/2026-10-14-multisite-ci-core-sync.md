@@ -591,3 +591,49 @@ Accepted scope: завершение оставшейся CI работы по �
 - Merge данного CI/tooling пакета не является установкой production controller,
   выдачей новых prod credentials либо выполнением P9. После CI требуется
   проверить фактический main run и отсутствие production inspect/apply jobs.
+
+
+### Проверка merge и возврат в общий план — 14.10.2026
+
+[PR #55](https://github.com/vsyntot/tacticum_web/pull/55) смержен 10:48:02 UTC,
+commit `4c88c6318fc04f0f2c9cc1de891e5961640a6010`. Последний PR Quality Gate
+38551914978 и [main run 38552094300](https://github.com/vsyntot/tacticum_web/actions/runs/38552094300)
+успешны: все 7 quality jobs passed. Classifier passed; artifact, production
+inspect, reconcile, apply и post-deploy smoke skipped. Sitemap run 38552094207
+passed. Локальный повтор classifier на merge commit дал BLOCKED_FORBIDDEN /
+separate_review_required; фактический main skip согласуется с этим решением.
+
+Итог независимого пакета: merged_and_ci_verified. Общий план остаётся
+in_progress. [Структурированный evidence](2026-10-14-multisite-ci-evidence.json)
+отделяет CI, packaging и candidate recovery от production acceptance.
+
+Git history audit: 46 713 уникальных blobs, 825 868 824 bytes, 0 пропущенных
+по лимиту 16 MiB объектов, 4 известных reviewed fixture совпадения. Найдены
+3 исторических blob `bitrix/.settings.php` с literal_crypto_key. Значения
+секретов не выводились и не записывались в evidence. Это ограниченная проверка
+известных шаблонов, не полная инвентаризация credentials; история не переписана.
+Текущий config отсутствует в Git-дереве и сохранён локально. Подтверждённая
+ротация production crypto_key не закрывает весь MSCI-01.
+
+Остаток и зависимости:
+- D1/new storage и backup infrastructure: deferred по решению владельца.
+- P2/P3: настоящий pinned snapshot/runtime, публикация и full integration
+  требуют возвращения к отложенной архитектуре; synthetic fixture их не заменяет.
+- P6/P7/P9: candidate kernel готов к дальнейшей интеграции, но trusted wrapper,
+  общий release lock, cache policy, независимый finalizer и реальный двухсайтовый
+  release/recovery остаются открыты. Их активация требует отдельного exact
+  control-plane plan с реальной platform identity и evidence stores.
+- Автоматическая поставка будущих app changes пока удерживается full-diff gate:
+  прежний verified baseline нельзя молча продвинуть поверх control-plane changes.
+- MSCI-01: отдельный разбор исторических credentials и history remediation.
+
+Следующее действие после возвращения к инфраструктуре: выбрать независимое от
+Git-провайдера место snapshot/evidence, закончить P2/P3, затем связать и проверить
+P6/P7/P9. Обязательные release backups/restore rehearsal действуют и сейчас.
+
+Контрольная точка 10:53 UTC: calendar_elapsed около 21 минуты от первого
+зафиксированного clock 10:32:06 UTC; active_effort=unknown, wait=unknown,
+раздельный учёт не вёлся. Прогноз был 30–60 минут работы/календарно; осталось
+5–10 минут работы/календарно на docs review/CI/merge. Общий остаток
+partial_unknown из-за явно отложенных зависимостей. Новых production writes
+в этом CI пакете не было; единственный неуспешный artifact lookup описан выше.

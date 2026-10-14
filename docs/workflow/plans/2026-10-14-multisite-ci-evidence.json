@@ -1,0 +1,123 @@
+{
+  "as_of": "2026-10-14T10:52:53.411273+00:00",
+  "scope": "Independent multisite CI package; snapshot/backup storage deferred by owner until GitLab migration",
+  "overall_plan_status": "in_progress",
+  "package_status": "merged_and_ci_verified",
+  "pull_request": "https://github.com/vsyntot/tacticum_web/pull/55",
+  "merge_commit": "4c88c6318fc04f0f2c9cc1de891e5961640a6010",
+  "main_run": {
+    "url": "https://github.com/vsyntot/tacticum_web/actions/runs/38552094300",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "🧪 Pre-deploy quality gate / Divatech virtual host boundaries",
+        "conclusion": "success"
+      },
+      {
+        "name": "🧪 Pre-deploy quality gate / 🛡️ Security & Convention Checks",
+        "conclusion": "success"
+      },
+      {
+        "name": "🧪 Pre-deploy quality gate / Multisite clean build reproducibility",
+        "conclusion": "success"
+      },
+      {
+        "name": "🧪 Pre-deploy quality gate / 🔍 PHP 8.4 Syntax Check",
+        "conclusion": "success"
+      },
+      {
+        "name": "🧪 Pre-deploy quality gate / PHP 8.5 production syntax and contracts",
+        "conclusion": "success"
+      },
+      {
+        "name": "🧪 Pre-deploy quality gate / 🎨 Static CSS Build Check",
+        "conclusion": "success"
+      },
+      {
+        "name": "🧪 Pre-deploy quality gate / Multisite delivery and platform contracts",
+        "conclusion": "success"
+      },
+      {
+        "name": "Classify release before requesting production access",
+        "conclusion": "success"
+      },
+      {
+        "name": "📦 Build immutable candidate artifact",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "🔍 Read-only production manifest",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "🔐 Apply approved FILE_ONLY plan",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "🧾 Reconcile BASE/PROD/CANDIDATE",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "✅ Post-deploy smoke",
+        "conclusion": "skipped"
+      }
+    ]
+  },
+  "required_checks": {
+    "strict": true,
+    "contexts": [
+      "🔍 PHP 8.4 Syntax Check",
+      "🎨 Static CSS Build Check",
+      "🛡️ Security & Convention Checks",
+      "PHP 8.5 production syntax and contracts",
+      "Divatech virtual host boundaries",
+      "Multisite delivery and platform contracts",
+      "Multisite clean build reproducibility"
+    ],
+    "other_protection_fields_preserved": true,
+    "per_job_failed_merge_probe": "not_run"
+  },
+  "local_classifier_on_merge_commit": {
+    "release_class": "BLOCKED_FORBIDDEN",
+    "automatic_inspection_eligible": false,
+    "disposition": "separate_review_required"
+  },
+  "clean_build": {
+    "source_commit": "04226a76c605e8440cb1f564a6081f3f158d9e6e",
+    "ci_merge_commit": "6c8f7137f83d01d05e2a8695e4996ec04c63d7ee",
+    "primary_files": 399,
+    "divatech_files": 10,
+    "archive_bytes": 8533889,
+    "archive_sha256": "1367891e256e7e4494f3e31cb7df855d2686c11eeb1ff6f502fbd983a95de52a",
+    "mac_linux_identical": true,
+    "platform_lock": "SYNTHETIC_PACKAGING_ONLY",
+    "real_bitrix_bootstrap_verified": false
+  },
+  "validation": {
+    "php_files": 449,
+    "candidate_recovery_tests": 10,
+    "read_only_public_smoke_routes": 14,
+    "sitemap_run": "https://github.com/vsyntot/tacticum_web/actions/runs/38552094207",
+    "sitemap_conclusion": "success"
+  },
+  "bounded_history_audit": {
+    "unique_blobs_scanned": 46713,
+    "bytes_scanned": 825868824,
+    "large_objects_skipped": 0,
+    "findings": 3,
+    "path": "bitrix/.settings.php",
+    "rule": "literal_crypto_key",
+    "complete_secret_inventory": false,
+    "history_rewritten": false,
+    "credential_values_recorded": false
+  },
+  "production_application_writes_in_ci_package": false,
+  "limitations": [
+    "No trusted multi-root production controller installation",
+    "No real pinned platform integration",
+    "No snapshot publication/import acceptance or independent dual BASE finalizer",
+    "Future automatic app releases require reviewed adoption beyond the old verified baseline",
+    "Historical secret exposure and other credentials remain an open P0 inventory"
+  ]
+}
