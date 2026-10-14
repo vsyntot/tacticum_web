@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-14",
+  "scope": "current-scope reproducible build and CI gates",
+  "status": "partial",
+  "executor": "Codex/project-manager",
+  "checks": {
+    "ci_delivery": "passed",
+    "ci_php": {
+      "status": "passed",
+      "php_files": 449,
+      "s1_contracts": 28,
+      "s1_regressions": 16,
+      "s2_contracts": 28,
+      "s2_regressions": 15
+    },
+    "multisite_clean_build": {
+      "status": "passed",
+      "primary_entries": 399,
+      "divatech_entries": 10,
+      "artifactSha256": "1367891e256e7e4494f3e31cb7df855d2686c11eeb1ff6f502fbd983a95de52a",
+      "manifestSha256": "25215bebf73c90c16f93f0a879bc0eb6bf2ce57dd1cc491c2d5d16937a64c1a0",
+      "archiveBytes": 8533889,
+      "temporaryBuildsRemoved": true
+    },
+    "required_ci": {
+      "status": "passed",
+      "checks": 7,
+      "pr": 63,
+      "run": 38584423658
+    }
+  },
+  "limits": [
+    "Build evidence uses synthetic platform packaging; real pinned Bitrix runtime remains P2/P3.",
+    "CI gates block unsafe classes but do not authorize production controller installation or apply."
+  ],
+  "next_validation": "Run P2/P3 platform/runtime integration after the separate infrastructure topic and accepted control-plane plan."
+}
