@@ -66,7 +66,8 @@ def run():
                 try:
                     request('/').close()
                     break
-                except urllib.error.URLError:
+                except (urllib.error.URLError, ConnectionError, TimeoutError):
+                    # Docker may publish the port before Nginx accepts connections.
                     if attempt == 19:
                         raise
                     time.sleep(0.1)
