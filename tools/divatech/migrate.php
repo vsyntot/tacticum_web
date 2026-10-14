@@ -75,6 +75,11 @@ try {
             throw new RuntimeException('Applied, but final journal write failed: inspect before continuing.');
         }
     } elseif ($mode === 'activate') {
+        if (!is_file($journalPath) || is_link($journalPath)) {
+            throw new RuntimeException('Activation requires an existing regular applied journal.');
+        }
+        $journal = json_decode((string)file_get_contents($journalPath), true, 512, JSON_THROW_ON_ERROR);
+        $migration->assertActivationJournal($journal, $before);
         $migration->verify();
         $migration->activate();
     } else {

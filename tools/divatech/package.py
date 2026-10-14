@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SHARED = [
     'local/templates/divatech', 'local/components/tacticum/divatech.page',
     'local/lib/Tacticum/Divatech', 'local/lib/Tacticum/Rest/Response.php',
+    'local/lib/Tacticum/Rest/Security.php', 'local/lib/Tacticum/Rest/RequestSite.php',
     'local/rest/rest_helpers.php', 'local/rest/divatech_lead.php',
     'local/rest/endpoint_policy.json', 'local/components/tacticum/component_cache_policy.json',
 ]

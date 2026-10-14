@@ -32,7 +32,10 @@ jobs:
           find sites/divatech tools/divatech -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
 
       - name: Divatech origin and payload contracts
-        run: php tools/divatech/contracts-test.php
+        run: |
+          php tools/divatech/contracts-test.php
+          php tools/divatech/review-regression-test.php
+          php tools/divatech/review-regression-test.php --s1
 
       - name: Keep Divatech source backup out of public code
         run: |

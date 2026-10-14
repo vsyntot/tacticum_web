@@ -1,11 +1,11 @@
-# Divatech STATEFUL — ограниченный ручной релиз, revision 1
+# Divatech STATEFUL — ограниченный ручной релиз, revision 2
 
 Этот runbook исполняется только после approval владельца на `release-plan.json`: plan_id, artifact SHA-256, production file/state hashes, expiry, tombstone и режим запуска. Он не является разрешением сам по себе. Автоматического STATEFUL controller в текущем проекте нет; FILE_ONLY controller не используется для этих действий.
 
 ## Принятые в кандидате границы
 
 - Предложенный первый запуск: английский лендинг с контактами из исходного архива. Формы выключены; endpoint и закрытое хранилище подготовлены. Внешних уведомлений и тестовых заявок в production нет. Server-owned `tacticum_config.php` не меняется.
-- 44 regular file destinations указаны в manifest: 4 изменяемых общих файла приложения, дополнение существующего `dehydrated/domains.txt`, остальные — новые файлы. Три operator members исполняются/используются только из private release directory, не из webroot.
+- Точный список regular file destinations задаёт immutable manifest каждого кандидата. Исторический первый запуск содержал 44 targets; revision 2 также включает Security.php и RequestSite.php. Не переиспользовать approval первого запуска для пересобранного кандидата. Три operator members исполняются/используются только из private release directory, не из webroot.
 - Только пять симлинков из manifest: три общих каталога в новом public root и два включаемых vhost в Nginx. Никаких `rsync --delete` по общим ссылкам.
 - Единственное удаление существующего публичного файла — исходный ZIP по полному пути и совпавшему исходному SHA-256. Сначала сохранить копию вне webroot.
 - Два advisory lock: `/run/lock/tacticum-production.lock` и `/run/lock/tacticum-adp-release.lock`; держать непрерывно от финальной сверки до post-apply manifest. Если lock занят — не продолжать.
@@ -46,7 +46,7 @@
 
 ## 4. Активация и публикация
 
-1. Выполнить `--mode=activate` как bitrix с текущим ожидаемым state hash и существующим journal. Проверить s2 active/default=N, s1 default=Y.
+1. Выполнить `--mode=activate` как bitrix с текущим ожидаемым state hash и существующим applied journal, совпадающим с roots и текущим after-state hash. Prepared/неполный journal либо уже изменённое состояние требуют ручного разбора. Проверить s2 active/default=N, s1 default=Y.
 2. Проверить новый backend через loopback/Host до внешнего открытия: DIVA template, корректная разметка, формы отсутствуют, 404 правильный. Доступ к public page должен проходить обычную Bitrix permission model, без NOT_CHECK_PERMISSIONS в index.php.
 3. Установить финальный `nginx-http.conf` на место maintenance, удалить только собственный `00-release-closed.conf`, провести `nginx -t` и reload. Query-preserving canonical redirects обязаны работать для HTTP, www, старого Tilda URL и index.php.
 4. После подтверждения отдельного backup и hash удалить только source ZIP tombstone. Проверить его прежний публичный URL на 403/404. Проверить исключение source ZIP из будущего Git/deploy.

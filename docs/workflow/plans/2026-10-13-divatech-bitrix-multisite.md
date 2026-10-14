@@ -404,3 +404,18 @@ Private evidence и immutable package: `~/Library/Application Support/Tacticum/r
 - Прогноз: review/commit 15–25 минут работы; CI/merge/BASE 15–30 минут работы / 20–45 календарно; всего 30–55 минут работы / 35–70 календарно. Основание — уже проверенный runtime и ожидаемые GitHub CI/production manifest checks; неизвестны review findings и drift общего scope.
 - read/write_scope: перечисленные Divatech application/tools/docs/CI files, новый общий manifest и release evidence, GitHub branch/PR/main; production read-only inspection до конкретного согласованного плана необходимых записей. .env — только credential discovery в памяти, секреты не сохраняются в Git; bitrix/ и config/DB не изменяются.
 - Acceptance: оба review приняты, meaningful checks/CI green, merge main подтверждён, общий BASE согласован с фактическим PROD с явными drift decisions и проверенными копиями; будущий FILE_ONLY scope сохраняет shared Divatech. Статус in_progress.
+
+
+### Delivery review — 14.10.2026
+
+#### Standards
+
+Read-only review of 056a6acfd…e038ea7d1 identified three findings: activation did not load/validate its applied journal (P2); site policy lived in the REST facade instead of service (P2); public entries used header.php rather than split prolog (P3). Corrected locally with journal roots/state/hash validation, RequestSite service delegated through Security, and split prolog for home/404. Package includes the new service dependency. Bounded reviewer accepted the fixes; no additional smell findings. Existing deployed version remains the earlier verified release until a separate exact delivery approval.
+
+#### Spec
+
+Zero consequential mismatches against accepted contact-only scope. Separate root/template, shared core, forms-off gate, site/origin restrictions and rollback lead protection match ADR-015. Reviewer did not independently access the source ZIP or private production evidence; existing launch evidence remains the source for visual/TLS/runtime claims.
+
+Summary: Standards 3 findings resolved in candidate; Spec 0. Local verification: origin/payload 28 checks, review regression 31 checks plus two actual-entry lifecycle fixtures, PHP syntax, REST endpoint/config/CSS/architecture guards passed. The initial Security-class extraction exceeded the 220-line architecture budget; bounded site policy was moved into RequestSite and the guard now passes. This is not a production test result.
+
+Read-only reconciliation: dedicated manifest key authentication failed with publickey/password; no weaker SSH host policy used. Authorized root transport ran the fixed manifest wrapper as bitrix. PROD has 398 entries, manifest 0ffe48a7928ab2d96dfda33f213017bf3ad925adb2a54bd27bbd15430ada02fb. Two menu differences are only local working-tree CRLF: Git blobs exactly match PROD. All previously delivered Divatech shared code matches PROD before review fixes. The config example is a pending repository-only documented setting update, not a change to the server-owned config.

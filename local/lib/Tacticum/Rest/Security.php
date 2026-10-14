@@ -121,8 +121,9 @@ final class Security
         return $colonPos === false ? $host : substr($host, 0, $colonPos);
     }
 
-    public static function validateOrigin(): void
+    public static function validateOrigin(?string $siteContext = null): void
     {
+        if (RequestSite::validateOriginContext($siteContext)) { return; }
         $rest = Config::section('rest');
         $allowedOrigins = self::allowedOrigins();
         $allowNoOrigin = (bool)($rest['allow_no_origin'] ?? false);
