@@ -170,7 +170,8 @@
     "ci:delivery": "bash tools/ci/delivery-checks.sh",
     "ci:php": "python3 tools/ci/php-check.py",
     "ci:multisite-build": "python3 tools/ci/multisite-build-check.py",
-    "smoke:multisite": "python3 tools/multisite-public-smoke.py"
+    "smoke:multisite": "python3 tools/multisite-public-smoke.py",
+    "multisite:controller:self-test": "python3 tools/multisite-trusted-controller-self-test.py"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.3.3",

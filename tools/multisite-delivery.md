@@ -125,6 +125,22 @@ Kernel принимает только уже проверенные опера�
 Тесты не выдают `productionApproved=true`. Атомарная замена отдельных файлов
 не означает атомарной доставки двух корней.
 
+`python3 tools/multisite-trusted-controller-self-test.py` добавляет изолированный
+trusted-controller contour: binding plan/approval/artifact/manifests,
+canonical roots, общий lock, disk preflight, безопасная распаковка, backup и
+restore rehearsal, create/replace/delete/rename, failure journal и recovery.
+Успешный apply остаётся `applied_unverified`; скрипт требует `--isolated` и не
+имеет SSH/production transport. `multisite-release-finalizer.py` принимает
+только controller evidence после smoke/monitoring/cache evidence и поднимает
+две совпадающие BASE-копии с CAS, монотонной последовательностью и recovery
+при частичной записи. Это проверяемый P6/P7 fixture contour, а не
+установленный production controller.
+
+```sh
+python3 tools/multisite-trusted-controller-self-test.py
+npm run multisite:controller:self-test
+```
+
 
 ## Текущий GitHub release gate
 
