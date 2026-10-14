@@ -29,6 +29,28 @@ jobs:
           find local/ -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
           find . -maxdepth 1 -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
           find about services contacts calculator price offer aiagents policies platform agents adp dev forum -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+          find sites/divatech tools/divatech -name "*.php" -print0 | xargs -0 -n1 php -d short_open_tag=1 -l
+
+      - name: Divatech origin and payload contracts
+        run: |
+          php tools/divatech/contracts-test.php
+          php tools/divatech/review-regression-test.php
+          php tools/divatech/review-regression-test.php --s1
+
+      - name: Keep Divatech source backup out of public code
+        run: |
+          if git ls-files 'local/divatech.space_*.zip' | grep -q .; then
+            echo "Source backups belong outside Git and webroot."
+            exit 1
+          fi
+
+  multisite-config:
+    name: Divatech virtual host boundaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 tools/divatech/nginx-test.py
+      - run: bash tools/divatech/apache-test.sh
 
   css-build:
     name: 🎨 Static CSS Build Check

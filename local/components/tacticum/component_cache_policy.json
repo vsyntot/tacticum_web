@@ -202,6 +202,15 @@
         "local/components/tacticum/services.page/component.php",
         "local/components/tacticum/services.page/templates/.default/parts"
       ]
+    },
+    "divatech.page": {
+      "policy": "page-shell-no-cache",
+      "owner": "Frontend",
+      "reason": "Site s2 landing renders session-specific CSRF tokens; shared HTML and composite caching are disabled.",
+      "evidence": [
+        "local/components/tacticum/divatech.page/component.php",
+        "local/templates/divatech/header.php"
+      ]
     }
   }
 }
