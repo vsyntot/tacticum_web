@@ -7,7 +7,7 @@
 
 - `DIVA-01`, P1, `closed` для принятого contact-only scope: s2/TLS/vhosts работают; correction закрыла обход 404 через BitrixEnv fallback. Public smoke, 15-minute monitoring, dual STATEFUL BASE и cleanup verified 14.10.2026. [Актуальный план](plans/2026-10-13-divatech-bitrix-multisite.md).
 - `DIVA-02`, P1, `open`: получатель/отправитель, policy/consent и хранение заявок Divatech не определены. Предложен контактный первый запуск с выключенными формами; владелец принял этот вариант 14.10.2026; формы остаются выключены. Проверенный локальный endpoint не закрывает gap доставки реальных заявок.
-- `DIVA-03`, P1, `in-progress`: delivery второго корня подготовлен отдельным ручным STATEFUL runbook. После выпуска нужны review/merge shared кода и обновление общего BASE перед следующим FILE_ONLY deploy; автоматическая доставка двух сайтов пока не заявлена.
+- `DIVA-03`, P1, `closed`: ручной STATEFUL запуск и review-доставка verified; shared-код смержен в main через PR #53, общий 399-file BASE сверён и сохранён в двух независимых копиях. Main workflow 38534851216 success с zero changes/no apply. Второй root/config/DB по-прежнему доставляются отдельным STATEFUL runbook; общая автоматизация двух сайтов не входит в закрытый scope.
 
 Статусы:
 
