@@ -8,6 +8,7 @@ on:
       - 'sitemap.xml'
       - 'offer/sitemap.php'
       - 'tools/static-sitemap-generate.mjs'
+      - 'tools/static-sitemap-input.json'
       - 'tools/seo-check.mjs'
       - 'tools/xml-well-formed-check.py'
     branches:
@@ -30,9 +31,8 @@ jobs:
 
       - name: Generate and validate static sitemap artifact
         run: |
-          STATIC_SITEMAP_LASTMOD="$(TZ=Europe/Moscow date +%F)"
-          node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD"
-          node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --lastmod="$STATIC_SITEMAP_LASTMOD" --check
+          node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml
+          node ./tools/static-sitemap-generate.mjs --output=/tmp/sitemap-basic-files.xml --check
           python3 tools/xml-well-formed-check.py /tmp/sitemap-basic-files.xml
 
       - name: Validate SEO sitemap governance
