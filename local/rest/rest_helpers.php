@@ -53,14 +53,7 @@ function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = 
 function tacticum_rest_normalize_host(string $host): string { return Security::normalizeHost($host); }
 function tacticum_rest_validate_origin(?string $siteContext = null): void
 {
-    if ($siteContext === null) {
-        if (defined('SITE_ID') && SITE_ID === 's2') {
-            Response::error(403, 'invalid_site', 'Endpoint is unavailable for this site.');
-        }
-        Security::validateOrigin();
-    } elseif ($siteContext !== 'divatech' || !\Tacticum\Divatech\Origin::allowed($_SERVER, defined('SITE_ID') ? SITE_ID : '')) {
-        Response::error(403, 'invalid_origin', 'Invalid request origin.');
-    }
+    Security::validateOrigin($siteContext);
 }
 function tacticum_rest_has_allowed_browser_source(): bool { return Security::hasAllowedBrowserSource(); }
 function tacticum_rest_check_csrf(?array $data = null, bool $allowAllowedBrowserSource = false): void

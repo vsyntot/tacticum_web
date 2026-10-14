@@ -42,6 +42,20 @@ final class TacticumDivatechMigration
         return hash('sha256', json_encode($state, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
     }
 
+    public function assertActivationJournal(array $journal, array $state): void
+    {
+        if (($journal['status'] ?? '') !== 'applied'
+            || ($journal['root'] ?? '') !== $this->root
+            || ($journal['site_root'] ?? '') !== $this->siteRoot
+            || !is_array($journal['before'] ?? null)
+            || !is_array($journal['after'] ?? null)
+            || !hash_equals($this->hash($journal['before']), (string)($journal['before_sha256'] ?? ''))
+            || !hash_equals($this->hash($journal['after']), (string)($journal['after_sha256'] ?? ''))
+            || !hash_equals($this->hash($state), (string)($journal['after_sha256'] ?? ''))) {
+            throw new RuntimeException('Applied journal does not match roots/current state; manual recovery required.');
+        }
+    }
+
     public function apply(): void
     {
         $before = $this->snapshot();

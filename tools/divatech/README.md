@@ -83,3 +83,5 @@ TLS оформляется отдельным сертификатом на `div
 ### BitrixEnv error fallback
 
 В установленном BitrixEnv `errors.conf` содержит `error_page 404 = @fallback`: обычный `return 404` в закрывающем location может повторно передать исходный запрос в приложение. Boundary include использует явный `error_page 403 404 = @divatech_denied` и terminal named handler. Не заменять его голым 404. `nginx-test.py` воспроизводит этот механизм и проверяет 21 сценарий; native config tests и внешние denial checks всё равно обязательны. Production correction и evidence: план 13.10.2026, `DIVA-FIX-3c159bad6601`.
+
+Review regressions (journal provenance, direct Security caller isolation and split-prolog order): `php tools/divatech/review-regression-test.php` and the same command with `--s1`. These use local fixtures and do not bootstrap a live Bitrix database.
