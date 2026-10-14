@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {gateRelease} from './production-release-gate.mjs';
+import {gateRelease, inspectionEligibility} from './production-release-gate.mjs';
 import {loadDeployScope} from './production-deploy-contract.mjs';
 const scope = await loadDeployScope();
 const check = (statuses, paths = ['local/templates/tacticum/header.php']) => gateRelease({scope, paths,
@@ -14,4 +14,11 @@ for (const unsafe of ['local/php_interface/include/tacticum_config.example.php',
   assert.throws(()=>check(['LOCAL_CHANGE'], ['index.php',unsafe]),/separate review/);
 }
 assert.throws(()=>check(['LOCAL_CHANGE'],['docs/workflow/README.md']),/no FILE_ONLY/);
+assert.equal(inspectionEligibility(['index.php'], scope).automaticInspectionEligible, true);
+for (const paths of [['docs/workflow/README.md'], ['index.php','tools/helper.py'],
+  ['index.php','bitrix/.settings.php'], ['sites/divatech/index.php'], ['unknown.php']]) {
+  const result = inspectionEligibility(paths, scope);
+  assert.equal(result.automaticInspectionEligible, false);
+  assert.equal(result.productionMutationAllowed, false);
+}
 console.log('Release gate: no-op/converged, mixed stateful/control-plane/unknown and drift boundaries passed.');

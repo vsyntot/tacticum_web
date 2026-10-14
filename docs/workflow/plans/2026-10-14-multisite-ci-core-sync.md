@@ -68,7 +68,7 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 
 | Решение | Рекомендация | Когда необходимо | Статус |
 |---|---|---|---|
-| D1: хранение ядра и видимость Git | Закрытые snapshots + lock в текущем Git. Альтернатива: очищенный vendor snapshot в закрытом Git с отдельным import lane | До P2 и изменения отслеживания ядра | proposed; владелец выбирает вариант и storage |
+| D1: хранение ядра и видимость Git | Закрытые snapshots + lock в текущем Git. Альтернатива: очищенный vendor snapshot в закрытом Git с отдельным import lane | До P2 и изменения отслеживания ядра | deferred владельцем до переноса в GitLab |
 | D2: устранение раскрытия | Проверить область применения, подготовить ротацию и очистку Git; изменение видимости — возможное временное ограничение доступа, не устранение уже сделанных копий | Для внешних изменений P0 | exact crypto rotation verified; history/visibility не согласованы |
 | D3: модель доверенного CI и BASE | Недоверенный PR без private credentials; доверенная интеграция отдельно; operational BASE и независимая долговечная копия с ограниченными правами | До выдачи доступов P5/P7 | proposed; Architect/DevOps готовят конкретную схему |
 | D4: первый production выпуск | Bounded план установки контроллера и отдельный application release с проверкой обоих сайтов | P9 | proposed; ранее принятый no-stage подход сохраняется |
@@ -87,8 +87,8 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 | P3 | Изолированная среда обоих сайтов | P2 | Dev + QA | todo | 4–8 ч / 4–8 ч |
 | P4 | Одна воспроизводимая сборка двух корней | P1 | DevOps + Dev | in_progress | 3–6 ч / 3–6 ч |
 | P5 | Классификация и обязательные CI gates | P1, P4; D3 | DevOps + QA | in_progress | 3–6 ч / 3–6 ч |
-| P6 | Многокорневой контроллер и восстановление | P1, P4 | DevOps + Architect + QA | todo | 6–12 ч / 6–12 ч |
-| P7 | Smoke, наблюдение и финализация BASE | P3, P5, P6; D3 | QA + DevOps | todo | 3–6 ч / 3–6 ч |
+| P6 | Многокорневой контроллер и восстановление | P1, P4 | DevOps + Architect + QA | in_progress | 6–12 ч / 6–12 ч |
+| P7 | Smoke, наблюдение и финализация BASE | P3, P5, P6; D3 | QA + DevOps | in_progress | 3–6 ч / 3–6 ч |
 | P8 | Сквозная репетиция обновления и доставки | P2, P3, P7 | QA + DevOps | todo | 3–6 ч / 3–6 ч |
 | P9 | Проверенный первый production цикл | P0–P8; D4 | DevOps + QA, владелец approval | todo | 2–4 ч / 2–4 ч плюс approval и наблюдение |
 | P10 | Эксплуатационная передача | P9 | PM + DevOps + QA | todo | 1–2 ч / не менее 24 ч с контрольной проверкой |
@@ -566,3 +566,28 @@ P4 имеет реальное clean-build evidence (packaging), P5 remote check
 P6/P7/P8 получили частичные fixtures/portable smoke. Закрытие полного P4/P5/P6
 по исходным acceptance зависит также от real platform integration, trusted
 controller/finalizer и actual release. D1 deferred не отменяет эти критерии.
+
+
+### GitHub control-plane cut: текущая активация CI
+
+Accepted scope: завершение оставшейся CI работы по последнему решению владельца;
+новые storage/backup systems deferred. Production server mutation не выполняется.
+
+- Main protection: адресный patch required checks с 3 до 7 применён. Read-back
+  подтвердил strict=true, сохранение всех прочих protection fields и старых
+  app bindings. Before/after evidence в private release directory.
+- В deploy workflow добавлен предварительный full-diff classifier **до**
+  artifact/production access. Только FILE_ONLY допускается к старому read/plan
+  контуру. Другие классы явно дают `separate_review_required`, downstream jobs
+  пропускаются; успешный CI не объявляется verified release. Второй drift gate
+  перед apply остаётся строгим и выдаёт failure при конфликте.
+- Для текущего diff классификация BLOCKED_FORBIDDEN из-за удаления environment
+  config из Git (оно отдельно разрешено secret guard); также есть control-plane
+  changes. Следовательно, после merge этого пакета application apply не должен
+  запускаться. Это ожидаемый controlled stop, не ошибка качества сборки.
+- Full-diff начинается с прежнего verified baseline. Следующие app releases
+  тоже требуют reviewed adoption нового baseline/controller, пока между baseline
+  и HEAD остаются control-plane/platform changes. Обход baseline не добавляется.
+- Merge данного CI/tooling пакета не является установкой production controller,
+  выдачей новых prod credentials либо выполнением P9. После CI требуется
+  проверить фактический main run и отсутствие production inspect/apply jobs.

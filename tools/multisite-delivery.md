@@ -124,3 +124,14 @@ Kernel принимает только уже проверенные опера�
 сериализует один state directory, а не конкурирующие production releases.
 Тесты не выдают `productionApproved=true`. Атомарная замена отдельных файлов
 не означает атомарной доставки двух корней.
+
+
+## Текущий GitHub release gate
+
+Перед получением production credentials выполняется `--classify-only` по всему
+Git diff с прежнего verified baseline. Только FILE_ONLY продолжает legacy
+inspection; control-plane/stateful/forbidden/unknown получают явный
+`separate_review_required`, без application deployment. Green quality/skip не
+является verified release. Full comparison gate по BASE/PROD/CANDIDATE сохраняет
+отказ при drift. Пока baseline не принят после изменений tooling/platform,
+последующий app commit не маскирует эти изменения и также не обходит review.
