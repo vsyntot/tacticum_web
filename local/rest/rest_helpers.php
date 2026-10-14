@@ -35,9 +35,9 @@ function tacticum_rest_error(int $status, string $code, string $message, array $
     Response::error($status, $code, $message, $extra);
 }
 function tacticum_rest_require_method(string $method): void { Response::requireMethod($method); }
-function tacticum_rest_read_json_body(string $message = 'Некорректные данные формы.'): array
+function tacticum_rest_read_json_body(string $message = 'Некорректные данные формы.', ?int $maxBytes = null): array
 {
-    return Response::readJsonBody($message);
+    return Response::readJsonBody($message, $maxBytes);
 }
 function tacticum_rest_html_to_text(string $html): string { return Text::htmlToText($html); }
 function tacticum_rest_is_allowed_host(string $host): bool { return Security::isAllowedHost($host); }
@@ -51,7 +51,17 @@ function tacticum_rest_is_allowed_origin(string $host, array $allowed_origins = 
     return Security::isAllowedOrigin($host, $allowed_origins);
 }
 function tacticum_rest_normalize_host(string $host): string { return Security::normalizeHost($host); }
-function tacticum_rest_validate_origin(): void { Security::validateOrigin(); }
+function tacticum_rest_validate_origin(?string $siteContext = null): void
+{
+    if ($siteContext === null) {
+        if (defined('SITE_ID') && SITE_ID === 's2') {
+            Response::error(403, 'invalid_site', 'Endpoint is unavailable for this site.');
+        }
+        Security::validateOrigin();
+    } elseif ($siteContext !== 'divatech' || !\Tacticum\Divatech\Origin::allowed($_SERVER, defined('SITE_ID') ? SITE_ID : '')) {
+        Response::error(403, 'invalid_origin', 'Invalid request origin.');
+    }
+}
 function tacticum_rest_has_allowed_browser_source(): bool { return Security::hasAllowedBrowserSource(); }
 function tacticum_rest_check_csrf(?array $data = null, bool $allowAllowedBrowserSource = false): void
 {

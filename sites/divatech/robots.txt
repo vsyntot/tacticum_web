@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /bitrix/
+Disallow: /local/
+Disallow: /upload/
+Allow: /local/templates/divatech/assets/
+Allow: /local/templates/divatech/style.css
+Allow: /local/templates/divatech/script.js
+Sitemap: https://divatech.space/sitemap.xml

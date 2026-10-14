@@ -2,6 +2,7 @@
 
 return [
     'iblocks' => [
+        'divatech_leads' => 0,
         'offer' => 5,
         'offer_taxonomy_terms' => 0,
         'vacancies' => 7,
@@ -21,6 +22,13 @@ return [
         'page_blocks' => 0,
         'team_presets' => 0,
         'team_preset_roles' => 0,
+    ],
+    'divatech' => [
+        'forms_enabled' => false,
+        'recipient' => '',
+        'sender' => '',
+        'privacy_url' => '',
+        'consent_text' => '',
     ],
     'base_urls' => [
         'AI_SERVICE_BASE_URL' => 'https://ai.example.com',
