@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-14",
+  "scope": "local multisite contract and ownership checks",
+  "status": "partial",
+  "executor": "Codex/project-manager",
+  "checks": {
+    "production_deploy_contract_self_test": "passed",
+    "legacy_production_scope_check": {
+      "status": "passed",
+      "scopeVersion": "2026-10-11.1",
+      "entryCount": 399,
+      "manifestSha256": "50eb765180daa3942567e33b095ee56415eb5b91209f6ddc2bce1c05562ea09d",
+      "tombstones": ["sitemap-files.xml"],
+      "rsyncOperationCount": 16
+    },
+    "multisite_scope": {
+      "status": "fixture_contract_present",
+      "schemaVersion": 2,
+      "scopeVersion": "2026-10-14.multisite.1",
+      "roots": {
+        "primary": "/home/bitrix/www",
+        "divatech": "/home/bitrix/ext_www/divatech.space"
+      },
+      "sharedPrefix": "local/",
+      "productionReady": false
+    }
+  },
+  "drift": {
+    "status": "open",
+    "description": "Legacy production FILE_ONLY scope and new multisite fixture scope have different versions and boundaries.",
+    "consequence": "No production scope migration or controller activation is allowed from this evidence."
+  },
+  "next_validation": "Reconcile legacy production scope with multisite scope in a separately accepted control-plane plan."
+}
