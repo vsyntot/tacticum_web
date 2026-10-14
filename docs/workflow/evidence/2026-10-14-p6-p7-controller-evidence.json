@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-14",
+  "scope": "fixture trusted controller and finalizer",
+  "status": "partial",
+  "executor": "Codex/project-manager",
+  "checks": {
+    "controller_finalizer_self_test": {
+      "status": "passed",
+      "scenarios": 8,
+      "coverage": [
+        "binding and canonical roots",
+        "safe extract and symlink denial",
+        "stale PROD and busy lock",
+        "create/replace/delete/rename",
+        "failure between roots and restore",
+        "smoke denial",
+        "dual BASE CAS",
+        "partial-promotion recovery"
+      ]
+    },
+    "main_verification": {
+      "status": "passed",
+      "pr": 57,
+      "mergeCommit": "55509cd6646811c282bbfd2f8680b3b1cfbf035f",
+      "run": 38574979561,
+      "productionJobs": "skipped_by_classification"
+    }
+  },
+  "limits": [
+    "The controller remains fixture-only and productionReady=false.",
+    "Real transport, server installation, runtime integration, cache/OPcache hooks and production BASE acceptance are not performed."
+  ],
+  "next_validation": "Prepare a new accepted control-plane plan after P2/P3 and external infrastructure decisions."
+}
