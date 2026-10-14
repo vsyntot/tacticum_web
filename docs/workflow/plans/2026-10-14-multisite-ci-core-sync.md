@@ -2,7 +2,7 @@
 
 Дата: 14.10.2026. Редакция: 2 — реализация.
 Статус документа: подготовлен для самостоятельного чтения и принятия решений.
-Статус реализации: `in_progress`; начаты P0/P1/P2/P4/P5, остальные этапы не приняты.
+Статус реализации: `in_progress`; начаты P0/P1/P4/P5, P2 помечен `deferred_external`, остальные этапы не приняты.
 Workflow lane: `Security / Integration`.
 Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 Координатор подготовки плана: Codex / project-manager. Исполнитель реализации: Codex; ответственные роли указаны по действующему governance.
@@ -10,15 +10,15 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 
 ## 1. Цель, полномочия и границы
 
-Обеспечить разработку обоих сайтов из текущего репозитория, воспроизводимую сборку, доставку общего кода и двух публичных корней, а также контролируемый перенос штатных обновлений Битрикс с production в локальное окружение и фиксацию версии платформы в Git.
+Обеспечить разработку обоих сайтов из текущего репозитория, воспроизводимую сборку, доставку общего кода и двух публичных корней, а также контролируемую подготовку переноса штатных обновлений Битрикс в локальное окружение.
 
-Пользователь принял исполнение плана сообщением «$project-manager погнали в реализацию». Авторизация покрывает локальные изменения, проверки и подготовку reviewable production plans. Конкретные решения D1–D4 сохраняются: создание внешнего хранилища, ротация действующих секретов, history rewrite и новая production automation требуют адресного решения по подготовленному результату.
+Пользователь принял исполнение плана сообщением «$project-manager погнали в реализацию». Авторизация покрывает локальные изменения, проверки и подготовку reviewable production plans. Вопросы репозитория Git-провайдера, snapshot/BASE/evidence storage и backup-хранилища явно вынесены владельцем в отдельную будущую тему и не являются решениями этого плана.
 
-- `accepted_scope`: реализация P0–P10 в пределах действующего governance; текущий результат `in_progress`.
-- `artifact_recorded_scope`: разделы 5–10; D1–D4 не превращаются в одобрение по факту записи.
+- `accepted_scope`: кодовая база, CI, сборка двух сайтов, fixture-контроллер/финалайзер и подготовительная документация; production activation не входит.
+- `artifact_recorded_scope`: разделы 5–10 в части локальных и CI-проверок; production gates не превращаются в одобрение по факту записи.
 - `read_scope`: репозиторий, инструкции, проектные credentials в памяти, read-only GitHub/production inspection и агрегаты без PII.
 - `write_scope`: проектный tooling/CI/docs и Git index в ветке `feat/multisite-delivery-core-sync`; подготовительные private release files вне webroot сервера и локального Git.
-- Off-limits без отдельного адресного решения: live production application/config/DB, GitHub visibility/history/settings, создание storage. Vendor code вручную не редактируется; исключение секретного config из index не удаляет рабочий файл.
+- Off-limits без отдельного адресного решения: live production application/config/DB, Git provider migration/history/settings, создание или выбор storage. Vendor code вручную не редактируется; исключение секретного config из index не удаляет рабочий файл.
 - Классы данных: публичный код и документация, несекретные метаданные релиза; секретные backup/candidate config только в private release directories с правами 0700/0600. В Git и выводах их значений нет.
 
 Существующий контактный запуск Divatech остаётся отдельным завершённым результатом. Этот план не открывает формы Divatech, не меняет позиционирование, контент, домены или инфраструктуру хостинга. Новый публичный stage-хост не требуется: владелец ранее принял работу без него. Для конкретной новой раскатки сохраняются exact plan, backup/restore и применимые условия waiver; отсутствие stage не отменяет изолированные тесты.
@@ -64,11 +64,11 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 | Пароли, ключи, лицензия, адреса подключений окружения | Защищённая конфигурация окружения | Подстановка вне Git и application artifact |
 | Cache, sessions, логи, временные файлы | Runtime каждого окружения | Не синхронизируются как исходники |
 
-Предлагаемый основной вариант: текущий репозиторий хранит код обоих сайтов и `core.lock.json`; точные vendor files хранятся в закрытом неизменяемом snapshot. Чистый checkout с разрешённым read-only доступом к snapshot позволяет подготовить приложение без подключения к живому production. Место хранения, стоимость и права ещё не выбраны; новый сервис этим документом не создаётся.
+Текущая модель: репозиторий хранит код обоих сайтов, а fixture tooling фиксирует контракты сборки и доставки. Реальный vendor snapshot и `core.lock.json` подключаются только после принятия отдельной инфраструктурной темы; этот документ не выбирает место хранения, стоимость или права доступа.
 
 | Решение | Рекомендация | Когда необходимо | Статус |
 |---|---|---|---|
-| D1: хранение ядра и видимость Git | Закрытые snapshots + lock в текущем Git. Альтернатива: очищенный vendor snapshot в закрытом Git с отдельным import lane | До P2 и изменения отслеживания ядра | deferred владельцем до переноса в GitLab |
+| D1: внешняя инфраструктурная тема | Репозиторий Git-провайдер, snapshot/BASE/evidence/backup storage и их миграция | Отдельная будущая задача владельца | out_of_scope_current_plan |
 | D2: устранение раскрытия | Проверить область применения, подготовить ротацию и очистку Git; изменение видимости — возможное временное ограничение доступа, не устранение уже сделанных копий | Для внешних изменений P0 | exact crypto rotation verified; history/visibility не согласованы |
 | D3: модель доверенного CI и BASE | Недоверенный PR без private credentials; доверенная интеграция отдельно; operational BASE и независимая долговечная копия с ограниченными правами | До выдачи доступов P5/P7 | proposed; Architect/DevOps готовят конкретную схему |
 | D4: первый production выпуск | Bounded план установки контроллера и отдельный application release с проверкой обоих сайтов | P9 | proposed; ранее принятый no-stage подход сохраняется |
@@ -83,7 +83,7 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 |---|---|---|---|---|---|
 | P0 | Устранение раскрытия и защита от повторения | — | Security reviewer + DevOps, PM | in_progress | Подготовка 2–4 ч / 2–4 ч; полный срок partial_unknown |
 | P1 | Согласованные contracts и карта владения | — | Architect + PM + QA | in_progress | 2–4 ч / 2–4 ч |
-| P2 | Проверяемый импорт платформы и core lock | P0, P1; D1 | DevOps + Dev | in_progress | 4–8 ч / 4–8 ч |
+| P2 | Проверяемый импорт платформы и core lock | P0, P1; external infrastructure topic | DevOps + Dev | deferred_external | 4–8 ч / 4–8 ч |
 | P3 | Изолированная среда обоих сайтов | P2 | Dev + QA | todo | 4–8 ч / 4–8 ч |
 | P4 | Одна воспроизводимая сборка двух корней | P1 | DevOps + Dev | in_progress | 3–6 ч / 3–6 ч |
 | P5 | Классификация и обязательные CI gates | P1, P4; D3 | DevOps + QA | in_progress | 3–6 ч / 3–6 ч |
@@ -93,7 +93,7 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 | P9 | Проверенный первый production цикл | P0–P8; D4 | DevOps + QA, владелец approval | todo | 2–4 ч / 2–4 ч плюс approval и наблюдение |
 | P10 | Эксплуатационная передача | P9 | PM + DevOps + QA | todo | 1–2 ч / не менее 24 ч с контрольной проверкой |
 
-Основание оценок: один технический исполнитель, расширение существующих manifest/controller/fixtures, две текущие цели доставки, отсутствие смены хостинга и дизайна. Это оценки планирования, не бюджет и не обещание срока. Известная подготовка P0 и P1–P10 суммарно: 33–66 рабочих часов; календарно при последовательной работе около 5–10 рабочих дней, без неопределённой части P0, ожидания решений/storage и внешних зависимостей. Общий срок — `partial_unknown` до оценки безопасной ротации, совместимой тестовой БД и выбора хранилища. Пересчитать после P0/P1.
+Основание оценок: один технический исполнитель, расширение существующих manifest/controller/fixtures, две текущие цели доставки, отсутствие смены хостинга и дизайна. Это оценки планирования, не бюджет и не обещание срока. Известная подготовка текущего scope оценивается отдельно; P2/P3 и production activation остаются `deferred_external` до отдельной инфраструктурной темы и принятого exact plan.
 
 ## 5. Пошаговые действия и приёмка этапов
 
@@ -114,7 +114,7 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 2. Описать versioned multi-root scope с ключами `shared`, `tacticum`, `divatech`, отображением source→target, exact files, additions/deletions, excluded/runtime paths и допустимыми links.
 3. Сохранить текущую структуру Git: первый сайт в существующих разделах, второй в `sites/divatech/`, общий код в `local/`. Массовый перенос первого сайта не нужен.
 4. Разделить FILE_ONLY приложения, STATEFUL config/DB и изменение доверенного controller/workflow. Изменение публичного файла второго корня само по себе может быть FILE_ONLY после поддержки mapping; изменение s2/DB/vhost остаётся STATEFUL.
-5. Определить правила core import, app drift reconciliation, совместимости схемы БД и platform lock. Выбрать D1/D3; подготовить отдельный ADR либо адресное дополнение существующих ADR с явным решением владельца.
+5. Определить правила core import, app drift reconciliation, совместимости схемы БД и platform lock. Внешнюю инфраструктурную тему здесь не выбирать; D3 и production trust оформлять отдельным accepted plan.
 
 Выход: принятые схемы scope/release/core lock и threat model; каждый путь имеет владельца. Приёмка: однозначное сопоставление обоих корней, общих файлов и исключений, отсутствие symlink traversal и дублирующей доставки `local/` через s2.
 
@@ -124,8 +124,8 @@ Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 2. Реализовать отдельный allowlisted read/export механизм с минимальными правами. Действующий forced-command `manifest` не расширять до произвольного shell. Root/password helper не превращать в штатный CI transport.
 3. Создавать snapshot в стабильном окне после штатного обновления: проверить завершение updater и согласованность до/после чтения; при изменении входов прерывать импорт. Архив исключает secrets/license, backups, runtime, данные пользователей и `.git`.
 4. Проверять полный manifest содержимого, digest архива, size/type/mode, пути, дубликаты, ссылки и отсутствие запрещённых данных. Сверка только размера архива не является проверкой содержимого.
-5. Сохранить immutable snapshot в принятом закрытом хранилище. `core.lock.json` содержит snapshot ID/digest, vendor manifest digest, module versions, профиль PHP/extensions/DB, schema compatibility ID, provenance и версию export rules. Секретов и DB dumps в lock нет.
-6. Подготовить импорт в отдельной ветке/каталоге. При варианте D1 со snapshots снять vendor code с отслеживания Git отдельным проверенным изменением, сохранив локально нужный snapshot; не удалять production core. Заменить тотальный CI запрет на разрешённый metadata import workflow и запрет ручных vendor patches.
+5. После принятия отдельной инфраструктурной темы сохранить immutable snapshot во внешнем контуре, который будет определён там. `core.lock.json` содержит snapshot ID/digest, vendor manifest digest, module versions, профиль PHP/extensions/DB, schema compatibility ID, provenance и версию export rules. Секретов и DB dumps в lock нет.
+6. Подготовить импорт в отдельной ветке/каталоге после принятия внешнего platform contract. Не удалять production core; заменить тотальный CI запрет на разрешённый metadata import workflow и запрет ручных vendor patches.
 7. Обновлять локальный vendor snapshot целиком по manifest, включая удаления только внутри его границы. Сохранить прежний snapshot для переключения назад; грязное дерево приложения не перетирать.
 8. Старый `tacticum-web-local-sync` оставить явно ограниченным ручным file merge либо обновить его на тонкий вызов versioned repository tooling после отдельного принятия изменения skill. Он не должен оставаться скрытой второй реализацией платформенной синхронизации.
 
@@ -244,7 +244,7 @@ Clean branch → pinned platform/local environment → изменения общ
 | `.github/workflows/pr-check.yml`, `deploy.yml`, `sitemap.yml` | Классификация, security, integration, build once/promote, smoke/finalization |
 | `.gitignore`, secret-scan policy | Исключение environment-owned файлов; выбранная стратегия vendor tracking |
 | Документация ADR/workflow/skills | Согласованные новые contracts и замена старой mtime-sync инструкции после принятия |
-| GitHub/server settings | Только отдельные reviewed изменения protections, credentials, wrappers/storage |
+| CI/server settings | Только отдельные reviewed изменения protections, credentials и wrappers; миграция Git-провайдера/хранилища не входит |
 
 На этом шаге эти изменения не выполняются. Application URLs/SEO не меняются; sitemap/robots обоих сайтов включаются в проверки. Правила `Asset`, D7, config helpers и REST bootstrap сохраняются. Штатное обновление ядра и импорт проверенного snapshot не должны превратиться в ручное редактирование vendor code.
 
@@ -277,407 +277,46 @@ Clean branch → pinned platform/local environment → изменения общ
 | Несовместимость core и DB | Фиксировать совместимую пару; update rollback рассматривает данные и потерю новых записей, не восстанавливает общую БД поверх работающих сайтов автоматически |
 | Symlink traversal или удаление shared data | Trusted mappings, lstat/realpath checks, explicit operations, hard exclusions и negative fixtures |
 | Потеря локальной работы | Изолированный import/worktree, stop при конфликте, Git reconciliation приложения вместо mtime overwrite |
-| Недоступность snapshot storage/BASE | Проверяемое наличие и восстановление; нельзя молча брать latest или только server copy |
+| Отсутствие принятого platform snapshot/BASE | Остановить platform import и production activation; не подменять его synthetic fixture или последней серверной копией |
 | Partial apply/неуспешный smoke | Journal, stop, согласованный адресный rollback; новый verified BASE не создаётся |
 | CI green без проверки реальной платформы | Разделять unit/config fixtures и обязательный trusted integration; фиксировать проверенную platform identity |
 | Простой двух сайтов из-за общего ядра/БД | Общий update/recovery plan и smoke обоих; многосайтовость не является независимой отказоустойчивостью |
 
-RTO/RPO, retention, стоимость storage и полный перечень секретов пока не измерены/не согласованы. Не выдавать их за действующие обязательства. До P9 обязан быть конкретный rollback plan для каждого production scope, включая изменения controller/config; application backup не заменяет STATEFUL backup.
+RTO/RPO и retention для production остаются governance prerequisites будущего production-плана. Этот документ их не выбирает и не превращает в текущую задачу. До любого будущего production write обязан быть конкретный rollback plan для каждого scope, включая controller/config; application backup не заменяет STATEFUL backup.
 
 ## 10. Definition of Done реализации и следующий шаг
 
-Реализация считается завершённой, когда A1–A12 подтверждены, security scope P0 закрыт, применимые ADR/contracts приняты, фактическая доставка обоих сайтов и повторный no-op проверены, последний BASE сохранён в двух независимых копиях, runbooks согласованы с фактическими инструментами и P10 выполнен. Waiver допускается только по действующему governance; неотработанные gates не скрываются зелёным workflow.
+Текущий план считается выполненным, когда кодовая база обоих сайтов собирается из чистого checkout, обязательные CI-проверки и отрицательные сценарии проходят, fixture-контроллер/финалайзер имеют проверяемый recovery-контур, а документация и acceptance отражают фактические ограничения. Production installation, platform import и первый production release требуют отдельного exact plan и не закрываются локальными тестами.
 
-Следующий шаг реализации: завершить локальный multi-root artifact/contract и CI fixtures, подготовить безопасный platform export/import. D1: принято ограничение независимости от GitHub в связи с будущим переносом в self-managed GitLab; сравниваются private S3 и GitLab Generic Package Registry. D2: exact crypto rotation verified после owner-confirmed admin login и dual scoped BASE. History cleanup не разрешён. Ни один production gate не считается пройденным по локальным тестам.
+Внешняя инфраструктурная тема владельца (выбор Git-провайдера, миграция репозитория, snapshot/BASE/evidence/backup storage и связанная история) в этот план не входит. Здесь нет задач, сроков, provider comparison или acceptance по этой теме; она будет заведена отдельно.
 
-## 11. Проверка документа и учёт текущего хода
+## 11. Проверка документа и текущий статус
 
-Назначение: самостоятельное чтение владельцем проекта и исполнителями. Документ отделяет наблюдения грилля от предложений, содержит результаты каждого этапа, зависимости, acceptance, recovery и открытые решения. Прежняя приёмка запуска Divatech не отменена; новые gaps относятся к общему жизненному циклу двух сайтов.
+План отделяет текущие инженерные результаты от будущей production активации. На `main` уже смержены и проверены:
 
-Прогноз подготовки плана: 2–4 минуты сверка + 6–10 минут запись/проверка; всего 8–14 минут работы и календарно. Начало: 14.10.2026 08:52:34 UTC. Проверка структуры выполнена в 08:58:25 UTC: 11 этапов, 12 сценариев приёмки, 10 evidence items и 10 gaps; ID уникальны, зависимости не имеют циклов, все локальные ссылки плана разрешаются. `git diff --check` прошёл для изменённых отслеживаемых документов. Проведена смысловая сверка цели, границ, оценок и принятия решений; исправлены две формулировки без изменения scope.
+- PR #55 — единый CI/build пакет, 7 required checks, clean multisite build и classifier;
+- PR #57 — fixture-only trusted controller/finalizer и recovery self-tests;
+- PR #58 — документационная и verification-сверка;
+- PR #59 — отдельный adoption plan для дальнейшего перехода к production-контроллеру.
 
-`calendar_elapsed` до этой контрольной точки — 5 минут 51 секунда; `active_effort=unknown`, `wait=unknown`: раздельный учёт не ведётся. Прогноз оказался с запасом благодаря повторному использованию уже проверенных источников грилля. Подготовка документа завершена; реализация P0–P10, commit/push, новые удалённые проверки и production mutations в текущем ходе не выполнялись.
+Последний main run `38574979561` завершён `success`: семь quality jobs и classifier прошли, production artifact/inspect/reconcile/apply/smoke были ожидаемо пропущены. Локально проходят `npm run ci:delivery`, `npm run ci:php`, `npm run ci:multisite-build` и `python3 tools/multisite-trusted-controller-self-test.py`. Clean build подтверждён для 399 primary и 10 Divatech entries; fixture archive и manifest сверяются, временные результаты удаляются.
 
-## 12. Execution checkpoints — 14.10.2026
+Текущий результат: `in_progress`. Закрыта локальная проверяемая часть CI и fixture-контуров. Открыты P0 security inventory/history remediation, P2/P3 real platform/runtime integration, production wrapper installation, real two-root release/recovery и P10 operational handoff. Эти пункты не объявляются закрытыми по зелёному CI.
 
-Записи ниже хронологические. Последний статус D2: ротация verified после подтверждения входа владельцем и записи dual scoped BASE; D1 уточнён: GitHub storage исключён, выбор S3/GitLab Registry остаётся открытым. Ранние записи «не применён / approval pending» описывают состояние до разрешения владельца.
+## 12. Граница следующего шага
 
-- Ветка `feat/multisite-delivery-core-sync`, исходный HEAD `d694a5a018624202677b1c32c8ddf8773f21cf89`; commit/push ещё не выполнены.
-- P0: `bitrix/.settings.php` исключён из index, локальный файл сохранён; добавлены ignore и индексный secret guard с regression fixtures. Это не очистка опубликованной истории и не ротация.
-- P0: подготовлен private STATEFUL crypto plan `3bcad6b05653b7b5293007ffce486fc34ea1acb584a176db6dccce23915e13a5`; backup/restore rehearsal и проверка нового Cipher/config passed. Live config не менялся. В шести проверенных таблицах зашифрованных полей 0 строк; повторная проверка перед apply и контроль новых записей обязательны. Старые подписи/cookies после смены ключа могут потребовать обновления/повторного входа.
-- Secret-history проверка пока ограничена двумя известными config paths; полная история не признана чистой. Один bounded DB authentication probe раскрытого исторического пароля через локальный socket не удался; другие auth paths не проверены.
-- P1/P4: прототип v2 scope/manifest охватывает оба корня, shared impact, create/delete, CONVERGED и platform mismatch; `productionReady=false`. Legacy production controller ещё не заменён.
-- P4: gzip/tar metadata нормализованы; исходные файлы сверяются с manifest, archive publishing exclusive. Sitemap lastmod перенесён в versioned input. Self-tests passed; full clean-checkout build ещё впереди.
-- P5: guard включён в Quality Gate; remote run/required check settings ещё не изменены.
-- Private evidence: `~/Library/Application Support/Tacticum/releases/multisite-ci-core-sync-20261014/`; значения конфигурации не копировать в Git.
-- Forecast исполнения на старте: ближайший локальный пакет 30–60 минут работы и календарно; весь план 33–66 рабочих часов / около 5–10 рабочих дней плюс неизвестная часть P0 и внешние зависимости. Полная оценка `partial_unknown`. `calendar_elapsed`, `active_effort`, `wait` текущего исполнения — `unknown` (раздельный хронометраж отсутствует).
-- Failure ledger: начальный scan нашёл документационный crypto sample и malformed private-key fixture; reviewed exceptions закреплены exact file digest, повторный scan passed. Это узкие исключения, не подавление реальных конфигурационных секретов. Ошибки поиска двух имён tooling исправлены; артефакты ими не изменялись.
+До принятия отдельной инфраструктурной темы продолжается только текущий scope: поддержка общей кодовой базы, CI, clean build, fixture-контроллера/финалайзера, документации и read-only проверок. Production mutation не выполняется.
 
-### Локальная контрольная точка: contract/build/import/CI
-
-- Добавлены [ADR-016 candidate](../../adr/ADR-016-multisite-platform-delivery.md), [tooling/runbook](../../../tools/multisite-delivery.md), v2 manifest/CLI и provider-neutral snapshot tooling. `productionReady=false` сохранён; legacy live controller не заменён.
-- Сборка реального worktree с явно synthetic platform fixture: 399 primary + 10 Divatech entries; два архива совпали, SHA-256 `459e6e079f5718c2dd73ac19c7184cd32a980cc098dbd43df448ef81b4010c3b`, 8 533 920 bytes. Известные длинные значения PASSWORD/TOKEN/SECRET из `.env` в entries не обнаружены. Это ограниченная проверка, не полный secret audit; fixture lock не является release lock. Временные build outputs удалены.
-- Read-only production vendor inventory: 71 831 файл, 1 020 105 850 bytes, manifest `6ef7c7d006f2a10e20ab2fa4a1fe042af753880706fada9daad9ff6a10f22149`. Core main 26.800.0 (classes/general/version.php), iblock 26.0.100; 18 module directories, component namespace `bitrix`, templates `.default`, `furniture_blue`, `landing24`. Не выполнено доказательство vendor origin каждого файла.
-- Уточнение case sensitivity: обнаружены 6 пар каталогов `landing/lang/{en,ru,kz}/lib/Transfer`/`transfer` и `Import`/`import`; среди экспортируемых файлов коллизий нет (`caseSensitiveRequired=false`). Empty directories не входят в snapshot. Общая защита импорта на несовместимые volumes проверена synthetic collision fixture.
-- Export/import fixtures: digest, metadata, traversal/symlink/duplicate/missing members, changed source, cleanup, case-sensitive requirement, mtime-independent new snapshot и upstream deletion passed. Production snapshot не создан/не опубликован, реальный core lock пока отсутствует.
-- CI: новые delivery fixtures и PHP 8.5 syntax/contracts. Старый PHP 8.4 check name сохранён. Добавлен full-diff release classifier от verified Divatech merge commit; STATEFUL/control-plane/unknown блокируют старый FILE_ONLY flow. CONVERGED больше не требует application write. Это переходная защита, не v2 finalizer и не автоматически принятый BASE.
-- Локально passed: multisite contract+actual archive CLI; legacy deploy contract; release gate; artifact builder; platform snapshot (5 tests); repository secret guard self-test; crypto replacement self-test; Divatech 28+15+16 contract/regression checks; YAML и shell syntax трёх workflows; sitemap/config/SEO/Bitrix architecture checks. Remote GitHub run/required check settings ещё не изменены.
-- Дополнение failure ledger: production Python не поддерживает `hashlib.file_digest`; заменено на streaming SHA-256, повторная inventory прошла. Начальная case-fold проверка считала empty directories блокером экспорта; requirements теперь вычисляются по file manifest, несовместимый import всё ещё блокируется. SEO check ожидал текущую дату; согласован с versioned input, повторный check passed.
-- Приёмка A1–A12 не закрыта: A2/A3/A5/A6/A7/A9/A11 имеют частичные локальные evidence; A1/A4/A8/A10/A12 и real runtime/integration/production cycle остаются открытыми согласно полному смыслу сценариев.
-- Следующий адресный decision: D1 storage. Для D2 есть private preparation evidence; live rotation operator с quiescence/recovery подготовлен и проверен на fixtures; exact approval ещё не получен. P6/P7 trusted controller, smoke/finalizer и P8–P10 не объявляются выполненными.
-- Forecast: подготовка контракта/build/security уже выполнена частично; диапазон оставшегося полного плана пока `partial_unknown`, исходные 33–66 рабочих часов / 5–10 рабочих дней не пересчитаны в обещание. Основание неопределённости — невыбранный storage, незакрытый P0 и совместимый core+DB bootstrap. `active_effort`, `calendar_elapsed`, `wait` раздельно не измерены.
-
-### D2: подготовлен исполнимый план ротации
-
-[Exact STATEFUL plan](2026-10-14-crypto-key-rotation-execution.md): `7ff5ac7c9d71772f5968bb2ab7ae8330ed0fd8e7e69826da69d9894437c9fef0`. Private operator/helper/JSON размещены вне webroot; повторный read-only preflight passed, `approval.json` отсутствует, сервисы и live config не изменялись. Для устранения гонки encrypted rows предусмотрена краткая остановка nginx/httpd/crond и проверка PHP workers. Шесть isolated tests passed, включая recovery при timeout и отказе restart. Повторный admin login остаётся явной проверкой владельца/существующей сессии; CMS credentials в `.env` не обнаружены.
-
-Последняя общая проверка: 449 PHP application/tooling files прошли syntax на локальном PHP 8.5.7; full Git-index secret scan passed, config на диске сохранён; ссылки новых docs и staged whitespace check прошли. Source/fixture код текущей ветки проиндексирован, commit/push не выполнялись. Дополнение failure ledger: после добавления restart-failure fixture блок drift assertion оказался в неверном тесте; перемещён в expiry/drift test, повтор всех 6 tests passed.
-
-Измеряемый календарный интервал: ветка создана 09:00:30 UTC 14.10.2026; контрольная точка до подготовки apply operator — 09:38:07 UTC (37 минут 37 секунд). Это интервал ветки, не полный учёт активной работы; `active_effort` и `wait` unknown. Полный план остаётся `in_progress`/`partial_unknown`, forecast не заменяет фактическую приёмку.
-
-Decision checkpoint 2026-10-14 09:47:02 UTC: D1 (private GitHub snapshot repo / existing private S3) и exact D2 rotation approval запрошены, ответ ещё не получен. Approval не выводится из ожидания; live apply не выполнен. Все текущие изменения staged, commit/push отсутствуют. Календарно от создания ветки 46 минут; active_effort/wait unknown. Новые staged files после полного index scan проверены адресно тем же guard; YAML/shell syntax и docs links passed.
-
-
-### D1: первоначальное сравнение — 14.10.2026 (рекомендация GitHub superseded)
-
-Decision status: `pending`; владелец запросил детали до решения. Хранилище
-не создавалось, снимок production не публиковался. Рекомендация ниже не является
-принятым изменением архитектуры или бюджета.
-
-**Что остаётся единым.** Репозиторий `tacticum_web` хранит приложение обоих
-сайтов, shared custom code, deployment tooling, manifests и будущий core lock.
-Отдельное private storage содержит очищенные vendor snapshots. Snapshot —
-зависимость сборки; дополнительный repository для Release assets не является
-второй кодовой базой приложения.
-
-**Что хранится.** Архив разрешённых vendor files, manifest/checksums, версии
-модулей и metadata совместимости. Исключаются `.env`, `.settings.php`, license,
-DB dump, uploads, cache и `bitrix/backup`. Source review и secret scan обязательны
-до публикации: автоматический allowlist не доказывает происхождение каждого файла.
-Текущий inventory: 71 831 файл / 1 020 105 850 bytes без сжатия. Размер реального
-архива ещё не измерен. 8,53 MB application artifact — другой объект.
-
-| Критерий | Private GitHub Releases (`vsyntot/tacticum-platform`) | Private S3-compatible bucket |
-|---|---|---|
-| Что получает разработчик | Версионный Release asset + checksum, скачивание CLI | Объект по immutable key/version + checksum, скачивание CLI |
-| Интеграция | Те же GitHub accounts/UI, отдельная ограниченная межрепозиторная авторизация | Bucket, IAM/service account, endpoint/region, retention и billing у выбранного провайдера |
-| Контроль изменения | Включить immutable releases до публикации; pin digest независимо от режима | Уникальный content-addressed key; versioning/Object Lock при поддержке провайдера; pin digest |
-| Отказ хранилища | CI и snapshots зависят от GitHub одновременно; сайты сами продолжают работать | Независимый provider уменьшает общий риск GitHub; CI всё равно требует доступа к bucket |
-| Расходы | Release quotas отличаются от Actions artifacts; compute/runner usage оценивается отдельно | Storage, запросы, исходящий traffic, дополнительные версии и retention по тарифам провайдера |
-| Эксплуатация | Меньше новых компонентов при текущем GitHub workflow | Выгоднее, если private S3 уже эксплуатируется и есть ответственный за доступ/backup |
-| Резервирование | Нужна независимая копия для отказа/потери GitHub account | Нужен отдельный recovery scope/account; один bucket не равен гарантированному backup |
-
-GitHub ограничивает один Release asset величиной **меньше 2 GiB**; на странице
-документации не указан общий лимит размера release или bandwidth. Архив хранится
-как asset, не коммитится в Git и не использует Git LFS. Не смешивать с Actions
-artifacts и их сроками хранения. [Источник](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
-
-Immutable releases блокируют изменение assets/tag; release целиком всё же
-можно удалить. Следовательно, это защита публикации от изменения, но не
-независимый архив восстановления. [Источник](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases).
-
-Обычный GITHUB_TOKEN ограничен репозиторием workflow. Для чтения private
-platform repo потребуется отдельная GitHub App/ограниченная авторизация;
-trusted build получает read-only доступ, публикация имеет отдельные полномочия.
-Произвольным PR/fork jobs private core и секреты не передаются.
-[Источник](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/making-authenticated-api-requests-with-a-github-app-in-a-github-actions-workflow).
-
-S3 — интерфейс, а не выбранный поставщик. Например, AWS Object Lock работает
-вместе с versioning и защищает конкретные версии объектов; наличие и ограничения
-аналогичного механизма у другого провайдера нужно проверять отдельно.
-[Источник](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html).
-Не включать бессрочное/длительное удержание без отдельного решения о retention.
-
-**Рабочий цикл после настройки:** штатное обновление Битрикс на production →
-стабильное окно и export/review → private snapshot и его digest → PR с core lock →
-точный import локально и в trusted CI → проверки обоих сайтов. Application deploy
-не перезаписывает production core. Пока snapshot/lock не соответствуют production,
-поставка приложения останавливается. Откат lock не откатывает изменённую БД:
-для восстановления production нужна согласованная пара core+DB и отдельный план.
-
-**Масштаб/стоимость.** Иллюстрация, не замер: 10 snapshots по 1 GB дают 10 GB
-хранения; 100 полных скачиваний такого snapshot дают около 100 GB traffic до
-учёта кэша. Нельзя назвать сумму без фактического сжатия, частоты обновлений,
-retention и выбранного S3 provider. Скорость тоже требует transfer benchmark;
-сам тип storage не гарантирует более быструю сборку.
-
-**Рекомендация:** при отсутствии уже обслуживаемого private S3 начать с private
-GitHub Releases, immutable publication и pin по digest; отдельно сохранить
-независимую recovery copy. Если private S3 уже доступен и обслуживается,
-рассмотреть его как primary storage, не заводя второй сервис ради snapshots.
-Изменение места хранения позже допускается с сохранением digest и проверенной
-миграцией ссылок; приложение обоих сайтов от этого не разделяется.
-
-### D2: исполнение после решения владельца
-
-Источник разрешения: сообщение «1. дай здесь больше деталей, пока не могу
-принять решение. 2. Да, сейчас.». Пункт 1 оставляет D1 pending; пункт 2 принимает
-ранее предъявленный exact plan `7ff5ac7c9d71772f5968bb2ab7ae8330ed0fd8e7e69826da69d9894437c9fef0`.
-Никакие дополнительные storage/history/visibility действия из этого не выводятся.
-
-14.10.2026 09:55 UTC: operator exit 0, новый config digest совпал, services
-восстановлены, шесть таблиц пусты. [Execution record](2026-10-14-crypto-key-rotation-execution.md).
-Статус `applied_unverified`: 15-minute monitoring выполняется, admin relogin
-ожидается. Это адресное устранение использования раскрытого ключа, не закрытие P0.
-
-Прогноз хода: 10–20 минут работы / 20–35 минут календарно с 15 минутами
-наблюдения; исполнитель Codex, граница — exact rotation и пояснение D1.
-Общий план остаётся `partial_unknown` из-за storage, security backlog и
-интеграционной среды. `version_source` — локальный SKILL.md project-manager,
-`loaded_version=2.7.26`, повторно прочитан. Начало текущего хода 09:51:42 UTC;
-`active_effort` и точное разделение `wait` пока unknown.
-
-
-### Итог текущего хода — 14.10.2026 10:11 UTC
-
-D1 остаётся pending: подробное сравнение GitHub Releases/S3 и рабочий цикл
-приведены выше; storage не создан. D2 exact rotation выполнена, technical checks
-passed: 252 HTTP checks за 15 минут, browser обоих сайтов, 453 manifest entries,
-config digest/permissions/services и четыре error logs. Две private acceptance
-copies совпадают по SHA-256 `c2c57cfb4029adc9d1263927335102a0c8d5e34b33d59c415898336cdf7e015b`.
-Административный повторный вход пока не подтверждён; status `applied_unverified`,
-verified BASE не продвинут. Следующий шаг этой части — подтверждение входа
-владельцем и завершение STATEFUL acceptance. History cleanup, полный secret
-inventory, P3/P6–P10 и remote CI delivery остаются отдельным незавершённым scope.
-
-Failure ledger хода сохранён в execution record: локальный Python CA trust
-обойдён использованием системного curl с TLS verification; отсутствующий
-Playwright/offline cache и недоступные CUA browsers разрешены восстановлением
-изолированной тестовой среды через uv, повторный browser replay passed.
-Это проблемы локального инструментария; обнаруженного production дефекта нет.
-
-`calendar_elapsed=19m20s` (09:51:42–10:11:02 UTC), `active_effort=unknown`,
-чистый `wait=unknown`; 15-minute monitoring перекрывался с другими проверками
-и подготовкой пояснения. Ближайший согласованный scope реализован, приёмка
-ротации partial по admin gate; общий план `in_progress`, полный forecast
-`partial_unknown`. Commit/push новых изменений в этом ходе не выполнялся.
-
-
-### Уточнение владельца: GitLab и закрытие ротации — 14.10.2026
-
-`version_source`: приложенный snapshot project-manager SKILL.md;
-`loaded_version=2.7.26`. Parent остаётся `in_progress`.
-
-- D2 rotation: владелец сообщил «в админ-панель зашел, все ок.». Оставшийся
-  admin gate passed по owner confirmation. Config hash/metadata и private
-  technical evidence повторно сверены под двумя locks; drift отсутствует.
-  Две scoped `BASE-CRYPTO-STATEFUL.json` mode 0600 совпадают по SHA-256
-  `41563fc01bd66bc0f40ee39eb33be75d59d1a703d03f41b5ed1c1413e75d18e9`. Ротация verified;
-  common application BASE не заменён. Security P0 целиком остаётся открыт.
-- D1 accepted constraint: владелец не хочет привязки к GitHub и планирует
-  перенос проекта в отдельно развёрнутый GitLab. Предыдущее предложение
-  private GitHub Releases superseded; такого storage не создавали.
-- D1 proposal: независимый S3-compatible storage как основной вариант;
-  GitLab Generic Package Registry как вариант без нового сервиса, если он
-  уже включён и обслуживается. Выбор provider, endpoint, IAM/retention,
-  расходование средств и создание инфраструктуры не считаются одобренными.
-- Ограниченная проверка доступной конфигурации: релевантных S3/GitLab/MinIO/
-  bucket параметров в именах `.env` и адреса GitLab в `docs/tools/.github`
-  не найдено. Это не доказывает отсутствия инфраструктуры в организации;
-  подключение к неизвестным системам `not_checked`. У владельца запрошены
-  URL GitLab и наличие S3, без передачи секретов в чат.
-- Read/write scope хода: текущие workflow/ADR docs и private rotation evidence;
-  server write только append scoped BASE вне webroot по принятой ротации.
-  Read-only current config metadata/digest; secret values не выводились.
-  Миграция GitLab, создание registry/bucket, изменение приложения и новые
-  credentials в этот ход не входят. Доступы к GitHub не расширяются.
-
-**Предлагаемый план с учётом GitLab:**
-1. Получить URL/версию GitLab и сведения о существующем S3; проверить registry,
-   runners, storage limits и отдельное резервирование в разрешённых пределах.
-2. Выбрать private storage по фактической инфраструктуре. Для S3 — endpoint,
-   bucket и разделённые read/publish permissions; для GitLab Registry — package
-   naming/versioning и job/deploy token scope. Не переносить личные SSH keys в CI.
-3. Сохранить provider-neutral export/import/build/verify в кодовой базе. Lock
-   фиксирует содержимое/platform identity; transport configuration и credentials
-   задаются окружением. Не закладывать GitHub release/repository ID как identity.
-4. Проверить реальный export, secret review, publication/download по digest и
-   локальный import; затем trusted integration обоих сайтов по P2/P3.
-5. При согласовании самого переноса перенести thin CI orchestration в GitLab,
-   protected refs/environments, approval/evidence и delivery credentials.
-   Перенос YAML не переносит branch protections, secrets, runners или approvals
-   автоматически. Отдельно отключить старый write deploy trigger при cutover,
-   чтобы два CI не поставляли одновременно; общий server lock сохраняется.
-6. Проверить один согласованный release/no-op/recovery цикл из GitLab и
-   независимость snapshot восстановления. Пока этот scope не принят и не
-   проверен, GitLab delivery не объявляется работающим.
-
-Прогноз текущего уточнения: 5–10 минут работы и календарно при готовых evidence.
-Было: admin gate открытый; осталось: ротация закрыта, D1 требует конкретных
-сведений об инфраструктуре. Полный CI/CD forecast — `partial_unknown`; время
-переноса GitLab ещё не оценено без URL/версии/runners и принятого scope.
-
-Контрольная точка 10:29:54 UTC: scoped dual BASE verified; 5 изменённых документов прошли проверку локальных ссылок и bounded secret guard, staged whitespace check passed. `calendar_elapsed=2m03s` от 10:27:51 UTC; `active_effort=unknown`, `wait=unknown` (раздельного учёта нет). Время меньше прогноза благодаря готовым technical evidence; новых operational probes с отказом не было. Ответ об URL GitLab/S3 пока ожидается, подключение и создание инфраструктуры не выполнялись.
-
-
-### Scope revision: хранилища после GitLab — 14.10.2026
-
-Источник: владелец «задачу с бэкапами и хранилищами позже решим (после переезда
-в gitlab), давай пока остальное добьем». D1 и развёртывание нового backup/storage
-явно deferred до переезда. Вопрос об endpoint закрыт как неактуальный сейчас.
-Это не отказ от обязательного backup/restore rehearsal перед production writes.
-
-Активный scope: общие команды проверки/сборки двух сайтов, CI без production
-секретов, воспроизводимость из чистого Git commit, классификация и отрицательные
-сценарии доставки, повторно используемый smoke, review-пакет и проверка CI.
-P2 публикация snapshot, P3 real pinned runtime и зависимая production приёмка
-P8/P9 сохраняют открытые зависимости; synthetic lock не становится настоящим.
-Новая production automation не активируется без своего exact control-plane plan.
-
-Исполнитель Codex; project-manager snapshot 2.7.26 + devops-engineer 1.1.1.
-Ближайший пакет: 30–60 минут работы/календарно, исходя из готовых scope/build
-fixtures и необходимости интеграции с CI. Общий остаток `partial_unknown`:
-часть явно deferred, real platform integration зависит от будущего D1/P2/P3.
-Чтение/запись: текущий repo tooling/workflows/docs; GitHub feature branch/PR/CI
-для review входит в принятую работу по поставке. Production writes этого пакета
-не разрешаются автоматически. Source secrets не публикуются; новые хранилища,
-GitLab migration и history rewrite в текущий scope не включены.
-
-
-### Реализация независимого пакета после отсрочки D1
-
-- Feature commit `04226a76c605e8440cb1f564a6081f3f158d9e6e`, [PR #55](https://github.com/vsyntot/tacticum_web/pull/55).
-- [Quality Gate 38550856809](https://github.com/vsyntot/tacticum_web/actions/runs/38550856809): 7/7 jobs passed, включая обе PHP версии, vhost boundaries, secret conventions, delivery fixtures и clean multisite build.
-- Две чистые сборки source commit локально: 399 primary + 10 Divatech entries.
-  В GitHub PR проверен merge commit `6c8f7137f83d01d05e2a8695e4996ec04c63d7ee`.
-  Локальный Mac и Linux runner дали одинаковый archive SHA-256:
-  `1367891e256e7e4494f3e31cb7df855d2686c11eeb1ff6f502fbd983a95de52a`, 8 533 889 bytes.
-  Нормализованный synthetic lock служит только упаковке, не release identity.
-- Portable `ci:delivery`, `ci:php`, `ci:multisite-build` больше не зависят от GitHub API;
-  frontend пересобирается через `npm ci`/CSS generator в каждом новом checkout.
-  Archive members/content сверены с manifest; temporary outputs удалены.
-- Portable public smoke: 14 routes s1+s2 passed, включая host identity, PHP error
-  markers, forms-off и security boundaries. Нет POST/lead/mail/admin-login действий.
-- Дополнены негативные fixtures production hotfix/CONFLICT, nested environment
-  paths и mixed control-plane changes. 449 PHP files + s1/s2 contracts passed.
-- P6 candidate transaction kernel: реальные локальные create/replace/delete,
-  journal до write, restore rehearsal, явный recovery нового экземпляра,
-  отказ overwrite нового hotfix, защита corrupted backup/root rebinding,
-  nonrecursive cleanup и CONVERGED без application writes. 10 tests passed.
-  Это проверка ядра операций, не production controller и не общий release lock.
-- Required checks main пока 3 старых; подготовлен адресный patch до 7 checks,
-  strict и существующие app bindings сохраняются. Изменение остальных настроек
-  protection не входит в patch. Negative merge enforcement ещё не тестировался.
-- Failure ledger: попытка скачать CI receipt по feature SHA не нашла artifact:
-  PR job именует его по merge SHA. После чтения artifact inventory скачан нужный
-  receipt; hash comparison passed. Неверный lookup не менял код/production.
-
-P4 имеет реальное clean-build evidence (packaging), P5 remote checks passed;
-P6/P7/P8 получили частичные fixtures/portable smoke. Закрытие полного P4/P5/P6
-по исходным acceptance зависит также от real platform integration, trusted
-controller/finalizer и actual release. D1 deferred не отменяет эти критерии.
-
-
-### GitHub control-plane cut: текущая активация CI
-
-Accepted scope: завершение оставшейся CI работы по последнему решению владельца;
-новые storage/backup systems deferred. Production server mutation не выполняется.
-
-- Main protection: адресный patch required checks с 3 до 7 применён. Read-back
-  подтвердил strict=true, сохранение всех прочих protection fields и старых
-  app bindings. Before/after evidence в private release directory.
-- В deploy workflow добавлен предварительный full-diff classifier **до**
-  artifact/production access. Только FILE_ONLY допускается к старому read/plan
-  контуру. Другие классы явно дают `separate_review_required`, downstream jobs
-  пропускаются; успешный CI не объявляется verified release. Второй drift gate
-  перед apply остаётся строгим и выдаёт failure при конфликте.
-- Для текущего diff классификация BLOCKED_FORBIDDEN из-за удаления environment
-  config из Git (оно отдельно разрешено secret guard); также есть control-plane
-  changes. Следовательно, после merge этого пакета application apply не должен
-  запускаться. Это ожидаемый controlled stop, не ошибка качества сборки.
-- Full-diff начинается с прежнего verified baseline. Следующие app releases
-  тоже требуют reviewed adoption нового baseline/controller, пока между baseline
-  и HEAD остаются control-plane/platform changes. Обход baseline не добавляется.
-- Merge данного CI/tooling пакета не является установкой production controller,
-  выдачей новых prod credentials либо выполнением P9. После CI требуется
-  проверить фактический main run и отсутствие production inspect/apply jobs.
-
-
-### Проверка merge и возврат в общий план — 14.10.2026
-
-[PR #55](https://github.com/vsyntot/tacticum_web/pull/55) смержен 10:48:02 UTC,
-commit `4c88c6318fc04f0f2c9cc1de891e5961640a6010`. Последний PR Quality Gate
-38551914978 и [main run 38552094300](https://github.com/vsyntot/tacticum_web/actions/runs/38552094300)
-успешны: все 7 quality jobs passed. Classifier passed; artifact, production
-inspect, reconcile, apply и post-deploy smoke skipped. Sitemap run 38552094207
-passed. Локальный повтор classifier на merge commit дал BLOCKED_FORBIDDEN /
-separate_review_required; фактический main skip согласуется с этим решением.
-
-Итог независимого пакета: merged_and_ci_verified. Общий план остаётся
-in_progress. [Структурированный evidence](2026-10-14-multisite-ci-evidence.json)
-отделяет CI, packaging и candidate recovery от production acceptance.
-
-Git history audit: 46 713 уникальных blobs, 825 868 824 bytes, 0 пропущенных
-по лимиту 16 MiB объектов, 4 известных reviewed fixture совпадения. Найдены
-3 исторических blob `bitrix/.settings.php` с literal_crypto_key. Значения
-секретов не выводились и не записывались в evidence. Это ограниченная проверка
-известных шаблонов, не полная инвентаризация credentials; история не переписана.
-Текущий config отсутствует в Git-дереве и сохранён локально. Подтверждённая
-ротация production crypto_key не закрывает весь MSCI-01.
-
-Остаток и зависимости:
-- D1/new storage и backup infrastructure: deferred по решению владельца.
-- P2/P3: настоящий pinned snapshot/runtime, публикация и full integration
-  требуют возвращения к отложенной архитектуре; synthetic fixture их не заменяет.
-- P6/P7/P9: candidate kernel готов к дальнейшей интеграции, но trusted wrapper,
-  общий release lock, cache policy, независимый finalizer и реальный двухсайтовый
-  release/recovery остаются открыты. Их активация требует отдельного exact
-  control-plane plan с реальной platform identity и evidence stores.
-- Автоматическая поставка будущих app changes пока удерживается full-diff gate:
-  прежний verified baseline нельзя молча продвинуть поверх control-plane changes.
-- MSCI-01: отдельный разбор исторических credentials и history remediation.
-
-Следующее действие после возвращения к инфраструктуре: выбрать независимое от
-Git-провайдера место snapshot/evidence, закончить P2/P3, затем связать и проверить
-P6/P7/P9. Обязательные release backups/restore rehearsal действуют и сейчас.
-
-Контрольная точка 10:53 UTC: calendar_elapsed около 21 минуты от первого
-зафиксированного clock 10:32:06 UTC; active_effort=unknown, wait=unknown,
-раздельный учёт не вёлся. Прогноз был 30–60 минут работы/календарно; осталось
-5–10 минут работы/календарно на docs review/CI/merge. Общий остаток
-partial_unknown из-за явно отложенных зависимостей. Новых production writes
-в этом CI пакете не было; единственный неуспешный artifact lookup описан выше.
+Когда владелец откроет отдельную тему инфраструктуры, её решения должны быть заново сопоставлены с P2/P3/P6/P7/P8/P9, production governance и ADR-016. Существующий fixture evidence можно использовать как входные данные, но он не является разрешением на production release.
 
 ### Контрольная точка: fixture P6/P7 controller/finalizer — 14.10.2026
 
-В текущем checkout добавлены `tools/multisite-trusted-controller.py` и
-`tools/multisite-release-finalizer.py`. Первый принимает только явно связанный
-plan/approval/manifest/artifact, проверяет canonical mappings двух корней,
-platform/scope identity, lock, disk/inode preflight, safe archive extraction,
-backup/restore rehearsal и явные create/replace/delete/rename operations.
-Журнал сохраняет `prepared`/`applying`/`applied_unverified` либо
-`failed_requires_recovery`; recovery проверяет drift и возвращает изменённые
-файлы/созданные каталоги. Второй принимает только smoke/monitoring/cache-clear
-evidence, делает CAS по предыдущему BASE и active release, требует монотонную
-последовательность и пишет две совпадающие private BASE copies; partial write
-имеет адресный recovery.
+`tools/multisite-trusted-controller.py` и `tools/multisite-release-finalizer.py` принимают только связанные plan/approval/manifest/artifact, проверяют canonical mappings двух корней, lock, disk/inode preflight, safe extraction, backup/restore rehearsal и явные file operations. Журнал сохраняет состояния `prepared`/`applying`/`applied_unverified` либо `failed_requires_recovery`; recovery проверяет drift и восстанавливает затронутые файлы. Finalizer принимает только smoke/monitoring/cache evidence, делает CAS по предыдущему BASE и требует монотонную последовательность.
 
-`python3 tools/multisite-trusted-controller-self-test.py` прошёл 8 изолированных
-сценариев, включая safe extract/symlink denial, stale PROD, busy lock,
-create/replace/delete/rename, failure between roots, restore, smoke denial,
-dual BASE, CAS и partial-promotion recovery, включая recovery второй promotion
-при уже существующем BASE. Тест включён в `ci:delivery` и не
-меняет число обязательных CI jobs. Это закрывает локальную проверяемую часть
-P6/P7; `productionReady` не менялся, SSH/production transport, storage,
-cache/OPcache hooks, real platform integration и production BASE остаются вне
-scope. Следующий gate — отдельный exact control-plane plan и P2/P3 evidence.
+`python3 tools/multisite-trusted-controller-self-test.py` прошёл 8 изолированных сценариев, включая safe extract/symlink denial, stale PROD, busy lock, create/replace/delete/rename, failure between roots, restore, smoke denial, dual BASE, CAS и partial-promotion recovery. Это локальная проверка transaction kernel; productionReady не менялся, production transport и real platform integration не подключены.
 
-### Merge и main verification fixture P6/P7 — 14.10.2026
+### Merge и main verification
 
-Пакет смержен через [PR #57](https://github.com/vsyntot/tacticum_web/pull/57),
-merge commit `55509cd6646811c282bbfd2f8680b3b1cfbf035f`. [Main run
-38574979561](https://github.com/vsyntot/tacticum_web/actions/runs/38574979561)
-завершён `success`: все 7 quality jobs и classifier прошли; artifact,
-production inspect/reconcile/apply и post-deploy smoke имеют ожидаемый
-`skipped`. Это подтверждает fixture/control-plane пакет, но не production
-release. Локальный `main` синхронизирован с `origin/main`, рабочее дерево
-чистое, локальный `.settings.php` сохранён.
+Пакет controller/finalizer смержен через PR #57, merge commit `55509cd6646811c282bbfd2f8680b3b1cfbf035f`. Main run `38574979561` завершён `success`; production jobs имеют ожидаемый `skipped`. Локальный `main` синхронизирован с `origin/main`, рабочее дерево чистое, локальный `.settings.php` сохранён.
 
-Failure ledger: первая попытка merge использовала сокращённый SHA и была
-отклонена GitHub API; повтор с полным SHA прошёл. Код, production и настройки
-branch protection не изменились из-за неудачной попытки.
-
-Для следующего перехода подготовлен отдельный [adoption plan trusted
-controller](2026-10-14-multisite-controller-adoption.md). Он фиксирует exact
-preconditions, stop conditions и первый release sequence, но не выбирает D1
-storage и не разрешает production mutation.
+Следующий reviewable результат — поддерживать этот CI/fixture baseline и подготовить отдельный accepted plan для real platform/runtime и production activation, когда внешняя инфраструктурная тема будет открыта владельцем.
