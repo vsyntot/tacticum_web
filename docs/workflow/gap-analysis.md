@@ -15,8 +15,8 @@
 | MSCI-04 | P1 | open | Platform/core/schema identity и legacy production scope не связаны с multisite-допуском application deploy; scope versions расходятся | P2, P3, P6, P8; [P1 evidence](evidence/2026-10-14-p1-contract-evidence.json) |
 | MSCI-05 | P1 | in_progress | Общая доставка и post-deploy smoke не охватывают полный второй корень | P4, P6, P7, P9 |
 | MSCI-06 | P1 | in_progress | PR #55 смержен; все 7 CI jobs passed на PR и main и назначены required. Ранняя классификация остановила production pipeline. Real pinned integration остаётся открытой | P5 |
-| MSCI-07 | P1 | in_progress | Fixture finalizer проверяет smoke/monitoring, CAS, монотонную последовательность и dual BASE recovery; пакет принят PR #57 и main run 38574979561, production trust domains и acceptance не подключены | P7, P9 |
-| MSCI-08 | P1 | in_progress | Fixture trusted controller покрывает binding, общий lock, safe extract, create/replace/delete/rename и recovery; пакет принят PR #57 и main run 38574979561, production installation/backup/cache/smoke остаются открыты | P6, P8, P9 |
+| MSCI-07 | P1 | in_progress | Fixture finalizer: 8 сценариев passed, включая CAS и partial-promotion recovery; production trust domains и acceptance не подключены | P7, P9; [P6/P7 evidence](evidence/2026-10-14-p6-p7-controller-evidence.json) |
+| MSCI-08 | P1 | in_progress | Fixture trusted controller покрывает binding, общий lock, safe extract, create/replace/delete/rename и recovery; production installation/backup/cache/smoke остаются открыты | P6, P8, P9; [P6/P7 evidence](evidence/2026-10-14-p6-p7-controller-evidence.json) |
 | MSCI-09 | P2 | closed | Versioned sitemap input и нормализованный архив: две clean builds и Mac/Linux дали одинаковый SHA-256; evidence в плане/PR #55 | P4 |
 | MSCI-10 | P1 | open | CI/runtime PHP расходятся; нет обязательной полной интеграционной среды обоих сайтов на pinned platform | P3, P5, P8 |
 
