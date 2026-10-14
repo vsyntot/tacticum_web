@@ -661,3 +661,18 @@ dual BASE, CAS и partial-promotion recovery, включая recovery второ
 P6/P7; `productionReady` не менялся, SSH/production transport, storage,
 cache/OPcache hooks, real platform integration и production BASE остаются вне
 scope. Следующий gate — отдельный exact control-plane plan и P2/P3 evidence.
+
+### Merge и main verification fixture P6/P7 — 14.10.2026
+
+Пакет смержен через [PR #57](https://github.com/vsyntot/tacticum_web/pull/57),
+merge commit `55509cd6646811c282bbfd2f8680b3b1cfbf035f`. [Main run
+38574979561](https://github.com/vsyntot/tacticum_web/actions/runs/38574979561)
+завершён `success`: все 7 quality jobs и classifier прошли; artifact,
+production inspect/reconcile/apply и post-deploy smoke имеют ожидаемый
+`skipped`. Это подтверждает fixture/control-plane пакет, но не production
+release. Локальный `main` синхронизирован с `origin/main`, рабочее дерево
+чистое, локальный `.settings.php` сохранён.
+
+Failure ledger: первая попытка merge использовала сокращённый SHA и была
+отклонена GitHub API; повтор с полным SHA прошёл. Код, production и настройки
+branch protection не изменились из-за неудачной попытки.
