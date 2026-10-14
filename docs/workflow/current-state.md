@@ -5,6 +5,10 @@
 
 ## Краткое Резюме
 
+## Divatech multisite — 14.10.2026
+
+Divatech работает как s2 общей установки по https://divatech.space/: отдельные root/template/TLS, формы выключены по принятому решению. Выпуск `DIVA-1c7758f70cde739f` с исправлением `DIVA-FIX-3c159bad6601` verified: security/browser/TLS/SEO smoke, 19 циклов/133 route checks за 15 минут, dual STATEFUL BASE и cleanup прошли. Tacticum работает без обнаруженной регрессии. [План и evidence](plans/2026-10-13-divatech-bitrix-multisite.md), [ADR-015](../adr/ADR-015-divatech-multisite.md). Исходники в локальной ветке `feature/divatech-multisite`; перед следующим FILE_ONLY deploy обязательны review/merge shared кода и актуализация его общего BASE. Контроль через 24 часа не запускался в фоне.
+
 ## ADP Identity Migration Snapshot — 11.10.2026
 
 - Canonical product route and active code are now `/adp/` and `adp`; `/dev/` is retained only as a permanent query-preserving 301 compatibility route.

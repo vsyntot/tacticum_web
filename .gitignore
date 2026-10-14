@@ -28,6 +28,7 @@
 # --- Database dumps / production backup artifacts ---
 /docs/*_sql_*.tar.gz
 /docs/*_full_*.tar.gz
+/local/divatech.space_*.zip
 
 # --- Uploads (usually should not be in git) ---
 /upload/

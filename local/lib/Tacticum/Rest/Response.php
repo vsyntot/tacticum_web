@@ -45,9 +45,13 @@ final class Response
         }
     }
 
-    public static function readJsonBody(string $message = 'Некорректные данные формы.'): array
+    public static function readJsonBody(string $message = 'Некорректные данные формы.', ?int $maxBytes = null): array
     {
-        $data = json_decode((string)file_get_contents('php://input'), true);
+        $raw = $maxBytes === null ? file_get_contents('php://input') : file_get_contents('php://input', false, null, 0, $maxBytes + 1);
+        if ($maxBytes !== null && strlen((string)$raw) > $maxBytes) {
+            self::error(413, 'payload_too_large', 'Request is too large.');
+        }
+        $data = json_decode((string)$raw, true);
         if (!is_array($data)) {
             self::error(400, 'invalid_json', $message);
         }
