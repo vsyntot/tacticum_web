@@ -532,3 +532,37 @@ fixtures и необходимости интеграции с CI. Общий о
 для review входит в принятую работу по поставке. Production writes этого пакета
 не разрешаются автоматически. Source secrets не публикуются; новые хранилища,
 GitLab migration и history rewrite в текущий scope не включены.
+
+
+### Реализация независимого пакета после отсрочки D1
+
+- Feature commit `04226a76c605e8440cb1f564a6081f3f158d9e6e`, [PR #55](https://github.com/vsyntot/tacticum_web/pull/55).
+- [Quality Gate 38550856809](https://github.com/vsyntot/tacticum_web/actions/runs/38550856809): 7/7 jobs passed, включая обе PHP версии, vhost boundaries, secret conventions, delivery fixtures и clean multisite build.
+- Две чистые сборки source commit локально: 399 primary + 10 Divatech entries.
+  В GitHub PR проверен merge commit `6c8f7137f83d01d05e2a8695e4996ec04c63d7ee`.
+  Локальный Mac и Linux runner дали одинаковый archive SHA-256:
+  `1367891e256e7e4494f3e31cb7df855d2686c11eeb1ff6f502fbd983a95de52a`, 8 533 889 bytes.
+  Нормализованный synthetic lock служит только упаковке, не release identity.
+- Portable `ci:delivery`, `ci:php`, `ci:multisite-build` больше не зависят от GitHub API;
+  frontend пересобирается через `npm ci`/CSS generator в каждом новом checkout.
+  Archive members/content сверены с manifest; temporary outputs удалены.
+- Portable public smoke: 14 routes s1+s2 passed, включая host identity, PHP error
+  markers, forms-off и security boundaries. Нет POST/lead/mail/admin-login действий.
+- Дополнены негативные fixtures production hotfix/CONFLICT, nested environment
+  paths и mixed control-plane changes. 449 PHP files + s1/s2 contracts passed.
+- P6 candidate transaction kernel: реальные локальные create/replace/delete,
+  journal до write, restore rehearsal, явный recovery нового экземпляра,
+  отказ overwrite нового hotfix, защита corrupted backup/root rebinding,
+  nonrecursive cleanup и CONVERGED без application writes. 10 tests passed.
+  Это проверка ядра операций, не production controller и не общий release lock.
+- Required checks main пока 3 старых; подготовлен адресный patch до 7 checks,
+  strict и существующие app bindings сохраняются. Изменение остальных настроек
+  protection не входит в patch. Negative merge enforcement ещё не тестировался.
+- Failure ledger: попытка скачать CI receipt по feature SHA не нашла artifact:
+  PR job именует его по merge SHA. После чтения artifact inventory скачан нужный
+  receipt; hash comparison passed. Неверный lookup не менял код/production.
+
+P4 имеет реальное clean-build evidence (packaging), P5 remote checks passed;
+P6/P7/P8 получили частичные fixtures/portable smoke. Закрытие полного P4/P5/P6
+по исходным acceptance зависит также от real platform integration, trusted
+controller/finalizer и actual release. D1 deferred не отменяет эти критерии.

@@ -106,3 +106,21 @@ Clean-build job использует явно synthetic platform identity и п�
 Проверки не получают production credentials и не требуют snapshot storage.
 Выбор/настройка хранилищ отложены владельцем до переноса в GitLab; эти команды
 переносятся в GitLab CI без изменения их реализации.
+
+
+## Репетиция файловых операций
+
+`python3 tools/multisite-file-transaction-self-test.py` выполняет реальные
+create/replace/delete в двух временных каталогах. Проверяются journal intent,
+backup/restore rehearsal, восстановление новым экземпляром после сбоя между
+корнями и после записи, конфликты recovery, повреждение backup, symlink/path
+boundaries, CONVERGED без записи и отказ повторного apply.
+
+`multisite_file_transaction.py` — candidate kernel без production CLI. Он не
+заменяет trusted controller: scope/full-manifest/platform/approval validation,
+общие production locks, безопасная распаковка, disk checks, cache invalidation,
+smoke и dual BASE finalization остаются обязательными во внешнем controller.
+Kernel принимает только уже проверенные операции; его собственная блокировка
+сериализует один state directory, а не конкурирующие production releases.
+Тесты не выдают `productionApproved=true`. Атомарная замена отдельных файлов
+не означает атомарной доставки двух корней.
