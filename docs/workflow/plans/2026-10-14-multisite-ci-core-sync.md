@@ -676,3 +676,8 @@ release. Локальный `main` синхронизирован с `origin/mai
 Failure ledger: первая попытка merge использовала сокращённый SHA и была
 отклонена GitHub API; повтор с полным SHA прошёл. Код, production и настройки
 branch protection не изменились из-за неудачной попытки.
+
+Для следующего перехода подготовлен отдельный [adoption plan trusted
+controller](2026-10-14-multisite-controller-adoption.md). Он фиксирует exact
+preconditions, stop conditions и первый release sequence, но не выбирает D1
+storage и не разрешает production mutation.
