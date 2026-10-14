@@ -6,7 +6,7 @@
 Workflow lane: `Security / Integration`.
 Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 Координатор подготовки плана: Codex / project-manager. Исполнитель реализации: Codex; ответственные роли указаны по действующему governance.
-`version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и приложенный пользователем snapshot; `loaded_version`: `2.7.26` (прочитан при начале исполнения).
+`version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и приложенный пользователем snapshot; `loaded_version`: `2.7.27` (прочитан при продолжении исполнения).
 
 ## 1. Цель, полномочия и границы
 
@@ -301,7 +301,9 @@ RTO/RPO и retention для production остаются governance prerequisites
 
 Последний main run `38574979561` завершён `success`: семь quality jobs и classifier прошли, production artifact/inspect/reconcile/apply/smoke были ожидаемо пропущены. Локально проходят `npm run ci:delivery`, `npm run ci:php`, `npm run ci:multisite-build` и `python3 tools/multisite-trusted-controller-self-test.py`. Clean build подтверждён для 399 primary и 10 Divatech entries; fixture archive и manifest сверяются, временные результаты удаляются.
 
-Текущий результат: `in_progress`. Закрыта локальная проверяемая часть CI и fixture-контуров. Открыты P0 security inventory/history remediation, P2/P3 real platform/runtime integration, production wrapper installation, real two-root release/recovery и P10 operational handoff. Эти пункты не объявляются закрытыми по зелёному CI.
+Текущий результат: `in_progress`. Закрыта локальная проверяемая часть CI и fixture-контуров. P0-аудит зафиксирован в [redacted evidence](../evidence/2026-10-14-p0-security-audit.json): indexed scan и crypto tests passed, но bounded history check нашёл 3 historical crypto-key blobs; полная credential inventory и remediation не выполнены. Открыты P2/P3 real platform/runtime integration, production wrapper installation, real two-root release/recovery и P10 operational handoff. Эти пункты не объявляются закрытыми по зелёному CI.
+
+Failure ledger P0: all-object history scan остановлен после превышения безопасного окна из-за неэффективного построчного IPC; код, Git history и production не изменялись. Повтор выполнен в bounded-режиме по секретным путям и names, поэтому результат остаётся `partial`, а не `passed`.
 
 ## 12. Граница следующего шага
 
