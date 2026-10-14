@@ -118,7 +118,7 @@ jobs:
         run: |
           set -euo pipefail
           node tools/production-deploy-cli.mjs plan \
-            --base=docs/project_management/2026-08-13-github-actions-recovery/production-base-manifest-2026-10-11.json \
+            --base=docs/workflow/plans/2026-10-14-divatech-production-base.json \
             --prod=release/prod.json \
             --candidate=release/candidate.json \
             --output=release/plan.json
@@ -159,7 +159,7 @@ jobs:
             echo 'Environment approval must bind this exact plan and artifact digest.'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Bundle exact plan
-        run: cp docs/project_management/2026-08-13-github-actions-recovery/production-base-manifest-2026-10-11.json release/base.json
+        run: cp docs/workflow/plans/2026-10-14-divatech-production-base.json release/base.json
       - uses: actions/upload-artifact@v7
         with:
           name: release-${{ github.sha }}

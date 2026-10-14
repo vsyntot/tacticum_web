@@ -153,6 +153,17 @@
       "noindex": true,
       "upstream": "staff_sale",
       "contract": "staff_order_success_error_shape"
+    },
+    "divatech_lead.php": {
+      "method": "POST",
+      "risk_class": "PUBLIC_LEAD_POST",
+      "action": "divatech_lead",
+      "origin": "required",
+      "rate_limit": "required",
+      "csrf": "required",
+      "body": "json",
+      "noindex": true,
+      "contract": "divatech_private_request_saved"
     }
   }
 }

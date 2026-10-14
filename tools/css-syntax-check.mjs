@@ -4,7 +4,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { transform } from 'lightningcss';
 
-const roots = ['local/templates/tacticum'];
+const roots = ['local/templates/tacticum', 'local/templates/divatech'];
 const files = [];
 const tailwindSource = normalize('local/templates/tacticum/assets/src/tailwind.css');
 

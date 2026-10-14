@@ -1,0 +1,11 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+ErrorDocument 404 /404.php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^page28604425\.html$ / [R=301,L]
+    RewriteRule ^files/page28604425body\.html$ / [R=301,L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ /404.php [L]
+</IfModule>
