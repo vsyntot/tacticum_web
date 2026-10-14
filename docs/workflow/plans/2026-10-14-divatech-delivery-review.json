@@ -1,5 +1,5 @@
 {
-  "status": "production_verified_merge_pending",
+  "status": "verified",
   "plan_id": "DIVA-REVIEW-be77e02f8f5ade6e",
   "artifact_sha256": "96c8fdd89bf3ad78ffb736b4acf69264f96783a60d9ea3c113217eb9d30d573c",
   "operator_sha256": "ea4a3d85e3ab7b77e52c04e44fae7a02ca2d821121409d688990369d09120f89",
@@ -119,6 +119,12 @@
       "state": "resolved",
       "cause": "connection reset before Nginx readiness was not retried",
       "resolution": "bounded transport-error handling added; 3 transient scenarios recover and persistent failure still stops; real CI passed"
+    },
+    {
+      "step": "merge method",
+      "state": "resolved",
+      "cause": "branch rules reject merge commits despite repository-level support",
+      "resolution": "allowed squash merge used; protections unchanged"
     }
   ],
   "approval_source": "Owner reply «$project-manager продолжай» to exact plan",
@@ -153,5 +159,28 @@
     "changes": 0,
     "review": "accepted, no findings"
   },
-  "merge": "pending PR #53"
+  "merge": {
+    "pr": 53,
+    "commit": "b8a90aab3298b126dc06086be6e3e40c652f017e",
+    "merged_at": "2026-10-14T08:24:10Z",
+    "method": "squash per linear-history policy"
+  },
+  "main_workflow": {
+    "run_id": 38534851216,
+    "url": "https://github.com/vsyntot/tacticum_web/actions/runs/38534851216",
+    "conclusion": "success",
+    "plan_id": "c29d2535655cc0da5908b37789e09ef4c5733298217c0152a2531e66330bbc62",
+    "changes": 0,
+    "production_manifest_sha256": "9ba2b129b5b66c670ead6f015756609146b4190daf71781ba57974caf16f5da9",
+    "application_mutation": "skipped; identical candidate",
+    "artifact_hashes": "downloaded and verified"
+  },
+  "cleanup": {
+    "temporary_uploads_removed": [
+      "patch.tar",
+      "release_operator.py"
+    ],
+    "backup_and_evidence": "retained private",
+    "locks": "released on exit"
+  }
 }
