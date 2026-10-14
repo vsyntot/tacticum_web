@@ -637,3 +637,27 @@ P6/P7/P9. Обязательные release backups/restore rehearsal дейст�
 5–10 минут работы/календарно на docs review/CI/merge. Общий остаток
 partial_unknown из-за явно отложенных зависимостей. Новых production writes
 в этом CI пакете не было; единственный неуспешный artifact lookup описан выше.
+
+### Контрольная точка: fixture P6/P7 controller/finalizer — 14.10.2026
+
+В текущем checkout добавлены `tools/multisite-trusted-controller.py` и
+`tools/multisite-release-finalizer.py`. Первый принимает только явно связанный
+plan/approval/manifest/artifact, проверяет canonical mappings двух корней,
+platform/scope identity, lock, disk/inode preflight, safe archive extraction,
+backup/restore rehearsal и явные create/replace/delete/rename operations.
+Журнал сохраняет `prepared`/`applying`/`applied_unverified` либо
+`failed_requires_recovery`; recovery проверяет drift и возвращает изменённые
+файлы/созданные каталоги. Второй принимает только smoke/monitoring/cache-clear
+evidence, делает CAS по предыдущему BASE и active release, требует монотонную
+последовательность и пишет две совпадающие private BASE copies; partial write
+имеет адресный recovery.
+
+`python3 tools/multisite-trusted-controller-self-test.py` прошёл 8 изолированных
+сценариев, включая safe extract/symlink denial, stale PROD, busy lock,
+create/replace/delete/rename, failure between roots, restore, smoke denial,
+dual BASE, CAS и partial-promotion recovery, включая recovery второй promotion
+при уже существующем BASE. Тест включён в `ci:delivery` и не
+меняет число обязательных CI jobs. Это закрывает локальную проверяемую часть
+P6/P7; `productionReady` не менялся, SSH/production transport, storage,
+cache/OPcache hooks, real platform integration и production BASE остаются вне
+scope. Следующий gate — отдельный exact control-plane plan и P2/P3 evidence.
