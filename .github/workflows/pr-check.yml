@@ -571,7 +571,7 @@ jobs:
             exit 1
           fi
 
-      - name: Проверка изменений в bitrix/ (запрещено)
+      - name: Проверка изменений в bitrix/ (только verified vendor sync)
         run: |
-          # Removing tracked environment secrets is allowed; vendor edits remain blocked.
+          # Custom core edits remain blocked; only evidenced production vendor sync is allowed.
           python3 tools/repository-security-check.py --check-core-diff "$TACTICUM_CI_DIFF_BASE"

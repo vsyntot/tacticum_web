@@ -50,8 +50,34 @@ with tempfile.TemporaryDirectory(prefix='repository-security-') as temp:
     subprocess.run(['git','-C',str(root),'add','-u'],check=True)
     subprocess.run(['git','-C',str(root),'commit','-qm','remove environment config'],check=True)
     assert guard.core_changes(root,base)==[]
-    (root/'bitrix/vendor.php').write_text('unreviewed vendor change')
+    (root/'bitrix/vendor.php').write_text('reviewed vendor change')
     subprocess.run(['git','-C',str(root),'add','-u'],check=True)
     subprocess.run(['git','-C',str(root),'commit','-qm','vendor edit'],check=True)
+    tree = subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD:bitrix'],text=True).strip()
+    evidence = root/'docs/workflow/evidence/bitrix-production-sync-fixture.json'
+    evidence.parent.mkdir(parents=True, exist_ok=True)
+    evidence.write_text(json.dumps({
+        'schema_version': 1,
+        'evidence_type': 'bitrix_production_sync',
+        'status': 'verified',
+        'production_mutation': False,
+        'source': 'production',
+        'scope': {'root': 'bitrix', 'excluded': ['bitrix/backup'],
+                  'server_newer_only': True, 'local_backup_unchanged': True},
+        'candidate': {'git_tree_sha': tree, 'vendor_manifest_sha256': 'a'*64,
+                      'snapshot_sha256': 'b'*64, 'policy_sha256': 'c'*64,
+                      'entries': 1, 'production_ready': False, 'database_included': False},
+        'sync': {'archive_bytes': 1, 'archive_entries': 1, 'archive_files': 1,
+                 'merge_paths': 1, 'transferred_files': 1,
+                 'remote_cleanup': 'OK', 'local_cleanup': 'OK'},
+        'approval': {'approved_by': 'fixture-owner', 'source': 'fixture approval'},
+    }))
+    subprocess.run(['git','-C',str(root),'add','docs/workflow/evidence/bitrix-production-sync-fixture.json'],check=True)
+    subprocess.run(['git','-C',str(root),'commit','--amend','--no-edit','-q'],check=True)
+    assert guard.core_changes(root,base)==[]
+    base = subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+    (root/'bitrix/vendor.php').write_text('unreviewed vendor change')
+    subprocess.run(['git','-C',str(root),'add','-u'],check=True)
+    subprocess.run(['git','-C',str(root),'commit','-qm','vendor edit without evidence'],check=True)
     assert guard.core_changes(root,base)==[{'path':'bitrix/vendor.php','rule':'unapproved_vendor_change'}]
 print('Repository security self-test passed: forbidden paths, redacted detection, index boundary.')
