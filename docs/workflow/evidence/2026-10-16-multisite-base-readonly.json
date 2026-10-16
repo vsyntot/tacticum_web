@@ -1,0 +1,41 @@
+{
+  "status": "verified_read_only",
+  "date": "2026-10-16",
+  "server_state_root": "/var/lib/tacticum-deploy/multisite/2026-10-14.multisite.1",
+  "operational_base_sha256": "1144b505267c0650bdda896e79000446bd971beeffb68f5864d3222371066187",
+  "durable_base_sha256": "1144b505267c0650bdda896e79000446bd971beeffb68f5864d3222371066187",
+  "dual_copy_match": true,
+  "promotion_journal": {
+    "status": "verified",
+    "sequence": 1,
+    "new_sha256": "1144b505267c0650bdda896e79000446bd971beeffb68f5864d3222371066187",
+    "verified_sha256": "1144b505267c0650bdda896e79000446bd971beeffb68f5864d3222371066187"
+  },
+  "base_record": {
+    "kind": "multisite-base-record",
+    "schema_version": 2,
+    "tree_kind": "prod",
+    "scope_version": "2026-10-14.multisite.1",
+    "manifest_sha256": "29dfcaeb90c2a08c38f4812e27970a626f0490feec8187099def011038710c4d",
+    "entries": 409,
+    "roots": {
+      "primary": 399,
+      "divatech": 10
+    },
+    "tombstones": 1,
+    "attestation": {
+      "release_id": "2026-10-15.multisite.1.file-only.6fedc72bd32ccb78562fd4b99a6d11d46f36c62ab1db4f2f5d93f30a4148096d",
+      "plan_id": "6fedc72bd32ccb78562fd4b99a6d11d46f36c62ab1db4f2f5d93f30a4148096d",
+      "candidate_manifest_sha256": "925471bc4776239027ecd1f1969a06582cbb3b62cb5950dc840ebbb37bac639a",
+      "post_manifest_sha256": "925471bc4776239027ecd1f1969a06582cbb3b62cb5950dc840ebbb37bac639a",
+      "artifact_sha256": "459e6e079f5718c2dd73ac19c7184cd32a980cc098dbd43df448ef81b4010c3b",
+      "commit_sha": "c201ac377b9bd0f76f76bae18df62b4149035522",
+      "controller_version": "multisite-controller-v2-production.1",
+      "finalizer_version": "multisite-finalizer-v2-production.1",
+      "php_version": "8.5.11",
+      "scope_version": "2026-10-14.multisite.1"
+    }
+  },
+  "production_mutation": false,
+  "limitation": "This is a read-only attestation of the existing server state; it does not reconcile the 409-entry BASE with the current 410-entry manifest and does not authorize a new application release."
+}
