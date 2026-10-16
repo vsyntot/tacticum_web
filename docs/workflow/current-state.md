@@ -1,5 +1,6 @@
 # Current State — tacticum.ru
 
+Operational handoff update: [multisite operational handoff](multisite-operational-handoff.md) published for the two-root FILE_ONLY/STATEFUL workflow; P2/P3/P8 and owner-run 24-hour control remain open.
 Дата аудита: 20.05.2026
 Дата последнего обновления: 16.10.2026
 

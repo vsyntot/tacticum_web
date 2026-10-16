@@ -22,6 +22,10 @@ Workflow lane: `Security / Integration`.
 
 Это закрывает текущий production FILE_ONLY gate, но не весь план: P2/P3/P8/P10, platform/core import, pinned integration environment, recurring operational runbook и Divatech SMTP/purge/legal gates остаются `in_progress`/`open`. GitLab и storage migration исключены владельцем.
 
+### Контрольная точка: P10 operational handoff — 16.10.2026
+
+Опубликован [multisite operational handoff](../multisite-operational-handoff.md), связывающий FILE_ONLY-релиз для обоих корней, STATEFUL-порядок штатного обновления Bitrix, reconciliation/recovery, CI failure handling и ручной 24-hour post-release check. Это закрывает документальную часть P10, но не создаёт scheduler и не закрывает owner-run контроль, P2 platform/core import, P3 pinned integration environment или P8 full rehearsal. GitLab/storage и Divatech SMTP/purge/legal остаются вне этого изменения.
+
 ### Контрольная точка: exact three-way review — 16.10.2026
 
 Read-only capture server-side durable BASE и review candidate/prod построили
