@@ -12696,6 +12696,10 @@ this.BX.Location = this.BX.Location || {};
 		}
 	}
 
+	// Route marker ids are `{auto-}check-in-{employeeId}-{checkInId}`; the checkInId itself may carry dashes
+	// (`track-start` / `track-end`), so the employee id is read off this prefix, not by segment position.
+	const CHECK_IN_MARKER_PREFIX = /^(?:auto-)?check-in-/;
+
 	/**
 	 * Manages marker clustering for CheckInMapService.
 	 *
@@ -12926,8 +12930,14 @@ this.BX.Location = this.BX.Location || {};
 			} = iconConfig;
 			const icon = this.#host.createDivIcon(html, className, iconSize, iconAnchor);
 			entry.leafletMarker.setIcon(icon);
-			const testId = this.#getClusterTestId(markerIds);
-			entry.leafletMarker.getElement()?.setAttribute('testId', testId);
+			this.#applyTestId(entry.leafletMarker.getElement(), this.#getClusterTestId(markerIds));
+		}
+
+		// Both attributes carry the same value: `testId` is what the map markup has always used,
+		// `data-testid` is what Playwright's getByTestId() reads. Mirrors the MapLibre engine.
+		#applyTestId(element, testId) {
+			element?.setAttribute('testId', testId);
+			element?.setAttribute('data-testid', testId);
 		}
 		cancelPendingAnimations() {
 			this.#pendingAnimationTimeouts.forEach(id => clearTimeout(id));
@@ -13310,12 +13320,13 @@ this.BX.Location = this.BX.Location || {};
 			const MAX_IDS = 20;
 			const isRouteMode = Boolean(this.#options.routeMarkerIds?.length);
 			if (isRouteMode) {
-				const parts = ids[0].split('-');
-				const employeeId = parts[parts.length - 2];
+				const employeeId = parseInt(ids[0].replace(CHECK_IN_MARKER_PREFIX, ''), 10);
+				// A check-in id suffix is numeric except for the track ends (`-track-start` / `-track-end`),
+				// so the suffix is kept as a string: parsing it would turn those ends into NaN.
 				const checkInIds = ids.map(id => {
 					const p = id.split('-');
-					return parseInt(p[p.length - 1], 10);
-				}).sort((a, b) => a - b).slice(0, MAX_IDS);
+					return p[p.length - 1];
+				}).sort((a, b) => this.#compareIdSuffixes(a, b)).slice(0, MAX_IDS);
 				return `cluster-${employeeId}-${checkInIds.join('-')}`;
 			}
 			const employeeIds = ids.map(id => {
@@ -13323,6 +13334,22 @@ this.BX.Location = this.BX.Location || {};
 				return parseInt(p[p.length - 1], 10);
 			}).sort((a, b) => a - b).slice(0, MAX_IDS);
 			return `cluster-${employeeIds.join('-')}`;
+		}
+
+		// Numeric suffixes go first, ordered by value; named ones (track ends) follow in a stable
+		// alphabetical order, so the same cluster always yields the same testId.
+		#compareIdSuffixes(a, b) {
+			const numA = parseInt(a, 10);
+			const numB = parseInt(b, 10);
+			const isNumberA = !Number.isNaN(numA);
+			const isNumberB = !Number.isNaN(numB);
+			if (isNumberA && isNumberB) {
+				return numA - numB;
+			}
+			if (isNumberA !== isNumberB) {
+				return isNumberA ? -1 : 1;
+			}
+			return a.localeCompare(b);
 		}
 
 		// ─── Private: cluster calculation ────────────────────────────────────────
@@ -13598,7 +13625,7 @@ this.BX.Location = this.BX.Location || {};
 			});
 			const testId = this.#getClusterTestId(cluster.ids);
 			marker$1.on('add', () => {
-				marker$1.getElement()?.setAttribute('testId', testId);
+				this.#applyTestId(marker$1.getElement(), testId);
 			});
 			marker$1.on('click', () => {
 				// Use original LatLngs — marker.getLatLng() may have been changed by clustering animation
@@ -13804,7 +13831,11 @@ this.BX.Location = this.BX.Location || {};
 					zIndexOffset: config.zIndex == null ? 0 : config.zIndex * 10000
 				});
 				marker$1.on('add', () => {
-					marker$1.getElement()?.setAttribute('testId', id);
+					const element = marker$1.getElement();
+					// Same value under both names: `testId` is the historical map attribute,
+					// `data-testid` is what Playwright's getByTestId() reads.
+					element?.setAttribute('testId', id);
+					element?.setAttribute('data-testid', id);
 				});
 				marker$1.on('click', () => {
 					this.sendEvent(location_core.CheckInMapEventType.MARKER_CLICKED, {
@@ -14247,8 +14278,10 @@ this.BX.Location = this.BX.Location || {};
 				throw new location_core.SourceCreationError('props.mapMobileService must be instanceof MapMobileService');
 			}
 			this.#mapMobileService = props.mapMobileService;
-			if (!(props.checkInMapService instanceof CheckInMapService)) {
-				throw new location_core.SourceCreationError('props.checkInMapService must be instanceof CheckInMapService');
+
+			// Accept any engine deriving from the base (Leaflet CheckInMapService or MapLibre CheckInMapServiceMapLibre).
+			if (!(props.checkInMapService instanceof location_core.CheckInMapServiceBase)) {
+				throw new location_core.SourceCreationError('props.checkInMapService must be instanceof CheckInMapServiceBase');
 			}
 			this.#checkInMapService = props.checkInMapService;
 			if (!(props.autocompleteService instanceof AutocompleteService)) {
@@ -14390,6 +14423,24 @@ this.BX.Location = this.BX.Location || {};
 			&params[zoom]=${zoom}
 			&params[addressdetails]=0			
 			&params[accept-language]=${this.sourceLanguageId}`;
+		}
+	}
+
+	const engines = new Map();
+
+	// Ships inside location.osm itself, so it is never registered and never missing.
+	const BUILT_IN_ENGINE_CODE = 'leaflet';
+
+	/**
+	 * Registry of optional check-in map engines. An engine bundle registers itself when
+	 * it is loaded, so location.osm never depends on an engine extension statically.
+	 */
+	class CheckInEngineRegistry {
+		static register(engineCode, engineClass) {
+			engines.set(engineCode, engineClass);
+		}
+		static get(engineCode) {
+			return engines.get(engineCode) || null;
 		}
 	}
 
@@ -14789,7 +14840,7 @@ this.BX.Location = this.BX.Location || {};
 				serviceUrl: params.serviceUrl,
 				mapServiceUrl: params.mapServiceUrl
 			});
-			osmParams.checkInMapService = new CheckInMapService({
+			const checkInProps = {
 				languageId: params.languageId,
 				sourceLanguageId: params.sourceLanguageId,
 				tileLayerFactoryMethod: () => {
@@ -14798,13 +14849,43 @@ this.BX.Location = this.BX.Location || {};
 					tileLayerAuth.setHostName(params.hostName);
 					return tileLayerAuth;
 				},
+				// MapLibre engine handles tile auth via OsmAuthProtocol, so it needs
+				// the token container and host name directly (Leaflet uses the factory).
+				tokenContainer,
+				hostName: params.hostName,
 				serviceUrl: params.serviceUrl,
 				mapServiceUrl: params.mapServiceUrl
-			});
+			};
+
+			// Engines other than Leaflet live in their own extensions and register themselves
+			// once loaded (location.osm.check-in-maplibre), so an engine that was not loaded
+			// falls back to Leaflet instead of pulling its bundle into every location.osm page.
+			const RequestedEngineClass = CheckInEngineRegistry.get(params.mapEngine);
+			osmParams.checkInMapService = new (RequestedEngineClass || CheckInMapService)(checkInProps);
+			if (!RequestedEngineClass && params.mapEngine && params.mapEngine !== BUILT_IN_ENGINE_CODE) {
+				OSMFactory.reportCheckInEngineFallback(osmParams.checkInMapService, params.mapEngine);
+			}
 			return new OSM(osmParams);
+		}
+
+		/**
+		 * The substitute engine keeps the map alive but not every feature the caller asked the requested
+		 * one for (layer clicks, direction arrows, freshness fade), so the swap is said out loud on both
+		 * channels instead of leaving the host with a half-working map it believes is whole.
+		 */
+		static reportCheckInEngineFallback(checkInMapService, requestedEngine) {
+			console.error(`Check-in map engine "${requestedEngine}" is not loaded, falling back to "${BUILT_IN_ENGINE_CODE}"`);
+			if (typeof BXNativeBridge === 'undefined') {
+				return;
+			}
+			checkInMapService.sendEvent(location_core.CheckInMapEventType.ENGINE_FALLBACK, {
+				requestedEngine,
+				actualEngine: BUILT_IN_ENGINE_CODE
+			});
 		}
 	}
 
+	exports.CheckInEngineRegistry = CheckInEngineRegistry;
 	exports.OSM = OSM;
 	exports.OSMFactory = OSMFactory;
 

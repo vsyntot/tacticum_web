@@ -14,7 +14,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
-
 use Bitrix\Rest\Internal\Service\MemoryLimitChecker;
 
 if (!CModule::IncludeModule('rest'))

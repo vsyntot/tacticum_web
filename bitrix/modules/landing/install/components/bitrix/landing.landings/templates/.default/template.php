@@ -1246,7 +1246,15 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 						{
 							BX.Landing.UI.Tool.ActionDialog.getInstance()
 								.show({
-									content: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_REC_CONFIRM'));?>'
+									content: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_REC_CONFIRM'));?>',
+									popupOptions: {
+										closeByEsc: true,
+										minHeight: false,
+										minWidth: 260,
+										maxWidth: 300,
+										width: false,
+										animation: 'fading-slide',
+									},
 								})
 								.then(
 									function() {

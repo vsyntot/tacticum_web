@@ -43,18 +43,16 @@ elseif($arResult["VARIABLES"]["APP"])
 	)
 	{
 		$appId =  $appInfo['ID'];
-		$res = PlacementTable::getList(
-			[
-				'filter' => [
-					'PLACEMENT' => \CRestUtil::PLACEMENT_APP_URI,
-					'APP_ID' => $appInfo['ID']
-				],
-			]
-		);
-		if($placement = $res->fetch())
+		$placement = PlacementTable::query()
+			->setSelect(['ID'])
+			->where('APP_ID', $appInfo['ID'])
+			->where('PLACEMENT', \CRestUtil::PLACEMENT_APP_URI)
+			->setLimit(1)
+			->fetch()
+		;
+		if($placement)
 		{
-			$placementCode = $placement['PLACEMENT'];
-			$appId = $placement['APP_ID'];
+			$placementCode = \CRestUtil::PLACEMENT_APP_URI;
 			$placementId = $placement['ID'];
 		}
 	}

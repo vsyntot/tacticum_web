@@ -714,6 +714,10 @@ export class Main extends EventEmitter
 			className: 'landing-ui-panel-block-list',
 			scrollAnimation: true,
 		});
+		panel.getFocusTrapOptions = () => ({
+			...Content.prototype.getFocusTrapOptions.call(panel),
+			initialFocus: 'container',
+		});
 
 		Dom.attr(panel.content, {
 			'role': 'grid',

@@ -48,11 +48,11 @@ if($USER->IsAuthorized())
 
 	$authResult = \Bitrix\Rest\Application::getAuthProvider()->authorizeClient($clientId, $USER->GetID(), $state);
 
-	if($authResult['error'])
+	if(!empty($authResult['error']))
 	{
-		ShowError($authResult['error'].': '.$authResult['error_description']);
+		ShowError($authResult['error'].': '.($authResult['error_description'] ?? ''));
 	}
-	elseif($authResult['redirect_uri'])
+	elseif(!empty($authResult['redirect_uri']))
 	{
 		$redirectUri = $authResult['redirect_uri'];
 

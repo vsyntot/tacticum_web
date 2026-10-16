@@ -220,6 +220,25 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Main\Engi
 		{
 			$blockList[] = 'APPLICATION';
 
+			$result['HAS_APPLICATION_PAGE'] = !AppInstallCompletionMode::isApiOnly(
+				$result['APPLICATION_LANG_DATA'] ?? []
+			);
+
+			// onlyApi means the application has no page (no menu titles).
+			$result['APPLICATION_ONLY_API'] = $result['HAS_APPLICATION_PAGE'] ? 'N' : 'Y';
+			$installCompletionMode = AppInstallCompletionMode::tryFrom(
+				(string)($result['APPLICATION_DATA_INSTALL_COMPLETION_MODE'] ?? '')
+			) ?? AppInstallCompletionMode::Immediate;
+			$result['APPLICATION_INSTALL_COMPLETION_MODE'] = $installCompletionMode->value;
+
+			// Saving the form never installs or uninstalls the application, so a mode switch leaves
+			// INSTALLED behind until the admin reinstalls. Offer the reinstall action for that state
+			// as well, otherwise clearing the install URL hides the only way to complete the switch.
+			$isApplicationInstalled = ($result['APPLICATION_DATA_INSTALLED'] ?? null) === 'Y';
+			$result['APPLICATION_MODE_MISMATCH'] =
+				$installCompletionMode === AppInstallCompletionMode::Immediate
+				&& !$isApplicationInstalled;
+
 			$result['ALLOW_ZIP_APPLICATION'] = \Bitrix\Main\ModuleManager::isModuleInstalled("bitrix24");
 			$result['APPLICATION_MODE'] = [
 				'SERVER' => Provider::APP_MODE_SERVER,
@@ -227,6 +246,10 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Main\Engi
 			];
 		}
 		$result['BLOCK_LIST'] = $blockList;
+
+		$result['APPLICATION_MODE_SAVED'] = \CRestUtil::isStatic((string)($result['APPLICATION_DATA_URL'] ?? ''))
+			? Provider::APP_MODE_ZIP
+			: Provider::APP_MODE_SERVER;
 
 		$result['SCOPE_NEEDED'] = (!isset($presetData['OPTIONS']['SCOPE_NEEDED']) || $presetData['OPTIONS']['SCOPE_NEEDED'] !== 'D') ? 'Y' : 'N';
 
@@ -385,7 +408,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Main\Engi
 			'QUERY',
 			'OUTGOING_HANDLER_URL',
 			'OUTGOING_EVENTS',
-			'APPLICATION_ONLY_API',
+			'APPLICATION_INSTALL_COMPLETION_MODE',
 			'APPLICATION_NEEDED',
 			'APPLICATION_EVENTS',
 			'OUTGOING_NEEDED',

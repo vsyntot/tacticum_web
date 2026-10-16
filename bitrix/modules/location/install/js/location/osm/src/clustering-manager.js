@@ -1,6 +1,10 @@
 import { CheckInMapEventType } from 'location.core';
 import { Leaflet as L } from '../leaflet/src/leaflet';
 
+// Route marker ids are `{auto-}check-in-{employeeId}-{checkInId}`; the checkInId itself may carry dashes
+// (`track-start` / `track-end`), so the employee id is read off this prefix, not by segment position.
+const CHECK_IN_MARKER_PREFIX = /^(?:auto-)?check-in-/;
+
 /**
  * Manages marker clustering for CheckInMapService.
  *
@@ -274,8 +278,15 @@ export class ClusteringManager
 		const icon = this.#host.createDivIcon(html, className, iconSize, iconAnchor);
 
 		entry.leafletMarker.setIcon(icon);
-		const testId = this.#getClusterTestId(markerIds);
-		entry.leafletMarker.getElement()?.setAttribute('testId', testId);
+		this.#applyTestId(entry.leafletMarker.getElement(), this.#getClusterTestId(markerIds));
+	}
+
+	// Both attributes carry the same value: `testId` is what the map markup has always used,
+	// `data-testid` is what Playwright's getByTestId() reads. Mirrors the MapLibre engine.
+	#applyTestId(element, testId)
+	{
+		element?.setAttribute('testId', testId);
+		element?.setAttribute('data-testid', testId);
 	}
 
 	cancelPendingAnimations()
@@ -748,15 +759,16 @@ export class ClusteringManager
 
 		if (isRouteMode)
 		{
-			const parts = ids[0].split('-');
-			const employeeId = parts[parts.length - 2];
+			const employeeId = parseInt(ids[0].replace(CHECK_IN_MARKER_PREFIX, ''), 10);
+			// A check-in id suffix is numeric except for the track ends (`-track-start` / `-track-end`),
+			// so the suffix is kept as a string: parsing it would turn those ends into NaN.
 			const checkInIds = ids
 				.map((id) => {
 					const p = id.split('-');
 
-					return parseInt(p[p.length - 1], 10);
+					return p[p.length - 1];
 				})
-				.sort((a, b) => a - b)
+				.sort((a, b) => this.#compareIdSuffixes(a, b))
 				.slice(0, MAX_IDS);
 
 			return `cluster-${employeeId}-${checkInIds.join('-')}`;
@@ -772,6 +784,28 @@ export class ClusteringManager
 			.slice(0, MAX_IDS);
 
 		return `cluster-${employeeIds.join('-')}`;
+	}
+
+	// Numeric suffixes go first, ordered by value; named ones (track ends) follow in a stable
+	// alphabetical order, so the same cluster always yields the same testId.
+	#compareIdSuffixes(a, b)
+	{
+		const numA = parseInt(a, 10);
+		const numB = parseInt(b, 10);
+		const isNumberA = !Number.isNaN(numA);
+		const isNumberB = !Number.isNaN(numB);
+
+		if (isNumberA && isNumberB)
+		{
+			return numA - numB;
+		}
+
+		if (isNumberA !== isNumberB)
+		{
+			return isNumberA ? -1 : 1;
+		}
+
+		return a.localeCompare(b);
 	}
 
 	// ─── Private: cluster calculation ────────────────────────────────────────
@@ -1075,7 +1109,7 @@ export class ClusteringManager
 
 		const testId = this.#getClusterTestId(cluster.ids);
 		marker.on('add', () => {
-			marker.getElement()?.setAttribute('testId', testId);
+			this.#applyTestId(marker.getElement(), testId);
 		});
 
 		marker.on('click', () => {

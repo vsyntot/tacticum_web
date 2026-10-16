@@ -82,6 +82,7 @@ $MESS['LANDING_TPL_HOOK_RIGHTS_PROMO_SALE'] = 'На вашем тарифном 
 $MESS['LANDING_TPL_HOOK_COOKIES_EDIT_DESCRIPTIONS'] = 'Редактировать описание кода, обрабатывающего Cookie-файлы';
 $MESS['LANDING_TPL_HOOK_COOKIES_VIEW'] = 'Общий вид';
 $MESS['LANDING_TPL_HOOK_COOKIES_SCRIPT_WARN'] = 'На вашем сайте используется сторонний html-код. Укажите информацию о коде, который отвечает за сбор и обработку Cookie-файлов.';
+$MESS['LANDING_TPL_HOOK_COOKIES_AGREEMENT_GROUP_LABEL'] = 'Соглашение о Cookie-файлах';
 $MESS['LANDING_TPL_DOMAIN_PRIVATE_BUTTON'] = 'Подключить свой домен';
 $MESS['LANDING_TPL_DOMAIN_FREE_BUTTON'] = 'Получить домен бесплатно';
 $MESS['LANDING_TPL_DOMAIN_FREE_TEXT'] = 'Хотите красивый адрес сайта? Получите домен в подарок!';

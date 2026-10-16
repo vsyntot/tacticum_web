@@ -340,7 +340,7 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable && empty($arParams['I
 			</div>
 		</div>
 	</div>
-	<div class="landing-sites" id="landing-sites"></div>
+	<div class="landing-sites" id="landing-sites" data-testid="landing-sites-list"></div>
 <?php elseif (!$arParams['ITEMS'] && $arParams['TYPE'] === 'STORE' ):
 	$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT1');
 	if ($zone === 'ru')
@@ -406,7 +406,7 @@ if ($arParams['TYPE'] === 'PAGE' && $isAiSiteChatAvailable && empty($arParams['I
 		</div>
 	</div>
 <?php else: ?>
-	<div class="landing-sites" id="landing-sites"></div>
+	<div class="landing-sites" id="landing-sites" data-testid="landing-sites-list"></div>
 <?php endif; ?>
 
 <script>

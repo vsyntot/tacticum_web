@@ -16,8 +16,10 @@ $migration->table('b_rest_event')->create(function (\Bitrix\Main\UpdateSystem\Mi
 	$columns->varchar('CONNECTOR_ID', 255)->default('');
 	$columns->int('INTEGRATION_ID');
 	$columns->varchar('OPTIONS', 1024);
+	$columns->text('JSON_OPTIONS');
+	$columns->tinyInt('VERSION')->notNull()->default(1);
 	$table->addPrimaryKey('ID');
-	$table->addUniqueIndex('ux_b_rest_event_app_event', ['APP_ID', 'EVENT_NAME(50)', 'EVENT_HANDLER(180)', 'USER_ID', 'CONNECTOR_ID(70)']);
+	$table->addUniqueIndex('ux_b_rest_event_with_version', ['APP_ID', 'EVENT_NAME(50)', 'EVENT_HANDLER(180)', 'USER_ID', 'CONNECTOR_ID(70)', 'VERSION']);
 	$table->addIndex('ix_b_rest_event_event_name', ['EVENT_NAME']);
 });
 
@@ -46,6 +48,7 @@ $migration->table('b_rest_app')->create(function (\Bitrix\Main\UpdateSystem\Migr
 	$columns->char('USER_INSTALL', 1)->default('N');
 	$columns->datetime('DATE_CREATE')->defaultCurrentTimestamp();
 	$columns->datetime('DATE_INSTALL')->defaultCurrentTimestamp();
+	$columns->varchar('INSTALL_COMPLETION_MODE', 16)->notNull()->default('deferred');
 	$table->addPrimaryKey('ID');
 	$table->addUniqueIndex('ux_b_rest_app1', ['CLIENT_ID']);
 });
