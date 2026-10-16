@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_release_review_workflow",
+  "generated_at": "2026-10-16",
+  "status": "verified_partial",
+  "workflow": {
+    "name": "multisite-release-review.yml",
+    "run_id": "38897349988",
+    "head_sha": "ec1b2226eb2a76d290785583ff2ee999e9d670b3",
+    "conclusion": "success",
+    "quality_jobs": 7,
+    "production_mutation": false
+  },
+  "transport": {
+    "manifest_sha256": "02161da788f219083a5f29bf44bcdec2626dba0dcf7a80230a9e439cab1ed7f",
+    "scope_version": "2026-10-14.multisite.1",
+    "roots": {"primary": 399, "divatech": 11},
+    "platform_identity": "server_declared_structure_only"
+  },
+  "candidate": {
+    "manifest_sha256": "2318bce67003fd2e9f8595681b66c8a43d9f617ded39763f384bacb9f3d7b697",
+    "artifact_reviewed": true,
+    "roots": {"primary": 399, "divatech": 11},
+    "privacy_included": true
+  },
+  "review": {
+    "kind": "TWO_WAY_REVIEW_ONLY",
+    "base_status": "NOT_LOADED",
+    "production_mutation_allowed": false,
+    "baseline_promotion_allowed": false,
+    "content_matches": false,
+    "affected_sites": ["s1", "s2"],
+    "differences": [
+      "primary local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php",
+      "primary local/templates/tacticum/components/bitrix/menu/topmenu/.description.php"
+    ],
+    "difference_context": "Matches the two approved menu-description files from the 2026-10-15 FILE_ONLY release; current production/base reconciliation remains required."
+  },
+  "next_gate": "exact three-way BASE/PROD/CANDIDATE reconciliation and owner-approved decision for the two known menu-description differences; no deployment or BASE promotion from this review"
+}

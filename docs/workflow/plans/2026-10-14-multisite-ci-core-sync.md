@@ -353,6 +353,27 @@ branch protection требует PR и OAuth token требует `workflow` sco
 прохождения device authorization transport smoke остаётся `pending`; никаких
 новых production application writes этим шагом не выполнялось.
 
+### Контрольная точка: read-only multisite release review — 16.10.2026
+
+PR #76 (`ec1b2226e`) добавил ручной review-only workflow `multisite-release-review.yml`.
+Run `38897349988` прошёл все семь quality jobs, encrypted manifest transport и
+clean build из `main`; production mutation и BASE promotion не выполнялись.
+Оба корня собраны полностью: `primary=399`, `divatech=11`, включая
+`sites/divatech/privacy/index.php`.
+
+Двухсторонняя сверка PROD↔CANDIDATE обнаружила два известных primary drift-файла:
+`local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php` и
+`local/templates/tacticum/components/bitrix/menu/topmenu/.description.php`. Они
+совпадают с двумя файлами ранее принятого FILE_ONLY-релиза 15.10.2026; новый
+контур правильно оставил `base_status=NOT_LOADED`,
+`productionMutationAllowed=false` и `baselinePromotionAllowed=false`. Это не
+разрешение на повторную доставку и не promotion BASE. Evidence:
+[evidence](../evidence/2026-10-16-multisite-release-review.json).
+
+Следующий gate: exact three-way `BASE/PROD/CANDIDATE` plan с решением владельца
+по этим двум известным различиям, затем отдельная проверка cache/monitoring и
+только после этого — P9/P10.
+
 ### Контрольная точка: encrypted transport и fail-closed deploy guard — 16.10.2026
 
 Подэтап P5/P7 по transport завершён в статусе `verified_partial`. PR #66
