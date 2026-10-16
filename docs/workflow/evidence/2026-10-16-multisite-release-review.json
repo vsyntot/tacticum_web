@@ -34,7 +34,7 @@
       "primary local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php",
       "primary local/templates/tacticum/components/bitrix/menu/topmenu/.description.php"
     ],
-    "difference_context": "Matches the two approved menu-description files from the 2026-10-15 FILE_ONLY release; current production/base reconciliation remains required."
+    "difference_context": "The same two paths were touched by the 2026-10-15 FILE_ONLY release, but the current PROD hashes differ from the current candidate hashes. This is treated as PROD_CHANGE/unknown cause until the dual BASE three-way reconciliation confirms the path-level history."
   },
   "next_gate": "exact three-way BASE/PROD/CANDIDATE reconciliation and owner-approved decision for the two known menu-description differences; no deployment or BASE promotion from this review"
 }
