@@ -1,15 +1,25 @@
 # Gap Analysis — tacticum.ru
 
 Дата аудита: 20.05.2026
-Дата последнего обновления: 14.10.2026
+Дата последнего обновления: 16.10.2026
+
+## Авторитетное обновление exact production adoption — 16.10.2026
+
+Exact plan `2026-10-14-multisite-production-adoption-exact-plan.md` закрыт:
+production control-plane и dual BASE проверены, FILE_ONLY выпуск для обоих
+корней прошёл, а повторный no-op подтвердил нулевые application writes.
+Текущий evidence — [no-op rerun](evidence/2026-10-16-multisite-noop-rerun.json).
+Это закрывает только принятый production adoption scope; более широкий CI/core
+sync backlog и отдельная тема GitLab/storage не считаются закрытыми этим
+результатом.
 
 ## Общий CI, два сайта и обновления платформы — 14.10.2026
 
-Основание: гриль 14.10.2026 и [детальный план](plans/2026-10-14-multisite-ci-core-sync.md). MSCI-09 закрыт по воспроизводимым clean builds, остальные gaps не закрыты; реализация MSCI-01/02/03/05/06/07/09 начата, независимый CI пакет принят на PR и main, полная production acceptance впереди; приоритеты — техническая оценка по последствиям, не утверждённый срок. Новая задача не переоткрывает завершённый contact-only запуск Divatech.
+Основание: гриль 14.10.2026 и [детальный план](plans/2026-10-14-multisite-ci-core-sync.md). MSCI-09 закрыт по воспроизводимым clean builds, остальные gaps не закрыты; реализация MSCI-01/02/03/05/06/07/09 начата, независимый CI пакет принят на PR и main, полная production acceptance впереди; приоритеты — техническая оценка по последствиям, не утверждённый срок. Владелец отдельно принял сохранение 65 GitHub PR refs как остаточный риск; передача в GitHub Support больше не является обязательством этого плана. Новая задача не переоткрывает завершённый contact-only запуск Divatech.
 
 | Gap | Приоритет | Статус | Проблема | Закрывающие этапы плана |
 |---|---|---|---|---|
-| MSCI-01 | P0 | in_progress | Ротация раскрытого production crypto_key verified; indexed scan и crypto regression tests passed, но bounded history check подтвердил 3 historical crypto-key blobs, а полная credential inventory и remediation остаются открыты | P0; [P0 evidence](evidence/2026-10-14-p0-security-audit.json) |
+| MSCI-01 | P0 | partial (accepted residual) | Production crypto_key и DB credential ротированы; 61 branch head переписан, 65 GitHub PR refs сохранены по решению владельца как принятый остаточный риск. Indexed scan и crypto regression tests passed; полная credential inventory остаётся открытой | P0; [P0 evidence](evidence/2026-10-14-p0-security-audit.json) |
 | MSCI-02 | P1 | in_progress | Ядро хранится в Git, но его импорт запрещён CI; версии модулей частично исключены | P1, P2 |
 | MSCI-03 | P1 | in_progress | Mtime-sync одного корня не обеспечивает точное соответствие платформы и не обрабатывает upstream deletions | P2, P8 |
 | MSCI-04 | P1 | open | Platform/core/schema identity и legacy production scope не связаны с multisite-допуском application deploy; scope versions расходятся | P2, P3, P6, P8; [P1 evidence](evidence/2026-10-14-p1-contract-evidence.json) |
@@ -23,7 +33,7 @@
 ## Divatech multisite — обновление 14.10.2026
 
 - `DIVA-01`, P1, `closed` для принятого contact-only scope: s2/TLS/vhosts работают; correction закрыла обход 404 через BitrixEnv fallback. Public smoke, 15-minute monitoring, dual STATEFUL BASE и cleanup verified 14.10.2026. [Актуальный план](plans/2026-10-13-divatech-bitrix-multisite.md).
-- `DIVA-02`, P1, `open`: получатель/отправитель, policy/consent и хранение заявок Divatech не определены. Предложен контактный первый запуск с выключенными формами; владелец принял этот вариант 14.10.2026; формы остаются выключены. Проверенный локальный endpoint не закрывает gap доставки реальных заявок.
+- `DIVA-02`, P1, `verified_partial`: owner-approved recipient/sender, English consent, privacy URL and 12-month config are applied; incident hotfixes `DIVA-FIX-incident-form-compat` and `DIVA-FIX-incident-form-honeypot-compat` accept boolean/legacy browser consent values and tolerate false-positive hidden-field autofill while retaining strict invalid consent, CSRF and Origin rejection. Both production forms render and synthetic contact/callback smoke, private inactive storage, idempotency, Origin/CSRF guards and 15-minute monitoring passed. Divatech admin paths redirect permanently to the canonical `https://tacticum.ru/bitrix/admin/` host; no second admin runtime is exposed. SMTP delivery is still only `queued`, automated purge is not implemented, and formal legal-entity details for the working privacy notice remain unverified.
 - `DIVA-03`, P1, `closed`: ручной STATEFUL запуск и review-доставка verified; shared-код смержен в main через PR #53, общий 399-file BASE сверён и сохранён в двух независимых копиях. Main workflow 38534851216 success с zero changes/no apply. Второй root/config/DB по-прежнему доставляются отдельным STATEFUL runbook; общая автоматизация двух сайтов не входит в закрытый scope.
 
 Статусы:
@@ -812,3 +822,15 @@ External gates из Sprint 14 остаются отдельным хвостом
 | DELIVERY-E2E-005 | in-progress | P0 | Release controls | Staging закрыт owner waiver; production reviewer gate и main protection включены E-033, но CI keys, trusted controller, CODEOWNERS/ruleset и old rsync retirement остаются | `CI-REC-015` |
 
 Эти gaps нельзя закрывать ссылкой только на зелёный CI, merge или post-deploy smoke; E-032 закрывает только bounded FILE_ONLY rollout этого плана. Closure evidence определён в `production-deployment-governance.md`.
+
+### Transport update — 16.10.2026
+
+Encrypted CI transport и root forced-command contour проверены read-only для
+обоих сайтов; production manifest содержит 410 entries (`primary=399`,
+`divatech=11`), а smoke принимает рабочие английские Divatech forms и
+canonical 301 на общий Bitrix admin host. Existing server dual BASE read-only
+согласован (`sequence=1`, обе копии совпадают), но он содержит 409 entries и
+не заменяет exact reconciliation текущего 410-entry manifest. Поэтому
+MSCI-05/06 остаются `in_progress`, MSCI-07/08 — `in_progress`, а
+DELIVERY-E2E-002/004/005 не закрываются одним transport smoke; production
+apply, cache evidence и новый BASE promotion требуют отдельного exact plan.
