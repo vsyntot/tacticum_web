@@ -1,7 +1,7 @@
 # План запуска divatech.space вторым сайтом Битрикс
 
 Дата обследования: 13.10.2026. Автор: project-manager. Адресат: владелец проекта и исполнитель внедрения.
-Статус: verified — согласованный contact-only запуск выполнен в production; correction `DIVA-FIX-3c159bad6601`, smoke/monitoring/dual BASE/cleanup завершены. Формы выключены по принятому решению. Git review/merge, общий FILE_ONLY BASE и контроль через 24 часа — отдельные последующие действия.
+Статус: verified_partial — согласованный запуск и включение форм выполнены в production; correction `DIVA-FIX-3c159bad6601` и incident hotfix `DIVA-FIX-incident-form-compat` проверены. SMTP delivery, автоматический purge, legal details privacy notice и 24-hour контроль остаются открытыми. Git review/merge и общий FILE_ONLY BASE — отдельные последующие действия.
 Workflow lane: Security / Integration. Release class: STATEFUL.
 ADR gate: нужен отдельный ADR по многосайтовости, границам общего кода и двум целям доставки.
 Design gate: сохраняем дизайн предоставленного сайта; проверяем адаптацию, формы и редактирование контента, новый дизайн не заказываем.
@@ -452,3 +452,202 @@ Review/commit/merge + common BASE reconciliation выполнены. PR #53 см
 DIVA-03 закрыт для принятого ручного STATEFUL + shared FILE_ONLY integration scope. DIVA-02 (формы/политика/доставка заявок) остаётся отдельно вне текущего обязательства. DB/server config не менялись, source backup/секреты не опубликованы. Серверные temporary patch/operator удалены, backup и audit evidence сохранены; disposable browser environment удалён.
 
 Текущее продолжение: около 22 минут календарно до проверки main workflow; active_effort=unknown, wait=unknown, поскольку 15 минут наблюдения шли параллельно review/CI/документации. Прогноз был 20–30 минут работы / календарно. Финальная публикация этого audit record — documentation-only; она не требует повторного production deploy. Следующий шаг по принятому production/integration scope: нет — цель закрыта. 24-hour operational check и включение форм не обещаны как фоновые задачи.
+
+### DIVA-02 follow-up — 16.10.2026
+
+Статус: `in_progress`, отдельный принятый follow-up по запросу владельца
+«давай сделаем, погнали». Исполнитель — Codex; владелец решений по
+получателю, sender, policy/consent и retention — владелец проекта.
+
+**Input snapshot.** Общий application-код формы уже находится в рабочем дереве
+и был ранее доставлен: `local/components/tacticum/divatech.page/`,
+`local/rest/divatech_lead.php`, `local/lib/Tacticum/Divatech/*`,
+`local/templates/divatech/*`. Production read-only smoke на 16.10.2026
+подтвердил HTTP 200 главной, но формы не рендерятся, потому что
+`divatech.forms_enabled=false`. Endpoint без разрешённого Origin возвращает
+`403 invalid_origin`.
+
+**Archive reconciliation — 16.10.2026.** Повторно проверен исходный Tilda ZIP
+`divatech.space_70bce3996707255859d8f26899151c00283bbd9f.zip` (SHA-256
+`e5736a677fb855c9c9c3ab0060fa5ad58fcf3467520c0cbef577fc4e47a6de0d`). В нём
+зафиксированы `info@divatech.space`, `+90 506 621 27 12`, contact-поля
+`Email`, `Name`, `Textarea` с placeholder `Your request`, callback-поле
+`phone` с placeholder `+90 (000) 000-0000`, и success copy
+`Thank you for request! / We will contact you soon.` Текущий локальный шаблон
+совпадает по бизнес-полям и контактам. В архиве не обнаружены privacy URL,
+consent text, retention term или отдельный sender address; Tilda service id
+не является production recipient/sender настройкой.
+
+**Local implementation update — 16.10.2026.** Divatech form markup and
+`local/templates/divatech/script.js` now follow the main-site form behavior:
+native required-field validation, explicit consent gate, stable UUID retry
+semantics, loading/disabled state with spinner, timeout and same-origin JSON
+POST, generic English error, and reset only after a confirmed success response.
+The Divatech-specific endpoint, private storage and `contact`/`callback`
+payload contract remain unchanged. The visible copy, placeholders, status
+messages and policy link are English; no Russian strings were introduced in
+the Divatech template/assets. This is a repository candidate only: production
+forms remain disabled until the STATEFUL configuration gate is approved.
+
+**Production reconciliation — 16.10.2026.** Read-only HTTPS and strict
+root/password probe confirmed the visible symptom. The live HTML has no
+`data-divatech-form`; the contact section renders the email/phone fallback and
+the callback control is a telephone link. Production hashes for the old
+`form.php`, `script.js` and `style.css` differ from the current candidate, so
+the local implementation has not been delivered. The server-owned
+`tacticum_config.php` has no `divatech` section, which makes
+`Settings::formsEnabled()` false even though the Bitrix objects already exist:
+site `s2` is active/non-default, `divatech_leads` is iblock `#29`, and the
+`DIVATECH_LEAD` event/template exist and are bound to s2. This narrows the
+remaining production change to a reviewed FILE_ONLY application candidate plus
+an exact STATEFUL server-config update; no new site/iblock migration is needed.
+
+The rebuilt secret-free candidate has artifact SHA-256
+`82e72f2452fac231bbfc36fe244e910fed2f19a1f64c4038a43d2772ffca1606` and
+contains 49 manifest files; its `production_apply_ready` flag remains false.
+The current server-owned config hash is recorded privately as
+`72e6e4318beec02a0edf5a1b45e1f8cfba50684207297a589d54cbe6fff8de4f`.
+
+**Stage contract.**
+
+- `owner`: владелец проекта; `implementation_owner`: Codex;
+- `version_source`: supplied `project-manager/SKILL.md`; `loaded_version`:
+  `2.7.28`;
+- `accepted_scope`: включить существующие contact/callback формы Divatech и
+  проверить приватное сохранение заявки и notification path;
+- `read_scope`: текущий Divatech application, endpoint policy, production
+  read-only HTTP/metadata, server-owned config и Bitrix metadata;
+- `write_scope`: только Divatech form/config/DB objects и их release evidence;
+  `bitrix/`, Tacticum forms, GitLab/storage и unrelated content — off-limits;
+- `expected_output`: exact STATEFUL config/DB plan, owner-approved settings,
+  immutable artifact/backup evidence, production apply, smoke, synthetic lead
+  verification and delivery confirmation;
+- `blocked_by`: sender, privacy URL, exact consent text and retained data
+  lifetime; recipient is evidenced as `info@divatech.space` by the source
+  archive, but must still be confirmed as the current production mailbox;
+- `acceptance`: both forms render on Divatech, origin/CSRF/rate-limit/validation
+  guards pass, one synthetic contact and one callback are stored privately,
+  duplicate request is idempotent, notification is confirmed at the agreed
+  recipient, and no PII is exposed in logs or public responses;
+- `next_gate`: owner supplies the four settings, then Codex refreshes production
+  metadata and writes an exact STATEFUL migration/release plan before any
+  production mutation.
+
+**Prepared STATEFUL runbook (not yet approved for write).**
+
+1. Capture owner-approved values in the private server-owned config only:
+   `forms_enabled=true`, recipient email, sender email, canonical HTTPS privacy
+   URL on `divatech.space`, exact consent text, and the approved retention term.
+   The repository example remains non-secret and disabled; no recipient or
+   sender is committed to Git.
+2. Read the current production metadata and config checksum using the approved
+   operator transport. Confirm `s2`, the `divatech_leads` iblock, the
+   `DIVATECH_LEAD` event/template, site/domain binding, permissions, and that
+   no requests are present before considering destructive rollback. A failed
+   SSH key probe is an access blocker; do not weaken host verification or use a
+   personal key in CI.
+3. Classify as `STATEFUL`: server-owned config plus activation of existing
+   Bitrix site/storage metadata. Generate an immutable plan ID containing the
+   redacted pre-state hash, candidate code/artifact hash, config keys (values
+   redacted), exact allowed paths, and rollback conditions.
+4. Under the production lock, run `tools/divatech/migrate.php --mode=dry-run`
+   and then an explicit metadata/config backup outside both web roots. Rehearse
+   restoring that backup in an isolated temporary target and verify the hash;
+   a file archive alone is not a STATEFUL rollback.
+5. Apply only the approved config and migration operations. Keep the site
+   inactive until metadata, permissions, event binding, privacy URL and config
+   validation pass. Then activate `s2`, clear the affected Bitrix cache, and
+   record post-apply metadata/config hashes.
+6. Run post-deploy checks from an unprivileged client: homepage and both form
+   render, allowed Origin succeeds, missing/foreign Origin and CSRF fail,
+   malformed/oversized/rate-limited requests fail, and public responses/logs
+   contain no PII. Submit one synthetic contact and one callback with unique
+   UUIDs; confirm private inactive elements, idempotent duplicate handling and
+   notification delivery at the approved recipient. Delete or mark the
+   synthetic records according to the agreed retention procedure.
+7. Keep the rollback path ready: if smoke or delivery fails, deactivate the
+   site/forms and restore the approved config/metadata backup; never delete a
+   storage containing real requests. Finish with two independently verified
+   BASE copies and an audit record containing plan ID, hashes, lock, backup,
+   smoke and monitoring results.
+
+**Write gate.** No step above may mutate production until the owner values are
+received, the redacted dry-run and exact plan are presented, and the owner
+approves that concrete plan. Until then the public site intentionally remains
+contact-only with forms disabled.
+
+**Concrete approval candidate — 16.10.2026 (not approved).** To make the
+remaining gate reviewable, the proposed values are: recipient
+`info@divatech.space`; sender `info@divatech.space` (the only sender mailbox
+evidenced by the source archive); `privacy_url`
+`https://divatech.space/privacy/`; English consent text
+`I agree to the processing of my personal data and accept the Privacy Policy.`;
+retention `12 months` unless the owner specifies another period. The privacy
+page and its legal entity/contact details must be supplied or explicitly
+approved by the owner; this candidate does not invent those details. The
+production write, if approved, is the exact candidate artifact
+`78b4d94485829b0133cb7539ac19f8bef9bed8518f1a78aac07baec6d6f578ae`, sets
+`iblocks.divatech_leads=29` and `divatech.forms_enabled=true` in the
+server-owned config, publishes the 50-file FILE_ONLY manifest (including the
+English `/privacy/` notice and sitemap entry), then runs the
+locked STATEFUL backup/dry-run/apply, synthetic contact and callback smoke,
+idempotency check, private-storage verification and delivery confirmation.
+No value in this paragraph is an approval or a production secret.
+
+**Production apply evidence — 16.10.2026.** Owner confirmation of the
+candidate values was received in-session. Under both production locks, the
+50-file artifact `78b4d94485829b0133cb7539ac19f8bef9bed8518f1a78aac07baec6d6f578ae`
+was hash-verified and applied. The final release plan ID is
+`c3d0ab7b5c0cc01eb020ea07ec0492338243a257507f560f8a72f6d8cc529e8e`; the
+metadata state hash stayed `d45c5edf0489dee4e7f1e6e18fbedd0f5fd81eb00826095aa4607243d269d544`
+before and after, while the server-owned config changed from hash
+`72e6e4318beec02a0edf5a1b45e1f8cfba50684207297a589d54cbe6fff8de4f` to
+`992499475d0df7b87a001a6a0818f13d5653d3da8aae92a08a38c96286e6ec83`.
+The locked file/config backup, metadata dump and isolated schema restore
+rehearsal passed. Only the expected five application/site files changed; no
+Bitrix core or unrelated Tacticum paths changed. The production page now
+renders both forms and `/privacy/` returns `200`; allowed Origin succeeds,
+foreign Origin and invalid CSRF return `403`, contact duplicate retry remains
+idempotent, and two synthetic requests are stored inactive/private. Fifteen
+monitoring cycles over the acceptance window returned `200` for Divatech,
+privacy and Tacticum. Temporary uploaded archive/operator staging was removed;
+root-only backup/evidence remains under the recorded backup directory.
+
+The follow-up is `verified_partial`: both notification records are `queued`,
+but mailbox/SMTP delivery was not independently confirmed, and the approved
+12-month retention is recorded in config but no automated purge job exists in
+the current runtime. Formal legal-entity details for the working English
+privacy notice also remain unverified.
+
+The local contract/security checks passed except the Nginx and Apache Docker
+fixtures, which were not runnable because the local Docker daemon is
+unavailable; this is an environment limitation, not an accepted waiver.
+
+**Incident hotfix evidence — 16.10.2026.** The user-reported `422
+invalid_fields` was reproduced in the production access log and isolated to
+strict boolean-only consent parsing for a stale/legacy browser payload. The
+FILE_ONLY hotfix plan is recorded in
+`docs/workflow/plans/2026-10-16-divatech-forms-incident-hotfix.md`. Under the
+production lock, the exact two runtime files were backed up, restore rehearsal
+passed, artifact `52b422cfa2df6444dae38453ca2608ecd3f66bde165fd80197b69e1c67b0cb27`
+was applied, post-hashes matched, PHP lint passed and all temporary operator
+staging was removed. The live bundle contains the explicit checkbox selector.
+Production smoke using existing synthetic request IDs returned `200
+request_saved` for boolean, `"on"` and `"1"` consent values; false consent
+returned `422`, invalid CSRF `403` and foreign Origin `403`. No new lead rows
+were created by this verification. Divatech `/bitrix/admin/` remains `403` by
+the accepted site-boundary policy; the canonical admin URL
+`https://tacticum.ru/bitrix/admin/` returns `200` and remains the only admin
+entry point. This incident hotfix is verified; the broader DIVA-02 acceptance
+remains `verified_partial` for the independent delivery/purge/legal gates above.
+
+## Follow-up correction — 16.10.2026
+
+The earlier boundary decision that Divatech admin paths return terminal 403 was
+superseded by the owner-requested incident correction. Divatech admin paths now
+return a permanent 301 to the canonical Tacticum admin host, preserving the
+path and query string; no second Bitrix admin runtime is exposed. Divatech
+Asset registrations now include a file-mtime version so a browser cannot keep
+using an old combined form bundle after a runtime update. Exact evidence is in
+[the cache/admin plan](2026-10-16-divatech-form-cache-and-admin-redirect.md) and
+[the incident evidence](../evidence/2026-10-16-divatech-forms-incident-hotfix.json).

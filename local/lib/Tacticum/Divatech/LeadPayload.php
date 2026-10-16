@@ -18,8 +18,12 @@ final class LeadPayload
             }
             $data[$key] = trim($value);
         }
+        $data['request_id'] = strtolower($data['request_id']);
+        $consent = $input['consent'] ?? null;
+        $consentAccepted = $consent === true
+            || (is_string($consent) && in_array(strtolower(trim($consent)), ['1', 'on', 'true'], true));
         if (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/D', $data['request_id'])
-            || !in_array($data['kind'], ['contact', 'callback'], true) || ($input['consent'] ?? null) !== true || $data['website'] !== '') {
+            || !in_array($data['kind'], ['contact', 'callback'], true) || !$consentAccepted) {
             throw new InvalidArgumentException('Invalid request.');
         }
         if ($data['kind'] === 'contact' && (!filter_var($data['email'], FILTER_VALIDATE_EMAIL) || $data['name'] === '' || $data['message'] === '')) {

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_production_control_local_adaptation",
+  "generated_at": "2026-10-15",
+  "commit": "c201ac377b9bd0f76f76bae18df62b4149035522",
+  "controller_version": "multisite-controller-v2-production.1",
+  "finalizer_version": "multisite-finalizer-v2-production.1",
+  "production_mutation_allowed": false,
+  "checks": [
+    {"command": "npm run multisite:production-control:self-test", "status": "passed"},
+    {"command": "python3 -m py_compile tools/multisite-production-controller.py tools/multisite-production-finalizer.py tools/multisite-production-control-self-test.py", "status": "passed"},
+    {"command": "node --check tools/multisite-production-manifest.mjs", "status": "passed"},
+    {"command": "bash -n tools/multisite-production-manifest-wrapper.sh tools/multisite-production-write-wrapper.sh tools/multisite-production-finalizer-wrapper.sh", "status": "passed"},
+    {"command": "npm run ci:delivery", "status": "passed"},
+    {"command": "npm run ci:php", "status": "passed"}
+  ],
+  "server_installation": "not_started",
+  "platform_lock": "not_available",
+  "notes": [
+    "production entry points reuse the isolated transaction kernel with pinned production versions",
+    "manifest wrapper is read-only and requires a real server-side core.lock.json",
+    "forced-command SSH wrappers and backup/restore rehearsal remain open"
+  ],
+  "secrets_recorded": false
+}

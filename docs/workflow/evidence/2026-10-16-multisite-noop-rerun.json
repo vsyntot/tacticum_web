@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_exact_noop_rerun",
+  "generated_at": "2026-10-16",
+  "outer_plan_id": "f7c6f3507806c437cd75ac0c9466b137ff546dac45adfe0be0c9f5d6e4719ef5",
+  "release_plan_id": "c777783908b1b5d147d30b4073beeee6e266e26ba0c3cefad55df54c8c35cf31",
+  "approval": {
+    "source": "owner_accepted_resume_exact_noop_in_current_session",
+    "expires_at": "2026-10-16T05:32:50Z",
+    "artifact_sha256": "459e6e079f5718c2dd73ac19c7184cd32a980cc098dbd43df448ef81b4010c3b"
+  },
+  "plan": {
+    "plan_sha256": "ae992d75f56277715277ff1088c4e96e26271fde98105afa2e276b2a41d4e2d8",
+    "base_manifest_sha256": "29dfcaeb90c2a08c38f4812e27970a626f0490feec8187099def011038710c4d",
+    "prod_manifest_sha256": "528395f4f8367118ebbc55fb5c9f0b786c886153d23f1e774d69e55ab909edcb",
+    "candidate_manifest_sha256": "925471bc4776239027ecd1f1969a06582cbb3b62cb5950dc840ebbb37bac639a",
+    "changes": 0,
+    "deploy_required": false
+  },
+  "controller": {
+    "status": "converged_unverified",
+    "operations": 0,
+    "metadata_updates": 0,
+    "created_directories": 0,
+    "post_manifest_sha256": "925471bc4776239027ecd1f1969a06582cbb3b62cb5950dc840ebbb37bac639a",
+    "restore_rehearsal": "passed",
+    "production_approved": false
+  },
+  "verification": {
+    "fresh_prod_manifest_sha256": "528395f4f8367118ebbc55fb5c9f0b786c886153d23f1e774d69e55ab909edcb",
+    "entries": 409,
+    "tombstones": 1,
+    "manifest_matches_candidate_entries": true,
+    "smoke": {
+      "passed": true,
+      "http_status": 200,
+      "routes": [
+        "https://tacticum.ru/",
+        "https://tacticum.ru/about/",
+        "https://tacticum.ru/price/",
+        "https://tacticum.ru/calculator/",
+        "https://divatech.space/"
+      ]
+    },
+    "base": {
+      "sequence": 1,
+      "rewritten": false,
+      "previous_dual_copy_verification": "passed"
+    }
+  },
+  "scope": {
+    "application_files_changed": false,
+    "bitrix_core_changed": false,
+    "database_changed": false,
+    "uploads_changed": false,
+    "config_changed": false,
+    "gitlab_and_storage": "out_of_scope"
+  },
+  "failure_ledger": [
+    "The first local upload-loop attempt stopped before any upload because the shell iterator did not split the pair correctly; the corrected sequential upload completed and all six package files were hash-verified on the server.",
+    "The previous day's approval had expired; it was not reused. A new approval was bound to the fresh no-op plan and its short expiry window."
+  ],
+  "status": "verified_noop_complete",
+  "next_action": "none_for_current_exact_plan"
+}

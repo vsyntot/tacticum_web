@@ -46,7 +46,7 @@ php -d short_open_tag=1 tools/divatech/migrate.php \
 
 Для `apply`, `activate`, `rollback` обязательны `--expect=<state_sha256>` и `--journal=<private path outside webroots>`. Production release lock, точный approval, резервная копия, проверка восстановления и границы вмешательства обеспечивает оператор до запуска. Команда с одним `--expect` не заменяет этот контракт. `verify` проверяет созданные сущности без их изменения. `apply` создаёт неактивный s2; повтор с принадлежащим ему applied journal проверяет состояние. Журнал prepared/неизвестное состояние требует разбора причины, а не удаления и слепого повтора.
 
-Идентификатор созданного инфоблока берётся из проверенного результата и добавляется под `iblocks.divatech_leads` в server-owned конфиг. `divatech.forms_enabled=false` остаётся до решения по recipient, sender, policy/consent и хранению. Почтовая очередь с `queued` не доказывает SMTP delivery. Тестовая отправка в реальный ящик требует согласованного получателя.
+Идентификатор созданного инфоблока берётся из проверенного результата и добавляется под `iblocks.divatech_leads` в server-owned конфиг. После owner-approved STATEFUL release `divatech.forms_enabled=true`; текущий incident hotfix принимает boolean и legacy browser consent values, но сохраняет строгие Origin/CSRF/validation guards. Почтовая очередь с `queued` не доказывает SMTP delivery. Тестовая отправка в реальный ящик требует согласованного получателя. Divatech `/bitrix/admin...` перенаправляется на `https://tacticum.ru/bitrix/admin...`; канонический host остаётся единственным admin runtime. CSS/JS Divatech получают версию по `filemtime`, чтобы после deploy браузер не использовал старый Bitrix combined bundle.
 
 ## Пакет и инфраструктурный этап
 
