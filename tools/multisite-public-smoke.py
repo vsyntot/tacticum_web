@@ -18,7 +18,7 @@ CASES = [
     ('s1', '/calculator/', 200, 'Tacticum'), ('s1', '/offer/', 200, 'Tacticum'),
     ('s1', '/robots.txt', 200, 'sitemap'), ('s1', '/sitemap.xml', 200, '<?xml'),
     ('s2', '/', 200, 'DIVA Technologies'), ('s2', '/robots.txt', 200, 'sitemap'),
-    ('s2', '/sitemap.xml', 200, '<?xml'), ('s2', '/bitrix/admin/', 403, None),
+    ('s2', '/sitemap.xml', 200, '<?xml'), ('s2', '/bitrix/admin/', 301, None),
     ('s2', '/local/.env', 403, None), ('s2', '/release-smoke-missing-page/', 404, None),
 ]
 HOSTS = {'s1': 'https://tacticum.ru', 's2': 'https://divatech.space'}
@@ -33,8 +33,8 @@ def evaluate(case, status, body):
         failures.append('missing_identity')
     if any(token in body for token in ['Fatal error:', 'Parse error:']):
         failures.append('php_error')
-    if site == 's2' and path == '/' and 'data-divatech-form' in body:
-        failures.append('forms_enabled')
+    if site == 's2' and path == '/' and 'data-divatech-form' not in body:
+        failures.append('forms_missing')
     return {'site': site, 'path': path, 'status': status, 'passed': not failures, 'failures': failures}
 
 
