@@ -648,7 +648,7 @@ export default class Item
 				return Outline.CLOCK;
 
 			case 'success':
-			case 'unknow':
+			case 'unknown':
 			default:
 				return Outline.LINK;
 		}
@@ -670,7 +670,7 @@ export default class Item
 			case 'success':
 				return 'var(--ui-color-background-primary)';
 
-			case 'unknow':
+			case 'unknown':
 			default:
 				return 'var(--ui-color-design-outline-a1-content)';
 		}

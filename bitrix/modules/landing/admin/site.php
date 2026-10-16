@@ -276,7 +276,7 @@ if ($isAjax)
 	\Bitrix\Landing\Manager::getApplication()->restartBuffer();
 }
 
-echo '<div id="workarea-content" class="landing-content-admin">';
+echo '<div id="workarea-content" class="landing-content-admin"' . ($isAjax ? '' : ' role="main"') . '>';
 
 $component = null;
 

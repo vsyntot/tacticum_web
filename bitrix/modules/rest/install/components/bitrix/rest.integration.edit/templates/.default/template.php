@@ -6,11 +6,16 @@
 use Bitrix\Rest\Marketplace\Url;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\Rest\Internal\Entity\Application\AppInstallCompletionMode;
 
 Loc::loadMessages(__FILE__);
 
 \Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
-\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.forms']);
+
+$installCompletionMode = $arResult['APPLICATION_INSTALL_COMPLETION_MODE']
+	?? AppInstallCompletionMode::Immediate->value;
+$applicationMode = $arResult['APPLICATION_MODE_SAVED'];
 ?>
 <form method="post" id="rest-integration-form">
 	<div class="integration" id="rest-integration-form-block">
@@ -450,13 +455,15 @@ Loc::loadMessages(__FILE__);
 							<div class="integration-tab-wrapper">
 								<div class="integration-tab-container integration-no-padding">
 									<? if ($arResult['ALLOW_ZIP_APPLICATION']): ?>
-										<div id="applicationType">
+										<div id="applicationType" data-testid="rest-integration-app-mode">
 											<label>
 												<input
 													type="radio"
 													name="APPLICATION_MODE"
 													value="<?=$arResult['APPLICATION_MODE']['SERVER'];?>"
-													checked
+													data-testid="rest-integration-app-mode-server"
+													<?=($applicationMode === $arResult['APPLICATION_MODE']['SERVER'])
+														? 'checked' : ''?>
 												>
 												<?=Loc::getMessage(
 													"REST_INTEGRATION_EDIT_TAB_APPLICATION_MODE_SERVER_LABEL"
@@ -466,6 +473,9 @@ Loc::loadMessages(__FILE__);
 												<input
 													type="radio" name="APPLICATION_MODE"
 													value="<?=$arResult['APPLICATION_MODE']['ZIP'];?>"
+													data-testid="rest-integration-app-mode-zip"
+													<?=($applicationMode === $arResult['APPLICATION_MODE']['ZIP'])
+														? 'checked' : ''?>
 												>
 												<?=Loc::getMessage(
 													"REST_INTEGRATION_EDIT_TAB_APPLICATION_MODE_ZIP_LABEL"
@@ -473,7 +483,55 @@ Loc::loadMessages(__FILE__);
 											</label>
 										</div>
 									<? endif; ?>
-									<div id="applicationServer">
+									<div id="applicationServer" data-testid="rest-integration-app-server">
+										<div class="integration-row  integration-row-no-margin">
+											<div class="integration-row-input-title">
+												<?=Loc::getMessage(
+													'REST_INTEGRATION_EDIT_TAB_' . $block . '_URL_INSTALL'
+												)?>
+											</div>
+											<div class="integration-row integration-row-padding-right integration-row-no-margin">
+												<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+													<input
+														type="url"
+														name="<?=$block?>_URL_INSTALL"
+														class="ui-ctl-element"
+														data-testid="rest-integration-app-url-install"
+														placeholder="https://example.com/install.php"
+														value="<?=htmlspecialcharsbx($arResult[$block . '_DATA_URL_INSTALL'])?>"
+													>
+												</div>
+											</div>
+										</div>
+										<div
+											id="applicationInstallCompletionMode"
+											data-testid="rest-integration-app-install-completion"
+											class="integration-row integration-row-padding-right integration-row-no-margin"
+										>
+											<input
+												type="hidden"
+												name="APPLICATION_INSTALL_COMPLETION_MODE"
+												value="<?=AppInstallCompletionMode::Immediate->value?>"
+											>
+											<label class="ui-ctl ui-ctl-checkbox ui-ctl-w100">
+												<input
+													type="checkbox"
+													name="APPLICATION_INSTALL_COMPLETION_MODE"
+													class="ui-ctl-element"
+													data-testid="rest-integration-app-install-completion-deferred"
+													value="<?=AppInstallCompletionMode::Deferred->value?>"
+													<?=(
+														$installCompletionMode
+														=== AppInstallCompletionMode::Deferred->value
+													) ? 'checked' : ''?>
+												>
+												<span class="ui-ctl-label-text integration-row-text-data">
+													<?=Loc::getMessage(
+														'REST_INTEGRATION_EDIT_TAB_APPLICATION_INSTALL_COMPLETION_MODE'
+													)?>
+												</span>
+											</label>
+										</div>
 										<div class="integration-row  integration-row-no-margin">
 											<div class="integration-row-input-title">
 												<?=Loc::getMessage(
@@ -487,42 +545,29 @@ Loc::loadMessages(__FILE__);
 														type="url"
 														name="<?=$block?>_URL_HANDLER"
 														class="ui-ctl-element integration-required"
+														data-testid="rest-integration-app-url-handler"
 														placeholder="https://example.com/handler.php"
 														value="<?=htmlspecialcharsbx($arResult[$block . '_DATA_URL'])?>"
 													>
 												</div>
 											</div>
 										</div>
-										<div class="integration-row  integration-row-no-margin">
-											<div class="integration-row-input-title">
-												<?=Loc::getMessage(
-													'REST_INTEGRATION_EDIT_TAB_' . $block . '_URL_INSTALL'
-												)?>
-											</div>
-											<div class="integration-row integration-row-padding-right integration-row-no-margin">
-												<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
-													<input
-														type="url"
-														name="<?=$block?>_URL_INSTALL"
-														class="ui-ctl-element"
-														placeholder="https://example.com/install.php"
-														value="<?=htmlspecialcharsbx($arResult[$block . '_DATA_URL_INSTALL'])?>"
-													>
-												</div>
-											</div>
-										</div>
 									</div>
 									<? if ($arResult['ALLOW_ZIP_APPLICATION']): ?>
-										<div id="applicationZip">
+										<div id="applicationZip" data-testid="rest-integration-app-zip">
 											<div class="integration-row  integration-row-no-margin">
 												<label class="ui-ctl ui-ctl-file-btn">
 													<input
 														type="file"
 														name="APP_ZIP"
 														class="ui-ctl-element"
+														data-testid="rest-integration-app-zip-input"
 														accept=".zip"
 													>
-													<span class="ui-ctl-label-text">
+													<span
+														class="ui-ctl-label-text"
+														data-testid="rest-integration-app-zip-label"
+													>
 														<?=Loc::getMessage(
 															"REST_INTEGRATION_EDIT_TAB_APPLICATION_ZIP_INPUT_LABEL"
 														)?>
@@ -582,19 +627,6 @@ Loc::loadMessages(__FILE__);
 											</a>
 										</div>
 									<? endif; ?>
-									<div class="integration-row integration-row-padding-right integration-row-no-margin">
-										<label class="ui-ctl ui-ctl-checkbox ui-ctl-w100">
-											<input
-												type="checkbox"
-												name="<?=$block?>_ONLY_API"
-												class="ui-ctl-element"
-												value="Y"
-												<?=($arResult[$block . '_ONLY_API'] !== 'N') ? ' checked' : ''?>>
-											<span class="ui-ctl-label-text integration-row-text-data">
-												<?=Loc::getMessage('REST_INTEGRATION_EDIT_TAB_APPLICATION_ONLY_API')?>
-											</span>
-										</label>
-									</div>
 									<div
 										id="applicationLang"
 										class="integration-row integration-row-padding-right integration-row-no-margin"
@@ -626,7 +658,7 @@ Loc::loadMessages(__FILE__);
 												<div class="integration-row-input-title">
 													<?=Loc::getMessage(
 														'REST_INTEGRATION_EDIT_TAB_APPLICATION_MENU_NAME'
-													)?> <?=$lang?> (<?=$lid?>)<?=$required ? ' *' : ''?>
+													)?> <?=$lang?> (<?=$lid?>)
 												</div>
 												<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
 													<input
@@ -663,7 +695,7 @@ Loc::loadMessages(__FILE__);
 									<? endif; ?>
 									<? if ($arResult['APPLICATION_DATA_ID'] > 0):?>
 										<div class="integration-row">
-											<? if ($arResult['APPLICATION_ONLY_API'] === 'N'): ?>
+											<? if (!empty($arResult['HAS_APPLICATION_PAGE'])): ?>
 												<a
 													href="<?=Url::getApplicationUrl($arResult['APPLICATION_DATA_ID'])?>"
 													class="ui-btn ui-btn-primary"
@@ -671,7 +703,10 @@ Loc::loadMessages(__FILE__);
 													<?=Loc::getMessage('REST_INTEGRATION_EDIT_APPLICATION_OPEN')?>
 												</a>
 											<? endif; ?>
-											<? if (!empty($arResult[$block . '_DATA_URL_INSTALL'])): ?>
+											<? if (
+												!empty($arResult[$block . '_DATA_URL_INSTALL'])
+												|| !empty($arResult['APPLICATION_MODE_MISMATCH'])
+											): ?>
 												<span
 													onclick="BX.rest.Marketplace.reinstall('<?=$arResult['APPLICATION_DATA_ID']?>')"
 													class="ui-btn ui-btn-primary"
@@ -950,7 +985,9 @@ $actionBtn[] = 'close';
 			'pathToGrid' => $arParams['PATH_TO_GRID'],
 			'uriToMethodInfo' => $arResult['URI_METHOD_INFO'],
 			'integrationCode' => $arParams['ELEMENT_CODE'],
-			'needConfirmCloseSliderWithDelete' => $arResult['IS_NEW_OPEN']
+			'needConfirmCloseSliderWithDelete' => $arResult['IS_NEW_OPEN'],
+			'applicationMode' => $applicationMode,
+			'applicationHasUrl' => !empty($arResult['APPLICATION_DATA_URL'])
 		]
 	);?>;
 </script>

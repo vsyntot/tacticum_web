@@ -84,14 +84,73 @@ def scan(root):
 
 
 def core_changes(root, base):
-    records = subprocess.check_output(['git', '-C', str(root), 'diff', '--no-renames',
-        '--name-status', '-z', base, 'HEAD', '--', 'bitrix/']).split(b'\0')
+    records = diff_records(root, base, 'bitrix/')
+    vendor_sync_allowed = approved_vendor_sync(root, base)
     blocked = []
-    for index in range(0, len(records) - 1, 2):
-        status, name = records[index].decode(), records[index + 1].decode()
+    for status, name in records:
         if status != 'D' or not forbidden(name):
+            if vendor_sync_allowed and not forbidden(name):
+                continue
             blocked.append({'path': name, 'rule': 'unapproved_vendor_change'})
     return blocked
+
+
+def diff_records(root, base, pathspec):
+    raw = subprocess.check_output(['git', '-C', str(root), 'diff', '--no-renames',
+        '--name-status', '-z', base, 'HEAD', '--', pathspec]).split(b'\0')
+    return [(raw[index].decode(), raw[index + 1].decode())
+            for index in range(0, len(raw) - 1, 2) if raw[index]]
+
+
+def approved_vendor_sync(root, base):
+    """Allow only an evidenced production vendor sync, never arbitrary core edits."""
+    evidence_paths = [name for status, name in diff_records(root, base, 'docs/workflow/evidence/')
+                      if status in {'A', 'M'} and name.startswith('docs/workflow/evidence/bitrix-production-sync-')
+                      and name.endswith('.json')]
+    if len(evidence_paths) != 1:
+        return False
+    try:
+        evidence = json.loads(subprocess.check_output(
+            ['git', '-C', str(root), 'show', f'HEAD:{evidence_paths[0]}']))
+        scope = evidence['scope']
+        candidate = evidence['candidate']
+        sync = evidence['sync']
+        approval = evidence['approval']
+        if evidence.get('schema_version') != 1 or evidence.get('evidence_type') != 'bitrix_production_sync':
+            return False
+        if evidence.get('status') != 'verified' or evidence.get('production_mutation') is not False:
+            return False
+        if evidence.get('source') != 'production' or scope != {
+            'root': 'bitrix',
+            'excluded': ['bitrix/backup'],
+            'server_newer_only': True,
+            'local_backup_unchanged': True,
+        }:
+            return False
+        if not re.fullmatch('[0-9a-f]{40}', candidate['git_tree_sha']):
+            return False
+        tree = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD:bitrix'], text=True).strip()
+        if candidate['git_tree_sha'] != tree:
+            return False
+        for key in ['vendor_manifest_sha256', 'snapshot_sha256', 'policy_sha256']:
+            if not re.fullmatch('[0-9a-f]{64}', candidate[key]):
+                return False
+        if type(candidate['entries']) is not int or candidate['entries'] <= 0:
+            return False
+        if candidate.get('production_ready') is not False or candidate.get('database_included') is not False:
+            return False
+        for key in ['archive_bytes', 'archive_entries', 'archive_files', 'merge_paths', 'transferred_files']:
+            if type(sync[key]) is not int or sync[key] <= 0:
+                return False
+        if sync.get('remote_cleanup') != 'OK' or sync.get('local_cleanup') != 'OK':
+            return False
+        if not isinstance(approval.get('approved_by'), str) or not approval['approved_by']:
+            return False
+        if not isinstance(approval.get('source'), str) or not approval['source']:
+            return False
+        return True
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError, OSError, subprocess.SubprocessError):
+        return False
 
 
 if __name__ == '__main__':

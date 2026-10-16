@@ -2,7 +2,7 @@
 
 Статус: принято
 Дата: 2026-08-13
-Уточнено: 2026-08-13 после E2E challenge; 2026-08-14 — разделение personal/local/CI credentials
+Уточнено: 2026-08-13 после E2E challenge; 2026-08-14 — разделение personal/local/CI credentials; 2026-10-16 — controlled vendor sync evidence
 
 ## Контекст
 
@@ -33,7 +33,7 @@ Production workflow запускался на каждый push в `main`, но 
 
 - Принятый process строже текущей реализации. До проверки deploy-scope/classifier/manifests, trusted wrappers, lock/backup/restore, staging/waiver, GitHub environments и dual BASE merge/deploy PR `#45` заблокирован.
 - Auto-deploy trigger на `main` может сохраниться, но write job должен останавливаться на всех governance gates и требовать approval exact plan.
-- Изменения `bitrix/**` и docs-only changes не должны приводить к production mutation; `bitrix/**` остаётся запрещённой рабочей зоной.
+- Проектные изменения `bitrix/**` остаются запрещённой рабочей зоной. Единственное исключение — user-authorized production vendor sync: PR обязан содержать versioned `bitrix-production-sync-*.json` с verified scope (`bitrix/`, исключённый `bitrix/backup`, server-newer-only), canonical vendor manifest/archive digests, совпадающим `bitrix` tree SHA и успешной очисткой временных данных. Guard проверяет evidence и блокирует любые core edits без него; это не разрешает production mutation или deployment.
 - Runtime server-owned config, uploads, logs, DB/iblocks и PII не входят в file inventory или artifact.
 - Browser smoke не имеет SSH credentials. Privileged job не выполняет dependency installation или candidate package lifecycle scripts.
 - Concrete external BASE store, staging path/waiver, wrapper installation paths, retention и monitoring thresholds фиксируются в implementation/runbook до первого apply, не ослабляя это решение.

@@ -1,8 +1,8 @@
 <?php
 $MESS["REST_OPT_ACCESS_POLICY"] = "Қолжетімділік";
 $MESS["REST_OPT_ACCESS_POLICY_ADD_USERS"] = "Пайдаланушыларды қосу";
-$MESS["REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK_CREATE_OWN"] = "Пайдаланушыларға өз кіріс веб-хуктарын қосуға рұқсат ету";
 $MESS["REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK_CREATE"] = "Пайдаланушыларға барлығы үшін кіріс веб-хуктарды қосуға рұқсат ету";
+$MESS["REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK_CREATE_OWN"] = "Пайдаланушыларға өз кіріс веб-хуктарын қосуға рұқсат ету";
 $MESS["REST_OPT_ACCESS_POLICY_LOCAL_APP"] = "Пайдаланушыларға барлығы үшін қосымшалар қосуға рұқсат ету";
 $MESS["REST_OPT_ACCESS_POLICY_PERSONAL_APP"] = "Пайдаланушыларға өз қосымшаларыңды қосуға рұқсат ету";
 $MESS["REST_OPT_ACTIVE"] = "Логтаудың белсенділігі";
@@ -26,6 +26,7 @@ $MESS["REST_OPT_MAX_IMPORT_SIZE"] = "Импортталатын файлдың �
 $MESS["REST_OPT_MINUTES"] = "#HOURS#:#MINUTES#:#SECONDS# (сағат:минут:секунд)";
 $MESS["REST_OPT_SET_ACTIVE"] = "Логтауды қосу";
 $MESS["REST_OPT_SET_IN_ACTIVE"] = "Логтауды өшіру";
+$MESS["REST_OPT_TRUST_NATIONAL_CA"] = "Қосымша серверлеріне жүгінген кезде Минцифры сертификаттау орталығының сертификаттарына сену. Портал Минцифрының түбірлік сертификатын тек осындай жүгінулер үшін ғана сенімділер тізіміне қосады, сервердің жүйелік сертификаттар қоймасы өзгермейді";
 $MESS["REST_TAB_LOG"] = "Логтау";
 $MESS["REST_TAB_SET"] = "Баптаулар";
 $MESS["REST_TAB_TITLE_LOG"] = "Логтау баптаулары";

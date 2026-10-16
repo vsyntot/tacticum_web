@@ -280,7 +280,7 @@ if ($arParams['SUCCESS_SAVE'])
 		</div>
 
 		<div class="ui-form ui-form-section">
-			<!--Adress-->
+			<!--Address-->
 			<div class="ui-form-row">
 				<div class="ui-form-label">
 					<div class="ui-ctl-label-text" id="<?= $template->getFieldId('CODE_LABEL') ?>">

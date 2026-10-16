@@ -1,2 +1,2 @@
 <?php
-$MESS["SEARCH_INSTALL_PUBLIC_TITLE"] = "Іздеу";
+$MESS['SEARCH_INSTALL_PUBLIC_TITLE'] = "Іздеу";

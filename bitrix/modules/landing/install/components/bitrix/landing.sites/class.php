@@ -238,7 +238,7 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_SITE', '');
 			$this->checkParam('PAGE_URL_SETTINGS', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
-			$this->checkParam('PAGE_URL_SITE_DESI   GN', '');
+			$this->checkParam('PAGE_URL_SITE_DESIGN', '');
 			$this->checkParam('PAGE_URL_SITE_CONTACTS', '');
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN_EDIT', '');
@@ -250,6 +250,8 @@ class LandingSitesComponent extends LandingBaseComponent
 			{
 				$this->arParams['AI_SITE_CHAT_AVAILABLE'] = false;
 			}
+			$this->checkParam('PRESET_SITES_EMPTY_STATE', false);
+			$this->checkParam('PRESET_SITES_EMPTY_STATE_REMAINING', 0);
 			$this->checkParam('~AGREEMENT', []);
 			$this->checkParam(
 				'PAGE_URL_SITE_EXPORT',

@@ -1,7 +1,9 @@
 <?php
 $MESS["SEARCH_OPTIONS_AGENT_DURATION"] = "Агентті орындаудың максималды ұзақтығы (секунд):";
 $MESS["SEARCH_OPTIONS_AGENT_STEMMING"] = "Морфологиялық талдаудың орындалуын кейінге қалдыру (агентке):";
+$MESS["SEARCH_OPTIONS_DELAY_INDEX_NOTE"] = "Кейінге қалдырылған индекстеуді индекс сервері қолжетімсіз болған кезде ғана қосу ұсынылады.";
 $MESS["SEARCH_OPTIONS_FULL_REINDEX"] = "Толық мәтінді іздеу әдісі өзгерді. Іздеу модулімен толық <a href=\"#LINK#\">қайта индекстеу</a> қажет";
+$MESS["SEARCH_OPTIONS_FULL_TEXT_DELAY_INDEX"] = "Кезек арқылы кейінге қалдырылған индекстеу:";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE"] = "Мынаның көмегімен толықмәтінді іздеу:";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_BITRIX"] = "Bitrix";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_MYSQL"] = "MySQL толықмәтінді іздеуі";

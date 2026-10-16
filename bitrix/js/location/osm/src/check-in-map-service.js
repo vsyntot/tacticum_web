@@ -209,7 +209,11 @@ export default class CheckInMapService extends CheckInMapServiceBase
 			});
 
 			marker.on('add', () => {
-				marker.getElement()?.setAttribute('testId', id);
+				const element = marker.getElement();
+				// Same value under both names: `testId` is the historical map attribute,
+				// `data-testid` is what Playwright's getByTestId() reads.
+				element?.setAttribute('testId', id);
+				element?.setAttribute('data-testid', id);
 			});
 
 			marker.on('click', () => {

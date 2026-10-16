@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "evidence_type": "bitrix_production_sync",
+  "generated_at": "2026-10-16T14:06:39Z",
+  "status": "verified",
+  "production_mutation": false,
+  "source": "production",
+  "scope": {
+    "root": "bitrix",
+    "excluded": [
+      "bitrix/backup"
+    ],
+    "server_newer_only": true,
+    "local_backup_unchanged": true
+  },
+  "candidate": {
+    "git_tree_sha": "9df34183b24d9c515251d62289730e437668f5bf",
+    "vendor_manifest_sha256": "ad303a3b6e3a6a132a92600eadca950664eb43131fcc6cfdad4b9b40b4ff63cb",
+    "snapshot_sha256": "f308c0c624fa3aae98f744ec8b4668b84617f9050ffb461664fc431146cd8ff1",
+    "policy_sha256": "2c155a17736a715085eb3c3752ac195604c1587438e60701227153bdb9bd9730",
+    "entries": 77362,
+    "production_ready": false,
+    "database_included": false
+  },
+  "sync": {
+    "archive_bytes": 541581550,
+    "archive_entries": 101124,
+    "archive_files": 74252,
+    "merge_paths": 7203,
+    "transferred_files": 5609,
+    "remote_cleanup": "OK",
+    "local_cleanup": "OK"
+  },
+  "approval": {
+    "source": "owner instruction in current session",
+    "approved_by": "project-owner",
+    "authorization": "sync production /bitrix to local project and publish the result"
+  },
+  "next_gate": "no production deployment; future platform lock and GitLab storage remain separate topics"
+}

@@ -4,6 +4,7 @@ $MESS['REST_TAB_TITLE_SET'] = "Настройка параметров моду�
 $MESS['REST_TAB_LOG'] = "Логирование";
 $MESS['REST_TAB_TITLE_LOG'] = "Настройка логирования";
 $MESS['REST_OPT_ENABLE_MOD_ZIP'] = 'Модуль <a href="https://www.nginx.com/resources/wiki/modules/zip/" target="_blank">mod_zip</a> включен и настроен (требуется для экспорта)';
+$MESS['REST_OPT_TRUST_NATIONAL_CA'] = 'Доверять сертификатам УЦ Минцифры при обращении к серверам приложений. Портал добавит корневой сертификат УЦ Минцифры в список доверенных только для таких обращений, системное хранилище сертификатов сервера не изменится';
 $MESS['REST_OPT_MAX_IMPORT_SIZE'] = 'Максимальный размер импортируемого файла (МБ)';
 $MESS['REST_OPT_ACCESS_POLICY'] = 'Доступы';
 $MESS['REST_OPT_ACCESS_POLICY_INCOMING_WEBHOOK_CREATE_OWN'] = 'Разрешить пользователям добавлять свои входящие вебхуки';

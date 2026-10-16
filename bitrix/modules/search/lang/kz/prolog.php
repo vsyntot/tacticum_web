@@ -1,2 +1,2 @@
 <?php
-$MESS["SEARCH_PROLOG_ALT"] = "Іздеу модулі";
+$MESS['SEARCH_PROLOG_ALT'] = "Іздеу модулі";

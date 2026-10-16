@@ -70,6 +70,7 @@ $MESS["LANDING_ACTION_ERROR__SAVE_CHANGES"] = "<strong>&nbsp;Өзгертуле�
 $MESS["LANDING_ACTION_ERROR__SITE_GET_LIST"] = "<strong>&nbsp;Сайттар тізімін алу мүмкін болмады</strong>, себебі ішкі қате орын алды. Парақшаны жаңартып көріңіз және&nbsp;әрекетті қайталаңыз. Егер бұл мәселені&nbsp;шешпесе&nbsp;&mdash; техникалық &nbsp;қолдау қызметіне хабарласыңыз.";
 $MESS["LANDING_ACTION_ERROR__SITE_GET_LIST__KNOWLEDGE"] = "<strong>&nbsp;Білім қорлары тізімін алу мүмкін болмады</strong>, себебі ішкі қате орын алды. Парақшаны жаңартып көріңіз және&nbsp;әрекетті қайталаңыз. Егер бұл мәселені&nbsp;шешпесе&nbsp;&mdash; техникалық &nbsp;қолдау қызметіне хабарласыңыз.";
 $MESS["LANDING_ACTION_ERROR__UNKNOWN_ACTION"] = "<strong>Әрекетті орындау мүмкін&nbsp;болмады</strong>, себебі ішкі қате орын алды. Парақшаны жаңартып көріңіз және&nbsp;әрекетті қайталаңыз. Егер бұл мәселені&nbsp;шешпесе&nbsp;&mdash; техникалық &nbsp;қолдау қызметіне хабарласыңыз.";
+$MESS["LANDING_ACTION_ERROR__UPLOAD_BAD_FORMAT"] = "<strong>Файлды жүктеу мүмкін&nbsp;болмады.</strong> Мүмкін, оның пішіміне қолдау&nbsp;көрсетілмейді.";
 $MESS["LANDING_ACTION_ERROR__UPLOAD_FILE"] = "<strong>Кескінді жүктеу мүмкін&nbsp;болмады</strong>. Парақшаны&nbsp;жаңартыңыз және қайта жүктеп көріңіз. Егер бұл мәселені&nbsp;шешпесе&nbsp;&mdash; техникалық &nbsp;қолдау қызметіне хабарласыңыз.";
 $MESS["LANDING_ADD_BLOCK_TO_FOOTER"] = "Төменгі бөлікке";
 $MESS["LANDING_ADD_BLOCK_TO_HEADER"] = "жоғарғы деректемеге";

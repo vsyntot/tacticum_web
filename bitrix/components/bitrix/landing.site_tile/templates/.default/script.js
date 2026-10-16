@@ -1218,7 +1218,7 @@ this.BX.Landing = this.BX.Landing || {};
 				case 'clock':
 					return ui_iconSet_api_core.Outline.CLOCK;
 				case 'success':
-				case 'unknow':
+				case 'unknown':
 				default:
 					return ui_iconSet_api_core.Outline.LINK;
 			}
@@ -1233,7 +1233,7 @@ this.BX.Landing = this.BX.Landing || {};
 					return 'var(--ui-color-design-outline-a1-content)';
 				case 'success':
 					return 'var(--ui-color-background-primary)';
-				case 'unknow':
+				case 'unknown':
 				default:
 					return 'var(--ui-color-design-outline-a1-content)';
 			}
