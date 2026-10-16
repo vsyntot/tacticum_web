@@ -65,7 +65,8 @@
     "read_only_smoke": {
       "passed": true,
       "checks": 14,
-      "policy": "Divatech form present; /bitrix/admin/ canonical 301 accepted"
+      "policy": "canonical origin/main checker: Divatech form present; /bitrix/admin/ canonical 301 accepted",
+      "source": "tools/multisite-public-smoke.py@origin/main"
     },
     "monitoring": {
       "passed": true,
@@ -96,8 +97,7 @@
     "copies_identical": true
   },
   "failure_ledger": [
-    "Manifest-key probe as bitrix was denied; the forced-command keys are root-scoped, so read-only manifest capture used the authorized root key.",
-    "Built-in multisite-public-smoke.py still encodes the older form-off/403-admin assumptions; release acceptance used the current accepted Divatech form/canonical-redirect contract and recorded the checker drift."
+    "The first read-only manifest probe used bitrix, but the forced-command manifest key is root-scoped; the authorized root key was used for the final capture."
   ],
   "remaining_gates": [
     "production DB/application credential rotation is a separate STATEFUL topic and is not part of this FILE_ONLY release",
