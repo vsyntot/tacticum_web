@@ -1,5 +1,40 @@
 # Multisite tooling: локальная подготовка, версия 2 candidate
 
+## Подготовка текущего релиза в GitHub — 16.10.2026
+
+`multisite-release-review.yml` запускается вручную только для `main` и готовит
+пакет проверки обоих сайтов. Отдельный reusable manifest job читает production
+через ограниченный SSH-ключ, проверяет canonical hash/schema/scope и наличие
+обоих корней, затем удаляет ключ/askpass и завершает ssh-agent. Manifest содержит
+пути, размеры, режимы и хэши, без содержимого серверных файлов.
+
+После quality gates job без production credentials выполняет `npm ci`, CSS и
+sitemap generation, собирает один multisite artifact из commit текущего run.
+`tools/multisite-review.mjs` сравнивает его с PROD и сохраняет пути и hashes
+различий, affected sites, source commit и artifact digest. `/privacy/` входит
+в полный второй корень; число entries зависит от commit, а не зашито в guard.
+
+Результат — `TWO_WAY_REVIEW_ONLY`, никогда не approval и не новый BASE.
+Platform identity берётся из проверенного по структуре server manifest;
+это не проверка фактического текущего ядра/схемы и не Bitrix integration test.
+Даже при нуле различий `productionMutationAllowed=false` и
+`baselinePromotionAllowed=false`: перед выпуском нужны текущий dual BASE,
+three-way reconciliation, классификация полного Git diff, runtime/cache
+evidence и exact approval по production governance. Legacy `deploy.yml`
+по-прежнему закрыт guard и не переключается этим workflow на multisite apply.
+
+```sh
+gh workflow run multisite-release-review.yml --ref main
+```
+
+Артефакт `multisite-review-<commit>-<attempt>` хранит candidate archive,
+candidate/PROD manifests, `review.json` и `hashes.txt`; его срок в Actions —
+7 дней. Это временный пакет review, не решение о долговечном хранилище.
+Ни write key, ни finalizer key этим workflow не запрашиваются и не используются.
+
+Ниже сохранены инструкции первоначального локального этапа; текущие
+production installation evidence находятся в exact adoption plan.
+
 Состояние и незакрытые gates — в [плане MSCI](../docs/workflow/plans/2026-10-14-multisite-ci-core-sync.md).
 Контракт — [ADR-016](../docs/adr/ADR-016-multisite-platform-delivery.md).
 Этот набор пока не устанавливает production controller и не выполняет deploy.

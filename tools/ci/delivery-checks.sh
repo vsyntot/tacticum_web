@@ -3,6 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 node tools/multisite-contract-self-test.mjs
+node tools/multisite-review-self-test.mjs
 node tools/production-release-gate-self-test.mjs
 python3 tools/multisite-file-transaction-self-test.py
 python3 tools/multisite-trusted-controller-self-test.py
