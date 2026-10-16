@@ -7,6 +7,10 @@
 
 После exact three-way сверки выполнен и финализирован FILE_ONLY-релиз `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9`: две menu-description замены, backup/restore rehearsal, post-apply checks, мониторинг и dual BASE sequence 2. Все 410 candidate entries совпали с observed PROD по содержимому; подробности в [release evidence](evidence/2026-10-16-multisite-file-only-release-581ca8.json). Это закрывает конкретный MSCI-03/05/07/08 production FILE_ONLY gate, но не закрывает platform/core import, полноценную pinned integration environment или operational handoff.
 
+## Авторитетное обновление operational handoff — 16.10.2026
+
+Документальная часть P10 зафиксирована в [multisite operational handoff](multisite-operational-handoff.md): описаны FILE_ONLY и STATEFUL границы, оба сайта в одном release cycle, штатное обновление Bitrix, reconciliation/recovery, CI/BASE failures и 24-hour post-release checklist. P10 остаётся `partial`: ручной owner-run контроль не выполнен автоматически, P2/P3/P8 остаются открытыми, а GitLab/storage и Divatech SMTP/purge/legal не входят в текущий план.
+
 ## Авторитетное обновление exact production adoption — 16.10.2026
 
 Exact plan `2026-10-14-multisite-production-adoption-exact-plan.md` закрыт:
