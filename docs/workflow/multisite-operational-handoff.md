@@ -2,6 +2,8 @@
 
 Дата: 16.10.2026
 Статус: `partial` — runbook опубликован, owner-run 24-hour check и platform/core contour остаются открытыми.
+
+Текущий baseline: [24-hour baseline evidence](evidence/2026-10-16-multisite-24h-baseline.json) снят 16.10.2026 в `13:15Z` canonical read-only smoke (14/14). Owner-run 24-hour check eligible after `2026-10-17T12:26:00Z`; запись baseline не закрывает gate и не создаёт scheduler.
 Владелец процесса: project-manager/PM. Технические исполнители: DevOps, QA, Backend/Frontend owner по назначению на конкретный релиз.
 
 Этот документ передаёт в эксплуатацию проверенный порядок работы с двумя сайтами из одной кодовой базы. Он дополняет, но не отменяет [production deployment governance](production-deployment-governance.md), [post-deploy smoke](post-deploy-smoke.md), [manual release gates](manual-release-gates-runbook.md) и [multisite delivery contract](../../tools/multisite-delivery.md).
