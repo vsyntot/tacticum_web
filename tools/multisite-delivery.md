@@ -139,7 +139,17 @@ restore rehearsal, create/replace/delete/rename, failure journal и recovery.
 ```sh
 python3 tools/multisite-trusted-controller-self-test.py
 npm run multisite:controller:self-test
+npm run multisite:production-control:self-test
 ```
+
+`multisite-production-controller.py` и `multisite-production-finalizer.py`
+являются отдельными production entry points с pinned versions
+`multisite-controller-v2-production.1` и `multisite-finalizer-v2-production.1`.
+Они используют проверенный transaction kernel, но не требуют fixture-флага
+`--isolated`; запуск на production всё равно запрещён до platform lock,
+forced-command SSH keys, server wrappers, backup/restore rehearsal и exact
+approval. `multisite-production-manifest.mjs` строит только read-only manifest
+из двух canonical roots и требует server-side `core.lock.json`.
 
 
 ## Текущий GitHub release gate

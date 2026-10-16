@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_file_only_release_and_base_promotion",
+  "generated_at": "2026-10-15",
+  "outer_plan_id": "f7c6f3507806c437cd75ac0c9466b137ff546dac45adfe0be0c9f5d6e4719ef5",
+  "release_plan_id": "6fedc72bd32ccb78562fd4b99a6d11d46f36c62ab1db4f2f5d93f30a4148096d",
+  "status": "paused_after_verified_base_before_noop",
+  "production_mutation": {
+    "release_class": "FILE_ONLY",
+    "controller_status": "applied_unverified",
+    "changed_files": 2,
+    "changed_paths": [
+      "local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php",
+      "local/templates/tacticum/components/bitrix/menu/topmenu/.description.php"
+    ],
+    "bitrix_core_changed": false,
+    "database_changed": false,
+    "uploads_changed": false,
+    "config_changed": false
+  },
+  "artifact_sha256": "459e6e079f5718c2dd73ac19c7184cd32a980cc098dbd43df448ef81b4010c3b",
+  "candidate_manifest_sha256": "925471bc4776239027ecd1f1969a06582cbb3b62cb5950dc840ebbb37bac639a",
+  "post_prod_manifest_sha256": "528395f4f8367118ebbc55fb5c9f0b786c886153d23f1e774d69e55ab909edcb",
+  "post_prod_entries": 409,
+  "smoke": {
+    "passed": true,
+    "http_status": 200,
+    "routes": ["https://tacticum.ru/", "https://tacticum.ru/about/", "https://tacticum.ru/price/", "https://tacticum.ru/calculator/", "https://divatech.space/"]
+  },
+  "monitoring": {"passed": true, "rounds": 3, "domains": ["tacticum.ru", "divatech.space"]},
+  "dual_base": {
+    "status": "verified",
+    "sequence": 1,
+    "base_manifest_sha256": "29dfcaeb90c2a08c38f4812e27970a626f0490feec8187099def011038710c4d",
+    "dual_copy_sha256": "1144b505267c0650bdda896e79000446bd971beeffb68f5864d3222371066187",
+    "copies_identical": true
+  },
+  "server_evidence": "private external control-plane-20261015/server-evidence",
+  "failure_ledger": [
+    "First apply attempt stopped before file writes because nested local/components/bitrix paths were over-rejected; controller kernel was corrected to reject only root-level bitrix/upload and the same plan then applied successfully.",
+    "First final manifest capture before correction failed on scope path resolution; production entry point was corrected and the forced manifest check then passed."
+  ],
+  "next_action": "run_exact_noop_rerun_and_verify_zero_application_writes_then_close_release"
+}

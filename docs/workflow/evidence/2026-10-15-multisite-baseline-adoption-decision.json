@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_baseline_adoption_decision",
+  "generated_at": "2026-10-15",
+  "plan_id": "f7c6f3507806c437cd75ac0c9466b137ff546dac45adfe0be0c9f5d6e4719ef5",
+  "scope_version": "2026-10-14.multisite.1",
+  "decision": "accept_current_prod_as_baseline_candidate",
+  "decision_source": "owner_selected_option_1_in_current_session",
+  "status": "accepted_pending_controlled_baseline_promotion",
+  "observed_prod_manifest_sha256": "9ba2b129b5b66c670ead6f015756609146b4190daf71781ba57974caf16f5da9",
+  "observed_base_manifest_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+  "observed_drift": {
+    "added": 23,
+    "removed": 0,
+    "changed": 9,
+    "candidate_exact_matches": 397,
+    "candidate_differences": 2,
+    "candidate_difference_kind": "newline-only formatting drift"
+  },
+  "approved_paths": "current production managed scope represented by the observed PROD manifest",
+  "constraints": [
+    "do not modify application files during baseline adoption",
+    "do not update Bitrix core, database, schema, iblocks, config or uploads",
+    "promote only through independent dual BASE domains with lock and CAS",
+    "perform backup/restore rehearsal before any server-side BASE write",
+    "bind the promoted record to the exact plan and final manifest digests"
+  ],
+  "next_action": "install_and_verify_multisite_trust_contour_then_promote_current_prod_as_dual_verified_base",
+  "production_mutation_performed": false,
+  "secrets_recorded": false
+}
