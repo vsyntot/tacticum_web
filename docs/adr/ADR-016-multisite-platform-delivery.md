@@ -91,6 +91,10 @@ P0–P9 и A1–A12 плана дают отдельные evidence. Fixtures и
 `productionReady` остаётся false до этих проверок и точного approval.
 
 
+## Контрольная точка core lock — 16.10.2026
+
+Полный candidate-контракт `core.lock.json` зафиксирован в [platform core lock contract](../workflow/platform-core-lock-contract.md). Он добавляет module/runtime/schema/provenance binding поверх текущих четырёх identity-полей, но не переключает production/CI: `productionReady=false` до P2/P3/P8, совместимой пары core+DB и отдельного решения по внешней инфраструктуре.
+
 ## Внешняя инфраструктурная граница — 14.10.2026
 
 Репозиторий, snapshot/BASE/evidence/backup storage и связанная миграционная
