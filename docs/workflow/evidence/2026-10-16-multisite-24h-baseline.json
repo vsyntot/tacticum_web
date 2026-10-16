@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_24h_post_release_baseline",
+  "status": "baseline_pending_24h",
+  "generated_at": "2026-10-16T13:15:22Z",
+  "release_id": "multisite-file-only-20261016-1221z-581ca8f89af7",
+  "plan_id": "581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9",
+  "release_evidence": "2026-10-16-multisite-file-only-release-581ca8.json",
+  "source_commit": "014064978c63fc9ce0d1bdaf0485cc7d688c4e97",
+  "source_tool": "tools/multisite-public-smoke.py@origin/main",
+  "command": "python3 tools/multisite-public-smoke.py --duration=0 --output=<private-temp-file>",
+  "window": {
+    "release_verified_at": "2026-10-16T12:26:00Z",
+    "eligible_after": "2026-10-17T12:26:00Z",
+    "owner_run_required": true,
+    "scheduler_created": false
+  },
+  "verification": {
+    "read_only": true,
+    "mutations": false,
+    "admin_login_verified": false,
+    "samples": 1,
+    "elapsed_seconds": 0.81,
+    "checks_total": 14,
+    "checks_passed": 14,
+    "checks": [
+      {
+        "site": "s1",
+        "path": "/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/adp/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/contacts/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/price/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/calculator/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/offer/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/robots.txt",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s1",
+        "path": "/sitemap.xml",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s2",
+        "path": "/",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s2",
+        "path": "/robots.txt",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s2",
+        "path": "/sitemap.xml",
+        "status": 200,
+        "passed": true
+      },
+      {
+        "site": "s2",
+        "path": "/bitrix/admin/",
+        "status": 301,
+        "passed": true
+      },
+      {
+        "site": "s2",
+        "path": "/local/.env",
+        "status": 403,
+        "passed": true
+      },
+      {
+        "site": "s2",
+        "path": "/release-smoke-missing-page/",
+        "status": 404,
+        "passed": true
+      }
+    ]
+  },
+  "failure_ledger": [
+    {
+      "id": "stale-local-smoke-expectations",
+      "status": "resolved_noncanonical_probe",
+      "scope": "local checkout main at 4da4a5b58",
+      "observed": [
+        "s2 / forms_enabled",
+        "s2 /bitrix/admin/ unexpected_status"
+      ],
+      "cause": "local checkout lagged origin/main checker contract; it expected disabled forms and HTTP 403 before the accepted Divatech forms/canonical 301 contract",
+      "resolution": "reran the canonical origin/main checker; 14/14 checks passed",
+      "production_finding": false
+    }
+  ],
+  "next_action": "After eligible_after, owner runs the 24-hour checklist from docs/workflow/multisite-operational-handoff.md and records passed/follow_up/rollback_review evidence."
+}

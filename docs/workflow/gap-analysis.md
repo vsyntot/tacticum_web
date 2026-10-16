@@ -9,7 +9,7 @@
 
 ## Авторитетное обновление operational handoff — 16.10.2026
 
-Документальная часть P10 зафиксирована в [multisite operational handoff](multisite-operational-handoff.md): описаны FILE_ONLY и STATEFUL границы, оба сайта в одном release cycle, штатное обновление Bitrix, reconciliation/recovery, CI/BASE failures и 24-hour post-release checklist. P10 остаётся `partial`: ручной owner-run контроль не выполнен автоматически, P2/P3/P8 остаются открытыми, а GitLab/storage и Divatech SMTP/purge/legal не входят в текущий план.
+Документальная часть P10 зафиксирована в [multisite operational handoff](multisite-operational-handoff.md): описаны FILE_ONLY и STATEFUL границы, оба сайта в одном release cycle, штатное обновление Bitrix, reconciliation/recovery, CI/BASE failures и 24-hour post-release checklist. Canonical read-only baseline 14/14 записан в [24-hour baseline evidence](evidence/2026-10-16-multisite-24h-baseline.json); P10 остаётся `partial`: ручной owner-run контроль eligible after `2026-10-17T12:26:00Z`, P2/P3/P8 остаются открытыми, а GitLab/storage и Divatech SMTP/purge/legal не входят в текущий план.
 
 ## Авторитетное обновление exact production adoption — 16.10.2026
 
