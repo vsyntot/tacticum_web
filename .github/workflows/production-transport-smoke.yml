@@ -55,11 +55,15 @@ jobs:
           from pathlib import Path
           manifest = json.loads(Path('manifest.json').read_text())
           assert manifest.get('treeKind') == 'prod'
+          assert manifest.get('schemaVersion') == 2
+          assert manifest.get('scopeVersion') == '2026-10-14.multisite.1'
           assert isinstance(manifest.get('manifestSha256'), str) and len(manifest['manifestSha256']) == 64
-          assert len(manifest.get('entries', [])) > 0
+          roots = {entry.get('root') for entry in manifest.get('entries', [])}
+          assert {'primary', 'divatech'} <= roots
           print(json.dumps({
               'treeKind': manifest['treeKind'],
               'entries': len(manifest['entries']),
+              'roots': {root: sum(1 for entry in manifest['entries'] if entry.get('root') == root) for root in sorted(roots)},
               'manifestSha256': manifest['manifestSha256'],
               'scopeVersion': manifest.get('scopeVersion'),
           }, sort_keys=True))
