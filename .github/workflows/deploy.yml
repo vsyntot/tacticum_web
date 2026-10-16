@@ -101,20 +101,28 @@ jobs:
       - name: Fetch production manifest through forced command
         env:
           SSH_READONLY_PRIVATE_KEY: ${{ secrets.SSH_READONLY_PRIVATE_KEY }}
+          SSH_READONLY_PASSPHRASE: ${{ secrets.SSH_READONLY_PASSPHRASE }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           set -euo pipefail
           test -n "$SSH_READONLY_PRIVATE_KEY"
+          test -n "$SSH_READONLY_PASSPHRASE"
           test -n "$SSH_KNOWN_HOSTS"
           test -n "$SSH_HOST"
           test -n "$SSH_USER"
           key="$RUNNER_TEMP/tacticum-readonly"
           hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          askpass="$RUNNER_TEMP/tacticum-readonly-askpass"
           printf '%s\n' "$SSH_READONLY_PRIVATE_KEY" > "$key"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_READONLY_PASSPHRASE"' > "$askpass"
           chmod 600 "$key" "$hosts"
+          chmod 700 "$askpass"
+          eval "$(ssh-agent -s)"
+          export SSH_ASKPASS="$askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0
+          ssh-add "$key" < /dev/null
           ssh -F /dev/null -i "$key" -p 22 \
             -o BatchMode=yes -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
@@ -245,16 +253,24 @@ jobs:
       - name: Upload exact state to forced-command controller
         env:
           SSH_WRITE_PRIVATE_KEY: ${{ secrets.SSH_WRITE_PRIVATE_KEY }}
+          SSH_WRITE_PASSPHRASE: ${{ secrets.SSH_WRITE_PASSPHRASE }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           set -euo pipefail
           test -n "$SSH_WRITE_PRIVATE_KEY"; test -n "$SSH_KNOWN_HOSTS"; test -n "$SSH_HOST"; test -n "$SSH_USER"
+          test -n "$SSH_WRITE_PASSPHRASE"
           key="$RUNNER_TEMP/tacticum-write"; hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          askpass="$RUNNER_TEMP/tacticum-write-askpass"
           printf '%s\n' "$SSH_WRITE_PRIVATE_KEY" > "$key"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_WRITE_PASSPHRASE"' > "$askpass"
           chmod 600 "$key" "$hosts"
+          chmod 700 "$askpass"
+          eval "$(ssh-agent -s)"
+          export SSH_ASKPASS="$askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0
+          ssh-add "$key" < /dev/null
           plan_id="$(python3 -c 'import json;print(json.load(open("release/plan.json"))["planId"])')"
           put() {
             local kind="$1" file="$2" hash
@@ -275,12 +291,23 @@ jobs:
       - name: Apply through pinned controller
         env:
           SSH_WRITE_PRIVATE_KEY: ${{ secrets.SSH_WRITE_PRIVATE_KEY }}
+          SSH_WRITE_PASSPHRASE: ${{ secrets.SSH_WRITE_PASSPHRASE }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           set -euo pipefail
+          test -n "$SSH_WRITE_PRIVATE_KEY"; test -n "$SSH_WRITE_PASSPHRASE"; test -n "$SSH_KNOWN_HOSTS"; test -n "$SSH_HOST"; test -n "$SSH_USER"
           key="$RUNNER_TEMP/tacticum-write"; hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          askpass="$RUNNER_TEMP/tacticum-write-askpass"
+          printf '%s\n' "$SSH_WRITE_PRIVATE_KEY" > "$key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_WRITE_PASSPHRASE"' > "$askpass"
+          chmod 600 "$key" "$hosts"
+          chmod 700 "$askpass"
+          eval "$(ssh-agent -s)"
+          export SSH_ASKPASS="$askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0
+          ssh-add "$key" < /dev/null
           plan_id="$(python3 -c 'import json;print(json.load(open("release/plan.json"))["planId"])')"
           ssh -F /dev/null -i "$key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \

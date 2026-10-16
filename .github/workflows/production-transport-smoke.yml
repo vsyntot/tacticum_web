@@ -1,0 +1,66 @@
+name: 🔎 Verify production transport
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-transport-smoke
+  cancel-in-progress: false
+
+jobs:
+  manifest:
+    name: Read-only multisite manifest transport
+    runs-on: ubuntu-latest
+    environment: production-readonly
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Load passphrase-protected manifest key
+        env:
+          SSH_READONLY_PRIVATE_KEY: ${{ secrets.SSH_READONLY_PRIVATE_KEY }}
+          SSH_READONLY_PASSPHRASE: ${{ secrets.SSH_READONLY_PASSPHRASE }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_READONLY_PRIVATE_KEY"
+          test -n "$SSH_READONLY_PASSPHRASE"
+          test -n "$SSH_KNOWN_HOSTS"
+          test -n "$SSH_HOST"
+          test -n "$SSH_USER"
+          key="$RUNNER_TEMP/tacticum-readonly"
+          hosts="$RUNNER_TEMP/tacticum-known-hosts"
+          askpass="$RUNNER_TEMP/tacticum-readonly-askpass"
+          printf '%s\n' "$SSH_READONLY_PRIVATE_KEY" > "$key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_READONLY_PASSPHRASE"' > "$askpass"
+          chmod 600 "$key" "$hosts"
+          chmod 700 "$askpass"
+          eval "$(ssh-agent -s)"
+          export SSH_ASKPASS="$askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0
+          ssh-add "$key" < /dev/null
+          ssh -F /dev/null -i "$key" -p 22 \
+            -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o PreferredAuthentications=publickey -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no -o ForwardAgent=no \
+            -o ClearAllForwardings=yes -o RequestTTY=no \
+            "$SSH_USER@$SSH_HOST" manifest > manifest.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('manifest.json').read_text())
+          assert manifest.get('treeKind') == 'prod'
+          assert isinstance(manifest.get('manifestSha256'), str) and len(manifest['manifestSha256']) == 64
+          assert len(manifest.get('entries', [])) > 0
+          print(json.dumps({
+              'treeKind': manifest['treeKind'],
+              'entries': len(manifest['entries']),
+              'manifestSha256': manifest['manifestSha256'],
+              'scopeVersion': manifest.get('scopeVersion'),
+          }, sort_keys=True))
+          PY
