@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_file_only_production_release_and_dual_base",
+  "generated_at": "2026-10-16T12:26:00Z",
+  "status": "verified",
+  "release_id": "multisite-file-only-20261016-1221z-581ca8f89af7",
+  "plan_id": "581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9",
+  "commit_sha": "a4e10b21f55d1d6e8b53012325c77a8b806d891d",
+  "release_class": "FILE_ONLY",
+  "scope": {
+    "changed_paths": [
+      "local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php",
+      "local/templates/tacticum/components/bitrix/menu/topmenu/.description.php"
+    ],
+    "sites": [
+      "s1",
+      "s2"
+    ],
+    "bitrix_core_changed": false,
+    "database_changed": false,
+    "uploads_changed": false,
+    "config_changed": false,
+    "gitlab_and_storage": "out_of_scope"
+  },
+  "approval": {
+    "source": "owner approval in current session",
+    "approved_by": "project-owner",
+    "controller_version": "multisite-controller-v2-production.1",
+    "expires_at": "2026-10-16T12:46:08Z",
+    "staging_waiver": "no stage host; owner-approved release-only waiver"
+  },
+  "inputs": {
+    "base_record_sha256": "29dfcaeb90c2a08c38f4812e27970a626f0490feec8187099def011038710c4d",
+    "base_sequence_before": 1,
+    "prod_manifest_sha256": "02161da788f219083a5f29bf44bcdec2626dba0dcf7a80230a9e439cab1ed7f",
+    "candidate_manifest_sha256": "2318bce67003fd2e9f8595681b66c8a43d9f617ded39763f384bacb9f3d7b697",
+    "candidate_entries": 410,
+    "artifact_sha256": "a299afd4a7f53988a7701eedd2704e3e7c7adadc455dc09da1e0dbf85892ebe2",
+    "platform": {
+      "snapshotSha256": "eea006bcdfc79a59e459b30fee6e4e0552a7d4af868d550bb4a6f6c8e2dee958",
+      "vendorManifestSha256": "46bf95ba90b8495c1f15c4070c8cc768feace165e74dc40044b1d291ebc3a9de",
+      "schemaProfile": "f8e2f648487fee5bf4db924bf37ac83eeb6a8451b67f95f3d218ce3e191c012c",
+      "phpVersion": "8.5.11"
+    }
+  },
+  "controller": {
+    "status": "applied_unverified",
+    "restore_rehearsal": "passed",
+    "operations": 2,
+    "metadata_updates": 0,
+    "created_directories": 0,
+    "post_binding_candidate_manifest_sha256": "2318bce67003fd2e9f8595681b66c8a43d9f617ded39763f384bacb9f3d7b697",
+    "cache_policy": "deferred_to_trusted_runtime"
+  },
+  "post_apply": {
+    "observed_prod_manifest_sha256": "5472d1e9603366f870d469d8bca8a1629d3f16b4ed73c9f798144f46bb811aa5",
+    "observed_prod_entries": 410,
+    "entries_match_candidate": true,
+    "post_plan_converged_changes": 9,
+    "post_plan_deploy_required": false
+  },
+  "verification": {
+    "public_precheck": "passed",
+    "seo_check_prod": "passed",
+    "read_only_smoke": {
+      "passed": true,
+      "checks": 14,
+      "policy": "Divatech form present; /bitrix/admin/ canonical 301 accepted"
+    },
+    "monitoring": {
+      "passed": true,
+      "rounds": 3,
+      "duration_seconds": 10,
+      "checks_per_round": 14,
+      "mutations": false
+    },
+    "browser_console_tacticum": {
+      "passed": true,
+      "desktop_mobile": true,
+      "runtime_errors": 0,
+      "seo": "ok",
+      "routes": 14
+    },
+    "cache_clear": {
+      "passed": true,
+      "mutations": false,
+      "mode": "not_required_for_component-description-metadata"
+    },
+    "admin_login_verified": false
+  },
+  "dual_base": {
+    "status": "verified",
+    "sequence": 2,
+    "base_manifest_sha256": "e528d1d8be849bde73931230ad6809595718adaaa7f29f4fca0482fc04b9f360",
+    "dual_copy_sha256": "906fc511758cdef1d2e159c6d7d3a8bb7352f44e75912cefbe5c715f1e98a2ab",
+    "copies_identical": true
+  },
+  "failure_ledger": [
+    "Manifest-key probe as bitrix was denied; the forced-command keys are root-scoped, so read-only manifest capture used the authorized root key.",
+    "Built-in multisite-public-smoke.py still encodes the older form-off/403-admin assumptions; release acceptance used the current accepted Divatech form/canonical-redirect contract and recorded the checker drift."
+  ],
+  "remaining_gates": [
+    "production DB/application credential rotation is a separate STATEFUL topic and is not part of this FILE_ONLY release",
+    "SMTP delivery remains queued, automated purge is not implemented, and formal legal-entity details for Divatech privacy notice remain open",
+    "broader MSCI P2/P3/P8/P10 CI/core import and operational runbook work remains in_progress",
+    "GitLab and storage migration remains out_of_scope_current_plan"
+  ]
+}

@@ -3,6 +3,10 @@
 Дата аудита: 20.05.2026
 Дата последнего обновления: 16.10.2026
 
+## Авторитетное обновление FILE_ONLY release — 16.10.2026
+
+После exact three-way сверки выполнен и финализирован FILE_ONLY-релиз `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9`: две menu-description замены, backup/restore rehearsal, post-apply checks, мониторинг и dual BASE sequence 2. Все 410 candidate entries совпали с observed PROD по содержимому; подробности в [release evidence](evidence/2026-10-16-multisite-file-only-release-581ca8.json). Это закрывает конкретный MSCI-03/05/07/08 production FILE_ONLY gate, но не закрывает platform/core import, полноценную pinned integration environment или operational handoff.
+
 ## Авторитетное обновление exact production adoption — 16.10.2026
 
 Exact plan `2026-10-14-multisite-production-adoption-exact-plan.md` закрыт:
@@ -32,12 +36,12 @@ clean build обоих корней (`primary=399`, `divatech=11`, включа�
 |---|---|---|---|---|
 | MSCI-01 | P0 | partial (accepted residual) | Production crypto_key и DB credential ротированы; 61 branch head переписан, 65 GitHub PR refs сохранены по решению владельца как принятый остаточный риск. Indexed scan и crypto regression tests passed; полная credential inventory остаётся открытой | P0; [P0 evidence](evidence/2026-10-14-p0-security-audit.json) |
 | MSCI-02 | P1 | in_progress | Ядро хранится в Git, но его импорт запрещён CI; версии модулей частично исключены | P1, P2 |
-| MSCI-03 | P1 | in_progress | Старый mtime-sync заменён multisite manifest/review tooling, но два текущих PROD drift-файла ещё не объяснены three-way сверкой | P2, P8; [review evidence](evidence/2026-10-16-multisite-release-review.json) |
+| MSCI-03 | P1 | partial (release verified) | Multisite manifest/review и один exact FILE_ONLY release verified; portable checker drift и reconciliation follow-up остаются | P2, P8; [release evidence](evidence/2026-10-16-multisite-file-only-release-581ca8.json) |
 | MSCI-04 | P1 | in_progress | Schema-v2 scope и server-declared platform identity проверяются read-only; runtime core/DB compatibility и BASE binding ещё не подтверждены | P2, P3, P6, P8; [P1 evidence](evidence/2026-10-14-p1-contract-evidence.json), [review evidence](evidence/2026-10-16-multisite-release-review.json) |
-| MSCI-05 | P1 | in_progress | Общая доставка и post-deploy smoke не охватывают полный второй корень | P4, P6, P7, P9 |
+| MSCI-05 | P1 | partial (release verified) | Один exact FILE_ONLY release и двухкорневой smoke verified; полноценный интеграционный delivery contour ещё не operationalized | P4, P6, P7, P9 |
 | MSCI-06 | P1 | in_progress | 7 required jobs, encrypted transport smoke и review-only workflow passed; full pinned runtime integration и automatic apply остаются закрытыми fail-closed guard | P5; PR #76, run `38897349988` |
-| MSCI-07 | P1 | in_progress | Dual BASE sequence 1 read-only совпадает, но current PROD=410 против BASE=409; новую promotion нельзя делать до exact three-way decision и cache/monitoring evidence | P7, P9; [BASE evidence](evidence/2026-10-16-multisite-base-readonly.json), [review evidence](evidence/2026-10-16-multisite-release-review.json) |
-| MSCI-08 | P1 | in_progress | Production controller/forced transport установлен и read-only проверен; текущие drift recovery/finalizer/cache evidence остаются открыты | P6, P8, P9; [BASE evidence](evidence/2026-10-16-multisite-base-readonly.json), [transport evidence](evidence/2026-10-16-multisite-transport.json) |
+| MSCI-07 | P1 | partial (sequence 2 verified) | Dual BASE promoted after exact release; future releases still require the same CAS and evidence gates | P7, P9; [release evidence](evidence/2026-10-16-multisite-file-only-release-581ca8.json) |
+| MSCI-08 | P1 | partial (release verified) | Pinned controller, forced transport, backup/restore, finalizer и cache decision прошли на одном FILE_ONLY release; recurring automation и checker alignment остаются | P6, P8, P9; [release evidence](evidence/2026-10-16-multisite-file-only-release-581ca8.json) |
 | MSCI-09 | P2 | closed | Versioned sitemap input и нормализованный архив: две clean builds и Mac/Linux дали одинаковый SHA-256; evidence в плане/PR #55 | P4 |
 | MSCI-10 | P1 | open | CI/runtime PHP расходятся; нет обязательной полной интеграционной среды обоих сайтов на pinned platform | P3, P5, P8 |
 

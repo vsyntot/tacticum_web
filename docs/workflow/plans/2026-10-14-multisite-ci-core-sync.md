@@ -16,6 +16,12 @@ Workflow lane: `Security / Integration`.
 - Forecast: сверка 10–15 мин работы/календарно; ближайшая реализация 30–60 мин работы, 40–90 мин календарно; весь остаток `partial_unknown` до сверки устаревших этапов с evidence. Основание: существующие multisite builder/transport и время предыдущих CI runs.
 - Уточнение evidence: проверка clean committed HEAD после PR #75 включает `primary=399`, `divatech=11`. Прежние 399+10 были результатом сборки предыдущего коммита, не дефектом scope.
 
+### Контрольная точка: exact FILE_ONLY production release — 16.10.2026
+
+Владелец принял exact plan `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9`. Под server lock выполнены backup/restore rehearsal и apply ровно двух `LOCAL_CHANGE` файлов; post-apply manifest verified, public/browser/SEO checks и 3-round monitoring прошли. Dual BASE finalizer завершён с sequence 2 и двумя совпадающими копиями. Evidence: [FILE_ONLY release](../evidence/2026-10-16-multisite-file-only-release-581ca8.json).
+
+Это закрывает текущий production FILE_ONLY gate, но не весь план: P2/P3/P8/P10, platform/core import, pinned integration environment, recurring operational runbook и Divatech SMTP/purge/legal gates остаются `in_progress`/`open`. GitLab и storage migration исключены владельцем.
+
 ### Контрольная точка: exact three-way review — 16.10.2026
 
 Read-only capture server-side durable BASE и review candidate/prod построили
