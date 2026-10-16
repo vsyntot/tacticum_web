@@ -13,6 +13,17 @@ production control-plane и dual BASE проверены, FILE_ONLY выпуск
 sync backlog и отдельная тема GitLab/storage не считаются закрытыми этим
 результатом.
 
+Read-only review update 16.10.2026: PR #76/#77/#78 and workflow run
+`38897349988` подтвердили encrypted manifest transport, семь quality jobs и
+clean build обоих корней (`primary=399`, `divatech=11`, включая Divatech
+`privacy/index.php`). PROD↔CANDIDATE сравнение оставило два расхождения:
+`local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php`
+и `local/templates/tacticum/components/bitrix/menu/topmenu/.description.php`.
+Пути совпадают с прошлым FILE_ONLY-релизом, но текущие PROD-хэши отличаются
+от candidate-хэшей; причина остаётся `PROD_CHANGE`/unknown до exact three-way
+сверки. `base_status=NOT_LOADED`, production mutation и BASE promotion не
+разрешены. [Evidence](evidence/2026-10-16-multisite-release-review.json).
+
 ## Общий CI, два сайта и обновления платформы — 14.10.2026
 
 Основание: гриль 14.10.2026 и [детальный план](plans/2026-10-14-multisite-ci-core-sync.md). MSCI-09 закрыт по воспроизводимым clean builds, остальные gaps не закрыты; реализация MSCI-01/02/03/05/06/07/09 начата, независимый CI пакет принят на PR и main, полная production acceptance впереди; приоритеты — техническая оценка по последствиям, не утверждённый срок. Владелец отдельно принял сохранение 65 GitHub PR refs как остаточный риск; передача в GitHub Support больше не является обязательством этого плана. Новая задача не переоткрывает завершённый contact-only запуск Divatech.
@@ -21,12 +32,12 @@ sync backlog и отдельная тема GitLab/storage не считаютс
 |---|---|---|---|---|
 | MSCI-01 | P0 | partial (accepted residual) | Production crypto_key и DB credential ротированы; 61 branch head переписан, 65 GitHub PR refs сохранены по решению владельца как принятый остаточный риск. Indexed scan и crypto regression tests passed; полная credential inventory остаётся открытой | P0; [P0 evidence](evidence/2026-10-14-p0-security-audit.json) |
 | MSCI-02 | P1 | in_progress | Ядро хранится в Git, но его импорт запрещён CI; версии модулей частично исключены | P1, P2 |
-| MSCI-03 | P1 | in_progress | Mtime-sync одного корня не обеспечивает точное соответствие платформы и не обрабатывает upstream deletions | P2, P8 |
-| MSCI-04 | P1 | open | Platform/core/schema identity и legacy production scope не связаны с multisite-допуском application deploy; scope versions расходятся | P2, P3, P6, P8; [P1 evidence](evidence/2026-10-14-p1-contract-evidence.json) |
+| MSCI-03 | P1 | in_progress | Старый mtime-sync заменён multisite manifest/review tooling, но два текущих PROD drift-файла ещё не объяснены three-way сверкой | P2, P8; [review evidence](evidence/2026-10-16-multisite-release-review.json) |
+| MSCI-04 | P1 | in_progress | Schema-v2 scope и server-declared platform identity проверяются read-only; runtime core/DB compatibility и BASE binding ещё не подтверждены | P2, P3, P6, P8; [P1 evidence](evidence/2026-10-14-p1-contract-evidence.json), [review evidence](evidence/2026-10-16-multisite-release-review.json) |
 | MSCI-05 | P1 | in_progress | Общая доставка и post-deploy smoke не охватывают полный второй корень | P4, P6, P7, P9 |
-| MSCI-06 | P1 | in_progress | PR #55 смержен; все 7 CI jobs passed на PR и main и назначены required. Ранняя классификация остановила production pipeline. Real pinned integration остаётся открытой | P5 |
-| MSCI-07 | P1 | in_progress | Fixture finalizer: 8 сценариев passed, включая CAS и partial-promotion recovery; production trust domains и acceptance не подключены | P7, P9; [P6/P7 evidence](evidence/2026-10-14-p6-p7-controller-evidence.json) |
-| MSCI-08 | P1 | in_progress | Fixture trusted controller покрывает binding, общий lock, safe extract, create/replace/delete/rename и recovery; production installation/backup/cache/smoke остаются открыты | P6, P8, P9; [P6/P7 evidence](evidence/2026-10-14-p6-p7-controller-evidence.json) |
+| MSCI-06 | P1 | in_progress | 7 required jobs, encrypted transport smoke и review-only workflow passed; full pinned runtime integration и automatic apply остаются закрытыми fail-closed guard | P5; PR #76, run `38897349988` |
+| MSCI-07 | P1 | in_progress | Dual BASE sequence 1 read-only совпадает, но current PROD=410 против BASE=409; новую promotion нельзя делать до exact three-way decision и cache/monitoring evidence | P7, P9; [BASE evidence](evidence/2026-10-16-multisite-base-readonly.json), [review evidence](evidence/2026-10-16-multisite-release-review.json) |
+| MSCI-08 | P1 | in_progress | Production controller/forced transport установлен и read-only проверен; текущие drift recovery/finalizer/cache evidence остаются открыты | P6, P8, P9; [BASE evidence](evidence/2026-10-16-multisite-base-readonly.json), [transport evidence](evidence/2026-10-16-multisite-transport.json) |
 | MSCI-09 | P2 | closed | Versioned sitemap input и нормализованный архив: две clean builds и Mac/Linux дали одинаковый SHA-256; evidence в плане/PR #55 | P4 |
 | MSCI-10 | P1 | open | CI/runtime PHP расходятся; нет обязательной полной интеграционной среды обоих сайтов на pinned platform | P3, P5, P8 |
 
