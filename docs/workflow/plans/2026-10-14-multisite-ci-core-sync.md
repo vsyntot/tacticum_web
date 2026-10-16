@@ -26,6 +26,10 @@ Workflow lane: `Security / Integration`.
 
 Опубликован [multisite operational handoff](../multisite-operational-handoff.md), связывающий FILE_ONLY-релиз для обоих корней, STATEFUL-порядок штатного обновления Bitrix, reconciliation/recovery, CI failure handling и ручной 24-hour post-release check. Canonical read-only baseline 14/14 записан в [24-hour baseline evidence](../evidence/2026-10-16-multisite-24h-baseline.json); owner-run gate eligible after `2026-10-17T12:26:00Z`. Это закрывает документальную часть P10, но не создаёт scheduler и не закрывает owner-run контроль, P2 platform/core import, P3 pinned integration environment или P8 full rehearsal. GitLab/storage и Divatech SMTP/purge/legal остаются вне этого изменения.
 
+### Контрольная точка: P2 core lock contract — 16.10.2026
+
+Candidate schema v2 для `core.lock.json` зафиксирована в [platform core lock contract](../platform-core-lock-contract.md): vendor snapshot, module versions, PHP/extensions, DB profile, schema compatibility и updater provenance. Это provider-neutral contract; текущий production v1 lock не изменён, storage/transport не выбраны, `productionReady=false`. P2 остаётся `deferred_external` до immutable export, compatible core+DB fixture, isolated import evidence и отдельного инфраструктурного решения.
+
 ### Контрольная точка: exact three-way review — 16.10.2026
 
 Read-only capture server-side durable BASE и review candidate/prod построили

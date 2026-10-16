@@ -39,7 +39,7 @@ clean build обоих корней (`primary=399`, `divatech=11`, включа�
 | Gap | Приоритет | Статус | Проблема | Закрывающие этапы плана |
 |---|---|---|---|---|
 | MSCI-01 | P0 | partial (accepted residual) | Production crypto_key и DB credential ротированы; 61 branch head переписан, 65 GitHub PR refs сохранены по решению владельца как принятый остаточный риск. Indexed scan и crypto regression tests passed; полная credential inventory остаётся открытой | P0; [P0 evidence](evidence/2026-10-14-p0-security-audit.json) |
-| MSCI-02 | P1 | in_progress | Ядро хранится в Git, но его импорт запрещён CI; версии модулей частично исключены | P1, P2 |
+| MSCI-02 | P1 | in_progress (lock contract clarified) | Ядро хранится в Git, но его импорт запрещён CI; v2 core lock contract описывает module/runtime/schema/provenance, production export и compatible core+DB fixture ещё не приняты | P1, P2 |
 | MSCI-03 | P1 | partial (release verified) | Multisite manifest/review и один exact FILE_ONLY release verified; portable checker drift и reconciliation follow-up остаются | P2, P8; [release evidence](evidence/2026-10-16-multisite-file-only-release-581ca8.json) |
 | MSCI-04 | P1 | in_progress | Schema-v2 scope и server-declared platform identity проверяются read-only; runtime core/DB compatibility и BASE binding ещё не подтверждены | P2, P3, P6, P8; [P1 evidence](evidence/2026-10-14-p1-contract-evidence.json), [review evidence](evidence/2026-10-16-multisite-release-review.json) |
 | MSCI-05 | P1 | partial (release verified) | Один exact FILE_ONLY release и двухкорневой smoke verified; полноценный интеграционный delivery contour ещё не operationalized | P4, P6, P7, P9 |
