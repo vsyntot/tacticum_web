@@ -16,9 +16,12 @@ class ResponseTests(unittest.TestCase):
             self.assertFalse(smoke.evaluate(case, status, body)['passed'])
 
     def test_secondary_forms_and_boundaries(self):
+        self.assertTrue(smoke.evaluate(('s2', '/', 200, 'DIVA Technologies'), 200,
+                                       'DIVA Technologies data-divatech-form')['passed'])
         self.assertFalse(smoke.evaluate(('s2', '/', 200, 'DIVA Technologies'), 200,
-                                        'DIVA Technologies data-divatech-form')['passed'])
-        self.assertFalse(smoke.evaluate(('s2', '/bitrix/admin/', 403, None), 200, 'login')['passed'])
+                                        'DIVA Technologies')['passed'])
+        self.assertTrue(smoke.evaluate(('s2', '/bitrix/admin/', 301, None), 301, '')['passed'])
+        self.assertFalse(smoke.evaluate(('s2', '/bitrix/admin/', 301, None), 200, 'login')['passed'])
         self.assertTrue(smoke.evaluate(('s2', '/missing', 404, None), 404, 'not found')['passed'])
 
 
