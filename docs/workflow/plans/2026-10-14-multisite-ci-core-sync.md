@@ -322,3 +322,45 @@ Failure ledger P0: all-object history scan остановлен после пр�
 Пакет controller/finalizer смержен через PR #57, merge commit `55509cd6646811c282bbfd2f8680b3b1cfbf035f`. Main run `38574979561` завершён `success`; production jobs имеют ожидаемый `skipped`. Локальный `main` синхронизирован с `origin/main`, рабочее дерево чистое, локальный `.settings.php` сохранён.
 
 Следующий reviewable результат — поддерживать этот CI/fixture baseline и подготовить отдельный accepted plan для real platform/runtime и production activation, когда внешняя инфраструктурная тема будет открыта владельцем.
+
+### Продолжение реализации: encrypted transport — 16.10.2026
+
+Первый подэтап принятого follow-up выполнен частично. Production control-plane
+на сервере уже был установлен и его pinned hashes сохранены; локальные
+`ci:delivery`, `ci:php`, `ci:multisite-build` и production control self-test
+прошли. Локальный readonly key из прежнего access contract не совпадал с
+установленным forced-command entry, поэтому создан отдельный набор
+passphrase-protected CI keys для manifest/write/finalizer. На сервер добавлены
+только публичные ключи с `restrict` и соответствующими forced commands, с
+backup/restore rehearsal. Repository secrets созданы без раскрытия значений.
+
+Commit `d397e821f` добавляет загрузку encrypted keys через `ssh-agent` в deploy
+workflow и отдельный read-only workflow
+`.github/workflows/production-transport-smoke.yml`. GitHub push пока не прошёл:
+branch protection требует PR и OAuth token требует `workflow` scope. До
+прохождения device authorization transport smoke остаётся `pending`; никаких
+новых production application writes этим шагом не выполнялось.
+
+### Контрольная точка: encrypted transport и fail-closed deploy guard — 16.10.2026
+
+Подэтап P5/P7 по transport завершён в статусе `verified_partial`. PR #66
+внёс поддержку passphrase-protected SSH keys в deploy workflow; PR #70
+добавил обязательную проверку schema v2, scope `2026-10-14.multisite.1` и
+наличие обоих корней в read-only smoke. PR #71 сделал классификацию deploy
+fail-closed: недоступный исторический baseline теперь оставляет job зелёным
+только как `manual_review_required`, с `inspect=false`; production inspection и
+mutation пропускаются.
+
+GitHub Environment secrets `production-readonly` и `production` обновлены на
+root forced-command transport с pinned known-hosts и зашифрованными ключами.
+Run `38892340827` подтвердил read-only production manifest: 410 entries,
+`primary=399`, `divatech=11`, manifest
+`02161da788f219083a5f29bf44bcdec2626dba0dcf7a80230a9e439cab1ed7f`.
+Run `38892899943` прошёл с `manual_review_required`; application mutation не
+выполнялась. Полное evidence сохранено в
+`docs/workflow/evidence/2026-10-16-multisite-transport.json`.
+
+Остаются P2/P3 platform snapshot и real runtime integration, P6/P7
+production apply/recovery/finalizer, P8 end-to-end rehearsal, P9 exact plan
+и P10 handoff. GitLab, snapshot/BASE/evidence/backup storage и история
+репозитория по-прежнему исключены владельцем из текущего плана.
