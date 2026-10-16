@@ -16,6 +16,21 @@ Workflow lane: `Security / Integration`.
 - Forecast: сверка 10–15 мин работы/календарно; ближайшая реализация 30–60 мин работы, 40–90 мин календарно; весь остаток `partial_unknown` до сверки устаревших этапов с evidence. Основание: существующие multisite builder/transport и время предыдущих CI runs.
 - Уточнение evidence: проверка clean committed HEAD после PR #75 включает `primary=399`, `divatech=11`. Прежние 399+10 были результатом сборки предыдущего коммита, не дефектом scope.
 
+### Контрольная точка: exact three-way review — 16.10.2026
+
+Read-only capture server-side durable BASE и review candidate/prod построили
+plan `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9`.
+`BASE=29df…10c4d` содержит 409 записей, `PROD=0216…1ed7f` и
+`CANDIDATE=2318…b697` — по 410. Сверка `driftResolved=true`, семь entries
+`CONVERGED`, два `LOCAL_CHANGE`: два menu-description файла primary. Поэтому
+`deployRequired=true`, но `productionMutationAllowed=false`; plan является
+`DRIFT_COMPARISON_ONLY` и не продвигает BASE. Evidence: [exact three-way review](../evidence/2026-10-16-multisite-exact-three-way-review.json).
+
+Следующее решение владельца — принять или отклонить замену этих двух файлов.
+Только после принятого решения и нового exact release plan допустимы lock,
+backup/restore rehearsal, apply, smoke, monitoring и finalizer. На этой
+контрольной точке production не изменялся.
+
 Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 Координатор подготовки плана: Codex / project-manager. Исполнитель реализации: Codex; ответственные роли указаны по действующему governance.
 `version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и приложенный пользователем snapshot; `loaded_version`: `2.7.27` (прочитан при продолжении исполнения).
