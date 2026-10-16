@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_production_readonly_drift",
+  "generated_at": "2026-10-15",
+  "plan_id": "f7c6f3507806c437cd75ac0c9466b137ff546dac45adfe0be0c9f5d6e4719ef5",
+  "status": "blocked_drift",
+  "production_mutation": false,
+  "platform": {
+    "php": "8.5.11",
+    "mysql": "8.4.11",
+    "primary_root": "/home/bitrix/www",
+    "secondary_root": "/home/bitrix/ext_www/divatech.space"
+  },
+  "transport": {
+    "password_root_readonly_probe": "accepted",
+    "personal_key_probe": "rejected",
+    "dedicated_ci_key_probe": "rejected",
+    "legacy_single_root_wrappers": "present",
+    "multisite_controller_finalizer": "absent"
+  },
+  "scope": {
+    "base_scope_version": "2026-10-11.1",
+    "prod_scope_version": "2026-10-11.1",
+    "base_entries": 376,
+    "prod_entries": 399,
+    "added": 23,
+    "removed": 0,
+    "changed": 9,
+    "base_manifest_sha256": "bfda96c0c10d08139a4c7eed83e4df9c3ef31258a5471faae0266423a58ca141",
+    "prod_manifest_sha256": "9ba2b129b5b66c670ead6f015756609146b4190daf71781ba57974caf16f5da9"
+  },
+  "candidate_alignment": {
+    "candidate_entries": 399,
+    "prod_candidate_exact_matches": 397,
+    "prod_candidate_differences": 2,
+    "difference_paths": [
+      "local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php",
+      "local/templates/tacticum/components/bitrix/menu/topmenu/.description.php"
+    ],
+    "difference_characterization": "newline-only formatting drift observed during bounded read-only comparison"
+  },
+  "decision": "stop_before_controller_install_or_production_write",
+  "reason": "BASE and PROD are not converged; exact plan stop condition applies",
+  "out_of_scope": [
+    "GitLab/storage migration",
+    "GitHub Support PR-ref purge"
+  ],
+  "secrets_recorded": false
+}

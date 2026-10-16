@@ -4,6 +4,47 @@
 Статус документа: подготовлен для самостоятельного чтения и принятия решений.
 Статус реализации: `in_progress`; начаты P0/P1/P4/P5, P2 помечен `deferred_external`, остальные этапы не приняты.
 Workflow lane: `Security / Integration`.
+
+### Текущий этап — 16.10.2026, подготовка двухкорневого релиза в CI
+
+- Owner: Codex / project-manager; input: `main=9bde0abd9316c5caaf2ab0a7426fc00c1d7c2656`, чистое дерево, PR #75 смержен.
+- `version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и прочитанный snapshot пользователя; `loaded_version`: `2.7.28`.
+- Accepted scope: продолжение принятого CI/build follow-up; локальные tooling/workflow/docs, PR и read-only production inspection. GitLab и выбор хранилищ исключены. Серверные BASE, application/config/DB этим этапом не меняются.
+- Output: clean build обоих корней в CI, canonical validation production manifest, immutable candidate и точный two-way review без права apply/promotion.
+- Acceptance: `/privacy/` входит в сборку; повреждённые/однокорневые manifests и несовместимая platform identity отклоняются; production credentials доступны только manifest job; build/review выполняются без них; CI run сохраняет результат, `productionMutationAllowed=false` при любом совпадении.
+- Next gate: three-way reconciliation с текущим dual BASE и exact plan; two-way report не подменяет BASE и не разрешает deployment. Legacy deploy остаётся закрыт прежним guard.
+- Forecast: сверка 10–15 мин работы/календарно; ближайшая реализация 30–60 мин работы, 40–90 мин календарно; весь остаток `partial_unknown` до сверки устаревших этапов с evidence. Основание: существующие multisite builder/transport и время предыдущих CI runs.
+- Уточнение evidence: проверка clean committed HEAD после PR #75 включает `primary=399`, `divatech=11`. Прежние 399+10 были результатом сборки предыдущего коммита, не дефектом scope.
+
+### Контрольная точка: exact FILE_ONLY production release — 16.10.2026
+
+Владелец принял exact plan `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9`. Под server lock выполнены backup/restore rehearsal и apply ровно двух `LOCAL_CHANGE` файлов; post-apply manifest verified, public/browser/SEO checks и 3-round monitoring прошли. Dual BASE finalizer завершён с sequence 2 и двумя совпадающими копиями. Evidence: [FILE_ONLY release](../evidence/2026-10-16-multisite-file-only-release-581ca8.json).
+
+Это закрывает текущий production FILE_ONLY gate, но не весь план: P2/P3/P8/P10, platform/core import, pinned integration environment, recurring operational runbook и Divatech SMTP/purge/legal gates остаются `in_progress`/`open`. GitLab и storage migration исключены владельцем.
+
+### Контрольная точка: P10 operational handoff — 16.10.2026
+
+Опубликован [multisite operational handoff](../multisite-operational-handoff.md), связывающий FILE_ONLY-релиз для обоих корней, STATEFUL-порядок штатного обновления Bitrix, reconciliation/recovery, CI failure handling и ручной 24-hour post-release check. Canonical read-only baseline 14/14 записан в [24-hour baseline evidence](../evidence/2026-10-16-multisite-24h-baseline.json); owner-run gate eligible after `2026-10-17T12:26:00Z`. Это закрывает документальную часть P10, но не создаёт scheduler и не закрывает owner-run контроль, P2 platform/core import, P3 pinned integration environment или P8 full rehearsal. GitLab/storage и Divatech SMTP/purge/legal остаются вне этого изменения.
+
+### Контрольная точка: P2 core lock contract — 16.10.2026
+
+Candidate schema v2 для `core.lock.json` зафиксирована в [platform core lock contract](../platform-core-lock-contract.md): vendor snapshot, module versions, PHP/extensions, DB profile, schema compatibility и updater provenance. Это provider-neutral contract; текущий production v1 lock не изменён, storage/transport не выбраны, `productionReady=false`. P2 остаётся `deferred_external` до immutable export, compatible core+DB fixture, isolated import evidence и отдельного инфраструктурного решения.
+
+### Контрольная точка: exact three-way review — 16.10.2026
+
+Read-only capture server-side durable BASE и review candidate/prod построили
+plan `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9`.
+`BASE=29df…10c4d` содержит 409 записей, `PROD=0216…1ed7f` и
+`CANDIDATE=2318…b697` — по 410. Сверка `driftResolved=true`, семь entries
+`CONVERGED`, два `LOCAL_CHANGE`: два menu-description файла primary. Поэтому
+`deployRequired=true`, но `productionMutationAllowed=false`; plan является
+`DRIFT_COMPARISON_ONLY` и не продвигает BASE. Evidence: [exact three-way review](../evidence/2026-10-16-multisite-exact-three-way-review.json).
+
+Следующее решение владельца — принять или отклонить замену этих двух файлов.
+Только после принятого решения и нового exact release plan допустимы lock,
+backup/restore rehearsal, apply, smoke, monitoring и finalizer. На этой
+контрольной точке production не изменялся.
+
 Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 Координатор подготовки плана: Codex / project-manager. Исполнитель реализации: Codex; ответственные роли указаны по действующему governance.
 `version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и приложенный пользователем snapshot; `loaded_version`: `2.7.27` (прочитан при продолжении исполнения).
@@ -322,3 +363,66 @@ Failure ledger P0: all-object history scan остановлен после пр�
 Пакет controller/finalizer смержен через PR #57, merge commit `55509cd6646811c282bbfd2f8680b3b1cfbf035f`. Main run `38574979561` завершён `success`; production jobs имеют ожидаемый `skipped`. Локальный `main` синхронизирован с `origin/main`, рабочее дерево чистое, локальный `.settings.php` сохранён.
 
 Следующий reviewable результат — поддерживать этот CI/fixture baseline и подготовить отдельный accepted plan для real platform/runtime и production activation, когда внешняя инфраструктурная тема будет открыта владельцем.
+
+### Продолжение реализации: encrypted transport — 16.10.2026
+
+Первый подэтап принятого follow-up выполнен частично. Production control-plane
+на сервере уже был установлен и его pinned hashes сохранены; локальные
+`ci:delivery`, `ci:php`, `ci:multisite-build` и production control self-test
+прошли. Локальный readonly key из прежнего access contract не совпадал с
+установленным forced-command entry, поэтому создан отдельный набор
+passphrase-protected CI keys для manifest/write/finalizer. На сервер добавлены
+только публичные ключи с `restrict` и соответствующими forced commands, с
+backup/restore rehearsal. Repository secrets созданы без раскрытия значений.
+
+Commit `d397e821f` добавляет загрузку encrypted keys через `ssh-agent` в deploy
+workflow и отдельный read-only workflow
+`.github/workflows/production-transport-smoke.yml`. GitHub push пока не прошёл:
+branch protection требует PR и OAuth token требует `workflow` scope. До
+прохождения device authorization transport smoke остаётся `pending`; никаких
+новых production application writes этим шагом не выполнялось.
+
+### Контрольная точка: read-only multisite release review — 16.10.2026
+
+PR #76 (`ec1b2226e`) добавил ручной review-only workflow `multisite-release-review.yml`.
+Run `38897349988` прошёл все семь quality jobs, encrypted manifest transport и
+clean build из `main`; production mutation и BASE promotion не выполнялись.
+Оба корня собраны полностью: `primary=399`, `divatech=11`, включая
+`sites/divatech/privacy/index.php`.
+
+Двухсторонняя сверка PROD↔CANDIDATE обнаружила два известных primary drift-файла:
+`local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php` и
+`local/templates/tacticum/components/bitrix/menu/topmenu/.description.php`. Они
+совпадают с двумя файлами ранее принятого FILE_ONLY-релиза 15.10.2026; новый
+контур правильно оставил `base_status=NOT_LOADED`,
+`productionMutationAllowed=false` и `baselinePromotionAllowed=false`. Это не
+разрешение на повторную доставку и не promotion BASE. Evidence:
+[evidence](../evidence/2026-10-16-multisite-release-review.json).
+
+Следующий gate: exact three-way `BASE/PROD/CANDIDATE` plan с решением владельца
+по этим двум известным различиям, затем отдельная проверка cache/monitoring и
+только после этого — P9/P10.
+
+### Контрольная точка: encrypted transport и fail-closed deploy guard — 16.10.2026
+
+Подэтап P5/P7 по transport завершён в статусе `verified_partial`. PR #66
+внёс поддержку passphrase-protected SSH keys в deploy workflow; PR #70
+добавил обязательную проверку schema v2, scope `2026-10-14.multisite.1` и
+наличие обоих корней в read-only smoke. PR #71 сделал классификацию deploy
+fail-closed: недоступный исторический baseline теперь оставляет job зелёным
+только как `manual_review_required`, с `inspect=false`; production inspection и
+mutation пропускаются.
+
+GitHub Environment secrets `production-readonly` и `production` обновлены на
+root forced-command transport с pinned known-hosts и зашифрованными ключами.
+Run `38892340827` подтвердил read-only production manifest: 410 entries,
+`primary=399`, `divatech=11`, manifest
+`02161da788f219083a5f29bf44bcdec2626dba0dcf7a80230a9e439cab1ed7f`.
+Run `38892899943` прошёл с `manual_review_required`; application mutation не
+выполнялась. Полное evidence сохранено в
+`docs/workflow/evidence/2026-10-16-multisite-transport.json`.
+
+Остаются P2/P3 platform snapshot и real runtime integration, P6/P7
+production apply/recovery/finalizer, P8 end-to-end rehearsal, P9 exact plan
+и P10 handoff. GitLab, snapshot/BASE/evidence/backup storage и история
+репозитория по-прежнему исключены владельцем из текущего плана.

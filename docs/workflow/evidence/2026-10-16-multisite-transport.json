@@ -1,0 +1,81 @@
+{
+  "status": "verified_partial",
+  "scope": "P5/P7 encrypted transport and fail-closed deploy classification",
+  "date": "2026-10-16",
+  "repository": "vsyntot/tacticum_web",
+  "main_commit": "3dd9cfd7270e2dfc9dad524aabaa734cc5f504c3",
+  "transport_pr": "https://github.com/vsyntot/tacticum_web/pull/66",
+  "transport_scope_pr": "https://github.com/vsyntot/tacticum_web/pull/70",
+  "fail_closed_pr": "https://github.com/vsyntot/tacticum_web/pull/71",
+  "transport_merge_commits": [
+    "4bd98484e9a19b30790eae3c629fb7981a076ed8",
+    "526638c3afd240fa801b0f25e23c6242eaf496fe",
+    "3dd9cfd7270e2dfc9dad524aabaa734cc5f504c3"
+  ],
+  "quality_run": {
+    "workflow": "Quality Gate",
+    "run_id": 38892730923,
+    "conclusion": "success",
+    "required_checks": 7
+  },
+  "transport_smoke": {
+    "workflow": "Verify production transport",
+    "run_id": 38892340827,
+    "conclusion": "success",
+    "read_only": true,
+    "tree_kind": "prod",
+    "schema_version": 2,
+    "scope_version": "2026-10-14.multisite.1",
+    "entries": 410,
+    "roots": {
+      "primary": 399,
+      "divatech": 11
+    },
+    "manifest_sha256": "02161da788f219083a5f29bf44bcdec2626dba0dcf7a80230a9e439cab1ed7f"
+  },
+  "server_control_plane": {
+    "state": "installed",
+    "authorized_keys_backup_sha256": "d606d15dfbb3c5a1783a78f809cc888216567f05b4985f43707f642b6b9658c8",
+    "authorized_keys_sha256": "722fcd1489e73dd64de18f8422628f7772b4a43b60965430631c213a0fdcd1a1",
+    "restore_rehearsal": "passed",
+    "transport_key_fingerprints": {
+      "manifest": "SHA256:85T0O8Kjq89aQsnO0MlAVUM/kHuG0A88q2E5jxfYNHE",
+      "write": "SHA256:DEXY1DDU5tWI7tPY8sY5t6hCGyaC53UUTGuOrvMv2QU",
+      "finalizer": "SHA256:8LBBcFMslKUGkzkSH/U/OWtB2QgKalKHED9U+8ijtBk"
+    }
+  },
+  "github_environments": {
+    "production-readonly": "updated with root, pinned host identity and encrypted manifest key",
+    "production": "updated with root, pinned host identity and encrypted write/finalizer keys"
+  },
+  "deploy_guard": {
+    "production_run_id": 38892899943,
+    "conclusion": "success",
+    "classification": "manual_review_required",
+    "inspection": "skipped",
+    "application_mutation": false,
+    "reason": "historical verified baseline commit is unavailable in the current repository history"
+  },
+  "failure_ledger": [
+    {
+      "step": "legacy bitrix transport probe",
+      "state": "failed",
+      "cause": "local .env bitrix key did not match the installed root forced-command entry",
+      "resolution": "dedicated passphrase-protected manifest/write/finalizer keys installed with restricted commands"
+    },
+    {
+      "step": "first GitHub transport smoke",
+      "state": "failed",
+      "cause": "passphrase secrets were initially written with an invalid printf invocation",
+      "resolution": "secrets rewritten from file streams and read-only smoke rerun successfully"
+    },
+    {
+      "step": "deploy classification",
+      "state": "resolved_as_guard",
+      "cause": "historical baseline evidence referenced a commit no longer reachable after squash history",
+      "resolution": "workflow reports manual_review_required and skips all production inspection/apply"
+    }
+  ],
+  "production_application_write": false,
+  "next_gate": "reconcile a current exact BASE and complete P7/P8/P9 exact plan before any FILE_ONLY apply"
+}

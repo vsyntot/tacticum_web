@@ -2,12 +2,17 @@ name: 🔎 Verify production transport
 
 on:
   workflow_dispatch:
+  workflow_call:
+    outputs:
+      manifest_artifact:
+        description: Validated read-only manifest and declared platform identity
+        value: ${{ jobs.manifest.outputs.manifest_artifact }}
 
 permissions:
   contents: read
 
 concurrency:
-  group: production-transport-smoke
+  group: production-transport-smoke-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -16,8 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: production-readonly
     timeout-minutes: 10
+    if: ${{ github.ref == 'refs/heads/main' }}
+    outputs:
+      manifest_artifact: production-manifest-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
       - name: Load passphrase-protected manifest key
         env:
           SSH_READONLY_PRIVATE_KEY: ${{ secrets.SSH_READONLY_PRIVATE_KEY }}
@@ -35,6 +46,7 @@ jobs:
           key="$RUNNER_TEMP/tacticum-readonly"
           hosts="$RUNNER_TEMP/tacticum-known-hosts"
           askpass="$RUNNER_TEMP/tacticum-readonly-askpass"
+          trap 'ssh-add -D >/dev/null 2>&1 || true; ssh-agent -k >/dev/null 2>&1 || true; python3 -c '\''from pathlib import Path; import sys; [Path(p).unlink(missing_ok=True) for p in sys.argv[1:]]'\'' "$key" "$hosts" "$askpass"' EXIT
           printf '%s\n' "$SSH_READONLY_PRIVATE_KEY" > "$key"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
           printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_READONLY_PASSPHRASE"' > "$askpass"
@@ -50,17 +62,30 @@ jobs:
             -o KbdInteractiveAuthentication=no -o ForwardAgent=no \
             -o ClearAllForwardings=yes -o RequestTTY=no \
             "$SSH_USER@$SSH_HOST" manifest > manifest.json
+          node tools/multisite-review.mjs platform --prod=manifest.json --output=platform.json
           python3 - <<'PY'
           import json
           from pathlib import Path
           manifest = json.loads(Path('manifest.json').read_text())
           assert manifest.get('treeKind') == 'prod'
+          assert manifest.get('schemaVersion') == 2
+          assert manifest.get('scopeVersion') == '2026-10-14.multisite.1'
           assert isinstance(manifest.get('manifestSha256'), str) and len(manifest['manifestSha256']) == 64
-          assert len(manifest.get('entries', [])) > 0
+          roots = {entry.get('root') for entry in manifest.get('entries', [])}
+          assert {'primary', 'divatech'} <= roots
           print(json.dumps({
               'treeKind': manifest['treeKind'],
               'entries': len(manifest['entries']),
+              'roots': {root: sum(1 for entry in manifest['entries'] if entry.get('root') == root) for root in sorted(roots)},
               'manifestSha256': manifest['manifestSha256'],
               'scopeVersion': manifest.get('scopeVersion'),
           }, sort_keys=True))
           PY
+      - uses: actions/upload-artifact@v7
+        with:
+          name: production-manifest-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            manifest.json
+            platform.json
+          if-no-files-found: error
+          retention-days: 7

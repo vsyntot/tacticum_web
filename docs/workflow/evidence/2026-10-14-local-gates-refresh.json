@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_local_gate_refresh",
+  "generated_at": "2026-10-14T16:06:20.526060Z",
+  "commit": "c201ac377b9bd0f76f76bae18df62b4149035522",
+  "status": "passed_local_partial_production",
+  "workflow_lane": "Security / Integration",
+  "production_mutation_allowed": false,
+  "production_ready": false,
+  "platform_evidence": "synthetic_packaging_only",
+  "scope": {
+    "primary_entries": 399,
+    "divatech_entries": 10,
+    "clean_builds": 2,
+    "runtime_php": "8.5.11",
+    "database": "MySQL 8.4.11"
+  },
+  "checks": [
+    {
+      "command": "npm run ci:delivery",
+      "status": "passed"
+    },
+    {
+      "command": "npm run ci:php",
+      "status": "passed"
+    },
+    {
+      "command": "npm run ci:multisite-build",
+      "status": "passed"
+    },
+    {
+      "command": "npm run multisite:controller:self-test",
+      "status": "passed"
+    },
+    {
+      "command": "npm run smoke:multisite",
+      "status": "passed"
+    },
+    {
+      "command": "node tools/production-deploy-cli.mjs scope-check",
+      "status": "passed"
+    },
+    {
+      "command": "npm run prod:contract:self-test",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed"
+    }
+  ],
+  "smoke": {
+    "sites": [
+      "s1",
+      "s2"
+    ],
+    "checks": 14,
+    "mutations": false,
+    "admin_login_verified": false
+  },
+  "controller": {
+    "fixture_scenarios": 8,
+    "production_installation": "not_started",
+    "real_transport": "not_connected"
+  },
+  "remaining_gates": [
+    "dedicated CI keys and forced-command inventory/write wrappers",
+    "pinned platform integration",
+    "production multisite controller installation",
+    "rollback/BASE finalization rehearsal",
+    "exact production approval"
+  ],
+  "out_of_scope": [
+    "GitLab/storage migration",
+    "GitHub Support PR-ref purge"
+  ],
+  "secret_boundary": "No secrets or PII recorded."
+}

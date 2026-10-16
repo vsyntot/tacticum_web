@@ -1,19 +1,60 @@
 # Current State — tacticum.ru
 
+Operational handoff update: [multisite operational handoff](multisite-operational-handoff.md) published for the two-root FILE_ONLY/STATEFUL workflow; canonical read-only baseline is 14/14, while P2/P3/P8 and owner-run 24-hour control remain open.
 Дата аудита: 20.05.2026
-Дата последнего обновления: 14.10.2026
+Дата последнего обновления: 16.10.2026
 
 ## Краткое Резюме
 
+## Авторитетное обновление production release — 16.10.2026
+
+Exact three-way plan `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9` принят владельцем и выполнен как FILE_ONLY-релиз. Под pinned production controller применены ровно две замены в primary menu-description файлах; backup и restore rehearsal прошли. Post-apply production manifest содержит 410 entries и совпадает с candidate по содержимому (`prod` envelope: `5472d1…`), public precheck/SEO/read-only smoke/monitoring и Tacticum browser console smoke прошли. Dual BASE finalizer завершён: sequence 2, две копии идентичны (`906fc5…`), BASE manifest `e528d1…`. Evidence: [multisite FILE_ONLY release](evidence/2026-10-16-multisite-file-only-release-581ca8.json).
+
+Ограничения этого результата: формы Divatech и canonical admin `301` соответствуют принятому текущему runtime; canonical portable smoke checker из `origin/main` подтверждает форму Divatech и canonical admin `301`; первоначальный запуск на stale local checkout не является production finding. SMTP delivery, purge/legal evidence, platform/core import и operational handoff остаются открытыми. GitLab и storage migration остаются отдельной темой вне плана.
+
+
+## Авторитетное обновление — 16.10.2026
+
+Exact production adoption plan для двух сайтов завершён. На production
+установлен и проверен multisite FILE_ONLY trust contour; выполнен один
+разрешённый FILE_ONLY выпуск с двумя изменениями, затем exact no-op rerun
+вернул `converged_unverified` с нулём операций, обновлений метаданных и новых
+каталогов. Свежий двухкорневой манифест содержит 409 записей и совпадает с
+кандидатом по содержимому; пять публичных smoke-маршрутов вернули HTTP 200.
+BASE sequence 1 остаётся побайтно согласованным и не переписывался no-op
+операцией. Подробное evidence: [platform snapshot](evidence/2026-10-15-platform-snapshot-and-backup-rehearsal.json),
+[FILE_ONLY и BASE](evidence/2026-10-15-multisite-file-only-release-and-base.json),
+[no-op rerun](evidence/2026-10-16-multisite-noop-rerun.json). Более ранние
+формулировки о неустановленном production controller и заблокированном apply
+являются историческими checkpoint'ами, а не текущим состоянием. GitLab и
+storage migration остаются отдельной темой вне этого плана.
+
+16.10.2026 CI transport тоже прошёл read-only acceptance: encrypted root
+forced-command keys, pinned host identity и оба production корня подтверждены
+GitHub run `38892340827` (410 entries: `primary=399`, `divatech=11`).
+Deploy run `38892899943` завершился `success` с явным
+`manual_review_required`: устаревшая историческая привязка BASE не дала доступ
+к inspection/apply, production application mutation не выполнялась. Existing
+server-side dual BASE дополнительно сверена read-only; обе копии совпадают
+(`1144b505…6618`), отдельное evidence — [multisite-base-readonly](evidence/2026-10-16-multisite-base-readonly.json).
+Рабочий public smoke обоих сайтов также обновлён под согласованные Divatech
+формы и canonical 301 admin redirect.
+
 ## План общего CI и синхронизации платформы — 14.10.2026
 
-По результатам грилля подготовлен [пошаговый план двух сайтов, CI/CD и импорта обновлений Битрикс](plans/2026-10-14-multisite-ci-core-sync.md). Владелец принял реализацию; P0/P1/P4/P5 начаты; CI пакет смержен в `main` через PR #55, полный результат `in_progress`. Config исключён из актуального Git-дерева; локальный файл сохранён, secret guard и deterministic archive fixtures проходят; сборка охватывает 399+10 файлов, platform import пока проверен на fixtures; live crypto_key ротирован по exact STATEFUL approval 14.10.2026, production automation не установлена. Текущий scope — общая кодовая база, multi-root scope, воспроизводимая сборка, fixture-контроллер/финалайзер и CI-проверки. Вопросы репозитория и внешней инфраструктуры владелец вынес в отдельную будущую тему и в этот план не входят. Независимый CI пакет смержен через [PR #55](https://github.com/vsyntot/tacticum_web/pull/55), merge `4c88c6318`; 7 jobs прошли и на PR, и на main, чистая сборка 399+10 файлов совпала на Mac и Linux; portable smoke 14 маршрутов passed. Candidate transaction kernel прошёл 10 isolated recovery tests; fixture-only trusted controller/finalizer прошёл сценарии binding, lock, create/replace/delete/rename, safe extract, failure recovery, smoke-gated BASE, CAS и partial-promotion recovery. Production controller не установлен. Main workflow 38552094300 завершён success с контролируемым пропуском production inspect/apply; это не выполненный release. Автоматическая доставка новых app commits требует reviewed adoption baseline/controller. Bounded history audit нашёл 3 исторических blob с crypto_key; indexed scan и crypto regression tests passed, полный credential inventory остаётся открытым. [P0 evidence](evidence/2026-10-14-p0-security-audit.json), [проверяемый срез](plans/2026-10-14-multisite-ci-evidence.json). Новые gaps `MSCI-01`—`MSCI-10` не отменяют завершённый contact-only запуск Divatech.
+По результатам грилля подготовлен [пошаговый план двух сайтов, CI/CD и импорта обновлений Битрикс](plans/2026-10-14-multisite-ci-core-sync.md). Владелец принял реализацию; P0/P1/P4/P5 начаты; CI пакет смержен в `main` через PR #55, полный результат `in_progress`. Config исключён из актуального Git-дерева; локальный файл сохранён, secret guard и deterministic archive fixtures проходят; сборка охватывает 399+10 файлов, platform import пока проверен на fixtures; live crypto_key ротирован по exact STATEFUL approval 14.10.2026, production automation не установлена. Текущий scope — общая кодовая база, multi-root scope, воспроизводимая сборка, fixture-контроллер/финалайзер и CI-проверки. Вопросы репозитория и внешней инфраструктуры владелец вынес в отдельную будущую тему и в этот план не входят. Независимый CI пакет смержен через [PR #55](https://github.com/vsyntot/tacticum_web/pull/55), merge `4c88c6318`; 7 jobs прошли и на PR, и на main, чистая сборка 399+10 файлов совпала на Mac и Linux; portable smoke 14 маршрутов passed. Candidate transaction kernel прошёл 10 isolated recovery tests; fixture-only trusted controller/finalizer прошёл сценарии binding, lock, create/replace/delete/rename, safe extract, failure recovery, smoke-gated BASE, CAS и partial-promotion recovery. Production controller не установлен. Main workflow 38552094300 завершён success с контролируемым пропуском production inspect/apply; это не выполненный release. Автоматическая доставка новых app commits требует reviewed adoption baseline/controller. Bounded history audit нашёл 3 исторических blob с crypto_key; 61 branch head переписан, а сохранение 65 GitHub PR refs принято владельцем как остаточный риск без дальнейшей передачи в Support; indexed scan и crypto regression tests passed, полный credential inventory остаётся открытым. Свежий локальный срез delivery gates (449 PHP-файлов, clean build 399+10, 14 multisite smoke checks, 8 controller recovery scenarios) зафиксирован в [local-gates-refresh](evidence/2026-10-14-local-gates-refresh.json); productionReady остаётся false, потому что server-side multisite controller и dedicated CI transport не установлены. Read-only production reconciliation 15.10.2026 выявила drift BASE→PROD (23 добавленных, 9 изменённых, 0 удалённых файлов); текущий PROD совпадает с HEAD по 397/399 entries, а два расхождения ограничены newline-only `.description.php` файлами. По exact plan это stop condition; evidence — [multisite-production-readonly-drift](evidence/2026-10-15-multisite-production-readonly-drift.json). Подготовлен [exact production adoption plan](plans/2026-10-14-multisite-production-adoption-exact-plan.md) с plan_id `f7c6f3507806c437cd75ac0c9466b137ff546dac45adfe0be0c9f5`; следующий apply заблокирован до решения по drift и обновления verified BASE. [P0 evidence](evidence/2026-10-14-p0-security-audit.json), [проверяемый срез](plans/2026-10-14-multisite-ci-evidence.json). Новые gaps `MSCI-01`—`MSCI-10` не отменяют завершённый contact-only запуск Divatech.
 
 ## Divatech multisite — 14.10.2026
 
+Baseline decision 15.10.2026: владелец выбрал принять текущий PROD как
+baseline candidate после read-only reconciliation. Decision записан в
+[multisite-baseline-adoption-decision](evidence/2026-10-15-multisite-baseline-adoption-decision.json);
+promotion отложен до установки multisite trust contour, backup/restore и dual
+BASE. Application apply остаётся заблокирован.
+
 Fixture P6/P7 controller/finalizer пакет принят через [PR #57](https://github.com/vsyntot/tacticum_web/pull/57), merge `55509cd6`. Main run `38574979561` завершён success: 7 quality jobs и classifier passed, production artifact/inspect/reconcile/apply/smoke skipped по классификации control-plane. Production controller не установлен.
 
-Divatech работает как s2 общей установки по https://divatech.space/: отдельные root/template/TLS, формы выключены по принятому решению. Выпуск `DIVA-1c7758f70cde739f` с исправлением `DIVA-FIX-3c159bad6601` verified: security/browser/TLS/SEO smoke, 19 циклов/133 route checks за 15 минут, dual STATEFUL BASE и cleanup прошли. Tacticum работает без обнаруженной регрессии. [План и evidence](plans/2026-10-13-divatech-bitrix-multisite.md), [ADR-015](../adr/ADR-015-divatech-multisite.md). Review-доставка `DIVA-REVIEW-be77e02f8f5ade6e` также verified: shared-код и два entry points обновлены, 133 проверки за 15 минут прошли. [PR #53](https://github.com/vsyntot/tacticum_web/pull/53) смержен в main (`b8a90aab3`); общий BASE содержит 399 файлов. [Main workflow](https://github.com/vsyntot/tacticum_web/actions/runs/38534851216) завершился success: zero changes, production apply пропущен. Две независимые копии общего и Divatech BASE проверены. Контроль через 24 часа не запускался в фоне.
+Divatech работает как s2 общей установки по https://divatech.space/: отдельные root/template/TLS. 16.10.2026 опубликованы английские contact/callback формы и `/privacy/` по exact STATEFUL plan; после follow-up hotfix `DIVA-FIX-incident-form-honeypot-compat` production принимает boolean и legacy browser consent values, игнорирует ложноположительное autofill скрытого honeypot и гарантированно скрывает spinner после ответа, а invalid consent/CSRF/foreign Origin остаются отклонёнными. Notification records пока только `queued`; SMTP delivery, автоматический 12-month purge и formal legal-entity details privacy notice остаются открытыми. Дополнительный hotfix `DIVA-FIX-20261016-admin-cache` добавил версионирование CSS/JS ассетов, чтобы браузер не переиспользовал старый Bitrix bundle, и переводит Divatech `/bitrix/admin...` постоянным 301 на канонический `https://tacticum.ru/bitrix/admin...`; второй admin runtime не создаётся. [План и evidence](plans/2026-10-13-divatech-bitrix-multisite.md), [hotfix plan](plans/2026-10-16-divatech-forms-incident-hotfix.md), [cache/admin plan](plans/2026-10-16-divatech-form-cache-and-admin-redirect.md), [release evidence](evidence/2026-10-16-divatech-forms-release.json), [hotfix evidence](evidence/2026-10-16-divatech-forms-incident-hotfix.json), [ADR-015](../adr/ADR-015-divatech-multisite.md). Tacticum работает без обнаруженной регрессии. Review-доставка `DIVA-REVIEW-be77e02f8f5ade6e` также verified: shared-код и два entry points обновлены, 133 проверки за 15 минут прошли. [PR #53](https://github.com/vsyntot/tacticum_web/pull/53) смержен в main (`b8a90aab3`); общий BASE содержит 399 файлов. [Main workflow](https://github.com/vsyntot/tacticum_web/actions/runs/38534851216) завершился success: zero changes, production apply пропущен. Две независимые копии общего и Divatech BASE проверены. Контроль через 24 часа не запускался в фоне.
 
 ## ADP Identity Migration Snapshot — 11.10.2026
 

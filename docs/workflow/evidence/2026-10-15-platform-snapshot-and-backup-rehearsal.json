@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_platform_snapshot_and_backup_restore_rehearsal",
+  "generated_at": "2026-10-15",
+  "plan_id": "f7c6f3507806c437cd75ac0c9466b137ff546dac45adfe0be0c9f5d6e4719ef5",
+  "scope_version": "2026-10-14.multisite.1",
+  "production_mutation": false,
+  "platform_snapshot": {
+    "status": "verified",
+    "archive_sha256": "eea006bcdfc79a59e459b30fee6e4e0552a7d4af868d550bb4a6f6c8e2dee958",
+    "vendor_manifest_sha256": "46bf95ba90b8495c1f15c4070c8cc768feace165e74dc40044b1d291ebc3a9de",
+    "policy_sha256": "2c155a17736a715085eb3c3752ac195604c1587438e60701227153bdb9bd9730",
+    "entries": 72243,
+    "isolated_import_entries": 72243,
+    "php_version": "8.5.11",
+    "db_server_version": "8.4.11-11",
+    "schema_profile": "f8e2f648487fee5bf4db924bf37ac83eeb6a8451b67f95f3d218ce3e191c012c",
+    "database_identity": "tacticum_db",
+    "database_data_read": false,
+    "core_lock": "private external evidence only",
+    "remote_staging_removed": true
+  },
+  "backup_restore_rehearsal": {
+    "status": "passed",
+    "primary": {
+      "source_manifest_sha256": "9ba2b129b5b66c670ead6f015756609146b4190daf71781ba57974caf16f5da9",
+      "entries": 399,
+      "bytes": 12645833,
+      "archive_sha256": "623b3cb1835fe4dbee4242c2b9a2506c19b686fea1dc319ae8539f3d1cc12850",
+      "restored_entries": 399,
+      "restored_bytes": 12645833
+    },
+    "divatech": {
+      "source_manifest_sha256": "1f0f0f64349fd2745a8f03eb4aec5ffaf2dedda901355abb0dfaa04b714d8e44",
+      "entries": 10,
+      "bytes": 35208,
+      "archive_sha256": "ad998072db1bd79cdeba265815321932c1b3fc58ac9bcd7fabac0cefc0399ca8",
+      "restored_entries": 10,
+      "restored_bytes": 35208
+    },
+    "remote_staging_removed": true
+  },
+  "failure_ledger": [
+    "Initial local inventory log capture produced empty raw output; the inventory was rerun with streaming stdout and passed.",
+    "The first schema probe used PDO, which is unavailable in the server CLI; it was rerun through the available mysqli extension and passed."
+  ],
+  "next_gate": "install_and_verify_forced_command_multisite_control_plane_after_exact_artifact_and_transport_key_binding"
+}

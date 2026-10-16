@@ -8,8 +8,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Main\Page\Asset;
 
-Asset::getInstance()->addCss('/local/templates/divatech/style.css');
-Asset::getInstance()->addJs('/local/templates/divatech/script.js');
+$divatechAssetVersion = static function (string $assetPath): string {
+    $absolutePath = (string)($_SERVER['DOCUMENT_ROOT'] ?? '') . $assetPath;
+    $mtime = is_file($absolutePath) ? filemtime($absolutePath) : false;
+    return $mtime === false ? '' : '?v=' . (string)$mtime;
+};
+$divatechStylePath = '/local/templates/divatech/style.css';
+$divatechScriptPath = '/local/templates/divatech/script.js';
+Asset::getInstance()->addCss($divatechStylePath . $divatechAssetVersion($divatechStylePath));
+Asset::getInstance()->addJs($divatechScriptPath . $divatechAssetVersion($divatechScriptPath));
 // Forms contain a session token. Never let composite/CDN caches share this page.
 if (class_exists(\Bitrix\Main\Composite\Engine::class)) {
     \Bitrix\Main\Composite\Engine::setEnable(false);

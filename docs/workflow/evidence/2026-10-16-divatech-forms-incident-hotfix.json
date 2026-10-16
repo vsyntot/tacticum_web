@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "evidence_type": "divatech_forms_incident_hotfix",
+  "generated_at": "2026-10-16",
+  "status": "verified",
+  "plan": "docs/workflow/plans/2026-10-16-divatech-forms-incident-hotfix.md",
+  "release": {
+    "id": "DIVA-FIX-incident-form-compat",
+    "class": "FILE_ONLY",
+    "artifact_sha256": "52b422cfa2df6444dae38453ca2608ecd3f66bde165fd80197b69e1c67b0cb27",
+    "files": 2,
+    "post_hashes": {
+      "local/lib/Tacticum/Divatech/LeadPayload.php": "c9571198b04487724f8fe6648ab4572f66bed62a0d044f18c4157a6fab7e511f",
+      "local/templates/divatech/script.js": "08702342440387696e4b2be3937054ef9cbdcbb030445300a5d6c58e5c07faa2"
+    },
+    "backup_root": "/root/tacticum-releases/divatech-incident-20261016-v2",
+    "backup_restore_rehearsal": "passed",
+    "temporary_staging_removed": true,
+    "locks_released": true
+  },
+  "diagnosis": {
+    "observed_failure": "422 invalid_fields",
+    "cause": "the Divatech bundle disabled form controls before constructing FormData; disabled controls were omitted, so visible contact fields were not sent and the endpoint returned 422",
+    "admin_boundary": "Divatech admin paths previously returned 403 before PHP; the correction now redirects them permanently to the canonical Tacticum admin host."
+  },
+  "smoke": {
+    "homepage": 200,
+    "consent_boolean": {
+      "status": 200,
+      "code": "request_saved"
+    },
+    "consent_on": {
+      "status": 200,
+      "code": "request_saved"
+    },
+    "consent_one": {
+      "status": 200,
+      "code": "request_saved"
+    },
+    "consent_false": {
+      "status": 422,
+      "code": "invalid_fields"
+    },
+    "invalid_csrf": {
+      "status": 403,
+      "code": "invalid_csrf"
+    },
+    "foreign_origin": {
+      "status": 403,
+      "code": "invalid_origin"
+    },
+    "divatech_admin": 301,
+    "canonical_admin": 200,
+    "new_leads_created": 0,
+    "browser_autofill_website": {
+      "status": 200,
+      "code": "request_saved"
+    },
+    "uppercase_uuid": {
+      "status": 200,
+      "code": "request_saved"
+    },
+    "divatech_admin_location": "https://tacticum.ru/bitrix/admin/index.php?lang=ru",
+    "versioned_assets": true,
+    "live_bundle_markers": {
+      "body.website": true,
+      "body.kind": true,
+      "body.consent": true,
+      "spinner_hidden": true
+    }
+  },
+  "local_validation": [
+    "PHP lint passed",
+    "Node syntax check passed",
+    "Divatech contracts 33/33 passed",
+    "git diff --check passed"
+  ],
+  "limitations": [
+    "SMTP delivery remains queued-only from the prior STATEFUL release",
+    "automated 12-month purge remains open",
+    "formal legal-entity details in the working privacy notice remain open"
+  ],
+  "scope": {
+    "bitrix_core": "unchanged",
+    "server_config": "unchanged",
+    "database": "unchanged",
+    "gitlab_and_storage": "out_of_scope"
+  },
+  "follow_up_hotfix": {
+    "id": "DIVA-FIX-incident-form-honeypot-compat",
+    "artifact_sha256": "a8a51042facead01cbe1450db678587b95f6f1d9f9b6d2cc7fa7523894817c66",
+    "post_hash": "3cae3549b5f3425f0786e77edd15a758c6fafff127535bd03974bdb31c5c769d",
+    "backup_root": "/root/tacticum-releases/divatech-incident-20261016-v4",
+    "backup_restore_rehearsal": "passed",
+    "temporary_staging_removed": true,
+    "cache_admin_correction": {
+      "id": "DIVA-FIX-20261016-admin-cache",
+      "release_class": "STATEFUL_PLUS_FILE_ONLY",
+      "artifact_sha256": "ab63b336e600b22fb9e9613e4d0277047c9196dc53683537517ff334e7d73148",
+      "manifest_sha256": "a4e574637b0b1e052038153471b5208fbc4e90189915c9e1ca3853c705d5e8f6",
+      "release_root": "/root/tacticum-releases/divatech-form-admin-20261016-v1",
+      "nginx_post_sha256": "7ce36ac198cadb597d411f2dfc17f236804c0da0c4fc555e0693480644890dec",
+      "header_post_sha256": "697c51ed46439277cd629c6a469277a82e7e58c6ec42cbf3882bdace54f2aac7",
+      "backup_restore_rehearsal": "passed",
+      "nginx_test": "passed",
+      "reload": "passed",
+      "form_smoke": "passed",
+      "admin_redirect_smoke": "passed",
+      "temporary_staging_removed": true,
+      "uploaded_artifact_removed": true,
+      "local_container_nginx_test": "not_run_docker_daemon_unavailable"
+    },
+    "payload_order_fix": {
+      "id": "DIVA-FIX-20261016-form-payload-order",
+      "release_class": "FILE_ONLY",
+      "artifact_sha256": "fec6cb8db6ed62818fb172bf354ff92b62616f3ec959ddd6ca45cb6fc7140d28",
+      "script_source_sha256": "656808149ed413c9aebfc8d1b4c685d803f8cd5da4efd03b7cdde5c91c0f5aa8",
+      "release_root": "/root/tacticum-releases/divatech-form-fix-20261016-v1",
+      "backup_root": "/root/tacticum-backups/divatech-form-fix-20261016-v1",
+      "backup_restore_rehearsal": "passed",
+      "live_bundle_verification": "passed",
+      "formdata_before_setloading": true,
+      "temporary_staging_removed": true,
+      "uploaded_artifact_removed": true
+    },
+    "diagnostic_cleanup": {
+      "id": "DIVA-FIX-20261016-form-diagnostic-cleanup",
+      "release_class": "FILE_ONLY",
+      "artifact_sha256": "30f42734a589cafe1c7ada1de83f96898aa1d4657b25de3b626ca5b3d216990c",
+      "source_sha256": "224856b5ef8ec4b846f1dd666d6b48f22cb36ae667b7d059aa5f455821530f2c",
+      "release_root": "/root/tacticum-releases/divatech-form-diagnostic-cleanup-20261016-v1",
+      "backup_root": "/root/tacticum-backups/divatech-form-diagnostic-cleanup-20261016-v1",
+      "backup_restore_rehearsal": "passed",
+      "php_lint": "passed",
+      "temporary_staging_removed": true,
+      "uploaded_artifact_removed": true
+    },
+    "user_acceptance": {
+      "status": "passed",
+      "evidence": "User confirmed the Divatech form submits successfully after the payload-order fix."
+    }
+  }
+}

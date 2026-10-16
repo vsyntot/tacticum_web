@@ -1,0 +1,75 @@
+name: Prepare multisite release review (no deploy)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: multisite-release-review
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/pr-check.yml
+
+  inspect:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/production-transport-smoke.yml
+    secrets: inherit
+
+  build-review:
+    name: Build both roots and compare without production credentials
+    needs: [quality, inspect]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.inspect.outputs.manifest_artifact }}
+          path: inspection
+      - name: Build immutable application candidate from the run commit
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          npm ci --no-audit --no-fund
+          npm run css:build
+          npm run sitemap:static:generate
+          npm run sitemap:static:check
+          mkdir release
+          node tools/multisite-cli.mjs build --platform=inspection/platform.json \
+            --manifest=release/candidate.json --output=release/candidate.tar.gz
+      - name: Produce two-way review, never a deployment approval
+        run: |
+          set -euo pipefail
+          node tools/multisite-review.mjs compare --prod=inspection/manifest.json \
+            --candidate=release/candidate.json --artifact=release/candidate.tar.gz \
+            --commit="$GITHUB_SHA" --output=release/review.json
+          cp inspection/manifest.json release/prod.json
+          sha256sum release/candidate.tar.gz release/candidate.json release/prod.json release/review.json > release/hashes.txt
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path('release/review.json').read_text())
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('## Multisite release review\n\n')
+              out.write('Source commit: `' + report['sourceCommit'] + '`\n\n')
+              out.write('Disposition: `' + report['disposition'] + '`\n\n')
+              out.write('File differences: ' + str(len(report['changes'])) + '\n\n')
+              out.write('```json\n' + json.dumps(report['roots'], indent=2) + '\n```\n\n')
+              out.write('No production writes or BASE promotion. Platform identity is server-declared, not runtime integration evidence.\n\n')
+              out.write('Next gate: reconcile verified dual BASE, full Git classification and exact approved plan.\n')
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          name: multisite-review-${{ github.sha }}-${{ github.run_attempt }}
+          path: release
+          if-no-files-found: error
+          retention-days: 7

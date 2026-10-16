@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "evidence_type": "divatech_forms_production_release",
+  "generated_at": "2026-10-16",
+  "status": "verified_partial",
+  "plan_id": "c3d0ab7b5c0cc01eb020ea07ec0492338243a257507f560f8a72f6d8cc529e8e",
+  "artifact_sha256": "78b4d94485829b0133cb7539ac19f8bef9bed8518f1a78aac07baec6d6f578ae",
+  "artifact_files": 50,
+  "release_class": "STATEFUL",
+  "approval": "owner_explicit_2026-10-16",
+  "state": {
+    "pre_sha256": "d45c5edf0489dee4e7f1e6e18fbedd0f5fd81eb00826095aa4607243d269d544",
+    "post_sha256": "d45c5edf0489dee4e7f1e6e18fbedd0f5fd81eb00826095aa4607243d269d544",
+    "metadata_changed": false
+  },
+  "server_config": {
+    "pre_sha256": "72e6e4318beec02a0edf5a1b45e1f8cfba50684207297a589d54cbe6fff8de4f",
+    "post_sha256": "992499475d0df7b87a001a6a0818f13d5653d3da8aae92a08a38c96286e6ec83",
+    "forms_enabled": true,
+    "iblock_id": 29,
+    "privacy_url": "https://divatech.space/privacy/",
+    "retention": "12 months"
+  },
+  "backup": {
+    "files_sha256": "d853902fd62d5eaa5a91dca53fc0057dbba5fa0c9fff50824f8084d66b25332b",
+    "metadata_sql_sha256": "f91140492ebb6bd75ccaa74c9b0a3fae21daeaaae9fe124700cf0941e2be1d2a",
+    "restore_rehearsal": "passed",
+    "location": "/root/tacticum-releases/divatech-forms-20261016-v2"
+  },
+  "smoke": {
+    "homepage": 200,
+    "privacy": 200,
+    "forms_rendered": 2,
+    "contact": 200,
+    "contact_duplicate": 200,
+    "callback": 200,
+    "foreign_origin": 403,
+    "invalid_csrf": 403,
+    "synthetic_private_inactive_leads": 2,
+    "notifications": "queued"
+  },
+  "monitoring": {
+    "cycles": 15,
+    "routes": ["https://divatech.space/", "https://divatech.space/privacy/", "https://tacticum.ru/"],
+    "all_statuses": 200,
+    "temporary_staging_removed": true,
+    "locks_released": true
+  },
+  "open_acceptance": [
+    "Independent mailbox/SMTP delivery confirmation",
+    "Automated 12-month purge procedure",
+    "Formal legal-entity details for the working privacy notice"
+  ],
+  "local_validation": [
+    "PHP syntax passed",
+    "Node syntax passed",
+    "Divatech contracts 28/28 passed",
+    "Config contract passed",
+    "REST endpoint guard passed for 9 endpoints",
+    "git diff --check passed"
+  ],
+  "failure_ledger": [
+    "Initial root preflight shell was interrupted by the Bitrix interactive profile; rerun used bash --noprofile --norc and made no production mutation.",
+    "Initial external smoke omitted the PHP session cookie and correctly received invalid_csrf; cookie-jar rerun passed without code changes."
+  ],
+  "scope": {
+    "bitrix_core": "unchanged",
+    "tacticum_unrelated_paths": "unchanged",
+    "gitlab_and_storage": "out_of_scope"
+  }
+}

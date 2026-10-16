@@ -76,15 +76,19 @@ def run():
                      ('/local/templates/divatech/assets/private.php', 403), ('/local/templates/divatech/header.php', 403),
                      ('/local/rest/divatech_lead.php', 200), ('/local/rest/tacticum_form.php', 403),
                      ('/local/api/cases.php', 403), ('/local/php_interface/include/tacticum_config.php', 403),
-                     ('/upload/file.php', 403), ('/bitrix/admin/', 403), ('/.access.php', 403),
-                     ('/bitrix/admin', 403), ('/bitrix/admin/index.php', 403), ('/local', 403),
+                     ('/upload/file.php', 403), ('/bitrix/admin/', 301), ('/.access.php', 403),
+                     ('/bitrix/admin', 301), ('/bitrix/admin/index.php?lang=ru', 301), ('/local', 403),
                      ('/upload', 403), ('/local/templates/divatech/assets/missing.jpg', 403),
                      ('/page28604425.html?utm_source=test', 301), ('/index.php?x=1', 301)]
             for path, expected in cases:
                 with request(path) as response:
                     assert response.status == expected, (path, response.status)
                     if expected == 301:
-                        assert response.headers['Location'] == 'https://divatech.space/?' + path.split('?')[1]
+                        if path.startswith('/bitrix/admin'):
+                            expected_location = 'https://tacticum.ru' + path
+                        else:
+                            expected_location = 'https://divatech.space/?' + path.split('?')[1]
+                        assert response.headers['Location'] == expected_location
             with request('/?x=2', 'www.divatech.space') as response:
                 assert response.status == 301 and response.headers['Location'] == 'https://divatech.space/?x=2'
             print(json.dumps({'nginx_boundary_scenarios': len(cases) + 1, 'passed': True, 'image': IMAGE}))

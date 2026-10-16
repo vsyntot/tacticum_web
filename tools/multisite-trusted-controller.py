@@ -96,7 +96,7 @@ def expected_entry(entry: dict[str, Any] | None) -> dict[str, Any] | None:
     safe_relative(entry.get("path"))
     parts = PurePosixPath(entry["path"]).parts
     if entry["root"] == "primary":
-        require("bitrix" not in parts and "upload" not in parts, "platform/runtime path in primary artifact")
+        require(parts and parts[0] not in {"bitrix", "upload"}, "platform/runtime path in primary artifact")
     else:
         require("local" not in parts and "bitrix" not in parts and "upload" not in parts,
                 "shared/runtime path in secondary artifact")
