@@ -4,6 +4,18 @@
 Статус документа: подготовлен для самостоятельного чтения и принятия решений.
 Статус реализации: `in_progress`; начаты P0/P1/P4/P5, P2 помечен `deferred_external`, остальные этапы не приняты.
 Workflow lane: `Security / Integration`.
+
+### Текущий этап — 16.10.2026, подготовка двухкорневого релиза в CI
+
+- Owner: Codex / project-manager; input: `main=9bde0abd9316c5caaf2ab0a7426fc00c1d7c2656`, чистое дерево, PR #75 смержен.
+- `version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и прочитанный snapshot пользователя; `loaded_version`: `2.7.28`.
+- Accepted scope: продолжение принятого CI/build follow-up; локальные tooling/workflow/docs, PR и read-only production inspection. GitLab и выбор хранилищ исключены. Серверные BASE, application/config/DB этим этапом не меняются.
+- Output: clean build обоих корней в CI, canonical validation production manifest, immutable candidate и точный two-way review без права apply/promotion.
+- Acceptance: `/privacy/` входит в сборку; повреждённые/однокорневые manifests и несовместимая platform identity отклоняются; production credentials доступны только manifest job; build/review выполняются без них; CI run сохраняет результат, `productionMutationAllowed=false` при любом совпадении.
+- Next gate: three-way reconciliation с текущим dual BASE и exact plan; two-way report не подменяет BASE и не разрешает deployment. Legacy deploy остаётся закрыт прежним guard.
+- Forecast: сверка 10–15 мин работы/календарно; ближайшая реализация 30–60 мин работы, 40–90 мин календарно; весь остаток `partial_unknown` до сверки устаревших этапов с evidence. Основание: существующие multisite builder/transport и время предыдущих CI runs.
+- Уточнение evidence: проверка clean committed HEAD после PR #75 включает `primary=399`, `divatech=11`. Прежние 399+10 были результатом сборки предыдущего коммита, не дефектом scope.
+
 Issue: не создан. Gap IDs: `MSCI-01` — `MSCI-10`.
 Координатор подготовки плана: Codex / project-manager. Исполнитель реализации: Codex; ответственные роли указаны по действующему governance.
 `version_source`: `/Users/ivanmonakhov/.codex/skills/project-manager/SKILL.md` и приложенный пользователем snapshot; `loaded_version`: `2.7.27` (прочитан при продолжении исполнения).

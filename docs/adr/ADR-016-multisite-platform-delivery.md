@@ -77,6 +77,14 @@ push. Исходная привязка взята из проверенного
 
 ## Условия принятия
 
+Уточнение 16.10.2026: добавлен самостоятельный read-only CI review contour.
+В нём manifest job с forced-command transport отделён от unprivileged build
+job. Build использует общий schema-v2 builder и явно маркирует platform
+identity как server-declared. Two-way сравнение не принимает PROD за BASE,
+не разрешает запись даже при полном совпадении и не заменяет full Git diff
+classification. Это подготовительная часть принятого P4/P5/P7, без изменения
+production approval contract; переходный v1 apply этим шагом не активируется.
+
 P0–P9 и A1–A12 плана дают отдельные evidence. Fixtures и синтаксическая
 совместимость PHP 8.5 не заменяют запуск обоих сайтов на реальном ядре,
 проверенную пару core+DB, server-side backup/restore и actual apply.
