@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "evidence_type": "multisite_exact_three_way_review",
+  "generated_at": "2026-10-16",
+  "status": "verified_partial",
+  "plan_kind": "DRIFT_COMPARISON_ONLY",
+  "plan_id": "581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9",
+  "production_mutation_allowed": false,
+  "drift_resolved": true,
+  "deploy_required": true,
+  "affected_sites": ["s1", "s2"],
+  "base_manifest_sha256": "29dfcaeb90c2a08c38f4812e27970a626f0490feec8187099def011038710c4d",
+  "prod_manifest_sha256": "02161da788f219083a5f29bf44bcdec2626dba0dcf7a80230a9e439cab1ed7f",
+  "candidate_manifest_sha256": "2318bce67003fd2e9f8595681b66c8a43d9f617ded39763f384bacb9f3d7b697",
+  "base_entries": 409,
+  "prod_entries": 410,
+  "candidate_entries": 410,
+  "status_counts": {"CONVERGED": 7, "LOCAL_CHANGE": 2},
+  "changes": [
+    {"status": "LOCAL_CHANGE", "root": "primary", "path": "local/templates/tacticum/components/bitrix/menu/bottommenu/.description.php", "operation": "replace"},
+    {"status": "LOCAL_CHANGE", "root": "primary", "path": "local/templates/tacticum/components/bitrix/menu/topmenu/.description.php", "operation": "replace"}
+  ],
+  "next_gate": "owner exact approval for the two menu-description replacements, then lock/backup/restore/apply/smoke/finalizer; no write executed"
+}
