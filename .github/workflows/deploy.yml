@@ -37,8 +37,18 @@ jobs:
         id: scope
         run: |
           set -euo pipefail
-          node tools/production-release-gate.mjs --classify-only \
-            --evidence=docs/workflow/plans/2026-10-14-divatech-delivery-review.json > classification.json
+          if ! node tools/production-release-gate.mjs --classify-only \
+            --evidence=docs/workflow/plans/2026-10-14-divatech-delivery-review.json > classification.json; then
+            echo 'inspect=false' >> "$GITHUB_OUTPUT"
+            {
+              echo '## Release scope'
+              echo
+              echo '**Disposition:** `manual_review_required`'
+              echo
+              echo 'The verified baseline evidence is stale or unavailable in this checkout. Production inspection and mutation are skipped until a new exact baseline is reconciled.'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           python3 - <<'PY_SCOPE'
           import json, os
           result = json.load(open('classification.json'))
