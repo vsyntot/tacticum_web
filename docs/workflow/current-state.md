@@ -9,7 +9,7 @@
 
 Exact three-way plan `581ca8f89af727be14cfd9b65a53c45d9e84fb4da2ddbf0dd2f159c5340e40b9` принят владельцем и выполнен как FILE_ONLY-релиз. Под pinned production controller применены ровно две замены в primary menu-description файлах; backup и restore rehearsal прошли. Post-apply production manifest содержит 410 entries и совпадает с candidate по содержимому (`prod` envelope: `5472d1…`), public precheck/SEO/read-only smoke/monitoring и Tacticum browser console smoke прошли. Dual BASE finalizer завершён: sequence 2, две копии идентичны (`906fc5…`), BASE manifest `e528d1…`. Evidence: [multisite FILE_ONLY release](evidence/2026-10-16-multisite-file-only-release-581ca8.json).
 
-Ограничения этого результата: формы Divatech и canonical admin `301` соответствуют принятому текущему runtime; встроенный portable smoke checker содержит устаревшие ожидания и вынесен в failure ledger. SMTP delivery, purge/legal evidence, platform/core import и operational handoff остаются открытыми. GitLab и storage migration остаются отдельной темой вне плана.
+Ограничения этого результата: формы Divatech и canonical admin `301` соответствуют принятому текущему runtime; canonical portable smoke checker из `origin/main` подтверждает форму Divatech и canonical admin `301`; первоначальный запуск на stale local checkout не является production finding. SMTP delivery, purge/legal evidence, platform/core import и operational handoff остаются открытыми. GitLab и storage migration остаются отдельной темой вне плана.
 
 
 ## Авторитетное обновление — 16.10.2026
